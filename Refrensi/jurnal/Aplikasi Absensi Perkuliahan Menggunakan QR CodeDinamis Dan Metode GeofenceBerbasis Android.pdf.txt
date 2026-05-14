@@ -1,0 +1,382 @@
+ 
+Vol. 5, No. 1, April 2024, hal. 1-9 
+ 
+ 
+p-ISSN: 2723-567X 
+e-ISSN: 2723-5661 
+Jurnal Computer Science and Information Technology 
+(CoSciTech) 
+http://ejurnal.umri.ac.id/index.php/coscitech/index 
+ 
+ 
+        
+        https://doi.org/10.37859/coscitech.v5i1.6947   1 
+ 
+ 
+Aplikasi Absensi Perkuliahan Menggunakan QR Code Dinamis Dan Metode Geofence Berbasis 
+Android 
+ 
+Imperia Prestise Sinaga*1, Edi Susilo2  
+Email: 1imperia.prestise0662@student.unri.ac.id, 2edi.susilo@lecturer.unri.ac.id  
+ 
+1Program Studi Teknik Informatika, Fakultas Teknik, Universitas Riau 
+2Program Studi Teknik Informatika, Fakultas Teknik, Universitas Riau 
+ 
+Diterima: 21 Maret 2024 | Direvisi: - | Disetujui: 28 April 2024 
+©2020 Program Studi Teknik Informatika Fakultas Ilmu Komputer, 
+Universitas Muhammadiyah Riau, Indonesia 
+ 
+Abstrak  
+ 
+Absensi perkuliahan mahasiswa jurusan Teknik Elektro Universitas Riau menjadi syarat penting dalam mengikuti Ujian Akhir 
+Semester (UAS). Di Jurusan Teknik Elektro Universitas Riau, kegiatan absensi menggunakan kertas absensi yang diisi oleh 
+mahasiswa dan dosen. Absensi perkuliahan menggunakan metode ini dinilai tidak efektif dikarenakan mahasiswa yang sering 
+lupa dalam mengisi absensi perkuliahan, ketika perkuliahan diadakan secara daring . Selain itu absensi ini masih dapat dengan 
+mudah dimanipulasi oleh ma hasiswa, hal ini dikarenakan beberapa dosen hanya mengisi materi pada lembar absensi  di akhir 
+perkuliahan, setelah itu lembar absensi diberikan kepada mahasiswa , yang menyebabkan adanya titip absen . Selain itu, k etua 
+jurusan tidak dapat mengamati secara langsung apakah perkuliahan berlangsung secara daring atau luring. Penelitian dilakukan 
+berdasarkan permasalahan yang ada pada Jurusan Teknik Elektro dengan tujuan menyelesaikan permasalahan yang ada . Hasil 
+dari penelitian ini yaitu sistem yang dibuat dalam bentuk website untuk dosen menampilkan QR Code, dan untuk ketua jurusan 
+serta koordinator prodi dalam mengawasi perkuliahan yang berlangsung dan aplikasi android untuk mahasiswa dapat melakukan 
+absensi. Implementasi sistem website menggunakan framework laravel dan bahasa pemrograman kotlin untuk aplikasi android. 
+Pengujian dilakukan pada aplikasi android dengan menggunakan empat aspek pengujian yaitu functionality, compatibility, 
+portability, dan usability. Hasil yang didapat dari pengujian tersebut bahw a pada uji functionality berhasil, karena tidak ada 
+kegagalan pada saat menjalankan sistem. Dan pada pengujian compatibility berhasil, karena aplikasi mampu berjalan bersama 
+dengan aplikasi lainnya, dan pada pengujian portability menunjukkan aplikasi dapat berjalan menggunakan versi android apapun. 
+Dan hasil uji usability menggunakan UEQ menunjukan hasil yang Excellent.  
+ 
+Kata kunci: Absensi, QR Code, Android 
+ 
+Lecture Attendance Application Using Dynamic QR Code and Android Based Geofenced Method 
+ 
+Abstract  
+ 
+Attendance at lectures for students majoring in Electrical Engineering at Riau University is an important requirement for taking 
+the Final Semester Examination (UAS). At the Department of Electrical Engineering, University of Riau, attendance activities 
+use attendance sheets which are filled in by students and lecturers. Lecture attendance using this method is considered ineffective 
+considering that students often forget to fill in lecture attendance when lectures are held boldly. Apart from that, this abs ence 
+can still be easily manipulated by students, this is because some lecturers only fill in the material on the attendance sheet  at the 
+end of the lecture, after which the attendance sheet is given to the students, which causes absences to be left behind. In addition, 
+the department head cannot directly observe whether the lectures are courageous or engaging. This research was conducted 
+based on existing problems in the Department of Electrical Engineering with the aim of solving existing problems. The res ults 
+of this research are a system created in the form of a website for lecturers to display a QR Code, and for department heads a nd 
+study program coordinators to monitor ongoing lectures and an Android application for students to be able to take attendanc e. 
+Implementation of the website system using the Laravel framework and the Kotlin programming language for Android 
+ 
+Jurnal Computer Science and Information Technology (CoSciTech) Vol. 5, No. 1, April 2024, hal. 1-9 
+   
+ 
+       https://doi.org/10.37859/coscitech.v5i1.6947  2 
+applications. Testing is carried out on Android applications using four testing aspects, namely functionality, compatibility,  
+portability and usability. The results obtained from this test were that the functionality test was successful, because there were 
+no failures when running the system. And the compatibility test was successful, because the application was able to run together 
+with other applications, and the portability test showed that the application could run using any version of Android. And the 
+results of the usability test using UEQ show excellent results. 
+ 
+Keywords: Attendance, QR Code, Android 
+ 
+1. PENDAHULUAN 
+Teknik Elektro merupakan salah satu jurusan yang terdapat pada Universitas Riau, dalam proses perkuliahan yang berjalan, 
+pelaksanaan perkuliahan untuk satu SKS kuliah adalah satu kali lima puluh menit tatap muka terjadwal, Dalam satu semester 
+dilengkapi dengan daftar hadir yang ditandatangani oleh mahasiswa dan dosen pengampu pada tiap mata kuliah, selain itu dalam 
+daftar hadir sudah dilengkapi dengan materi yang sudah tersedia pada silabus mata kuliah yang bersangkutan, dan mahasiswa 
+dapat mengikuti Ujian Akhir Semester (UAS), jika telah mengikuti perkuliahan dengan syarat minimal 80 persen kehadiran dari 
+jumlah tatap muka, dan mahasiswa yang tidak memenuhi syarat mengikuti UAS akan diberi nilai E (nol) untuk mata kuliah yang 
+bersangkutan hal ini didasari oleh Peraturan Akademik Universitas Riau [1]. 
+Proses perkuliahan yang masih menggunakan kertas pada Jurusan Teknik Elektro memiliki banyak kekurangan, Berdasarkan 
+hasil wawancara dari beberapa mahasiswa jurusan Teknik Elektro, mahasiswa sering lupa dalam mengisi tanda tangan, lupa 
+dalam mengisi tanda tangan ini didasari oleh perkuliahan sebelumnya yang diadakan secara daring yang mana jika perkuliahan 
+diadakan secara daring, maka absensi secara tertulis tidak ada. Dan pada saat mengikuti perkuliahan di minggu selanjutnya pada 
+perkuliahan offline, mahasiswa tersebut lupa dalam mengisi absensi perkuliahan daring yang sebelumnya, lupa dalam pengisian 
+absensi tadi, menyebabkan absensi tidak mencapai syarat minimal 80% dari jumlah tatap muka, dan tidak dapat mengikuti UAS, 
+dan akan berdampak pada hasil akhir perkuliahan mahasiswa, selain itu adanya kemungkinan kecurangan dalam mengisi absensi, 
+dengan titip absen , hal ini didasari oleh beberapa dosen yang hanya mengisi m ateri perkuliahan di lembar absensi, setelah itu 
+menyerahkan lembar absensi pada mahasiswa, dan hal ini menyebabkan banyak mahasiswa yang melakukan titip absen . 
+Permasalahan selanjutnya adalah Ketua Jurusan Teknik Elektro dan Koordinator Prodi tidak dapat mengawasi secara langsung 
+apakah setiap dosen melaksanakan kegiatan mengajar pada kelas, dan tidak dapat mengawasi apakah perkuliahan yang 
+dilaksanakan secara daring atau luring. Dan juga, Ketua Jurusan serta Koordinator Prodi juga tidak dapat memantau materi atau 
+silabus yang telah diajar pada kelas dengan Rancangan Pembelajaran Semester (RPS), yang telah dibuat oleh masing -masing 
+dosen. Dan permasalahan selanjutnya adalah dalam proses rekapitulasi laporan absensi yang digunakan masih berupa data 
+mentah, dari kertas laporan absensi dengan menginput semua data satu per satu dan dalam proses memakan banyak waktu untuk 
+melakukan rekapitulasi absensi kehadiran. Dengan pertimbangan permasalahan yang telah diuraikan diatas, perubahan dan 
+pembaruan dalam pengelolaan kehadiran mahasiswa menjadi penting untuk memastikan akurasi, efisiensi dan penggunaan data 
+yang lebih baik dalam konteks perkuliahan. Oleh karena itu, untuk mengatasi permasalahan tersebut perlu dibuat suatu aplikasi  
+absensi yang dapat membantu mahasis wa dalam melakukan absensi kehadiran, membantu Kepala Jurusan serta Koordinator 
+Prodi dalam memantau perkuliahan dan membantu admin Jurusan dalam proses pengolahan data absensi.  
+Terdapat penelitian sebelumnya mengenai aplikasi absensi  pada Karyawan menggu nakan QR Code  pada Rumah Sakit Eria 
+Pekanbaru, penelitian ini bertujuan untuk memudahkan karyawan dalam proses absensi, yang mana sebelumnya proses absensi 
+karyawan menggunakan fingerprint, dan sidik jari susah untuk terbaca oleh sensor fingerprint dan scan tubuh membutuhkan 
+waktu yang lama. Maka dari itu, penelitian tersebut berhasil memberikan Solusi aplikasi absensi menggunakan QR Code dan 
+dengan validasi menggunakan Geofence [2]. 
+Berdasarkan penelitian sebelumnya, Jurusan Teknik Elektro membutuhkan sistem absensi yang juga dapat melakukan sc an QR 
+Code dan dengan validasi Geofence dalam hal ini mahasiswa hanya dapat melakukan absensi jika berada pada titik lokasi kelas 
+pada mata kuliah yang diambil. Namun, penerapan QR Code yang statis tersebut masih memberikan masalah, yaitu mahasiswa 
+masih dapat melakukan kecurangan dengan membagikan QR Code yang tersedia, maka untuk mengatasi permasalah tersebut, 
+diperlukan absensi QR Code dinamis yang dapat berubah-ubah setiap 15 detik.  
+Untuk itu, peneliti memberikan solusi berupa aplikasi Absensi QR Code Dinamis dengan Metode Geofence Berbasis Android, 
+dalam hal ini dosen akan membuka kelas perkuliahan pada website yang tersedia dan menampilkan QR Code dinamis yang dapat 
+berubah ubah setiap 15 detik, dan mahasiswa akan melakukan absensi pada aplikasi andro id dengan validasi menggunakan 
+geofence, setelah itu absensi perkuliahan yang masuk akan tampil di halaman website dosen, dan dapat divalidasi secara langsung 
+oleh dosen yang bersangkutan, apakah mahasiswa yang telah absensi melakukan titip absen atau tida k.   
+2. METODE PENELITIAN 
+Metode terdiri dari  analisis masalah dan pengembangan yang akan digunakan untuk memecahkan permasalahan. Analisis 
+menggambarkan masalah yang ada dan akan diselesaikan dalam penelitian. Pengembangan menggambarkan bagaimana 
+ 
+Jurnal Computer Science and Information Technology (CoSciTech) Vol. 5, No. 1, April 2024, hal. 1-9 
+   
+ 
+       https://doi.org/10.37859/coscitech.v5i1.6947  3 
+menyelesaikan permasalahan . Metode Peneltian yang dilakukan oleh peneliti adalah menggunakan metode Research and 
+Development (R&D) metode ini dipakai untuk menghasilkan produk tertentu dan menguji keefektifan dari produk tersebut  [3]. 
+Tahapan pada metode Research and Development yang dilakukan oleh peneliti adalah sebagai berikut :  
+2.1. Tahapan Research [4] [5] 
+a.    Wawancara 
+Metode ini dilakukan melalui wawancara langsung dengan M. Hasfi salah satu mahasiswa Program Studi S1 Teknik  
+Informatika angkatan 2022, Khairina Fitriani Lubis, S.Kom merupakan Staf Administrasi Program Studi S1 Teknik Elektro, 
+Bapak Dr. Feri Candra, S.T., M.T selaku Koordinator Prodi Teknik Informatika dan Bapak Anhar, S.T., M.T., Ph.D selaku 
+Ketua Jurusan Teknik Elektro. Informasi yang diterima meliputi sistem absensi yang berjalan serta kekurangan dari sistem 
+tersebut.     
+b.     Studi Literatur 
+Metode studi literatur sebagai tahapan yang digunakan sebagai landasan teori yang dapat memperkuat pertanggungjawaban 
+keakuratan data dalam penelitian, Jurnal, buku, internet serta penelitian terdahulu menjadi sumber studi lite ratur pada 
+penelitian ini [6].  
+c.     Observasi 
+Metode observasi yang dilakukan peneliti adalah dengan melakukan observasi langsung atau mengamati secara langsung 
+kegiatan absensi yang berjalan, peneliti mendapatkan informasi mengenai permasalahan yang ada secara langsung. 
+d.     Survei 
+Metode selanjutnya adalah, peneliti melakukan survei mengenai jenis sistem operasi dari smartphone yang digunakan oleh 
+mahasiswa. Pada mahasiswa Jurusan Teknik Elektro, hasil survey yang diterima berupa sebanyak 103 responden adalah  
+lebih dari 81% mahasiswa menggunakan sistem operasi Android.  
+2.2. Tahapan Development (Pengembangan)  
+Pada metode pengembangan sistem, model pengembangan yang digunakan pada penelitian menggunakan Metode 
+Prototype. Metode ini merupakan metode yang banyak digunakan dan teknik pengembangan pada sistem, dengan 
+memberikan layanan pada pengembang dan pengguna untuk saling berinteraksi selama proses pembuatan sistem, sehingga 
+pengembang nantinya dapat memodelkan perangkat lunak yang akan dibuat dengan lebih mudah [7] [8]. Berikut tahapan 
+proses pengembangan sistem menggunakan metode prototype sebagai berikut :  
+1.   Communication  
+Pada tahapan ini dilakukan analisis kebutuhan mengenai sistem yang akan dibuat, dengan cara mengumpulkan data dan 
+informasi, pada tahapan ini peneliti yang juga sebagai developer aplikasi dan stakeholder bertemu dan menentukan 
+tujuan umum dari perangkat lunak, mengidentifikasi persyaratan -persyaratan yang dibutuhkan pada perangkat lunak 
+dan gambaran secara garis besar dari perangkat lunak yang akan dibangun.  
+2.   Quick Plan 
+Pada tahapan quick plan, dilakukan analisis kebutuhan, yang terdiri dari analisis fungsional dan non-fungsional. Hasil 
+dari quick plan  ini berupa analisis kebutuhan fungsional, non-fungsional, analisis perangkat lunak, dan analisis 
+perangkat keras.  Pada analisis kebutuhan fungsional, berupa gambaran dari proses -proses mengenai sistem yang 
+berjalan pada sistem absensi. Dan pada analisis k ebutuhan non-fungsional berupa interface pada website dan aplikasi 
+android yang user-friendly, website yang responsive, dan loading pada website dan aplikasi android yang tidak lama. 
+Dan untuk analisis perangkat lunak untuk mengetahui spesifikasi minimum yang dibutuhkan dalam membangun sebuah 
+software dan unuk memenuhi spesifikasi kebutuhan perangkat keras yang dibutuhkan.  
+3.   Modeling Quick Design 
+Pada tahapan modeling quick design, dilakukan perancangan sistem sesuai dengan adanya kebutuhan pengguna.  
+Pemodelan rancangan yang digunakan yaitu menggunakan UML ( Unified Model Language)  yang berupa use case 
+diagram untuk mendefinisikan fungsi dari sistem dan Entity Relations Diagram (ERD) [9]. 
+a. Use case Diagram 
+Use case diagram merupakan interaksi antara satu atau lebih actor dengan sistem aplikasi yang dikembangkan [10]. 
+Use case  digunakan untuk mengetahui roles yang ada pada sistem serta fungsi yang dapat masing masing user 
+gunakan.  
+ 
+Jurnal Computer Science and Information Technology (CoSciTech) Vol. 5, No. 1, April 2024, hal. 1-9 
+   
+ 
+       https://doi.org/10.37859/coscitech.v5i1.6947  4 
+ 
+ 
+Gambar 1. Use case diagram sistem absensi 
+ 
+b. Entity Relations Diagram (ERD) [6]. 
+Entity Relations Diagram (ERD) digunakan untuk dapat memberikan gambara n berupa relasi antar tabel yang ada 
+pada sistem dengan keterkaitan antar tabel absensi, tabel mahasiswa, tabel matakuliah dan juga terhu bung dengan 
+tabel lainnya. 
+ 
+Gambar 2. Entity Relations Tabel 
+4.   Construction of Prototype 
+Pada tahapan ini, mulai dilakukan perancangan serta pengembangan sistem, untuk perancangan sistem sendiri dirancang 
+menggunakan wireframe dan mockup untuk tampilan sistem absensi pada android dan juga website. Dan untu k 
+pengembangan menggunakan bantuan framework laravel untuk website dan bahasa pemrograman Kotlin untuk android 
+dan setelah itu dilakukan pengujian pada sistem, dengan tujuan agar dapat mengetahui apakah ada permasalah pada 
+sistem atau tidak sebelum di deploy.  
+5.   Deployment Delivery and Feedback 
+Pada tahapan ini mulai dilakukan deployment pada aplikasi, dan feedback dengan cara menyebar angket untuk diisi oleh 
+pengguna, untuk mengetahui kesalahan yang mungkin terjadi dalam sistem tersebut.  Sebelum dilakukan deployment, 
+terlebih dahulu dilakukan pengujian sistem pada aplikasi. Pengujian yang dilakukan pada aplikasi absensi android ini 
+adalah pengujian yang menguji aspek, functionality, compatibility, portability, dan usability.  
+Functionality yaitu dengan melakukan pengujian fungsionalitas p ada setiap bagian sistem yang telah dikembangkan, 
+untuk memastikan fungsi pada sistem berjalan sesuai dengan kebutuhan pengguna [10]. Compatibility, dilakukan untuk 
+mengukur sejauh mana produk tersebut kompatibel dengan produk lain dalam suatu lingkungan. Pengujian 
+compatibility dilakukan untuk mengevaluasi kompabilitas software dengan lingkungan [2]. Portability berupa pengujian 
+yang dapat dilakukan dengan mengetahui tingkat kemampuan dari software pada environtment yang berbeda [2].  
+Selanjutnya pengujian usability yaitu pengujian dengan menentukan kelayakan serta kenyamanan pada aplikasi yang 
+dibuat sehingga dapat memberikan kemudahan pada pengguna  [4] [11]. Salah satu pengujian usability yang banyak 
+digunakan adalah User Experience Questionnaire (UEQ). User Experience Questionnaire (UEQ) merupakan salah satu 
+tools pengujian yang sederhana dan mudah untuk digunakan  yang juga terdiri dari enam skala penilaian y aitu 
+Attractiveness, Efficiency, Perspicuity, Dependability, Stimulation, dan Novelty. Pada pengujian ini dilakukan kepada 
+responden dengan menjawab 26 buah pertanyaan dengan menentukan Tingkat enam skala yang ada. Pertanyaan User 
+Experience Questionnaire (UEQ) dapat dilihat berdasarkan Gambar 4. 
+
+ 
+Jurnal Computer Science and Information Technology (CoSciTech) Vol. 5, No. 1, April 2024, hal. 1-9 
+   
+ 
+       https://doi.org/10.37859/coscitech.v5i1.6947  5 
+ 
+Gambar 3. Pertanyaan UEQ 
+ 
+Pada pengujian User Experience Questionnaire (UEQ) terdapat standar penilaian yang dapat menentukan nilai dari 
+enam aspek yang telah ditentukan. Standar penilaian keenam aspek terdapat pada Tabel 1. Untuk penilaian pada enam 
+aspek tersebut dilakukan pengambilan sampel untuk pengujian sebanyak 20 orang mahasiswa Jurusan Teknik Elektro. 
+Dari pengambilan sampel sebanyak 20 orang dida sari oleh penelitian terdahulu yang dapat dijadikan acuan di mana 
+jumlah 20 responden per permasalahan yang diuji dapat menghasilkan Tingkat kepastian sebesar 95%. Pengambilan 
+sampel juga dilakukan dengan menggunakan Teknik sampling insidental dengan mene ntukan sampel berdasarkan 
+seseorang tersebut cocok dengan sumber data dalam pengujian aplikasi absensi perkuliahan.  
+Tabel 1 Standar Pengujian UEQ 
+Scale Standard Deviation 
+Attractiveness 1,06 
+Perspicuity 1,14 
+Efficiency 1,11 
+Dependability 0,97 
+Stimulation 0,95 
+Novelty 0,94 
+ 
+3.  HASIL DAN PEMBAHASAN 
+3.1. Halaman Website menampilkan QR Code Dinamis 
+ 
+Gambar 4 Halaman QR Code 
+Pada halaman ini, setelah dosen membuka kelas, maka akan tampil halaman yang menampilkan QR Code Dinamis yang berubah 
+ubah selama 15 detik, dan mahasiswa yang telah absensi akan tampil pada tabel yang ada pada halaman tersebut  secara real-
+time, dalam hal ini dosen dapat melakukan hapus absensi mahasiswa, jika diketahui mahasiswa tersebut melakukan titip absen, 
+tabel tersebut berfungsi untuk melakukan monitoring absensi mahasiswa yang telah absensi.  
+
+ 
+Jurnal Computer Science and Information Technology (CoSciTech) Vol. 5, No. 1, April 2024, hal. 1-9 
+   
+ 
+       https://doi.org/10.37859/coscitech.v5i1.6947  6 
+3.2. Halaman Utama Aplikasi Absensi Android 
+ 
+Gambar 5 Halaman Beranda Absensi Android 
+Pada halaman utama aplikasi absensi pada android untuk user mahasiswa menampilkan button untuk mahasiswa dapat 
+melakukan absensi, dan terdapat riwayat absensi untuk mata kuliah pada semester yang sed ang berjalan. 
+3.3 Halaman Scan QR Code 
+ 
+Gambar 6 Halaman Scan QR Code 
+Pada halaman scan QR Code , mahasiswa dapat mengarahkan kamera scanner dengan QR Code yang sudah ditampilkan oleh 
+dosen, setelah itu proses scanning akan di proses, dengan memproses apakah QR Code yang tampil sudah lewat batas 15 detik 
+atau tidak, dan juga akan diproses apakah mahasiswa yang telah absensi berada pada lokasi kelas yang ada pada mata kuliah 
+yang diambil.  
+3.4 Halaman Validasi Lokasi  
+ 
+Gambar 7 Validasi Lokasi     
+
+ 
+Jurnal Computer Science and Information Technology (CoSciTech) Vol. 5, No. 1, April 2024, hal. 1-9 
+   
+ 
+       https://doi.org/10.37859/coscitech.v5i1.6947  7 
+Selanjutnya pada halaman validasi lokasi ini, setelah mahasiswa melakukan scan pada QR Code maka selanjutnya akan tampil 
+alert dialog yang menampilkan bahwa mahasiswa berada pada lokasi kampus atau bera da pada titik lokasi yang sesuai dengan 
+mata kuliah yang diambil, setelah itu mahasiswa dapat menekan tombol absen dan data absensi akan masuk di halaman dosen .   
+3.5 Tampilan File PDF Rekapitulasi Presensi Kehadiran 
+ 
+Gambar 8 Daftar Hasil Presensi Perkuliahan 
+Selanjutnya pada halaman ini, menampilkan file .pdf untuk daftar presensi kehadiran mahasiswa selama 16 pertemuan, pada 
+daftar presensi menampilkan tanggal perkuliahan dan juga materi yang diajarkan pada tiap pertemuan, untuk presensi kehadiran 
+semua kelas dapat di akses oleh ketua jurusan, koordinator prodi dan admin prodi.   
+3.6 Pengujian Functionality 
+Pada pengujian aplikasi sistem dilakukan pengujian fungsionalitas untuk setiap test case, untuk menguji validasi data serta fungsi 
+utama yang terdapat pada aplikasi absensi perkuliahan pada aplikasi android. Hasil functionality pada aplikasi dapat dilihat pada 
+Tabel 2. 
+Tabel 2 Hasil uji functionality 
+No 
+Aplikasi Absensi Perkuliahan pada Android 
+Tes Case Tes Data Hasil Kesimpulan 
+1 Fitur Login Data Valid Login Sukses Valid 
+Data Invalid Login Gagal Valid 
+2 Fitur Absensi Data Valid Absensi Berhasil Valid 
+Data Invalid Absensi Gagal Valid 
+3 Fitur List Riwayat 
+Absensi Data Valid Riwayat absensi sukses Valid 
+4 Fitur Detail Riwayat Data Valid Detail riwayat sukses Valid 
+Pada Tabel 2, menampilkan hasil tes case pada pengujian fungsionalitas pada aplikasi android, yang mana didapat bahwa fitur 
+login menghasilkan kesimpilan yang valid.  
+
+ 
+Jurnal Computer Science and Information Technology (CoSciTech) Vol. 5, No. 1, April 2024, hal. 1-9 
+   
+ 
+       https://doi.org/10.37859/coscitech.v5i1.6947  8 
+3.7 Pengujian Compatibility 
+ 
+Gambar 9 Hasil compatibility 
+Hasil pengujian compatibility dengan menggunakan split-screen pada android dapat menjalankan aplikasi absensi bersama 
+dengan aplikasi lainnya seperti aplikasi youtube seperti pada Gambar  
+3.8 Pengujian Portability 
+Tabel 3 Hasil pengujian Portability 
+No Device Versi 
+Android Kesimpulan 
+1 Oppo A12 9 Sukses 
+2 Realme 5 10 Sukses 
+3 Samsung A54 13 Sukses 
+4 Infinix HOT 10 Play 11 Sukses 
+5 Poco X3 Pro 13 Sukses 
+6 Redmi Note 10S 12 Sukses 
+7 Samsung A33 13 Sukses 
+Pada Tabel 3, hasil pengujian portability menggunakan beberapa android dengan versi android yang berbeda, dan hasil yang 
+didapatkan setiap android sukses dalam menjalankan aplikasi.  
+3.9 Pengujian Usability 
+Pengujian usability yang dilakukan menggunakan User Experience Questionnaire (UEQ) dengan s ampel sebanyak 20 
+mahasiswa Jurusan Teknik Elektro yang melakukan percobaan pada aplikasi absensi pada android, hasil dari pengujian User 
+Experience Questionnaire (UEQ) pada Gambar 10 dan Tabel 4.  
+ 
+Gambar 10 Hasil UEQ 
+Tabel 4 Hasil Pengujian UEQ 
+Scale Mean Comparison to 
+benchmark 
+Attractiveness 2,33 Excellent 
+Perspicuity 2,34 Excellent 
+Efficiency 2,40 Excellent 
+Dependability 1,96 Excellent 
+
+ 
+Jurnal Computer Science and Information Technology (CoSciTech) Vol. 5, No. 1, April 2024, hal. 1-9 
+   
+ 
+       https://doi.org/10.37859/coscitech.v5i1.6947  9 
+Stimulation 2,05 Excellent 
+Novelty 1,63 Excellent 
+4.  KESIMPULAN 
+Berdasarkan hasil pengujian functionality yang didapat dengan test case yang berjumlah empat test case untuk aplikasi absensi 
+pada android menghasilkan kesimpulan bahwa aplikasi absensi berhasil menjalankan aktivitas yang sesuai seperti yang ada pada 
+kebutuhan fungsionalitas aplikasi absensi perkuliahan. Hasil pengujian compatibility yang didapat adalah bahwa aplikasi masih 
+tetap bisa melakukan absensi bersama dengan aplikasi lain. Hasil pengujian portability didapat kesimpulan bahwa aplikasi 
+absensi dapat berjalan dengan baik di setiap jenis versi android. Dan  hasil pengujian usability yang didapat dari 20 sampel 
+responden menggunakan User Experience Questionnaire (UEQ) adalah Attractiveness mendapatkan nilai 2.33 dengan 
+benchmark Excellent, Pers picuity dengan nilai 2.34 benchmark Excellent, Efficiency dengan nilai 2.40 benchmark Excellent, 
+Dependability dengan nilai 1.96 benchmark Excellent, Stimulation dengan nilai 2.05 dengan nilai Excellent, dan Novelty dengan 
+nilai 1.63 benchmark Excellent. Dari hasil yang telah dilakukan, dan dengan hasil pengujian yang bagus, maka aplikasi absensi 
+perkuliahan layak untuk digunakan.   
+Daftar Pustaka 
+[1] Amalia Yunia Rahmawati, “PERATURAN REKTOR UNIVERSITAS RIAU,” no. July, pp. 1–23, 2020. 
+[2] M. I. F. Krisbudiana and Edi Susilo, “Employee Attendance Application Using QR Code Android -Based at Eria Hospital Pekanbaru,” Int. J. Electr. 
+Energy Power Syst. Eng., vol. 6, no. 1, pp. 113–119, 2023, doi: 10.31258/ijeepse.6.1.111-116. 
+[3] Okpatrioka, “Research And Development (R & D) Penelitian yang Inovatif dalam Pendidikan,” J. Pendidikan, Bhs. dan Budaya, vol. 1, no. 1, pp. 86–
+100, 2023. 
+[4] N. Nirsal, Syafriadi, and Nur Afika Firanti, “Perancangan UI/UX Sistem Informasi P enilaian Seminar dan Skripsi Pendekatan Human Centered 
+Design,” J. CoSciTech (Computer Sci. Inf. Technol., vol. 4, no. 3, pp. 548–556, 2023, doi: 10.37859/coscitech.v4i3.6484. 
+[5] G. D. Prasetyo, M. B. Saputra, and R. Ardiansyah, “Perancangan Aplikasi Abse nsi Guru Berbasis Android Menggunakan Metode Prototype Studi 
+Kasus : SMP Islam Nurul Hidayah,” JURIHUM  J. Inov. dan Hum., vol. 1, no. 1, pp. 124–129, 2023. 
+[6] P. R. Setiawan, “Aplikasi Absensi Online Berbasis Android,” IT J. Res. Dev., vol. 5, no. 1, pp. 63–71, 2020, doi: 10.25299/itjrd.2020.vol5(1).5120. 
+[7] K. Kurniati, “Penerapan Metode Prototype Pada Perancangan Sistem Pengarsipan Dokumen Kantor Kecamatan Lais,” J. Softw. Eng. Ampera, vol. 2, 
+no. 1, pp. 16–27, 2021, doi: 10.51519/journalsea.v2i1.89. 
+[8] Anggun Fergina, G. Purnama Insany, Sally Agustin Elisya, and Nugraha, “Sistem informasi publik e -lapor pengaduan masyarakat di kelurahan 
+sriwidari menggunakan CRM berbasis android,” J. CoSciTech (Computer Sci. Inf. Technol. , vol. 4, no. 2, pp. 349 –358, 2023, doi: 
+10.37859/coscitech.v4i2.4896. 
+[9] A. N. Athaya and N. L. Marpaung, “Rancang Bangun Aplikasi Bon Permintaan Dan Pengeluaran Barang Menggunakan Metode Prototype Berbasis 
+Website,” J. Inform. J. Pengemb. IT, vol. 8, no. 2, pp. 134–141, 2023, doi: 10.30591/jpit.v8i2.5220. 
+[10] Reza Rama Putra and Anggun Fergina, “Pembuatan aplikasi sistem informasi kwartir ranting warungkiara berbasis android,” J. CoSciTech (Computer 
+Sci. Inf. Technol., vol. 4, no. 1, pp. 64–72, 2023, doi: 10.37859/coscitech.v4i1.4481. 
+[11] M. Muhajir, D. E. Ratnawati, and I. Arwani, “Pengembangan Sistem Informasi Presensi Sekolah Menggunakan Metode Prototype (Studi Kasus: Sman 
+13 Pangkep),” J. Sist. Informasi, Teknol. Informasi, dan Edukasi Sist. Inf., vol. 3, no. 2, pp. 57–67, 2022. 
+ 
+ 
+ 
+ 

@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyPresensi — Mobile UI Mockup Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* =========================================================
+       MyPresensi Mobile Mockup — Design Tokens v2 (synced web)
+       Sumber:
+         - mypresensi-web/app/globals.css (Politani Web palette)
+         - Layered shadow ala Linear/Vercel
+         - Mekari Talenta card-based pattern
+       Primary: Politani Blue #2D86FF (politanisamarinda.ac.id)
+       Accent:  Gold #F4B400 (pita logo Politani)
+       ========================================================= */
+    :root {
+      /* Brand — Politani Web */
+      --color-primary: #2D86FF;        /* CTA & link utama */
+      --color-primary-hover: #1E70E0;  /* hover state */
+      --color-primary-dark: #0D2C5E;   /* hero gradient end, navy */
+      --color-primary-deep: #082040;   /* deepest navy for shadow tint */
+      --color-primary-surface: #EAF3FF; /* 10% tint background */
+
+      /* Accent — Gold Politani */
+      --color-accent: #F4B400;
+      --color-accent-soft: rgba(244, 180, 0, 0.30);
+
+      /* Status (sama dengan web) */
+      --color-success: #1A7F37;
+      --color-success-surface: #ECFDF5;
+      --color-success-tint: rgba(26, 127, 55, 0.10);
+      --color-warning: #9A6700;
+      --color-warning-surface: #FFFBEB;
+      --color-warning-tint: rgba(154, 103, 0, 0.10);
+      --color-danger: #CF222E;
+      --color-danger-surface: #FEF2F2;
+      --color-danger-tint: rgba(207, 34, 46, 0.10);
+      --color-info: #0969DA;
+      --color-info-surface: #EFF6FF;
+      --color-info-tint: rgba(9, 105, 218, 0.10);
+
+      /* Neutrals (sama dengan web) */
+      --color-bg: #F4F6F8;
+      --color-surface: #FFFFFF;
+      --color-surface-sunken: #F0F2F4;
+      --color-border: #E2E6EA;
+      --color-border-strong: #D1D7DE;
+
+      /* Text (sama dengan web) */
+      --color-text-primary: #1C2024;
+      --color-text-secondary: #636C76;
+      --color-text-tertiary: #757B82;
+      --color-text-on-primary: #FFFFFF;
+
+      /* Overlay (camera dim) */
+      --overlay-50: rgba(8, 32, 64, 0.50);
+      --overlay-60: rgba(8, 32, 64, 0.60);
+      --overlay-75: rgba(8, 32, 64, 0.78);
+
+      /* Spacing (Material 8pt grid) */
+      --sp-xs: 4px;
+      --sp-sm: 8px;
+      --sp-md: 12px;
+      --sp-lg: 16px;
+      --sp-xl: 20px;
+      --sp-2xl: 24px;
+      --sp-3xl: 32px;
+      --sp-4xl: 40px;
+
+      /* Radius (sama dengan web) */
+      --r-sm: 8px;
+      --r-md: 12px;
+      --r-lg: 14px;
+      --r-xl: 16px;
+      --r-2xl: 20px;
+      --r-card: 16px;
+      --r-button: 999px;
+      --r-input: 8px;
+      --r-full: 999px;
+
+      /* Shadow LAYERED — ala Linear/Vercel (drop + ring dual layer) */
+      --sh-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(15, 23, 42, 0.04);
+      --sh-card-hover: 0 8px 24px -8px rgba(45, 134, 255, 0.20), 0 0 0 1px rgba(45, 134, 255, 0.18);
+      --sh-card-elevated: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(15, 23, 42, 0.04);
+      --sh-hero: 0 10px 30px -8px rgba(13, 44, 94, 0.40), 0 4px 12px -4px rgba(13, 44, 94, 0.20);
+      --sh-fab: 0 8px 16px -4px rgba(45, 134, 255, 0.40), 0 0 0 1px rgba(45, 134, 255, 0.20);
+      --sh-button: 0 1px 2px rgba(45, 134, 255, 0.30);
+      --sh-button-hover: 0 6px 16px -4px rgba(45, 134, 255, 0.45);
+
+      /* Font families */
+      --ff-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --ff-body: 'Inter', system-ui, sans-serif;
+      --ff-mono: 'JetBrains Mono', 'Courier New', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--ff-body);
+      background: #0a1628;
+      background-image:
+        radial-gradient(at 15% 10%, rgba(45, 134, 255, 0.18) 0px, transparent 55%),
+        radial-gradient(at 85% 85%, rgba(13, 44, 94, 0.45) 0px, transparent 60%),
+        radial-gradient(at 50% 50%, rgba(244, 180, 0, 0.05) 0px, transparent 70%);
+      min-height: 100vh;
+      color: #e5e9ee;
+      padding: 32px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* =========================================================
+       Page Header
+       ========================================================= */
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .page-header h1 {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 28px;
+      margin: 0 0 8px;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+    .page-header p {
+      margin: 0;
+      color: #9ba3ad;
+      font-size: 14px;
+    }
+    .page-header .legend {
+      display: inline-flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 12px;
+      color: #c0c8d2;
+    }
+    .page-header .legend strong { color: #fff; }
+
+    /* =========================================================
+       Mockup Grid
+       ========================================================= */
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 32px;
+      max-width: 1280px;
+      margin: 0 auto;
+      justify-items: center;
+    }
+    .mockup-item { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .mockup-label {
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 14px;
+      color: #ffffff;
+      letter-spacing: 0.3px;
+    }
+    .mockup-label small {
+      display: block;
+      font-family: var(--ff-body);
+      font-weight: 400;
+      font-size: 11px;
+      color: #9ba3ad;
+      margin-top: 2px;
+      letter-spacing: 0;
+    }
+
+    /* =========================================================
+       Phone Frame
+       ========================================================= */
+    .phone-frame {
+      position: relative;
+      width: 340px;
+      height: 720px;
+      background: #0d1117;
+      border-radius: 44px;
+      padding: 12px;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 20px 50px rgba(0, 0, 0, 0.4),
+        0 8px 16px rgba(0, 0, 0, 0.25);
+    }
+    .phone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--color-bg);
+      border-radius: 32px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      font-family: var(--ff-body);
+      color: var(--color-text-primary);
+    }
+    /* Dynamic Island / Notch */
+    .phone-notch {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 26px;
+      background: #0d1117;
+      border-radius: 999px;
+      z-index: 100;
+    }
+
+    /* =========================================================
+       Status Bar (mobile time + signal)
+       ========================================================= */
+    .status-bar {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 24px 6px;
+      font-family: var(--ff-body);
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--color-text-primary);
+    }
+    .status-bar.dark { color: #fff; }
+    .status-bar .right { display: flex; gap: 5px; align-items: center; }
+    .status-bar svg { width: 14px; height: 14px; }
+
+    /* =========================================================
+       App Bar
+       ========================================================= */
+    .appbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px 8px;
+      gap: 12px;
+    }
+    .appbar.transparent { background: transparent; }
+    .appbar-title {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--color-text-primary);
+      flex: 1;
+    }
+    .appbar.dark .appbar-title { color: #fff; }
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--r-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      position: relative;
+      cursor: pointer;
+    }
+    .icon-btn.ghost {
+      background: transparent;
+      border: none;
+    }
+    .icon-btn.dark {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+    }
+    .icon-btn svg { width: 18px; height: 18px; color: var(--color-text-primary); }
+    .icon-btn.dark svg { color: #fff; }
+    .icon-btn .dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: var(--r-full);
+      background: var(--color-danger);
+      border: 2px solid var(--color-surface);
+    }
+
+    /* =========================================================
+       Content Scroll Area
+       ========================================================= */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 16px 16px;
+    }
+    .content::-webkit-scrollbar { display: none; }
+    .content-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+      text-align: center;
+    }
+
+    /* =========================================================
+       Cards
+       ========================================================= */
+    /* CARD: layered shadow dual (drop + ring) ala Linear/Vercel */
+    .card {
+      background: var(--color-surface);
+      border-radius: var(--r-card);
+      padding: var(--sp-lg);
+      box-shadow: var(--sh-card);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .card:hover {
+      box-shadow: var(--sh-card-hover);
+      transform: translateY(-1px);
+    }
+    .card-elevated {
+      background: var(--color-surface);
+      border-radius: var(--r-card);
+      padding: var(--sp-lg);
+      box-shadow: var(--sh-card-elevated);
+    }
+
+    /* HERO CARD: gradient primary→navy + GOLD radial glow + white highlight
+       Adopted dari .hero-card di mypresensi-web/app/globals.css */
+    .hero-card {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      color: #fff;
+      border-radius: var(--r-card);
+      padding: 20px;
+      box-shadow: var(--sh-hero);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    /* Gold radial glow — top-right (signature Politani accent) */
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -15%;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, var(--color-accent-soft) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* White highlight — bottom-left (depth + life) */
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: 25%;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.14) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-card > * { position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      border-radius: var(--r-full);
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .hero-badge .pulse {
+      width: 6px;
+      height: 6px;
+      background: #4ade80;
+      border-radius: var(--r-full);
+      box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.5);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+    .hero-title {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .hero-meta {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 16px;
+      background: #fff;
+      color: var(--color-primary);
+      border: none;
+      border-radius: var(--r-md);
+      font-family: var(--ff-body);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .hero-cta svg { width: 18px; height: 18px; }
+
+    /* =========================================================
+       Section Title
+       ========================================================= */
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 0 12px;
+    }
+    .section-title h3 {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 15px;
+      margin: 0;
+      color: var(--color-text-primary);
+    }
+    .section-title a {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--color-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .section-title a svg { width: 14px; height: 14px; }
+
+    /* =========================================================
+       Greeting
+       ========================================================= */
+    .greeting {
+      padding: 16px 0 4px;
+    }
+    .greeting h2 {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 20px;
+      margin: 0;
+      color: var(--color-text-primary);
+    }
+    .greeting p {
+      margin: 2px 0 0;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .greeting p svg { width: 14px; height: 14px; }
+
+    /* =========================================================
+       Quick Action Grid 2x2
+       ========================================================= */
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    /* Quick action card dengan layered shadow + KPI icon-box duotone */
+    .quick-item {
+      background: var(--color-surface);
+      border-radius: var(--r-md);
+      padding: 14px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--sh-card);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .quick-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--sh-card-hover);
+    }
+    /* Icon box DUOTONE (10% bg + 100% fg) — pattern dari .kpi-icon-box web */
+    .quick-item .icon-wrap {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--r-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-primary-surface);
+      color: var(--color-primary);
+    }
+    .quick-item .icon-wrap svg { width: 18px; height: 18px; color: inherit; }
+    .quick-item .icon-wrap.success { background: var(--color-success-tint); color: var(--color-success); }
+    .quick-item .icon-wrap.warning { background: var(--color-warning-tint); color: var(--color-warning); }
+    .quick-item .icon-wrap.danger  { background: var(--color-danger-tint);  color: var(--color-danger);  }
+    .quick-item .icon-wrap.info    { background: var(--color-info-tint);    color: var(--color-info);    }
+    .quick-item .icon-wrap.accent  { background: var(--color-accent-soft);  color: var(--color-warning); }
+    .quick-item span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      text-align: center;
+      line-height: 1.2;
+      letter-spacing: 0.1px;
+    }
+
+    /* =========================================================
+       Activity List Item
+       ========================================================= */
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      background: var(--color-surface);
+      border-radius: var(--r-md);
+      margin-bottom: 8px;
+      box-shadow: var(--sh-card);
+      transition: box-shadow 0.18s ease;
+    }
+    .activity-item:hover { box-shadow: var(--sh-card-hover); }
+    .activity-item .av-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--r-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .activity-item .av-icon svg { width: 18px; height: 18px; }
+    .activity-item .av-icon.success { background: var(--color-success-surface); }
+    .activity-item .av-icon.success svg { color: var(--color-success); }
+    .activity-item .av-icon.warning { background: var(--color-warning-surface); }
+    .activity-item .av-icon.warning svg { color: var(--color-warning); }
+    .activity-item .av-icon.danger { background: var(--color-danger-surface); }
+    .activity-item .av-icon.danger svg { color: var(--color-danger); }
+    .activity-item .av-text { flex: 1; }
+    .activity-item .av-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+      line-height: 1.3;
+    }
+    .activity-item .av-meta {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .activity-item .av-meta svg { width: 11px; height: 11px; }
+
+    /* =========================================================
+       Bottom Navigation Material 3
+       ========================================================= */
+    .bottom-nav {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 8px 16px;
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 12px;
+      border-radius: var(--r-full);
+      cursor: pointer;
+      transition: background 0.15s;
+      min-width: 56px;
+    }
+    .nav-item.active { background: var(--color-primary-surface); }
+    .nav-item svg { width: 22px; height: 22px; color: var(--color-text-tertiary); }
+    .nav-item.active svg { color: var(--color-primary); }
+    .nav-item span {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--color-text-tertiary);
+    }
+    .nav-item.active span { color: var(--color-primary); }
+
+    /* =========================================================
+       Camera Screen (Scan QR + Face)
+       ========================================================= */
+    .camera-screen {
+      position: relative;
+      flex: 1;
+      background: #000;
+      overflow: hidden;
+    }
+    .camera-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(20, 30, 45, 0.95), rgba(40, 50, 65, 0.95)),
+        repeating-linear-gradient(45deg, transparent 0, transparent 8px, rgba(255, 255, 255, 0.02) 8px, rgba(255, 255, 255, 0.02) 16px);
+    }
+    .camera-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--overlay-60);
+    }
+    /* QR scan frame */
+    .qr-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -52%);
+      width: 220px;
+      height: 220px;
+      border-radius: 20px;
+      box-shadow: 0 0 0 9999px var(--overlay-60);
+    }
+    .qr-frame::before,
+    .qr-frame::after,
+    .qr-frame .corner-bl,
+    .qr-frame .corner-br {
+      content: '';
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--color-primary);
+    }
+    .qr-frame::before {
+      top: -2px;
+      left: -2px;
+      border-right: none;
+      border-bottom: none;
+      border-top-left-radius: 16px;
+    }
+    .qr-frame::after {
+      top: -2px;
+      right: -2px;
+      border-left: none;
+      border-bottom: none;
+      border-top-right-radius: 16px;
+    }
+    .qr-frame .corner-bl {
+      bottom: -2px;
+      left: -2px;
+      border-right: none;
+      border-top: none;
+      border-bottom-left-radius: 16px;
+    }
+    .qr-frame .corner-br {
+      bottom: -2px;
+      right: -2px;
+      border-left: none;
+      border-top: none;
+      border-bottom-right-radius: 16px;
+    }
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+      box-shadow: 0 0 12px var(--color-primary);
+      animation: scan 2.5s linear infinite;
+    }
+    @keyframes scan {
+      0% { top: 0; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: calc(100% - 2px); opacity: 0; }
+    }
+    .qr-hint {
+      position: absolute;
+      top: 100px;
+      left: 24px;
+      right: 24px;
+      text-align: center;
+      color: #fff;
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    .qr-hint small {
+      display: block;
+      font-family: var(--ff-body);
+      font-weight: 400;
+      font-size: 12px;
+      opacity: 0.85;
+      margin-top: 6px;
+    }
+    .qr-controls {
+      position: absolute;
+      bottom: 32px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    /* Face oval frame */
+    .face-oval-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      width: 240px;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .face-oval {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      box-shadow: 0 0 0 9999px var(--overlay-60);
+      background: transparent;
+    }
+    .face-oval-stroke {
+      position: absolute;
+      inset: 0;
+      border: 3px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+    }
+    /* Circular progress around oval */
+    .face-progress {
+      position: absolute;
+      inset: -10px;
+    }
+    .face-progress svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    .face-progress circle {
+      fill: none;
+      stroke-width: 4;
+    }
+    .face-progress .track { stroke: rgba(255, 255, 255, 0.15); }
+    .face-progress .indicator {
+      stroke: var(--color-primary);
+      stroke-linecap: round;
+      stroke-dasharray: 720;
+      stroke-dashoffset: 250;
+      filter: drop-shadow(0 0 6px rgba(84, 131, 173, 0.6));
+    }
+    .face-hint {
+      position: absolute;
+      bottom: 90px;
+      left: 24px;
+      right: 24px;
+      text-align: center;
+    }
+    .face-hint-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: var(--r-full);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .face-hint-chip svg { width: 14px; height: 14px; color: #4ade80; }
+    .face-hint-sub {
+      display: block;
+      margin-top: 10px;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 12px;
+    }
+    .face-progress-label {
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 14px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border-radius: var(--r-full);
+      font-size: 12px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+    }
+
+    /* =========================================================
+       Attendance Result Screen
+       ========================================================= */
+    .result-hero {
+      padding: 24px 16px 16px;
+      text-align: center;
+    }
+    .result-icon-wrap {
+      width: 96px;
+      height: 96px;
+      margin: 12px auto 16px;
+      border-radius: 50%;
+      background: var(--color-success-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .result-icon-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid var(--color-success);
+      opacity: 0.15;
+    }
+    .result-icon-wrap svg { width: 48px; height: 48px; color: var(--color-success); stroke-width: 2.5; }
+    @keyframes pop-in {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .result-title {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--color-text-primary);
+      margin: 0 0 6px;
+    }
+    .result-subtitle {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .breakdown {
+      margin: 20px 16px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+    }
+    .breakdown-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-tertiary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .breakdown-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .breakdown-row:last-child { border-bottom: none; }
+    .breakdown-row .br-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--r-md);
+      background: var(--color-success-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .breakdown-row .br-icon svg { width: 16px; height: 16px; color: var(--color-success); }
+    .breakdown-row .br-text { flex: 1; }
+    .breakdown-row .br-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0 0 1px;
+    }
+    .breakdown-row .br-detail {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+    .breakdown-row .br-check {
+      width: 18px;
+      height: 18px;
+      color: var(--color-success);
+      flex-shrink: 0;
+    }
+    .audit-id {
+      text-align: center;
+      font-size: 10px;
+      color: var(--color-text-tertiary);
+      margin: 0 16px 16px;
+      letter-spacing: 0.5px;
+    }
+    .button-group {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    /* Buttons — pill shape (radius 999) ala web Politani */
+    .btn {
+      width: 100%;
+      padding: 13px 20px;
+      border-radius: var(--r-button);
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+    .btn-primary {
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: var(--sh-button);
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--sh-button-hover);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      background: var(--color-surface);
+      color: var(--color-primary);
+      border: 1.5px solid var(--color-primary);
+    }
+    .btn-secondary:hover {
+      background: var(--color-primary-surface);
+    }
+    .btn-danger-outline {
+      background: var(--color-surface);
+      color: var(--color-danger);
+      border: 1px solid var(--color-danger);
+    }
+    .btn svg { width: 16px; height: 16px; }
+
+    /* =========================================================
+       Permission Priming Screen
+       ========================================================= */
+    .prime-content {
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .prime-illustration {
+      width: 140px;
+      height: 140px;
+      margin: 24px auto;
+      background: linear-gradient(135deg, var(--color-primary-surface), #d6e6f5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .prime-illustration::before {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      background: var(--color-primary-surface);
+      opacity: 0.5;
+      z-index: -1;
+    }
+    .prime-illustration svg { width: 64px; height: 64px; color: var(--color-primary); stroke-width: 1.5; }
+    .prime-title {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--color-text-primary);
+      margin: 0 0 8px;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .prime-desc {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      text-align: center;
+      margin: 0 0 24px;
+      line-height: 1.6;
+    }
+    .benefit-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px;
+    }
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--r-md);
+      margin-bottom: 8px;
+    }
+    .benefit-item .bn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--r-md);
+      background: var(--color-success-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .benefit-item .bn-icon svg { width: 16px; height: 16px; color: var(--color-success); }
+    .benefit-item .bn-text { flex: 1; }
+    .benefit-item h4 {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+    }
+    .benefit-item p {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin: 0;
+      line-height: 1.4;
+    }
+    .privacy-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--color-primary-surface);
+      border-radius: var(--r-md);
+      margin-bottom: 16px;
+    }
+    .privacy-note svg {
+      width: 16px;
+      height: 16px;
+      color: var(--color-primary);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .privacy-note p {
+      margin: 0;
+      font-size: 11px;
+      color: var(--color-text-primary);
+      line-height: 1.4;
+    }
+    .privacy-note strong { color: var(--color-primary-dark); }
+
+    /* =========================================================
+       Consent Dialog (modal in-screen)
+       ========================================================= */
+    .consent-screen {
+      flex: 1;
+      background: var(--overlay-60);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: flex-end;
+      padding: 16px;
+    }
+    .consent-modal {
+      width: 100%;
+      background: var(--color-surface);
+      border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+      padding: 24px 20px 20px;
+      max-height: 80%;
+      overflow-y: auto;
+      animation: slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes slide-up {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .consent-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--color-border-strong);
+      border-radius: var(--r-full);
+      margin: 0 auto 16px;
+    }
+    .consent-icon-wrap {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      border-radius: var(--r-xl);
+      background: linear-gradient(135deg, var(--color-warning-surface), #fde6a3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .consent-icon-wrap svg { width: 32px; height: 32px; color: var(--color-warning); stroke-width: 2; }
+    .consent-title {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 19px;
+      color: var(--color-text-primary);
+      margin: 0 0 8px;
+      text-align: center;
+    }
+    .consent-desc {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      text-align: center;
+      margin: 0 0 20px;
+      line-height: 1.5;
+    }
+    .consent-points {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px;
+      background: var(--color-surface-sunken);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+    }
+    .consent-points li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--color-text-primary);
+      line-height: 1.5;
+      padding: 4px 0;
+    }
+    .consent-points li svg {
+      width: 14px;
+      height: 14px;
+      color: var(--color-primary);
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+    .consent-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .consent-uu {
+      font-size: 10px;
+      color: var(--color-text-tertiary);
+      text-align: center;
+      margin: 0 0 12px;
+    }
+
+    /* =========================================================
+       Status Bar Custom SVG icons (signal/wifi/battery)
+       ========================================================= */
+    .sb-icons { display: flex; gap: 4px; align-items: center; }
+    .sb-icons svg { width: 14px; height: 14px; }
+
+    /* =========================================================
+       Footer Info
+       ========================================================= */
+    .footer-info {
+      max-width: 1280px;
+      margin: 48px auto 0;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #c0c8d2;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .footer-info h2 {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      margin: 0 0 12px;
+    }
+    .footer-info code {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #fff;
+    }
+    .footer-info ul { padding-left: 20px; margin: 8px 0; }
+    .footer-info li { margin-bottom: 4px; }
+
+    /* =========================================================
+       Icon Style Lab — 4-column comparison
+       ========================================================= */
+    .icon-lab {
+      max-width: 1280px;
+      margin: 0 auto 32px;
+    }
+    .icon-lab-header { margin-bottom: 16px; }
+    .icon-lab-header h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: #fff;
+      margin: 0 0 6px;
+      letter-spacing: -0.4px;
+    }
+    .icon-lab-header h2 .accent { color: #F4B400; }
+    .icon-lab-header p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .icon-lab-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .icon-col {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 16px;
+      padding: 16px;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+    }
+    .icon-col-head { margin-bottom: 12px; }
+    .icon-col-head h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      margin: 0 0 4px;
+      letter-spacing: -0.2px;
+    }
+    .icon-col-tag {
+      display: inline-block;
+      font-size: 10.5px;
+      color: rgba(255, 255, 255, 0.65);
+      background: rgba(45, 134, 255, 0.20);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+    .icon-col-tag.gold {
+      background: rgba(244, 180, 0, 0.22);
+      color: #F4B400;
+    }
+    .icons-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+      flex: 1;
+    }
+    .icon-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 10px 4px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      transition: background .2s, transform .2s;
+      min-height: 62px;
+    }
+    .icon-cell:hover {
+      background: rgba(45, 134, 255, 0.16);
+      transform: translateY(-1px);
+    }
+    .icon-cell iconify-icon {
+      color: #2D86FF;
+      font-size: 28px;
+    }
+    .icon-cell .label {
+      font-size: 9.5px;
+      color: rgba(255, 255, 255, 0.55);
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .icon-col-meta {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.40);
+      font-family: 'Inter', monospace;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 10px;
+      line-height: 1.4;
+    }
+    .icon-col-meta strong {
+      color: rgba(255, 255, 255, 0.70);
+      font-weight: 600;
+    }
+    @media (max-width: 1100px) {
+      .icon-lab-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .icon-lab-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 16px; }
+      .mockup-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>MyPresensi — Mobile UI Mockup <span style="color:#F4B400;">v2</span></h1>
+    <p>
+      Sinkron dengan <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px;color:#fff;font-family:monospace;font-size:12px;">mypresensi-web/app/globals.css</code>
+      · Layered shadows ala Linear/Vercel · Card pattern Mekari Talenta · Hero glow Politani gold
+    </p>
+    <div class="legend">
+      Primary <strong style="color:#2D86FF;">#2D86FF</strong>
+      · Accent <strong style="color:#F4B400;">#F4B400</strong>
+      · Navy <strong style="color:#5b8ed4;">#0D2C5E</strong>
+      · Plus Jakarta Sans + Inter
+      · 6 screen High Priority
+    </div>
+  </header>
+
+  <!-- ====================================================
+       ICON STYLE LAB — 4-column comparison
+       12 icon yang dipakai MyPresensi, 4 style berbeda.
+       Pilih yang paling cocok.
+       ==================================================== -->
+  <section class="icon-lab">
+    <div class="icon-lab-header">
+      <h2>Icon Style Lab — <span class="accent">Bandingkan 4 Style</span></h2>
+      <p>Sama-sama 12 icon yang dipakai di MyPresensi. Pilih style yang paling cocok dengan vibe app — semua di-render dari CDN Iconify, biru token Politani sebagai foreground.</p>
+    </div>
+
+    <div class="icon-lab-grid">
+      <!-- ============ COL 1: PHOSPHOR DUOTONE ============ -->
+      <div class="icon-col">
+        <div class="icon-col-head">
+          <h3>Phosphor Duotone</h3>
+          <span class="icon-col-tag">2-layer · Notion-like</span>
+        </div>
+        <div class="icons-grid">
+          <div class="icon-cell"><iconify-icon icon="ph:house-duotone"></iconify-icon><span class="label">Home</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:qr-code-duotone"></iconify-icon><span class="label">Scan QR</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:user-circle-duotone"></iconify-icon><span class="label">Profil</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:bell-duotone"></iconify-icon><span class="label">Notif</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:calendar-duotone"></iconify-icon><span class="label">Jadwal</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:map-pin-duotone"></iconify-icon><span class="label">Lokasi</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:camera-duotone"></iconify-icon><span class="label">Kamera</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:file-text-duotone"></iconify-icon><span class="label">Izin</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:check-circle-duotone"></iconify-icon><span class="label">Sukses</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:shield-check-duotone"></iconify-icon><span class="label">Privacy</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:sign-out-duotone"></iconify-icon><span class="label">Logout</span></div>
+          <div class="icon-cell"><iconify-icon icon="ph:caret-right-duotone"></iconify-icon><span class="label">Next</span></div>
+        </div>
+        <div class="icon-col-meta">
+          <strong>Flutter</strong> · <code style="color:#F4B400">phosphor_flutter: ^2.1.0</code><br>
+          ~1.2MB · 9000+ icons · 6 weights<br>
+          phosphoricons.com
+        </div>
+      </div>
+
+      <!-- ============ COL 2: ICONSAX / SOLAR BOLD DUOTONE ============ -->
+      <div class="icon-col">
+        <div class="icon-col-head">
+          <h3>Iconsax-style (Solar Bold Duotone)</h3>
+          <span class="icon-col-tag gold">Fintech ID · DANA/OVO vibe</span>
+        </div>
+        <div class="icons-grid">
+          <div class="icon-cell"><iconify-icon icon="solar:home-bold-duotone"></iconify-icon><span class="label">Home</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon><span class="label">Scan QR</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:user-circle-bold-duotone"></iconify-icon><span class="label">Profil</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:bell-bold-duotone"></iconify-icon><span class="label">Notif</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:calendar-bold-duotone"></iconify-icon><span class="label">Jadwal</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon><span class="label">Lokasi</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:camera-bold-duotone"></iconify-icon><span class="label">Kamera</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon><span class="label">Izin</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon><span class="label">Sukses</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon><span class="label">Privacy</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:logout-3-bold-duotone"></iconify-icon><span class="label">Logout</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:alt-arrow-right-bold-duotone"></iconify-icon><span class="label">Next</span></div>
+        </div>
+        <div class="icon-col-meta">
+          <strong>Flutter</strong> · <code style="color:#F4B400">iconsax_plus: ^1.0.0</code><br>
+          ~800KB · 1100+ icons · 6 variants<br>
+          iconsax.io · catatan: Solar dipakai sebagai preview style equivalent
+        </div>
+      </div>
+
+      <!-- ============ COL 3: LUCIDE ============ -->
+      <div class="icon-col">
+        <div class="icon-col-head">
+          <h3>Lucide</h3>
+          <span class="icon-col-tag">Konsisten web · Refined stroke</span>
+        </div>
+        <div class="icons-grid">
+          <div class="icon-cell"><iconify-icon icon="lucide:house"></iconify-icon><span class="label">Home</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:qr-code"></iconify-icon><span class="label">Scan QR</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:user-circle"></iconify-icon><span class="label">Profil</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:bell"></iconify-icon><span class="label">Notif</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:calendar-days"></iconify-icon><span class="label">Jadwal</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:map-pin"></iconify-icon><span class="label">Lokasi</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:camera"></iconify-icon><span class="label">Kamera</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:file-text"></iconify-icon><span class="label">Izin</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:circle-check"></iconify-icon><span class="label">Sukses</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:shield-check"></iconify-icon><span class="label">Privacy</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:log-out"></iconify-icon><span class="label">Logout</span></div>
+          <div class="icon-cell"><iconify-icon icon="lucide:chevron-right"></iconify-icon><span class="label">Next</span></div>
+        </div>
+        <div class="icon-col-meta">
+          <strong>Flutter</strong> · <code style="color:#F4B400">lucide_icons_flutter: ^3.0.0</code><br>
+          ~600KB · 1500+ icons · stroke konsisten<br>
+          lucide.dev · sama dengan web mypresensi
+        </div>
+      </div>
+
+      <!-- ============ COL 4: MATERIAL SYMBOLS ROUNDED ============ -->
+      <div class="icon-col">
+        <div class="icon-col-head">
+          <h3>Material Symbols Rounded</h3>
+          <span class="icon-col-tag">Filled · Premium soft</span>
+        </div>
+        <div class="icons-grid">
+          <div class="icon-cell"><iconify-icon icon="material-symbols:home-rounded"></iconify-icon><span class="label">Home</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:qr-code-scanner-rounded"></iconify-icon><span class="label">Scan QR</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:account-circle-rounded"></iconify-icon><span class="label">Profil</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:notifications-rounded"></iconify-icon><span class="label">Notif</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:calendar-month-rounded"></iconify-icon><span class="label">Jadwal</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:location-on-rounded"></iconify-icon><span class="label">Lokasi</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:camera-alt-rounded"></iconify-icon><span class="label">Kamera</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:description-rounded"></iconify-icon><span class="label">Izin</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:check-circle-rounded"></iconify-icon><span class="label">Sukses</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:verified-user-rounded"></iconify-icon><span class="label">Privacy</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:logout-rounded"></iconify-icon><span class="label">Logout</span></div>
+          <div class="icon-cell"><iconify-icon icon="material-symbols:chevron-right-rounded"></iconify-icon><span class="label">Next</span></div>
+        </div>
+        <div class="icon-col-meta">
+          <strong>Flutter</strong> · <code style="color:#F4B400">material_symbols_icons: ^4.2.0</code><br>
+          ~700KB · 2900+ icons · 3 weight + fill variable<br>
+          fonts.google.com/icons
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="mockup-grid">
+
+    <!-- ====================================================
+         SCREEN 1: HOME DASHBOARD
+         ==================================================== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span>09:41</span>
+            <span class="sb-icons">
+              <i data-lucide="signal"></i>
+              <i data-lucide="wifi"></i>
+              <i data-lucide="battery-full"></i>
+            </span>
+          </div>
+
+          <div class="appbar">
+            <div class="appbar-title" style="font-size: 13px; color: var(--color-text-secondary); font-weight: 500;">MyPresensi</div>
+            <div class="icon-btn">
+              <i data-lucide="bell"></i>
+              <span class="dot"></span>
+            </div>
+            <div class="icon-btn">
+              <i data-lucide="user"></i>
+            </div>
+          </div>
+
+          <div class="content">
+            <div class="greeting">
+              <h2>Halo, Riki 👋</h2>
+              <p><i data-lucide="sun"></i> Selamat siang — Rabu, 15 Mei 2026</p>
+            </div>
+
+            <!-- Hero Session Card -->
+            <div class="hero-card" style="margin-top: 12px;">
+              <span class="hero-badge">
+                <span class="pulse"></span>
+                SESI AKTIF SEKARANG
+              </span>
+              <h3 class="hero-title">Algoritma & Pemrograman</h3>
+              <p class="hero-meta">
+                Pak Andi Setiawan, M.Kom · Lab Komputer 2<br>
+                Dimulai 10:00 (30 menit lalu) · Berakhir 12:00
+              </p>
+              <button class="hero-cta">
+                <i data-lucide="qr-code"></i>
+                Scan QR Sekarang
+              </button>
+            </div>
+
+            <!-- Quick Action Grid -->
+            <div class="section-title">
+              <h3>Aksi Cepat</h3>
+            </div>
+            <div class="quick-grid">
+              <div class="quick-item">
+                <div class="icon-wrap">
+                  <i data-lucide="scan-line"></i>
+                </div>
+                <span>Scan QR</span>
+              </div>
+              <div class="quick-item">
+                <div class="icon-wrap success">
+                  <i data-lucide="clipboard-list"></i>
+                </div>
+                <span>Riwayat</span>
+              </div>
+              <div class="quick-item">
+                <div class="icon-wrap warning">
+                  <i data-lucide="file-text"></i>
+                </div>
+                <span>Izin</span>
+              </div>
+              <div class="quick-item">
+                <div class="icon-wrap info">
+                  <i data-lucide="user-cog"></i>
+                </div>
+                <span>Profil</span>
+              </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="section-title">
+              <h3>Aktivitas Terakhir</h3>
+              <a href="#">Lihat semua <i data-lucide="chevron-right"></i></a>
+            </div>
+
+            <div class="activity-item">
+              <div class="av-icon success">
+                <i data-lucide="check-circle-2"></i>
+              </div>
+              <div class="av-text">
+                <p class="av-title">Presensi Algoritma berhasil</p>
+                <p class="av-meta"><i data-lucide="clock"></i> 10:30 · Lokasi tepat di Lab</p>
+              </div>
+            </div>
+
+            <div class="activity-item">
+              <div class="av-icon success">
+                <i data-lucide="check-circle"></i>
+              </div>
+              <div class="av-text">
+                <p class="av-title">Pengajuan izin disetujui</p>
+                <p class="av-meta"><i data-lucide="user-check"></i> Kemarin · Pak Andi</p>
+              </div>
+            </div>
+
+            <div class="activity-item">
+              <div class="av-icon warning">
+                <i data-lucide="alert-triangle"></i>
+              </div>
+              <div class="av-text">
+                <p class="av-title">Telat presensi Basis Data</p>
+                <p class="av-meta"><i data-lucide="clock"></i> 2 hari lalu · 8 menit setelah mulai</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Nav -->
+          <div class="bottom-nav">
+            <div class="nav-item active">
+              <i data-lucide="home"></i>
+              <span>Home</span>
+            </div>
+            <div class="nav-item">
+              <i data-lucide="clipboard-list"></i>
+              <span>Riwayat</span>
+            </div>
+            <div class="nav-item">
+              <i data-lucide="file-text"></i>
+              <span>Izin</span>
+            </div>
+            <div class="nav-item">
+              <i data-lucide="bell"></i>
+              <span>Notif</span>
+            </div>
+            <div class="nav-item">
+              <i data-lucide="user"></i>
+              <span>Profil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">1. Home Dashboard
+        <small>Hero session + quick action + activity feed</small>
+      </div>
+    </div>
+
+    <!-- ====================================================
+         SCREEN 2: SCAN QR
+         ==================================================== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar dark">
+            <span>09:41</span>
+            <span class="sb-icons">
+              <i data-lucide="signal"></i>
+              <i data-lucide="wifi"></i>
+              <i data-lucide="battery-full"></i>
+            </span>
+          </div>
+
+          <div class="appbar dark transparent">
+            <div class="icon-btn dark">
+              <i data-lucide="arrow-left"></i>
+            </div>
+            <div class="appbar-title">Scan QR Sesi</div>
+            <div class="icon-btn dark">
+              <i data-lucide="help-circle"></i>
+            </div>
+          </div>
+
+          <div class="camera-screen">
+            <div class="camera-bg"></div>
+            <div class="qr-hint">
+              Arahkan kamera ke QR Code
+              <small>QR Code ditampilkan dosen di proyektor / laptop</small>
+            </div>
+            <div class="qr-frame">
+              <span class="corner-bl"></span>
+              <span class="corner-br"></span>
+              <div class="scan-line"></div>
+            </div>
+            <div class="qr-controls">
+              <div class="icon-btn dark" style="width:48px;height:48px;">
+                <i data-lucide="zap"></i>
+              </div>
+              <div class="icon-btn dark" style="width:48px;height:48px;">
+                <i data-lucide="image"></i>
+              </div>
+            </div>
+            <div style="position: absolute; bottom: 100px; left: 0; right: 0; text-align: center;">
+              <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(0,0,0,0.6); border-radius: 999px; color: #fff; font-size: 12px; font-weight: 500; backdrop-filter: blur(8px);">
+                <i data-lucide="info" style="width:14px;height:14px;color:#a8c5e2;"></i>
+                Mendeteksi QR Code...
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">2. Scan QR Camera
+        <small>Frame + corner accent + animated scan line + hint</small>
+      </div>
+    </div>
+
+    <!-- ====================================================
+         SCREEN 3: FACE REGISTRATION
+         ==================================================== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar dark">
+            <span>09:41</span>
+            <span class="sb-icons">
+              <i data-lucide="signal"></i>
+              <i data-lucide="wifi"></i>
+              <i data-lucide="battery-full"></i>
+            </span>
+          </div>
+
+          <div class="appbar dark transparent">
+            <div class="icon-btn dark">
+              <i data-lucide="arrow-left"></i>
+            </div>
+            <div class="appbar-title">Daftar Wajah</div>
+            <div class="icon-btn dark">
+              <i data-lucide="info"></i>
+            </div>
+          </div>
+
+          <div class="camera-screen">
+            <div class="camera-bg"></div>
+
+            <div class="face-progress-label">
+              Sampel 5 dari 7
+            </div>
+
+            <div class="face-oval-wrap">
+              <div class="face-oval"></div>
+              <div class="face-oval-stroke"></div>
+              <div class="face-progress">
+                <svg viewBox="-2 -2 264 304">
+                  <ellipse class="track" cx="130" cy="150" rx="125" ry="148"></ellipse>
+                  <ellipse class="indicator" cx="130" cy="150" rx="125" ry="148"></ellipse>
+                </svg>
+              </div>
+            </div>
+
+            <div class="face-hint">
+              <span class="face-hint-chip">
+                <i data-lucide="check-circle-2"></i>
+                Tahan posisi
+              </span>
+              <small class="face-hint-sub">Sedang mengambil sampel wajah Anda</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">3. Face Registration
+        <small>Oval frame + circular progress + real-time hint</small>
+      </div>
+    </div>
+
+    <!-- ====================================================
+         SCREEN 4: ATTENDANCE RESULT (Success)
+         ==================================================== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span>09:41</span>
+            <span class="sb-icons">
+              <i data-lucide="signal"></i>
+              <i data-lucide="wifi"></i>
+              <i data-lucide="battery-full"></i>
+            </span>
+          </div>
+
+          <div class="appbar">
+            <div class="icon-btn">
+              <i data-lucide="x"></i>
+            </div>
+            <div class="appbar-title" style="text-align: center;">Hasil Presensi</div>
+            <div style="width: 38px;"></div>
+          </div>
+
+          <div class="content" style="padding: 0;">
+            <div class="result-hero">
+              <div class="result-icon-wrap">
+                <i data-lucide="check"></i>
+              </div>
+              <h2 class="result-title">Presensi Berhasil!</h2>
+              <p class="result-subtitle">
+                Kamu tercatat <strong style="color:var(--color-success);">HADIR</strong> di MK Algoritma & Pemrograman
+              </p>
+            </div>
+
+            <div class="breakdown">
+              <div class="breakdown-header">
+                Detail Verifikasi
+              </div>
+
+              <div class="breakdown-row">
+                <div class="br-icon">
+                  <i data-lucide="qr-code"></i>
+                </div>
+                <div class="br-text">
+                  <p class="br-label">QR Code Sesi</p>
+                  <p class="br-detail">Kode valid · 10:30:42 WIB</p>
+                </div>
+                <i data-lucide="check-circle-2" class="br-check"></i>
+              </div>
+
+              <div class="breakdown-row">
+                <div class="br-icon">
+                  <i data-lucide="map-pin"></i>
+                </div>
+                <div class="br-text">
+                  <p class="br-label">Lokasi GPS</p>
+                  <p class="br-detail">Dalam radius · 38 m dari pusat kampus</p>
+                </div>
+                <i data-lucide="check-circle-2" class="br-check"></i>
+              </div>
+
+              <div class="breakdown-row">
+                <div class="br-icon">
+                  <i data-lucide="scan-face"></i>
+                </div>
+                <div class="br-text">
+                  <p class="br-label">Verifikasi Wajah</p>
+                  <p class="br-detail">Cocok · Similarity 0.87 (threshold 0.65)</p>
+                </div>
+                <i data-lucide="check-circle-2" class="br-check"></i>
+              </div>
+            </div>
+
+            <p class="audit-id">ID Submit: ATT-20260515-001234</p>
+          </div>
+
+          <div class="button-group">
+            <button class="btn btn-primary">
+              Selesai
+            </button>
+            <button class="btn btn-secondary">
+              <i data-lucide="clipboard-list"></i>
+              Lihat Riwayat
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">4. Attendance Result (Sukses)
+        <small>Hero icon animated + breakdown 3-layer</small>
+      </div>
+    </div>
+
+    <!-- ====================================================
+         SCREEN 5: PERMISSION PRIMING (Camera)
+         ==================================================== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span>09:41</span>
+            <span class="sb-icons">
+              <i data-lucide="signal"></i>
+              <i data-lucide="wifi"></i>
+              <i data-lucide="battery-full"></i>
+            </span>
+          </div>
+
+          <div class="appbar transparent">
+            <div class="icon-btn ghost">
+              <i data-lucide="arrow-left"></i>
+            </div>
+            <div style="flex:1;"></div>
+            <div class="icon-btn ghost">
+              <i data-lucide="x"></i>
+            </div>
+          </div>
+
+          <div class="prime-content">
+            <div class="prime-illustration">
+              <i data-lucide="camera"></i>
+            </div>
+
+            <h2 class="prime-title">Izinkan Akses Kamera</h2>
+            <p class="prime-desc">
+              MyPresensi butuh akses kamera untuk fitur presensi berjalan optimal
+            </p>
+
+            <ul class="benefit-list">
+              <li class="benefit-item">
+                <div class="bn-icon">
+                  <i data-lucide="qr-code"></i>
+                </div>
+                <div class="bn-text">
+                  <h4>Scan QR Sesi Dosen</h4>
+                  <p>Tandai kehadiran dengan scan QR yang ditampilkan dosen</p>
+                </div>
+              </li>
+              <li class="benefit-item">
+                <div class="bn-icon">
+                  <i data-lucide="scan-face"></i>
+                </div>
+                <div class="bn-text">
+                  <h4>Verifikasi Wajah</h4>
+                  <p>Konfirmasi identitas saat submit presensi untuk keamanan</p>
+                </div>
+              </li>
+            </ul>
+
+            <div class="privacy-note">
+              <i data-lucide="shield-check"></i>
+              <p>
+                <strong>Privasi Anda aman:</strong> Foto tidak disimpan di server. Hanya hash matematika (192 angka) yang dipakai untuk perbandingan. Bisa dihapus kapan saja via Profil.
+              </p>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button class="btn btn-primary">
+              <i data-lucide="check"></i>
+              Izinkan Akses Kamera
+            </button>
+            <button class="btn btn-secondary">
+              Nanti Saja
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">5. Permission Priming (Kamera)
+        <small>Edukasi sebelum trigger system permission</small>
+      </div>
+    </div>
+
+    <!-- ====================================================
+         SCREEN 6: CONSENT DIALOG FACE REGISTER (UU PDP)
+         ==================================================== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar dark">
+            <span>09:41</span>
+            <span class="sb-icons">
+              <i data-lucide="signal"></i>
+              <i data-lucide="wifi"></i>
+              <i data-lucide="battery-full"></i>
+            </span>
+          </div>
+
+          <!-- Background (Profile screen behind, blurred) -->
+          <div style="position: absolute; inset: 0; background: var(--color-bg); z-index: 0;">
+            <div class="appbar" style="opacity: 0.5;">
+              <div class="icon-btn"><i data-lucide="arrow-left"></i></div>
+              <div class="appbar-title">Profil</div>
+              <div style="width:38px;"></div>
+            </div>
+            <div style="padding: 16px; opacity: 0.5;">
+              <div class="card" style="text-align: center; padding: 24px;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--color-primary-surface); margin: 0 auto 12px;"></div>
+                <h3 style="margin: 0; font-family: var(--ff-heading); font-size: 16px;">Riki Pradana</h3>
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--color-text-secondary);">2310201234 · TRPL '23</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="consent-screen" style="position: relative; z-index: 1;">
+            <div class="consent-modal">
+              <div class="consent-handle"></div>
+
+              <div class="consent-icon-wrap">
+                <i data-lucide="user-check"></i>
+              </div>
+
+              <h2 class="consent-title">Persetujuan Data Biometrik</h2>
+              <p class="consent-desc">
+                Sebelum mendaftarkan wajah, mohon baca dan setujui ketentuan berikut
+              </p>
+
+              <ul class="consent-points">
+                <li>
+                  <i data-lucide="shield-check"></i>
+                  <span>Wajah Anda disimpan sebagai <strong>data biometrik</strong> berupa hash matematika (192 angka), bukan foto asli.</span>
+                </li>
+                <li>
+                  <i data-lucide="building-2"></i>
+                  <span>Data ini <strong>hanya digunakan internal kampus</strong> untuk verifikasi presensi MyPresensi.</span>
+                </li>
+                <li>
+                  <i data-lucide="trash-2"></i>
+                  <span>Anda dapat <strong>menghapus kapan saja</strong> melalui menu Profil → Hapus Data Wajah.</span>
+                </li>
+                <li>
+                  <i data-lucide="ban"></i>
+                  <span><strong>Tidak dibagikan</strong> ke pihak ketiga atau aplikasi lain.</span>
+                </li>
+              </ul>
+
+              <p class="consent-uu">
+                Sesuai UU No. 27/2022 tentang Pelindungan Data Pribadi
+              </p>
+
+              <div class="consent-buttons">
+                <button class="btn btn-primary">
+                  <i data-lucide="check"></i>
+                  Setuju &amp; Lanjutkan
+                </button>
+                <button class="btn btn-secondary">
+                  Batal
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">6. Consent Dialog Face Register
+        <small>UU PDP Pasal 5-15 · 2-step before camera</small>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="footer-info">
+    <h2>Cara Pakai Mockup Ini</h2>
+    <p>
+      Mockup ini adalah <strong>preview HTML statis</strong> menggunakan <code>design tokens</code> persis dari <code>lib/core/theme/app_colors.dart</code> + font <code>Plus Jakarta Sans</code> + <code>Inter</code> via Google Fonts + ikon <code>Lucide</code>. Tidak menggunakan TailwindCSS — semua raw CSS dengan CSS variables.
+    </p>
+    <p>Yang bisa kamu evaluasi:</p>
+    <ul>
+      <li><strong>Composition & layout</strong> — penempatan card, hierarki, padding, spacing rhythm</li>
+      <li><strong>Color usage</strong> — primary, success, warning, danger consistency</li>
+      <li><strong>Typography</strong> — Plus Jakarta Sans untuk heading, Inter untuk body</li>
+      <li><strong>Iconografi</strong> — Lucide outlined, ukuran konsisten</li>
+      <li><strong>Micro-interaction</strong> — pulse, scale, slide-up (lihat hero session badge, success icon, consent modal)</li>
+    </ul>
+    <p>
+      Yang <strong>tidak bisa</strong> kamu evaluasi (limitasi HTML mockup):
+    </p>
+    <ul>
+      <li>Touch interaction (tap ripple, swipe gesture)</li>
+      <li>Camera live feed (mockup pakai gradient placeholder)</li>
+      <li>Native performance (animasi GPU-accelerated Flutter)</li>
+    </ul>
+    <p>
+      Setelah review, kasih feedback ke Cascade tentang:
+    </p>
+    <ul>
+      <li>Screen mana yang OK untuk implement ke Flutter?</li>
+      <li>Adjustment apa yang dibutuhkan (warna, spacing, copy text)?</li>
+      <li>Skip screen mana, atau tambah screen apa?</li>
+    </ul>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons({
+        attrs: { 'stroke-width': 1.8 }
+      });
+    }
+  </script>
+</body>
+</html>

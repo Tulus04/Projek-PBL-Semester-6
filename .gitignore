@@ -1,0 +1,90 @@
+# Root .gitignore — MyPresensi PBL TRPL
+# Lindungi file sensitif (kredensial, secrets) supaya tidak ter-commit ke Git.
+
+# =========================================================
+# KREDENSIAL & SECRETS — JANGAN PERNAH COMMIT
+# =========================================================
+credentials-MUSTREAD.txt
+.dev-accounts.md
+update-mcp-token.ps1
+*.bak
+
+# Environment files (sub-repos sudah punya .gitignore sendiri,
+# tapi defensive di root juga)
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Tokens & keys
+**/access-token*
+**/secret*
+**/*.key
+**/*.pem
+**/*.p12
+
+# =========================================================
+# IDE & EDITOR
+# =========================================================
+.vscode/
+.idea/
+*.iml
+.windsurf/runs/
+
+# =========================================================
+# OS-SPECIFIC
+# =========================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================================================
+# PYTHON VIRTUAL ENV (kalau ada untuk script utility)
+# =========================================================
+.venv/
+__pycache__/
+*.pyc
+
+# =========================================================
+# TEMP / LOG
+# =========================================================
+*.log
+tmp/
+temp/
+*.tmp
+
+# =========================================================
+# OLD PROJECT — Semester 5 (jangan ikut push, 230+ MB)
+# =========================================================
+Projek Pbl-Semester-5/
+
+# =========================================================
+# BUG RECORDINGS (video besar, simpan lokal saja)
+# =========================================================
+*.mp4
+*.mov
+masalah-*.mp4
+masalah-*.jpeg
+
+# =========================================================
+# BUILD CACHE (Flutter & Gradle besar, jangan push)
+# =========================================================
+**/.gradle/
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# =========================================================
+# REFERENCE PDF (besar, hanya lokal)
+# =========================================================
+# Hapus baris ini kalau mau push jurnal referensi
+# Refrensi/
+
+# =========================================================
+# JANGAN COMMIT — info MCP/dev tooling
+# =========================================================
+.windsurf/runs/
+.windsurf/tmp/

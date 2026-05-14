@@ -1,0 +1,558 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   DESIGN TOKENS — MyPresensi
+   Referensi: Mekari Talenta (card-based) + Politani Web palette
+   Primary: Politani Web Blue #2D86FF (extracted dari politanisamarinda.ac.id)
+   Accent: Gold #F4B400 (pita logo Politani)
+   ============================================ */
+
+@layer base {
+  :root {
+    /* Warna Utama — Politani Web (politanisamarinda.ac.id) */
+    --color-primary: 45 134 255;        /* #2D86FF — CTA & link */
+    --color-primary-hover: 30 112 224;  /* #1E70E0 — hover state */
+    --color-primary-dark: 13 44 94;     /* #0D2C5E — hero gradient end, header navy */
+    --color-primary-subtle: 45 134 255 / 0.10;
+
+    /* Accent — Gold pita logo Politani (kontras hangat dengan biru) */
+    --color-accent: 244 180 0;          /* #F4B400 */
+    --color-accent-subtle: 244 180 0 / 0.12;
+
+    /* Surface & Background */
+    --color-surface: 255 255 255;       /* #FFFFFF */
+    --color-background: 244 246 248;    /* #F4F6F8 */
+    --color-border: 226 230 234;        /* #E2E6EA */
+
+    /* Teks */
+    --color-text-primary: 28 32 36;     /* #1C2024 */
+    --color-text-secondary: 99 108 118; /* #636C76 */
+    /* Dinaikkan dari #AEB4BB (2.34:1) ke #757B82 (4.55:1 vs white) — WCAG AA pass */
+    --color-text-disabled: 117 123 130; /* #757B82 */
+
+    /* Status */
+    --color-success: 26 127 55;         /* #1A7F37 */
+    --color-success-subtle: 26 127 55 / 0.08;
+    --color-warning: 154 103 0;         /* #9A6700 */
+    --color-warning-subtle: 154 103 0 / 0.08;
+    --color-danger: 207 34 46;          /* #CF222E */
+    --color-danger-subtle: 207 34 46 / 0.08;
+
+    /* Card / Shadow — layered ala Linear/Vercel (lebih hidup) */
+    --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(15, 23, 42, 0.04);
+    --shadow-card-hover: 0 8px 24px -8px rgba(45, 134, 255, 0.20), 0 0 0 1px rgba(45, 134, 255, 0.18);
+    --radius-card: 16px;
+    --radius-button: 999px;
+    --radius-input: 8px;
+  }
+}
+
+@layer base {
+  * {
+    border-color: rgb(var(--color-border));
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: rgb(var(--color-background));
+    color: rgb(var(--color-text-primary));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    color: rgb(var(--color-text-primary));
+  }
+
+  code, pre, kbd {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* ============================================
+   KOMPONEN UTAMA — Ala Mekari Talenta
+   ============================================ */
+
+@layer components {
+  /* Card: Sudut tumpul, shadow halus */
+  .card {
+    @apply bg-white rounded-2xl;
+    box-shadow: var(--shadow-card);
+    border: 1px solid rgba(226, 230, 234, 0.8);
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transition: box-shadow 0.2s ease;
+  }
+
+  /* Tombol Utama: Pill shape, warna primary */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 font-semibold text-white transition-all duration-200;
+    background-color: rgb(var(--color-primary));
+    border-radius: var(--radius-button);
+    padding: 0.625rem 1.5rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+    box-shadow: 0 1px 2px rgba(var(--color-primary), 0.30);
+  }
+
+  .btn-primary:hover {
+    background-color: rgb(var(--color-primary-hover));
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px -4px rgba(var(--color-primary), 0.45);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  /* Tombol Sekunder: Outline */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200;
+    color: rgb(var(--color-primary));
+    border: 1.5px solid rgb(var(--color-primary));
+    border-radius: var(--radius-button);
+    padding: 0.625rem 1.5rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.875rem;
+    background-color: transparent;
+  }
+
+  .btn-secondary:hover {
+    background-color: rgba(var(--color-primary-subtle));
+  }
+
+  /* Tombol Danger */
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 font-semibold text-white transition-all duration-200;
+    background-color: rgb(var(--color-danger));
+    border-radius: var(--radius-button);
+    padding: 0.625rem 1.5rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.875rem;
+  }
+
+  .btn-danger:hover {
+    opacity: 0.9;
+  }
+
+  /* Badge Status */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-semibold border;
+    border-radius: 999px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .badge-success {
+    background-color: rgba(var(--color-success-subtle));
+    color: rgb(var(--color-success));
+    border-color: rgba(26, 127, 55, 0.2);
+  }
+
+  .badge-warning {
+    background-color: rgba(var(--color-warning-subtle));
+    color: rgb(var(--color-warning));
+    border-color: rgba(154, 103, 0, 0.2);
+  }
+
+  .badge-danger {
+    background-color: rgba(var(--color-danger-subtle));
+    color: rgb(var(--color-danger));
+    border-color: rgba(207, 34, 46, 0.2);
+  }
+
+  .badge-neutral {
+    @apply bg-gray-100 text-gray-600 border-gray-200;
+  }
+
+  /* Input Field */
+  .input-field {
+    @apply w-full px-4 py-2.5 text-sm transition-all duration-200 outline-none;
+    border: 1.5px solid rgb(var(--color-border));
+    border-radius: var(--radius-input);
+    background-color: rgb(var(--color-surface));
+    color: rgb(var(--color-text-primary));
+    font-family: 'Inter', sans-serif;
+  }
+
+  .input-field::placeholder {
+    color: rgb(var(--color-text-disabled));
+  }
+
+  .input-field:focus {
+    border-color: rgb(var(--color-primary));
+    box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.15);
+  }
+
+  /* Label */
+  .form-label {
+    @apply block text-sm font-semibold mb-1.5;
+    color: rgb(var(--color-text-primary));
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  /* Tabel ala Mekari Talenta — clean, tanpa border vertikal */
+  .data-table {
+    @apply w-full text-sm;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .data-table th {
+    @apply px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider;
+    color: rgb(var(--color-text-secondary));
+    border-bottom: 1px solid rgb(var(--color-border));
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .data-table td {
+    @apply px-4 py-3.5;
+    color: rgb(var(--color-text-primary));
+    border-bottom: 1px solid rgba(226, 230, 234, 0.5);
+  }
+
+  .data-table tbody tr:hover td {
+    background-color: rgba(var(--color-primary-subtle));
+    transition: background-color 0.15s ease;
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Summary Card (kartu ringkasan di atas dashboard) */
+  .summary-card {
+    @apply card p-5 flex flex-col gap-1;
+  }
+
+  .summary-card-label {
+    @apply text-xs font-semibold uppercase tracking-wide;
+    color: rgb(var(--color-text-secondary));
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .summary-card-value {
+    @apply text-3xl font-bold;
+    color: rgb(var(--color-text-primary));
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .summary-card-sublabel {
+    @apply text-xs;
+    color: rgb(var(--color-text-secondary));
+  }
+
+  /* Page title */
+  .page-title {
+    @apply text-2xl font-bold;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: rgb(var(--color-text-primary));
+  }
+
+  .page-subtitle {
+    @apply text-sm mt-0.5;
+    color: rgb(var(--color-text-secondary));
+  }
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.sidebar-nav-item {
+  @apply flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 w-full;
+  color: rgb(var(--color-text-secondary));
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.sidebar-nav-item:hover {
+  background-color: rgba(var(--color-primary-subtle));
+  color: rgb(var(--color-primary));
+}
+
+.sidebar-nav-item.active {
+  background-color: rgba(var(--color-primary-subtle));
+  color: rgb(var(--color-primary));
+  font-weight: 600;
+  /* Indicator bar kiri — visual cue "halaman aktif" */
+  box-shadow: inset 3px 0 0 rgb(var(--color-primary));
+}
+
+/* ============================================
+   SKELETON LOADING (Mekari Talenta style)
+   ============================================ */
+.skeleton {
+  @apply animate-pulse bg-gray-200 rounded-lg;
+}
+
+/* ============================================
+   ACCESSIBILITY — Focus & Skip Link
+   ============================================ */
+
+/* Skip-to-content link — visible saat di-focus via keyboard (Tab dari URL bar) */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 8px;
+  z-index: 100;
+  background-color: rgb(var(--color-primary));
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: top 0.15s ease;
+  text-decoration: none;
+}
+.skip-to-content:focus {
+  top: 8px;
+  outline: 2px solid rgb(var(--color-primary));
+  outline-offset: 2px;
+}
+
+/* Focus-visible global — cincin biru jelas untuk keyboard navigation */
+*:focus-visible {
+  outline: 2px solid rgb(var(--color-primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Buttons / Links yang sudah punya rounded ikut radius parent */
+button:focus-visible,
+a:focus-visible {
+  outline-offset: 3px;
+}
+
+/* Hilangkan default outline saat klik mouse (focus-visible saja yang muncul) */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   KOMPONEN BARU — Refresh Palette Politani Web
+   Hero card gradient + KPI modern + Trend pill
+   ============================================ */
+
+/* HERO CARD: gradient primary→dark + amber glow (untuk welcome card di top dashboard) */
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgb(var(--color-primary-dark)) 100%);
+  color: white;
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  box-shadow: 0 10px 30px -8px rgba(var(--color-primary-dark), 0.40);
+}
+
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(var(--color-accent), 0.30), transparent 70%);
+  pointer-events: none;
+}
+
+.hero-card::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: 30%;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.10), transparent 70%);
+  pointer-events: none;
+}
+
+.hero-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-card h1,
+.hero-card h2,
+.hero-card h3 {
+  color: white;
+}
+
+/* KPI CARD MODERN: card dengan icon box duotone + lift hover */
+.kpi-card {
+  @apply card p-5 flex flex-col gap-1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Icon box duotone 38×38, rounded, lapis warna primary/status */
+.kpi-icon-box {
+  @apply inline-flex items-center justify-center rounded-xl;
+  width: 38px;
+  height: 38px;
+  background: rgba(var(--color-primary), 0.10);
+  color: rgb(var(--color-primary));
+}
+
+.kpi-icon-box.success {
+  background: rgba(var(--color-success), 0.10);
+  color: rgb(var(--color-success));
+}
+
+.kpi-icon-box.warning {
+  background: rgba(var(--color-warning), 0.10);
+  color: rgb(var(--color-warning));
+}
+
+.kpi-icon-box.danger {
+  background: rgba(var(--color-danger), 0.10);
+  color: rgb(var(--color-danger));
+}
+
+.kpi-icon-box.accent {
+  background: rgba(var(--color-accent), 0.18);
+  color: rgb(var(--color-warning)); /* warna darker tone untuk AA contrast di atas gold-tint */
+}
+
+/* Trend pill: small badge ▲/▼ +N% (perubahan vs periode sebelumnya) */
+.trend-pill {
+  @apply inline-flex items-center gap-1 rounded-full text-xs font-semibold;
+  padding: 0.125rem 0.5rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.trend-pill.up {
+  background: rgba(var(--color-success), 0.12);
+  color: rgb(var(--color-success));
+}
+
+.trend-pill.down {
+  background: rgba(var(--color-danger), 0.12);
+  color: rgb(var(--color-danger));
+}
+
+.trend-pill.neutral {
+  background: rgba(var(--color-text-secondary), 0.10);
+  color: rgb(var(--color-text-secondary));
+}
+
+/* Text accent (gold) untuk angka/label khusus */
+.text-accent {
+  color: rgb(var(--color-accent));
+}
+
+/* ============================================
+   SCROLLBAR — Minimalist
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-border));
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-text-disabled));
+}
+
+/* ============================================
+   SWEETALERT2 — Custom Theme
+   ============================================ */
+.swal-popup-custom {
+  border-radius: 16px !important;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
+  padding: 1.5rem !important;
+}
+
+.swal-title-custom {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.15rem !important;
+  color: rgb(var(--color-text-primary)) !important;
+}
+
+.swal-html-custom {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.875rem !important;
+  color: rgb(var(--color-text-secondary)) !important;
+  line-height: 1.6 !important;
+}
+
+.swal-btn-confirm {
+  background-color: rgb(var(--color-primary)) !important;
+  color: white !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  padding: 0.625rem 1.5rem !important;
+  border-radius: 999px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s !important;
+  margin-left: 0.5rem !important;
+}
+
+.swal-btn-confirm:hover {
+  background-color: rgb(var(--color-primary-hover)) !important;
+}
+
+.swal-btn-confirm:focus {
+  box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.3) !important;
+}
+
+.swal-btn-cancel {
+  background-color: white !important;
+  color: rgb(var(--color-text-primary)) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  padding: 0.625rem 1.5rem !important;
+  border-radius: 999px !important;
+  border: 1px solid rgb(var(--color-border)) !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s !important;
+}
+
+.swal-btn-cancel:hover {
+  background-color: rgb(244 246 248) !important;
+}
+
+/* SweetAlert2 stacked buttons fix */
+.swal2-actions {
+  gap: 0.5rem !important;
+}
+
+/* SweetAlert2 toast position */
+.swal2-timer-progress-bar {
+  background: rgb(var(--color-primary)) !important;
+}
+
+/* Animasi pulse-once untuk Live Session Monitor — highlight avatar mhs baru hadir.
+   Berbeda dari `animate-pulse` Tailwind (loop) — ini one-shot 3 detik. */
+@keyframes pulse-once {
+  0% { transform: scale(1); filter: brightness(1); }
+  20% { transform: scale(1.15); filter: brightness(1.3); }
+  60% { transform: scale(1.05); filter: brightness(1.1); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 1.2s ease-out;
+}

@@ -1,0 +1,87 @@
+name: mypresensi_mobile
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # === Core ===
+  dio: ^5.9.2                       # HTTP client + interceptor auth
+  flutter_riverpod: ^3.3.1          # State management
+  riverpod: ^3.2.1
+  go_router: ^17.2.0                # Routing dengan refreshListenable
+  flutter_secure_storage: ^10.0.0   # Token & secret (BUKAN shared_preferences)
+
+  # === UI ===
+  google_fonts: ^8.0.2              # Plus Jakarta Sans + Inter
+  flutter_native_splash: ^2.4.7     # Splash screen native
+
+  # === Device ===
+  geolocator: ^14.0.2               # GPS + isMocked anti fake-GPS
+  permission_handler: ^12.0.1       # Runtime permission request
+  device_info_plus: ^12.4.0         # Device model & OS untuk audit log
+  camera: ^0.12.0+1                 # Live camera (ResolutionPreset.high untuk face)
+  mobile_scanner: ^7.2.0            # Scan QR (minSdk 26)
+
+  # === Face Recognition (deep-learning embedding) ===
+  google_mlkit_face_detection: ^0.13.2  # ML Kit landmark + bbox + liveness
+  tflite_flutter: ^0.12.1               # MobileFaceNet inference
+  image: ^4.8.0                         # YUV/NV21 → RGB + crop + resize
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/models/
+
+# ============================================================
+# Native Splash Screen — background polos, logo ditangani Flutter
+# Jalankan: dart run flutter_native_splash:create
+# ============================================================
+flutter_native_splash:
+  color: "#F0F4F8"
+  color_dark: "#1a2332"
+  android_12:
+    color: "#F0F4F8"
+    color_dark: "#1a2332"
+
+# ============================================================
+# App Launcher Icon — logo TRPL sebagai icon app
+# Jalankan: dart run flutter_launcher_icons
+# ============================================================
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/trpl_logo.jpg"
+  adaptive_icon_background: "#F0F4F8"
+  adaptive_icon_foreground: "assets/images/trpl_logo.jpg"
