@@ -5,6 +5,42 @@
 
 ---
 
+## [2026-05-15] — Sesi: Icon System Final Decision + GitHub Repo Setup
+
+### 🎯 Target Sesi: Lock library icon + warna semantic untuk mobile + setup repo private GitHub
+
+### ICON LIBRARY & COLOR STRATEGY
+
+User feedback: icon mobile sekarang flat (Material Icons default) — terlihat 'web 1.0', tidak premium, tidak fit konteks 2026 mobile app. Solusi: bandingkan 4 library icon di mockup HTML (Phosphor Duotone / Iconsax / Lucide / Material Symbols Rounded) → user pilih **Iconsax Bulk** (fintech ID vibe, 2-layer duotone, 800KB ringan). Lalu user usulkan multicolor per icon. Saya tantang ide tersebut karena risiko AI-generated look + off-brand → tawarkan **Color Strategy Lab** (3 column comparison) → user lihat side-by-side, pilih **Semantic System** (Action/Featured/Success/Warning/Danger/Neutral, 6 token established).
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 03:09 | [ADD] | `docs/ui-research/mockups/mobile-mockup.html` | **Icon Style Lab** — 4 column comparison (Phosphor / Iconsax / Lucide / Material Symbols), 12 icon sama persis dari MyPresensi, render via Iconify CDN |
+| 03:42 | [MOD] | `mobile-mockup.html` Library Lab | Tambah ✓ FINAL: Iconsax badge di header + ✓ CHOSEN gold border di kolom Iconsax (decision documented) |
+| 03:42 | [ADD] | `mobile-mockup.html` Color Strategy Lab | **3 column comparison** — A. Monochrome Biru / B. Random Multicolor (anti-pattern demo) / C. Semantic System (recommended). 12 icon Iconsax Bulk dengan style color berbeda. Color Legend bottom dengan 6 swatch + use-case |
+| 04:19 | [MOD] | `.windsurf/rules/22-mobile-design-system.md` | **§C Icon System added** — final library Iconsax Bulk + Semantic Color Strategy (6 variants: Action/Featured/Success/Warning/Danger/Neutral). Mapping konvensi 30+ pre-mapped icon. Helper widget `SemanticIcon` enum-based. Anti-pattern (no random color, no library mixing, bottom nav exception). Section C-J shifted to D-K untuk insertion. v2 entry di Update History |
+
+### GITHUB REPO SETUP
+
+User minta push ke GitHub private. Setelah audit deep (5 critical leak ditemukan: admin credential `aryadanendra23@gmail.com / @Batuah26` di 2 file + Supabase project ref `ibnzsitiqgmrntkaqool` di 3 file) → sanitize semua sebelum first commit → push aman.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 03:30 | [SEC] | `.windsurf/workflows/start-dev.md` | Sanitize admin credential (email + password) → ganti dengan reference `.dev-accounts.md` lokal |
+| 03:30 | [SEC] | `CHANGELOG.md` line 691 | Sanitize same admin credential di entry [CFG] Supabase Auth |
+| 03:30 | [SEC] | `README.md` (2 occurrences) | Sanitize Supabase project ref real `ibnzsitiqgmrntkaqool` → `<your-project-ref>` placeholder |
+| 03:30 | [SEC] | `dev-log.md` | Sanitize Supabase project ref real → placeholder |
+| 03:30 | [SEC] | `.windsurf/workflows/add-supabase-migration.md` | Hapus contoh project ref real |
+| 03:30 | [ADD] | `.gitignore` (root) | Tambah exclusion: `Projek Pbl-Semester-5/` (230MB old), `*.mp4` (bug recordings), `**/.gradle/`, `**/build/`, `**/.dart_tool/` |
+| 03:30 | [ADD] | `.gitattributes` | Normalize line endings cross-OS — text=LF (kecuali PowerShell scripts CRLF), binary explicit (png/jpg/pdf/tflite/jks), generated linguist-generated (lock files) |
+| 03:30 | [RUN] | git init + add . | 297 files staged, 4 critical scans clean (admin cred / Supabase ref / JWT / Stripe keys) — 0 leak |
+| 03:30 | [RUN] | git commit | Initial commit message dengan komponen description + sensitive files protection note |
+| 03:30 | [RUN] | gh repo create | Create `Tulus04/Projek-PBL-Semester-6` (PRIVATE) + push origin main + 9 topics added |
+
+**Verifikasi**: Repo URL https://github.com/Tulus04/Projek-PBL-Semester-6 — visibility PRIVATE confirmed, default branch main, 297 files / 452 objects / 4.95 MiB pushed.
+
+---
+
 ## [2026-05-14] — Sesi: Audit Stack + Migrasi MobileFaceNet + Leave Requests Mobile + Rules Robustness Pass + UI Refresh Politani Web
 
 ### 🎯 Target Sesi: Audit + Fix face recognition + Implement leave-requests mobile + Konsolidasi rules robust + Refresh palette dashboard

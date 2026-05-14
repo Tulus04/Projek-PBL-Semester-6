@@ -18,7 +18,7 @@
 | Radius | Card 16px, Button 999px (pill), Input 8px | ⚠️ Mobile saat ini banyak pakai 12-14px untuk button — perlu migrasi |
 | Shadows | Layered dual (drop + ring) ala Linear/Vercel | ❌ Mobile saat ini flat — WAJIB upgrade |
 
-**Catatan migrasi**: User sudah approve sync warna mobile ke web (sesi 2026-05-15). Update `lib/core/theme/app_colors.dart` perlu dilakukan sebagai task implementasi terpisah, lihat §F.
+**Catatan migrasi**: User sudah approve sync warna mobile ke web (sesi 2026-05-15). Update `lib/core/theme/app_colors.dart` perlu dilakukan sebagai task implementasi terpisah, lihat §G.
 
 ## B. Color Tokens — WAJIB
 
@@ -88,7 +88,187 @@ static const Color textTertiary    = Color(0xFF757B82); // disabled, caption
 // Catatan: textTertiary dinaikkan dari #AEB4BB ke #757B82 untuk WCAG AA pass (4.55:1 vs white)
 ```
 
-## C. Shadow Tokens — Anti-Flat Principle
+## C. Icon System — Library + Semantic Color Strategy
+
+Sesi 2026-05-15: keputusan final dari Library Lab + Color Strategy Lab di `docs/ui-research/mockups/mobile-mockup.html`.
+
+### C.1 Library Final: Iconsax Bulk
+
+Dari comparison 4 library (Phosphor Duotone, Iconsax, Lucide, Material Symbols Rounded), **Iconsax Bulk** dipilih sebagai library icon WAJIB untuk mobile MyPresensi.
+
+| Aspek | Pilihan | Alasan |
+|-------|---------|--------|
+| **Package** | `iconsax_plus: ^1.0.0` | Fork community yang maintained (original abandoned) |
+| **Variant** | `Bulk` (duotone) | 2-layer: outer 25% opacity + inner 100% solid → tidak flat |
+| **Size** | ~800KB | 1100+ icons, ringan untuk APK |
+| **Vibe** | Fintech ID (DANA/OVO/ShopeePay) | Familiar untuk audiens mahasiswa Indonesia |
+
+**Library yang DITOLAK**:
+- ❌ **Phosphor Duotone** — terlalu Notion/dev-tool vibe, kurang fintech
+- ❌ **Lucide** — stroke-based 1.5px terlalu flat untuk mobile (OK untuk web, tapi mobile butuh duotone)
+- ❌ **Material Symbols Rounded** — terlalu Google-native, kurang character distinct
+
+### C.2 Color Strategy Final: Semantic System
+
+Dari comparison 3 strategi (Monochrome biru / Random Multicolor / Semantic System), **Semantic System** dipilih sebagai pendekatan WAJIB.
+
+**Filosofi**: Setiap icon punya warna SESUAI MAKNA (semantic), bukan random atau monochrome. Color = additional information channel untuk scannability + reduce cognitive load.
+
+**Anti-pattern yang DITOLAK**:
+- ❌ **Monochrome biru semua** — flat, 'web 1.0' look, scannability rendah, terlihat lazy
+- ❌ **Random multicolor (ungu/pink/cyan tanpa system)** — AI-generated look, off-brand, accessibility risk, melanggar prinsip 'corporate clean'
+
+### C.3 Semantic Color Tokens — 6 Variants
+
+| Semantic | Token | Light Hex | Dark Hex | Pakai untuk Icon |
+|----------|-------|-----------|----------|------------------|
+| **Action** | `colorPrimary` | `#2D86FF` | `#5BA0FF` | Tindakan utama: Home, Profile, Scan utility, Notif, Search, Favorite |
+| **Featured** | `colorAccent` | `#F4B400` | `#F4B400` | Highlight signature: Hero session, Scan QR icon, Bookmark, Star, Achievement |
+| **Success** | `colorSuccess` | `#1A7F37` | `#4DA45F` | Status positif: Hadir, Verified, Privacy OK, Submit OK, Connected |
+| **Warning** | `colorWarning` | `#9A6700` | `#C9A03A` | Caution/permission: Izin, Sakit, Pending, Permission needed, Camera, Lokasi |
+| **Danger** | `colorDanger` | `#CF222E` | `#E55764` | Destructive/alert: Mock GPS, Alpa, Logout, Delete, Reject, Error |
+| **Neutral** | `colorTextTertiary` | `#5C6B7A` | `#94A3B8` | Utility/nav: Settings, Calendar past, Filter, Nav arrow chevron-right |
+
+**Catatan kontras**: Dark mode tone lebih terang per token. Definisikan sebagai `colorXxxOnDark` di `app_colors.dart` (lihat §G migration plan).
+
+### C.4 Mapping Konvensi MyPresensi
+
+Daftar icon yang sudah pre-mapped — JANGAN ubah tanpa diskusi:
+
+```dart
+// lib/core/theme/icon_semantic_map.dart (akan dibuat saat migrate — §G)
+
+import 'package:flutter/material.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import 'app_colors.dart';
+
+class IconSemantic {
+  // ====== Action (primary blue) ======
+  static const home          = (icon: IconsaxPlusBulk.home_2,         color: AppColors.primary);
+  static const profile       = (icon: IconsaxPlusBulk.user,           color: AppColors.primary);
+  static const notification  = (icon: IconsaxPlusBulk.notification,   color: AppColors.primary);
+  static const search        = (icon: IconsaxPlusBulk.search_normal,  color: AppColors.primary);
+  static const history       = (icon: IconsaxPlusBulk.clock,          color: AppColors.primary);
+  static const course        = (icon: IconsaxPlusBulk.book,           color: AppColors.primary);
+
+  // ====== Featured (gold accent) ======
+  static const scanQR        = (icon: IconsaxPlusBulk.scan_barcode,   color: AppColors.accent);
+  static const heroBadge     = (icon: IconsaxPlusBulk.star_1,         color: AppColors.accent);
+  static const featured      = (icon: IconsaxPlusBulk.crown_1,        color: AppColors.accent);
+
+  // ====== Success (green) ======
+  static const checkSuccess  = (icon: IconsaxPlusBulk.tick_circle,    color: AppColors.success);
+  static const verified      = (icon: IconsaxPlusBulk.shield_tick,    color: AppColors.success);
+  static const privacyOk     = (icon: IconsaxPlusBulk.lock_1,         color: AppColors.success);
+  static const hadir         = (icon: IconsaxPlusBulk.tick_circle,    color: AppColors.success);
+
+  // ====== Warning (amber) ======
+  static const permission    = (icon: IconsaxPlusBulk.camera,         color: AppColors.warning);
+  static const location      = (icon: IconsaxPlusBulk.location,       color: AppColors.warning);
+  static const leaveRequest  = (icon: IconsaxPlusBulk.document_text,  color: AppColors.warning);
+  static const izin          = (icon: IconsaxPlusBulk.note_2,         color: AppColors.warning);
+  static const sakit         = (icon: IconsaxPlusBulk.health,         color: AppColors.warning);
+
+  // ====== Danger (red) ======
+  static const logout        = (icon: IconsaxPlusBulk.logout,         color: AppColors.danger);
+  static const delete        = (icon: IconsaxPlusBulk.trash,          color: AppColors.danger);
+  static const reject        = (icon: IconsaxPlusBulk.close_circle,   color: AppColors.danger);
+  static const mockLocation  = (icon: IconsaxPlusBulk.location_slash, color: AppColors.danger);
+  static const alpa          = (icon: IconsaxPlusBulk.close_circle,   color: AppColors.danger);
+
+  // ====== Neutral (slate) ======
+  static const settings      = (icon: IconsaxPlusBulk.setting_2,      color: AppColors.textTertiary);
+  static const calendar      = (icon: IconsaxPlusBulk.calendar_1,     color: AppColors.textTertiary);
+  static const filter        = (icon: IconsaxPlusBulk.filter,         color: AppColors.textTertiary);
+  static const chevronRight  = (icon: IconsaxPlusBulk.arrow_right_3,  color: AppColors.textTertiary);
+  static const moreVert      = (icon: IconsaxPlusBulk.more,           color: AppColors.textTertiary);
+  static const help          = (icon: IconsaxPlusBulk.message_question, color: AppColors.textTertiary);
+}
+```
+
+### C.5 Helper Widget — `SemanticIcon`
+
+Untuk konsistensi, JANGAN langsung pakai `Icon(IconsaxPlusBulk.xxx, color: ...)`. Pakai helper widget:
+
+```dart
+// lib/shared/widgets/semantic_icon.dart (akan dibuat saat migrate — §G)
+
+import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
+
+enum IconSemanticVariant { action, featured, success, warning, danger, neutral }
+
+class SemanticIcon extends StatelessWidget {
+  final IconData icon;
+  final IconSemanticVariant variant;
+  final double size;
+
+  const SemanticIcon({
+    super.key,
+    required this.icon,
+    required this.variant,
+    this.size = 24,
+  });
+
+  Color _resolveColor() {
+    return switch (variant) {
+      IconSemanticVariant.action   => AppColors.primary,
+      IconSemanticVariant.featured => AppColors.accent,
+      IconSemanticVariant.success  => AppColors.success,
+      IconSemanticVariant.warning  => AppColors.warning,
+      IconSemanticVariant.danger   => AppColors.danger,
+      IconSemanticVariant.neutral  => AppColors.textTertiary,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(icon, color: _resolveColor(), size: size);
+  }
+}
+```
+
+**Cara pakai**:
+```dart
+// Action
+SemanticIcon(icon: IconsaxPlusBulk.home_2, variant: IconSemanticVariant.action)
+
+// Featured (signature scan QR)
+SemanticIcon(icon: IconsaxPlusBulk.scan_barcode, variant: IconSemanticVariant.featured, size: 28)
+
+// Success
+SemanticIcon(icon: IconsaxPlusBulk.tick_circle, variant: IconSemanticVariant.success)
+
+// Danger (destructive)
+SemanticIcon(icon: IconsaxPlusBulk.logout, variant: IconSemanticVariant.danger)
+```
+
+### C.6 Default ke Action saat Ragu
+
+Kalau icon tidak fit ke salah satu category jelas, default pakai `IconSemanticVariant.action` (primary blue). 80%+ icon di MyPresensi adalah action utility, jadi default ini aman.
+
+### C.7 Anti-Pattern Icon — JANGAN
+
+- ❌ `Icon(Icons.home)` — Material outlined flat. WAJIB Iconsax Bulk.
+- ❌ `Icon(IconsaxPlusBulk.home_2)` tanpa explicit color/variant — default ke text color, semantic hilang.
+- ❌ Color ungu/pink/cyan/lime random — off-brand, melanggar Semantic System.
+- ❌ Variant `Outline` / `Linear` / `Broken` di mobile — Bulk = standar tunggal.
+- ❌ Mix dengan Lucide / Material Symbols / Cupertino di mobile — konsisten Iconsax saja.
+- ❌ Hardcode hex `Icon(color: Color(0xFF2D86FF))` — pakai `AppColors.primary` dari token.
+- ❌ Pakai 7+ warna semantic di luar 6 token established — minta diskusi sebelum extend.
+- ❌ Bottom navigation icon multicolor — nav active state pakai monochrome primary, inactive monochrome neutral. Semantic color hanya di feature icon (di dalam screen).
+
+### C.8 Eksepsi: Bottom Navigation
+
+Bottom nav adalah eksepsi semantic — semua tab pakai monochrome:
+- **Active tab**: `colorPrimary` (biru)
+- **Inactive tab**: `colorTextTertiary` (slate)
+
+Alasan: bottom nav butuh visual unity ("semua sama-sama navigation"), beda dengan icon di dalam screen yang butuh semantic differentiation.
+
+---
+
+## D. Shadow Tokens — Anti-Flat Principle
 
 > **Iron Law**: JANGAN pakai `border: 1px solid` untuk separation card. Pakai **layered shadow** untuk hidup.
 
@@ -171,9 +351,9 @@ class AppShadows {
 - ❌ Pakai `elevation: X` di Material — tidak bisa di-tint ke primary/navy. Pakai `Container` + `decoration: BoxDecoration(boxShadow: ...)`.
 - ❌ Pakai shadow heavy (blurRadius > 30) di card biasa. Itu untuk hero saja.
 
-## D. Component Patterns — WAJIB
+## E. Component Patterns — WAJIB
 
-### D.1 Hero Card (Statement Surface)
+### E.1 Hero Card (Statement Surface)
 
 **Pattern**: Gradient primary → navy + gold radial glow + white highlight + dramatic shadow.
 
@@ -247,7 +427,7 @@ class HeroCard extends StatelessWidget {
 
 **Aturan pakai**: 1 hero card per screen MAX. Jangan banyak hero — kehilangan signifikansi.
 
-### D.2 KPI Icon Box (Duotone)
+### E.2 KPI Icon Box (Duotone)
 
 **Pattern**: Container 38x38 rounded 12px dengan tint background + solid icon foreground.
 
@@ -295,7 +475,7 @@ enum KpiColor { primary, success, warning, danger, info, accent }
 
 **Pakai untuk**: quick action grid, activity feed, summary card icons, list item leading icon.
 
-### D.3 Card Default
+### E.3 Card Default
 
 **Pattern**: White surface + radius 16 + layered shadow + padding 16.
 
@@ -335,7 +515,7 @@ class AppCard extends StatelessWidget {
 }
 ```
 
-### D.4 Button Pill (Primary & Secondary)
+### E.4 Button Pill (Primary & Secondary)
 
 **Pattern**: Pill shape (radius 999), padding 13x20, font Plus Jakarta Sans 600, shadow primary tinted.
 
@@ -383,7 +563,7 @@ OutlinedButton(
 
 **Lebar tombol**: Default `width: double.infinity` di mobile saat tombol berdiri sendiri di bottom screen. Di list/inline, tombol sesuai konten + icon.
 
-### D.5 Trend Pill (▲/▼ Badge)
+### E.5 Trend Pill (▲/▼ Badge)
 
 **Pattern**: Pill kecil dengan icon arrow + persentase, untuk indicator perubahan.
 
@@ -432,7 +612,7 @@ enum TrendDirection { up, down, neutral }
 
 **Pakai untuk**: summary card history (% kehadiran vs minggu lalu), dashboard analytics.
 
-### D.6 Hero Badge (Animated Pulse)
+### E.6 Hero Badge (Animated Pulse)
 
 Status indicator di hero card dengan pulse dot.
 
@@ -473,7 +653,7 @@ class HeroBadge extends StatelessWidget {
 // _PulseDot: AnimationController scale 1.0 → 1.3 + opacity 1 → 0.7, repeat reverse, duration 1s
 ```
 
-## E. Layout & Spacing Standards
+## F. Layout & Spacing Standards
 
 ### Page Structure
 
@@ -516,7 +696,7 @@ SafeArea
 | `button` | 999 | **Button (selalu pill)** |
 | `full` | 999 | Avatar, pulse dot, FAB circular |
 
-## F. Migration Plan — `app_colors.dart`
+## G. Migration Plan — `app_colors.dart` + Iconsax Setup
 
 ⚠️ **TASK PENDING** (perlu user approval sebelum apply):
 
@@ -534,14 +714,15 @@ SafeArea
    - **TAMBAH** `headerGradient` 3-stop dengan accent gold
 
 2. Buat file baru `lib/core/theme/app_shadows.dart`:
-   - Class `AppShadows` dengan const lists: `card`, `cardHover`, `cardElevated`, `hero`, `fab`, `button`, `buttonHover` (lihat §C)
+   - Class `AppShadows` dengan const lists: `card`, `cardHover`, `cardElevated`, `hero`, `fab`, `button`, `buttonHover` (lihat §D)
 
 3. Buat file baru `lib/shared/widgets/`:
-   - `hero_card.dart` — pattern §D.1
-   - `kpi_icon_box.dart` — pattern §D.2
-   - `app_card.dart` — pattern §D.3
-   - `trend_pill.dart` — pattern §D.5
-   - `hero_badge.dart` — pattern §D.6
+   - `hero_card.dart` — pattern §E.1
+   - `kpi_icon_box.dart` — pattern §E.2
+   - `app_card.dart` — pattern §E.3
+   - `trend_pill.dart` — pattern §E.5
+   - `hero_badge.dart` — pattern §E.6
+   - `semantic_icon.dart` — pattern §C.5
 
 4. Update existing screens secara bertahap:
    - `home_screen.dart` — apply hero card untuk "Sesi Aktif"
@@ -555,7 +736,7 @@ SafeArea
    - Screenshot 3-state per screen untuk visual confirmation
    - User review match dengan mockup `mobile-mockup.html`
 
-## G. Anti-Pattern — JANGAN
+## H. Anti-Pattern — JANGAN
 
 ### Visual
 
@@ -582,7 +763,7 @@ SafeArea
 - ❌ `setState` di file lebih dari 200 lines — pindah ke Riverpod provider
 - ❌ Skip 3-state handling (loading/empty/error) — WAJIB ada di setiap screen network-fetched
 
-## H. Verification Checklist
+## I. Verification Checklist
 
 Sebelum klaim screen "selesai":
 
@@ -599,7 +780,7 @@ Sebelum klaim screen "selesai":
 - [ ] **`flutter analyze`**: 0 issues
 - [ ] **Screenshot match mockup**: Compare visual ke `mobile-mockup.html` screen yang sesuai
 
-## I. Referensi Eksternal
+## J. Referensi Eksternal
 
 - **Mockup HTML**: `@docs/ui-research/mockups/mobile-mockup.html` (live preview di `http://localhost:8765`)
 - **Riset UI**: `@docs/ui-research/mobile-references.md` (650+ baris referensi konkret)
@@ -610,8 +791,9 @@ Sebelum klaim screen "selesai":
   - Politani Web — primary palette + gold accent
   - Material Design 3 — component foundation
 
-## J. Update History
+## K. Update History
 
 | Tanggal | Versi | Perubahan |
 |---------|-------|-----------|
 | 2026-05-15 | v1 | Rule fundamental dibuat. Sync warna mobile ke web (`#2D86FF`). Layered shadows. Anti-flat principle. Migration plan untuk `app_colors.dart`. |
+| 2026-05-15 | v2 | **§C Icon System added**. Final library: Iconsax Bulk. Final color strategy: Semantic System (6 variants). Mapping konvensi 30+ icon. Helper widget `SemanticIcon`. Source: Color Strategy Lab di mockup HTML. |

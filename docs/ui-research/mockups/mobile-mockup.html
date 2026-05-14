@@ -1319,6 +1319,139 @@
       .icon-lab-grid { grid-template-columns: 1fr; }
     }
 
+    /* =========================================================
+       Color Strategy Lab — semantic comparison
+       ========================================================= */
+    .lab-divider {
+      max-width: 1280px;
+      margin: 32px auto;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+    }
+    .lab-final-badge {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 3px 10px;
+      background: rgba(26, 127, 55, 0.22);
+      color: #4DA45F;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      vertical-align: middle;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      text-transform: uppercase;
+    }
+    .icon-col.col-chosen {
+      border-color: rgba(244, 180, 0, 0.40);
+      box-shadow: 0 0 0 1px rgba(244, 180, 0, 0.25);
+      position: relative;
+    }
+    .icon-col.col-chosen::after {
+      content: '✓ CHOSEN';
+      position: absolute;
+      top: -10px;
+      right: 14px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, #F4B400, #E0A300);
+      color: #0D2C5E;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .icon-col.col-recommended {
+      border-color: rgba(244, 180, 0, 0.45);
+      box-shadow: 0 0 0 1px rgba(244, 180, 0, 0.20);
+      position: relative;
+    }
+    .icon-col.col-recommended::after {
+      content: '⭐ RECOMMENDED';
+      position: absolute;
+      top: -10px;
+      right: 14px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, #F4B400, #E0A300);
+      color: #0D2C5E;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .icon-col.col-anti-pattern {
+      border-color: rgba(207, 34, 46, 0.30);
+    }
+    .semantic-tag {
+      display: block;
+      font-size: 8.5px;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.40);
+      margin-top: 1px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      text-transform: lowercase;
+    }
+    .color-legend {
+      max-width: 1280px;
+      margin: 18px auto 32px;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 14px;
+    }
+    .color-legend-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .color-legend-title iconify-icon {
+      color: #F4B400;
+    }
+    .color-legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.4;
+    }
+    .legend-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+    .legend-label {
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.1px;
+      display: block;
+    }
+    .legend-desc {
+      color: rgba(255, 255, 255, 0.55);
+      font-weight: 500;
+      font-size: 11px;
+    }
+    @media (max-width: 1100px) {
+      .icon-col.col-chosen::after,
+      .icon-col.col-recommended::after { right: 8px; font-size: 9px; }
+    }
+
     @media (max-width: 720px) {
       body { padding: 16px; }
       .mockup-grid { grid-template-columns: 1fr; }
@@ -1348,8 +1481,8 @@
        ==================================================== -->
   <section class="icon-lab">
     <div class="icon-lab-header">
-      <h2>Icon Style Lab — <span class="accent">Bandingkan 4 Style</span></h2>
-      <p>Sama-sama 12 icon yang dipakai di MyPresensi. Pilih style yang paling cocok dengan vibe app — semua di-render dari CDN Iconify, biru token Politani sebagai foreground.</p>
+      <h2>Library Lab — <span class="accent">Bandingkan 4 Style</span> <span class="lab-final-badge">✓ Final: Iconsax</span></h2>
+      <p>Sama-sama 12 icon yang dipakai di MyPresensi. <strong style="color:#F4B400">Iconsax Bulk</strong> dipilih sebagai library final (lihat ✓ Chosen di kolom 2). Section ini disimpan sebagai dokumentasi proses keputusan.</p>
     </div>
 
     <div class="icon-lab-grid">
@@ -1381,7 +1514,7 @@
       </div>
 
       <!-- ============ COL 2: ICONSAX / SOLAR BOLD DUOTONE ============ -->
-      <div class="icon-col">
+      <div class="icon-col col-chosen">
         <div class="icon-col-head">
           <h3>Iconsax-style (Solar Bold Duotone)</h3>
           <span class="icon-col-tag gold">Fintech ID · DANA/OVO vibe</span>
@@ -1435,7 +1568,7 @@
       </div>
 
       <!-- ============ COL 4: MATERIAL SYMBOLS ROUNDED ============ -->
-      <div class="icon-col">
+      <div class="icon-col" id="col-material-symbols">
         <div class="icon-col-head">
           <h3>Material Symbols Rounded</h3>
           <span class="icon-col-tag">Filled · Premium soft</span>
@@ -1462,6 +1595,134 @@
       </div>
     </div>
   </section>
+
+  <!-- ====================================================
+       COLOR STRATEGY LAB — 3-column semantic comparison
+       Iconsax Bulk × 3 pendekatan warna:
+       A. Monochrome | B. Random Multicolor | C. Semantic System
+       ==================================================== -->
+  <div class="lab-divider"></div>
+
+  <section class="icon-lab color-strategy-lab">
+    <div class="icon-lab-header">
+      <h2>Color Strategy Lab — <span class="accent">Iconsax × 3 Pendekatan Warna</span></h2>
+      <p>Library sudah pilih (<strong style="color:#F4B400">Iconsax Bulk</strong>). Sekarang strategi warna icon-nya. Bandingkan 3 pendekatan: Monochrome (current), Random Multicolor (anti-pattern demo), dan <strong style="color:#4DA45F">Semantic System</strong> (recommended). Semua pakai 12 icon yang sama.</p>
+    </div>
+
+    <div class="icon-lab-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <!-- ============ COL A: MONOCHROME BIRU ============ -->
+      <div class="icon-col color-col">
+        <div class="icon-col-head">
+          <h3>A. Monochrome Biru</h3>
+          <span class="icon-col-tag">Current · Corporate clean</span>
+        </div>
+        <div class="icons-grid">
+          <div class="icon-cell"><iconify-icon icon="solar:home-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Home</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:qr-code-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Scan QR</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:user-circle-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Profil</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:bell-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Notif</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:calendar-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Jadwal</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:map-point-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Lokasi</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:camera-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Kamera</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:document-text-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Izin</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:check-circle-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Sukses</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:shield-check-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Privacy</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:logout-3-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Logout</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:alt-arrow-right-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Next</span></div>
+        </div>
+        <div class="icon-col-meta">
+          <strong style="color:#4DA45F">Pro</strong> Brand identity kuat · super konsisten<br>
+          <strong style="color:#E55764">Con</strong> Flat · 'web 1.0' look · scannability rendah
+        </div>
+      </div>
+
+      <!-- ============ COL B: RANDOM MULTICOLOR (anti-pattern) ============ -->
+      <div class="icon-col color-col col-anti-pattern">
+        <div class="icon-col-head">
+          <h3>B. Random Multicolor</h3>
+          <span class="icon-col-tag" style="background:rgba(207,34,46,0.20);color:#E55764">⚠ Anti-pattern · Demo</span>
+        </div>
+        <div class="icons-grid">
+          <div class="icon-cell"><iconify-icon icon="solar:home-bold-duotone" style="color:#FF4081"></iconify-icon><span class="label">Home</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:qr-code-bold-duotone" style="color:#00BCD4"></iconify-icon><span class="label">Scan QR</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:user-circle-bold-duotone" style="color:#9C27B0"></iconify-icon><span class="label">Profil</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:bell-bold-duotone" style="color:#FF9800"></iconify-icon><span class="label">Notif</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:calendar-bold-duotone" style="color:#76FF03"></iconify-icon><span class="label">Jadwal</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:map-point-bold-duotone" style="color:#009688"></iconify-icon><span class="label">Lokasi</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:camera-bold-duotone" style="color:#E91E63"></iconify-icon><span class="label">Kamera</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:document-text-bold-duotone" style="color:#3F51B5"></iconify-icon><span class="label">Izin</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:check-circle-bold-duotone" style="color:#FFD600"></iconify-icon><span class="label">Sukses</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:shield-check-bold-duotone" style="color:#00E5FF"></iconify-icon><span class="label">Privacy</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:logout-3-bold-duotone" style="color:#F44336"></iconify-icon><span class="label">Logout</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:alt-arrow-right-bold-duotone" style="color:#607D8B"></iconify-icon><span class="label">Next</span></div>
+        </div>
+        <div class="icon-col-meta">
+          <strong style="color:#4DA45F">Pro</strong> Eye-catching · playful<br>
+          <strong style="color:#E55764">Con</strong> AI-generated look · off-brand · accessibility risk · noisy
+        </div>
+      </div>
+
+      <!-- ============ COL C: SEMANTIC SYSTEM (recommended) ============ -->
+      <div class="icon-col color-col col-recommended">
+        <div class="icon-col-head">
+          <h3>C. Semantic System</h3>
+          <span class="icon-col-tag" style="background:rgba(26,127,55,0.22);color:#4DA45F">⭐ On-brand · Scannable</span>
+        </div>
+        <div class="icons-grid">
+          <div class="icon-cell"><iconify-icon icon="solar:home-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Home<span class="semantic-tag">action</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:qr-code-bold-duotone" style="color:#F4B400"></iconify-icon><span class="label">Scan QR<span class="semantic-tag">featured</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:user-circle-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Profil<span class="semantic-tag">action</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:bell-bold-duotone" style="color:#2D86FF"></iconify-icon><span class="label">Notif<span class="semantic-tag">action</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:calendar-bold-duotone" style="color:#94A3B8"></iconify-icon><span class="label">Jadwal<span class="semantic-tag">neutral</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:map-point-bold-duotone" style="color:#C9A03A"></iconify-icon><span class="label">Lokasi<span class="semantic-tag">caution</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:camera-bold-duotone" style="color:#C9A03A"></iconify-icon><span class="label">Kamera<span class="semantic-tag">permission</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:document-text-bold-duotone" style="color:#C9A03A"></iconify-icon><span class="label">Izin<span class="semantic-tag">warning</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:check-circle-bold-duotone" style="color:#4DA45F"></iconify-icon><span class="label">Sukses<span class="semantic-tag">success</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:shield-check-bold-duotone" style="color:#4DA45F"></iconify-icon><span class="label">Privacy<span class="semantic-tag">success</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:logout-3-bold-duotone" style="color:#E55764"></iconify-icon><span class="label">Logout<span class="semantic-tag">danger</span></span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:alt-arrow-right-bold-duotone" style="color:#94A3B8"></iconify-icon><span class="label">Next<span class="semantic-tag">neutral</span></span></div>
+        </div>
+        <div class="icon-col-meta">
+          <strong style="color:#4DA45F">Pro</strong> Multicolor + on-brand + scannable + ada arti<br>
+          <strong style="color:#E55764">Con</strong> User butuh internalize color code (1-2 menit, sekali aja)
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Color Legend untuk Opsi C -->
+  <div class="color-legend">
+    <div class="color-legend-title">
+      <iconify-icon icon="solar:palette-bold-duotone" width="18"></iconify-icon>
+      Semantic Color Code (Opsi C)
+    </div>
+    <div class="color-legend-grid">
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#2D86FF"></span>
+        <span><span class="legend-label" style="color:#5BA0FF">Action</span><span class="legend-desc">Home, Profile, Scan utility, Notif</span></span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#F4B400"></span>
+        <span><span class="legend-label" style="color:#F4B400">Featured</span><span class="legend-desc">Hero session, Scan QR signature, Highlight</span></span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#1A7F37"></span>
+        <span><span class="legend-label" style="color:#4DA45F">Success</span><span class="legend-desc">Hadir, Verified, Privacy OK, Submit OK</span></span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#9A6700"></span>
+        <span><span class="legend-label" style="color:#C9A03A">Warning</span><span class="legend-desc">Izin, Sakit, Pending review, Permission needed</span></span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#CF222E"></span>
+        <span><span class="legend-label" style="color:#E55764">Danger</span><span class="legend-desc">Mock GPS, Alpa, Logout, Delete, Reject</span></span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#5C6B7A"></span>
+        <span><span class="legend-label" style="color:#94A3B8">Neutral</span><span class="legend-desc">Settings, Calendar past, Filter, Nav arrow</span></span>
+      </div>
+    </div>
+  </div>
 
   <main class="mockup-grid">
 
