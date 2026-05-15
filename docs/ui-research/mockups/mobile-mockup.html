@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -518,6 +518,7 @@
     .quick-item .icon-wrap.danger  { background: var(--color-danger-tint);  color: var(--color-danger);  }
     .quick-item .icon-wrap.info    { background: var(--color-info-tint);    color: var(--color-info);    }
     .quick-item .icon-wrap.accent  { background: var(--color-accent-soft);  color: var(--color-warning); }
+    .quick-item .icon-wrap.featured { background: var(--color-accent-soft); color: var(--color-accent); } /* Gold-on-gold: signature CTA (Scan QR) */
     .quick-item span {
       font-size: 11px;
       font-weight: 600;
@@ -1452,6 +1453,38 @@
       .icon-col.col-recommended::after { right: 8px; font-size: 9px; }
     }
 
+    /* =========================================================
+       Iconify-icon Bridge — match svg sizing & color conventions
+       Iconify Web Component renders SVG di Shadow DOM, jadi CSS
+       svg selector tidak nembus. Bridge rules ini mirror semua
+       svg context dari phone screens supaya iconify-icon match.
+       ========================================================= */
+    iconify-icon { display: inline-block; vertical-align: middle; }
+    .status-bar iconify-icon, .sb-icons iconify-icon { width: 14px; height: 14px; }
+    .icon-btn iconify-icon { width: 18px; height: 18px; color: var(--color-text-primary); }
+    .icon-btn.dark iconify-icon { color: #fff; }
+    .hero-cta iconify-icon { width: 18px; height: 18px; }
+    .section-title a iconify-icon { width: 14px; height: 14px; }
+    .greeting p iconify-icon { width: 14px; height: 14px; color: var(--color-accent); }
+    .quick-item .icon-wrap iconify-icon { width: 18px; height: 18px; color: inherit; }
+    .activity-item .av-icon iconify-icon { width: 18px; height: 18px; }
+    .activity-item .av-icon.success iconify-icon { color: var(--color-success); }
+    .activity-item .av-icon.warning iconify-icon { color: var(--color-warning); }
+    .activity-item .av-icon.danger iconify-icon { color: var(--color-danger); }
+    .activity-item .av-meta iconify-icon { width: 11px; height: 11px; }
+    .nav-item iconify-icon { width: 22px; height: 22px; color: var(--color-text-tertiary); }
+    .nav-item.active iconify-icon { color: var(--color-primary); }
+    .face-hint-chip iconify-icon { width: 14px; height: 14px; color: var(--color-success); }
+    .result-icon-wrap iconify-icon { width: 48px; height: 48px; color: var(--color-success); }
+    .breakdown-row .br-icon iconify-icon { width: 16px; height: 16px; color: var(--color-success); }
+    .breakdown-row .br-check { width: 18px; height: 18px; color: var(--color-success); }
+    .btn iconify-icon { width: 16px; height: 16px; }
+    .prime-illustration iconify-icon { width: 64px; height: 64px; color: var(--color-primary); }
+    .benefit-item .bn-icon iconify-icon { width: 16px; height: 16px; color: var(--color-success); }
+    .privacy-note iconify-icon { width: 16px; height: 16px; color: var(--color-primary); }
+    .consent-icon-wrap iconify-icon { width: 32px; height: 32px; color: var(--color-warning); }
+    .consent-points li iconify-icon { width: 14px; height: 14px; color: var(--color-primary); }
+
     @media (max-width: 720px) {
       body { padding: 16px; }
       .mockup-grid { grid-template-columns: 1fr; }
@@ -1736,27 +1769,27 @@
           <div class="status-bar">
             <span>09:41</span>
             <span class="sb-icons">
-              <i data-lucide="signal"></i>
-              <i data-lucide="wifi"></i>
-              <i data-lucide="battery-full"></i>
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
             </span>
           </div>
 
           <div class="appbar">
             <div class="appbar-title" style="font-size: 13px; color: var(--color-text-secondary); font-weight: 500;">MyPresensi</div>
             <div class="icon-btn">
-              <i data-lucide="bell"></i>
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
               <span class="dot"></span>
             </div>
             <div class="icon-btn">
-              <i data-lucide="user"></i>
+              <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
             </div>
           </div>
 
           <div class="content">
             <div class="greeting">
               <h2>Halo, Riki 👋</h2>
-              <p><i data-lucide="sun"></i> Selamat siang — Rabu, 15 Mei 2026</p>
+              <p><iconify-icon icon="solar:sun-2-bold-duotone"></iconify-icon> Selamat siang — Rabu, 15 Mei 2026</p>
             </div>
 
             <!-- Hero Session Card -->
@@ -1771,7 +1804,7 @@
                 Dimulai 10:00 (30 menit lalu) · Berakhir 12:00
               </p>
               <button class="hero-cta">
-                <i data-lucide="qr-code"></i>
+                <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon>
                 Scan QR Sekarang
               </button>
             </div>
@@ -1782,26 +1815,26 @@
             </div>
             <div class="quick-grid">
               <div class="quick-item">
-                <div class="icon-wrap">
-                  <i data-lucide="scan-line"></i>
+                <div class="icon-wrap featured">
+                  <iconify-icon icon="solar:qr-scan-bold-duotone"></iconify-icon>
                 </div>
                 <span>Scan QR</span>
               </div>
               <div class="quick-item">
                 <div class="icon-wrap success">
-                  <i data-lucide="clipboard-list"></i>
+                  <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
                 </div>
                 <span>Riwayat</span>
               </div>
               <div class="quick-item">
                 <div class="icon-wrap warning">
-                  <i data-lucide="file-text"></i>
+                  <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
                 </div>
                 <span>Izin</span>
               </div>
               <div class="quick-item">
-                <div class="icon-wrap info">
-                  <i data-lucide="user-cog"></i>
+                <div class="icon-wrap">
+                  <iconify-icon icon="solar:user-id-bold-duotone"></iconify-icon>
                 </div>
                 <span>Profil</span>
               </div>
@@ -1810,36 +1843,36 @@
             <!-- Activity Feed -->
             <div class="section-title">
               <h3>Aktivitas Terakhir</h3>
-              <a href="#">Lihat semua <i data-lucide="chevron-right"></i></a>
+              <a href="#">Lihat semua <iconify-icon icon="solar:alt-arrow-right-bold-duotone"></iconify-icon></a>
             </div>
 
             <div class="activity-item">
               <div class="av-icon success">
-                <i data-lucide="check-circle-2"></i>
+                <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
               </div>
               <div class="av-text">
                 <p class="av-title">Presensi Algoritma berhasil</p>
-                <p class="av-meta"><i data-lucide="clock"></i> 10:30 · Lokasi tepat di Lab</p>
+                <p class="av-meta"><iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 10:30 · Lokasi tepat di Lab</p>
               </div>
             </div>
 
             <div class="activity-item">
               <div class="av-icon success">
-                <i data-lucide="check-circle"></i>
+                <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
               </div>
               <div class="av-text">
                 <p class="av-title">Pengajuan izin disetujui</p>
-                <p class="av-meta"><i data-lucide="user-check"></i> Kemarin · Pak Andi</p>
+                <p class="av-meta"><iconify-icon icon="solar:user-check-rounded-bold-duotone"></iconify-icon> Kemarin · Pak Andi</p>
               </div>
             </div>
 
             <div class="activity-item">
               <div class="av-icon warning">
-                <i data-lucide="alert-triangle"></i>
+                <iconify-icon icon="solar:danger-triangle-bold-duotone"></iconify-icon>
               </div>
               <div class="av-text">
                 <p class="av-title">Telat presensi Basis Data</p>
-                <p class="av-meta"><i data-lucide="clock"></i> 2 hari lalu · 8 menit setelah mulai</p>
+                <p class="av-meta"><iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 2 hari lalu · 8 menit setelah mulai</p>
               </div>
             </div>
           </div>
@@ -1847,23 +1880,23 @@
           <!-- Bottom Nav -->
           <div class="bottom-nav">
             <div class="nav-item active">
-              <i data-lucide="home"></i>
+              <iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon>
               <span>Home</span>
             </div>
             <div class="nav-item">
-              <i data-lucide="clipboard-list"></i>
+              <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
               <span>Riwayat</span>
             </div>
             <div class="nav-item">
-              <i data-lucide="file-text"></i>
+              <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
               <span>Izin</span>
             </div>
             <div class="nav-item">
-              <i data-lucide="bell"></i>
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
               <span>Notif</span>
             </div>
             <div class="nav-item">
-              <i data-lucide="user"></i>
+              <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
               <span>Profil</span>
             </div>
           </div>
@@ -1884,19 +1917,19 @@
           <div class="status-bar dark">
             <span>09:41</span>
             <span class="sb-icons">
-              <i data-lucide="signal"></i>
-              <i data-lucide="wifi"></i>
-              <i data-lucide="battery-full"></i>
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
             </span>
           </div>
 
           <div class="appbar dark transparent">
             <div class="icon-btn dark">
-              <i data-lucide="arrow-left"></i>
+              <iconify-icon icon="solar:arrow-left-bold-duotone"></iconify-icon>
             </div>
             <div class="appbar-title">Scan QR Sesi</div>
             <div class="icon-btn dark">
-              <i data-lucide="help-circle"></i>
+              <iconify-icon icon="solar:question-circle-bold-duotone"></iconify-icon>
             </div>
           </div>
 
@@ -1913,15 +1946,15 @@
             </div>
             <div class="qr-controls">
               <div class="icon-btn dark" style="width:48px;height:48px;">
-                <i data-lucide="zap"></i>
+                <iconify-icon icon="solar:bolt-bold-duotone"></iconify-icon>
               </div>
               <div class="icon-btn dark" style="width:48px;height:48px;">
-                <i data-lucide="image"></i>
+                <iconify-icon icon="solar:gallery-bold-duotone"></iconify-icon>
               </div>
             </div>
             <div style="position: absolute; bottom: 100px; left: 0; right: 0; text-align: center;">
               <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(0,0,0,0.6); border-radius: 999px; color: #fff; font-size: 12px; font-weight: 500; backdrop-filter: blur(8px);">
-                <i data-lucide="info" style="width:14px;height:14px;color:#a8c5e2;"></i>
+                <iconify-icon icon="solar:info-circle-bold-duotone" style="width:14px;height:14px;color:#a8c5e2;"></iconify-icon>
                 Mendeteksi QR Code...
               </span>
             </div>
@@ -1943,19 +1976,19 @@
           <div class="status-bar dark">
             <span>09:41</span>
             <span class="sb-icons">
-              <i data-lucide="signal"></i>
-              <i data-lucide="wifi"></i>
-              <i data-lucide="battery-full"></i>
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
             </span>
           </div>
 
           <div class="appbar dark transparent">
             <div class="icon-btn dark">
-              <i data-lucide="arrow-left"></i>
+              <iconify-icon icon="solar:arrow-left-bold-duotone"></iconify-icon>
             </div>
             <div class="appbar-title">Daftar Wajah</div>
             <div class="icon-btn dark">
-              <i data-lucide="info"></i>
+              <iconify-icon icon="solar:info-circle-bold-duotone"></iconify-icon>
             </div>
           </div>
 
@@ -1979,7 +2012,7 @@
 
             <div class="face-hint">
               <span class="face-hint-chip">
-                <i data-lucide="check-circle-2"></i>
+                <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
                 Tahan posisi
               </span>
               <small class="face-hint-sub">Sedang mengambil sampel wajah Anda</small>
@@ -2002,15 +2035,15 @@
           <div class="status-bar">
             <span>09:41</span>
             <span class="sb-icons">
-              <i data-lucide="signal"></i>
-              <i data-lucide="wifi"></i>
-              <i data-lucide="battery-full"></i>
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
             </span>
           </div>
 
           <div class="appbar">
             <div class="icon-btn">
-              <i data-lucide="x"></i>
+              <iconify-icon icon="solar:close-circle-bold-duotone"></iconify-icon>
             </div>
             <div class="appbar-title" style="text-align: center;">Hasil Presensi</div>
             <div style="width: 38px;"></div>
@@ -2019,7 +2052,7 @@
           <div class="content" style="padding: 0;">
             <div class="result-hero">
               <div class="result-icon-wrap">
-                <i data-lucide="check"></i>
+                <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
               </div>
               <h2 class="result-title">Presensi Berhasil!</h2>
               <p class="result-subtitle">
@@ -2034,35 +2067,35 @@
 
               <div class="breakdown-row">
                 <div class="br-icon">
-                  <i data-lucide="qr-code"></i>
+                  <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon>
                 </div>
                 <div class="br-text">
                   <p class="br-label">QR Code Sesi</p>
                   <p class="br-detail">Kode valid · 10:30:42 WIB</p>
                 </div>
-                <i data-lucide="check-circle-2" class="br-check"></i>
+                <iconify-icon icon="solar:check-circle-bold-duotone" class="br-check"></iconify-icon>
               </div>
 
               <div class="breakdown-row">
                 <div class="br-icon">
-                  <i data-lucide="map-pin"></i>
+                  <iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon>
                 </div>
                 <div class="br-text">
                   <p class="br-label">Lokasi GPS</p>
                   <p class="br-detail">Dalam radius · 38 m dari pusat kampus</p>
                 </div>
-                <i data-lucide="check-circle-2" class="br-check"></i>
+                <iconify-icon icon="solar:check-circle-bold-duotone" class="br-check"></iconify-icon>
               </div>
 
               <div class="breakdown-row">
                 <div class="br-icon">
-                  <i data-lucide="scan-face"></i>
+                  <iconify-icon icon="solar:user-id-bold-duotone"></iconify-icon>
                 </div>
                 <div class="br-text">
                   <p class="br-label">Verifikasi Wajah</p>
                   <p class="br-detail">Cocok · Similarity 0.87 (threshold 0.65)</p>
                 </div>
-                <i data-lucide="check-circle-2" class="br-check"></i>
+                <iconify-icon icon="solar:check-circle-bold-duotone" class="br-check"></iconify-icon>
               </div>
             </div>
 
@@ -2074,7 +2107,7 @@
               Selesai
             </button>
             <button class="btn btn-secondary">
-              <i data-lucide="clipboard-list"></i>
+              <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
               Lihat Riwayat
             </button>
           </div>
@@ -2095,25 +2128,25 @@
           <div class="status-bar">
             <span>09:41</span>
             <span class="sb-icons">
-              <i data-lucide="signal"></i>
-              <i data-lucide="wifi"></i>
-              <i data-lucide="battery-full"></i>
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
             </span>
           </div>
 
           <div class="appbar transparent">
             <div class="icon-btn ghost">
-              <i data-lucide="arrow-left"></i>
+              <iconify-icon icon="solar:arrow-left-bold-duotone"></iconify-icon>
             </div>
             <div style="flex:1;"></div>
             <div class="icon-btn ghost">
-              <i data-lucide="x"></i>
+              <iconify-icon icon="solar:close-circle-bold-duotone"></iconify-icon>
             </div>
           </div>
 
           <div class="prime-content">
             <div class="prime-illustration">
-              <i data-lucide="camera"></i>
+              <iconify-icon icon="solar:camera-bold-duotone"></iconify-icon>
             </div>
 
             <h2 class="prime-title">Izinkan Akses Kamera</h2>
@@ -2124,7 +2157,7 @@
             <ul class="benefit-list">
               <li class="benefit-item">
                 <div class="bn-icon">
-                  <i data-lucide="qr-code"></i>
+                  <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon>
                 </div>
                 <div class="bn-text">
                   <h4>Scan QR Sesi Dosen</h4>
@@ -2133,7 +2166,7 @@
               </li>
               <li class="benefit-item">
                 <div class="bn-icon">
-                  <i data-lucide="scan-face"></i>
+                  <iconify-icon icon="solar:user-id-bold-duotone"></iconify-icon>
                 </div>
                 <div class="bn-text">
                   <h4>Verifikasi Wajah</h4>
@@ -2143,7 +2176,7 @@
             </ul>
 
             <div class="privacy-note">
-              <i data-lucide="shield-check"></i>
+              <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon>
               <p>
                 <strong>Privasi Anda aman:</strong> Foto tidak disimpan di server. Hanya hash matematika (192 angka) yang dipakai untuk perbandingan. Bisa dihapus kapan saja via Profil.
               </p>
@@ -2152,7 +2185,7 @@
 
           <div class="button-group">
             <button class="btn btn-primary">
-              <i data-lucide="check"></i>
+              <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
               Izinkan Akses Kamera
             </button>
             <button class="btn btn-secondary">
@@ -2176,16 +2209,16 @@
           <div class="status-bar dark">
             <span>09:41</span>
             <span class="sb-icons">
-              <i data-lucide="signal"></i>
-              <i data-lucide="wifi"></i>
-              <i data-lucide="battery-full"></i>
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
             </span>
           </div>
 
           <!-- Background (Profile screen behind, blurred) -->
           <div style="position: absolute; inset: 0; background: var(--color-bg); z-index: 0;">
             <div class="appbar" style="opacity: 0.5;">
-              <div class="icon-btn"><i data-lucide="arrow-left"></i></div>
+              <div class="icon-btn"><iconify-icon icon="solar:arrow-left-bold-duotone"></iconify-icon></div>
               <div class="appbar-title">Profil</div>
               <div style="width:38px;"></div>
             </div>
@@ -2203,7 +2236,7 @@
               <div class="consent-handle"></div>
 
               <div class="consent-icon-wrap">
-                <i data-lucide="user-check"></i>
+                <iconify-icon icon="solar:user-check-rounded-bold-duotone"></iconify-icon>
               </div>
 
               <h2 class="consent-title">Persetujuan Data Biometrik</h2>
@@ -2213,19 +2246,19 @@
 
               <ul class="consent-points">
                 <li>
-                  <i data-lucide="shield-check"></i>
+                  <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon>
                   <span>Wajah Anda disimpan sebagai <strong>data biometrik</strong> berupa hash matematika (192 angka), bukan foto asli.</span>
                 </li>
                 <li>
-                  <i data-lucide="building-2"></i>
+                  <iconify-icon icon="solar:buildings-2-bold-duotone"></iconify-icon>
                   <span>Data ini <strong>hanya digunakan internal kampus</strong> untuk verifikasi presensi MyPresensi.</span>
                 </li>
                 <li>
-                  <i data-lucide="trash-2"></i>
+                  <iconify-icon icon="solar:trash-bin-2-bold-duotone"></iconify-icon>
                   <span>Anda dapat <strong>menghapus kapan saja</strong> melalui menu Profil → Hapus Data Wajah.</span>
                 </li>
                 <li>
-                  <i data-lucide="ban"></i>
+                  <iconify-icon icon="solar:forbidden-circle-bold-duotone"></iconify-icon>
                   <span><strong>Tidak dibagikan</strong> ke pihak ketiga atau aplikasi lain.</span>
                 </li>
               </ul>
@@ -2236,7 +2269,7 @@
 
               <div class="consent-buttons">
                 <button class="btn btn-primary">
-                  <i data-lucide="check"></i>
+                  <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
                   Setuju &amp; Lanjutkan
                 </button>
                 <button class="btn btn-secondary">
@@ -2285,13 +2318,6 @@
     </ul>
   </div>
 
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-  <script>
-    if (typeof lucide !== 'undefined') {
-      lucide.createIcons({
-        attrs: { 'stroke-width': 1.8 }
-      });
-    }
-  </script>
+  <!-- Lucide script removed (2026-05-15): semua icon migrate ke Iconify/Iconsax Bulk via solar:*-bold-duotone -->
 </body>
 </html>
