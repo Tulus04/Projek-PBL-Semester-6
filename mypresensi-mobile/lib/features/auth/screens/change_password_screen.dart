@@ -143,8 +143,13 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                     ),
                     child: Form(
                       key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // AutofillGroup — supaya OS-level password manager
+                      // (Smart Lock / Samsung Pass) treat kedua field password
+                      // sebagai satu form newPassword + confirm. UX consistent
+                      // dengan login_screen yang juga punya autofill hints.
+                      child: AutofillGroup(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Greeting
                           Text(
@@ -231,6 +236,12 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             obscureText: _obscureNew,
                             enabled: !_isSubmitting,
                             textInputAction: TextInputAction.next,
+                            // Match UX login_screen — disable suggestion/autocorrect
+                            // untuk hindari interference dengan tap gesture di Realme.
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            // OS-level password manager autofill hint.
+                            autofillHints: const [AutofillHints.newPassword],
                             onChanged: (_) => setState(() {}),
                             decoration: InputDecoration(
                               hintText: 'Masukkan password baru',
@@ -283,6 +294,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             obscureText: _obscureConfirm,
                             enabled: !_isSubmitting,
                             textInputAction: TextInputAction.done,
+                            // Match UX login_screen — disable suggestion/autocorrect.
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            // OS-level — same new-password context.
+                            autofillHints: const [AutofillHints.newPassword],
                             onFieldSubmitted: (_) => _handleSubmit(),
                             decoration: InputDecoration(
                               hintText: 'Ketik ulang password baru',
@@ -346,6 +362,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             ),
                           ),
                         ],
+                        ),
                       ),
                     ),
                   ),
