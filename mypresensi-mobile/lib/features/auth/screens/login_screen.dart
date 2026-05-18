@@ -119,7 +119,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      body: SafeArea(
+      // Tap di area kosong → dismiss keyboard + clear text selection.
+      // Listener di luar Scaffold body, tidak ubah indentasi child tree.
+      body: Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+        child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -281,6 +286,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
           ),
         ),
+      ),
       ),
     );
   }

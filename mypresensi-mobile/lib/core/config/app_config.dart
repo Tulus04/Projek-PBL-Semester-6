@@ -14,8 +14,10 @@ class AppConfig {
   static const String appVersion = '1.0.0';
   static const String orgName = 'TRPL · Politani Samarinda';
 
-  // IP LAN laptop — ganti sesuai jaringan lokal kamu
-  static const String _lanIp = '192.168.1.15';
+  // IP LAN laptop — ganti sesuai jaringan lokal kamu.
+  // Cek IP saat ini dengan: ipconfig (Windows) atau ifconfig (Mac/Linux).
+  // Wi-Fi adapter biasanya 192.168.x.x.
+  static const String _lanIp = '192.168.1.13';
 
   /// Cache emulator status agar tidak perlu check berulang
   static bool? _isEmulatorCached;
