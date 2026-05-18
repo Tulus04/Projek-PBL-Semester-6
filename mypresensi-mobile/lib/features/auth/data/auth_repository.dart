@@ -70,8 +70,13 @@ class AuthRepository {
     }
   }
 
-  /// Ganti password — dipanggil dari ChangePasswordScreen
-  /// Return true jika berhasil
+  /// Ganti password — dipanggil dari ChangePasswordScreen.
+  /// Setelah Supabase Auth update password, server auto-signin dan return
+  /// access_token + refresh_token baru. Mobile WAJIB update token sebelum
+  /// request berikutnya (token lama otomatis revoke oleh Supabase saat password
+  /// change → 401 di endpoint mana saja, termasuk /profile saat masuk Beranda).
+  ///
+  /// Return true jika berhasil. Token baru otomatis disimpan ke SecureStorage.
   Future<bool> changePassword({
     required String newPassword,
     required String confirmPassword,
@@ -85,9 +90,22 @@ class AuthRepository {
         },
       );
 
-      final success = response.data['success'] as bool? ?? false;
-      if (success) {
-        debugPrint('[AUTH] Password berhasil diubah');
+      final data = response.data as Map<String, dynamic>;
+      final success = data['success'] as bool? ?? false;
+      if (!success) return false;
+
+      // Update token baru kalau server kasih (auto-signin sukses).
+      // Kalau null (signInError di server), client tetap return true tapi
+      // request berikutnya akan dapat 401 → auto-logout fallback.
+      final tokens = data['tokens'] as Map<String, dynamic>?;
+      if (tokens != null) {
+        await SecureStorage.saveTokens(
+          accessToken: tokens['access_token'] as String,
+          refreshToken: tokens['refresh_token'] as String,
+        );
+        debugPrint('[AUTH] Password berhasil diubah + token baru disimpan');
+      } else {
+        debugPrint('[AUTH] Password berhasil diubah tapi auto-signin gagal — fallback logout');
       }
       return success;
     } on DioException catch (e) {

@@ -153,9 +153,40 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    // 7. Auto-signin dengan password baru → return token baru.
+    // Alasan: Supabase Auth invalidate semua session lama saat password berubah,
+    // sehingga JWT yang masih dipegang mobile akan dapat 401 di request berikutnya.
+    // Workaround: signin ulang server-side, kembalikan access_token + refresh_token
+    // baru ke mobile supaya client bisa update token tanpa user re-login manual.
+    let newTokens: { access_token: string; refresh_token: string } | null = null
+    if (user.email) {
+      const { data: signInData, error: signInError } =
+        await supabaseUser.auth.signInWithPassword({
+          email: user.email,
+          password: parsed.data.newPassword,
+        })
+
+      if (signInError || !signInData.session) {
+        // Bukan critical — fallback: client tetap bisa logout + login ulang.
+        // Log untuk diagnose tapi jangan block response.
+        console.error('[CHANGE_PASSWORD] Auto-signin gagal (will fallback to manual login):', {
+          userId: user.id,
+          errorMessage: signInError?.message,
+        })
+      } else {
+        newTokens = {
+          access_token: signInData.session.access_token,
+          refresh_token: signInData.session.refresh_token,
+        }
+      }
+    }
+
     return Response.json({
       success: true,
       message: 'Password berhasil diubah.',
+      // Token baru — kalau ada, mobile auto-update tanpa logout.
+      // Kalau null, client harus logout + redirect ke login.
+      tokens: newTokens,
     })
   } catch {
     return Response.json(

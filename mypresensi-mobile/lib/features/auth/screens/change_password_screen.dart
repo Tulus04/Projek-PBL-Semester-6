@@ -103,7 +103,12 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
     final userName = authState.user?.fullName ?? 'Mahasiswa';
 
     return Scaffold(
-      body: SafeArea(
+      // Tap area kosong → dismiss keyboard + clear text selection (Issue #2).
+      // Listener tidak block child interactivity (translucent), tidak ubah indentasi.
+      body: Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+        child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -358,6 +363,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
             ),
           ),
         ),
+      ),
       ),
     );
   }
