@@ -1,0 +1,1067 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile · Beranda — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <link rel="stylesheet" href="_mobile.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* ============ HOME SCREEN ============ */
+    .home-screen {
+      background: var(--color-bg);
+    }
+
+    /* App Bar */
+    .home-appbar {
+      display: flex;
+      align-items: center;
+      padding: 8px 18px 6px;
+      gap: 8px;
+    }
+    .home-appbar-brand {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 17px;
+      color: var(--color-primary);
+      flex: 1;
+      letter-spacing: -0.3px;
+    }
+    .home-appbar-action {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      color: var(--color-text-secondary);
+    }
+    .home-appbar-action iconify-icon { font-size: 19px; }
+    .home-appbar-action .notif-dot {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--color-danger);
+      border: 2px solid var(--color-surface);
+    }
+    .home-appbar-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* Scrollable content area */
+    .home-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 18px 16px;
+    }
+
+    /* Greeting */
+    .home-greeting {
+      padding: 4px 0 14px;
+    }
+    .home-greeting h2 {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--color-text-primary);
+      margin: 0 0 4px;
+      letter-spacing: -0.5px;
+    }
+    .home-greeting p {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .home-greeting p iconify-icon {
+      font-size: 16px;
+      color: var(--color-accent);
+    }
+
+    /* Hero Session Card */
+    .hero-session {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      border-radius: 18px;
+      padding: 18px 20px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .hero-session::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(244, 180, 0, 0.25) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-session::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -15%;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(8px);
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .hero-badge .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #4ade80;
+      animation: pulse-live 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+    .hero-session-title {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 18px;
+      margin: 0 0 6px;
+      letter-spacing: -0.3px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-session-meta {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.80);
+      line-height: 1.55;
+      margin: 0 0 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-session-meta iconify-icon {
+      font-size: 13px;
+      vertical-align: -1px;
+      margin-right: 3px;
+    }
+    .hero-cta {
+      width: 100%;
+      padding: 12px 16px;
+      background: white;
+      color: var(--color-primary);
+      border: none;
+      border-radius: 12px;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .hero-cta iconify-icon { font-size: 18px; }
+
+    /* Hero Empty State (no active session) */
+    .hero-empty {
+      background: var(--color-surface);
+      border: 1.5px dashed var(--color-border-strong);
+      border-radius: 18px;
+      padding: 24px 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .hero-empty-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--color-primary-surface);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .hero-empty-icon iconify-icon {
+      font-size: 26px;
+      color: var(--color-primary);
+    }
+    .hero-empty h3 {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-text-primary);
+      margin: 0 0 6px;
+    }
+    .hero-empty p {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin: 0 0 14px;
+      line-height: 1.5;
+    }
+    .hero-next-session {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--color-primary-surface);
+      border-radius: 12px;
+      text-align: left;
+    }
+    .hero-next-session iconify-icon {
+      font-size: 20px;
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+    .hero-next-session-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .hero-next-session-info h4 {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--color-primary);
+      margin: 0 0 2px;
+    }
+    .hero-next-session-info p {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    /* Today Summary Strip */
+    .today-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .today-stat {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .today-stat-num {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: -0.5px;
+      margin-bottom: 2px;
+    }
+    .today-stat-num.success { color: var(--color-success); }
+    .today-stat-num.warning { color: var(--color-warning); }
+    .today-stat-num.danger { color: var(--color-danger); }
+    .today-stat-num.info { color: var(--color-primary); }
+    .today-stat-label {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      font-weight: 500;
+    }
+
+    /* Section Header */
+    .home-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .home-section-header h3 {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+    .home-section-header a {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .home-section-header a iconify-icon { font-size: 14px; }
+
+    /* Quick Action Grid */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .quick-action {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 14px 8px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .quick-action:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-surface);
+    }
+    .quick-action-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .quick-action-icon iconify-icon { font-size: 20px; color: white; }
+    .quick-action-icon.primary { background: var(--color-primary); }
+    .quick-action-icon.success { background: var(--color-success); }
+    .quick-action-icon.warning { background: var(--color-warning); }
+    .quick-action-icon.info { background: var(--color-info); }
+    /* Featured: signature CTA (Scan QR) — gold accent.
+       Sesuai semantic system di icon-lab. */
+    .quick-action-icon.featured { background: var(--color-accent); }
+    .quick-action-label {
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--color-text-primary);
+    }
+
+    /* Activity Feed */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+    }
+    .activity-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .activity-icon iconify-icon { font-size: 18px; }
+    .activity-icon.success { background: var(--color-success-tint); color: var(--color-success); }
+    .activity-icon.warning { background: var(--color-warning-tint); color: var(--color-warning); }
+    .activity-icon.danger { background: var(--color-danger-tint); color: var(--color-danger); }
+    .activity-icon.info { background: var(--color-info-tint); color: var(--color-info); }
+    .activity-body { flex: 1; min-width: 0; }
+    .activity-title {
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      margin: 0 0 3px;
+      line-height: 1.3;
+    }
+    .activity-meta {
+      font-size: 11.5px;
+      color: var(--color-text-tertiary);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .activity-meta iconify-icon { font-size: 12px; }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 12px;
+      padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      flex-shrink: 0;
+    }
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 4px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: var(--color-text-tertiary);
+    }
+    .nav-tab iconify-icon { font-size: 22px; }
+    .nav-tab span {
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 10px;
+    }
+    .nav-tab.active {
+      color: var(--color-primary);
+    }
+    .nav-tab.active iconify-icon {
+      color: var(--color-primary);
+    }
+
+    /* Skeleton loading */
+    .skel {
+      background: linear-gradient(90deg, var(--color-surface-sunken) 25%, #e8eaed 37%, var(--color-surface-sunken) 63%);
+      background-size: 400% 100%;
+      animation: skel-shine 1.4s ease infinite;
+      border-radius: 8px;
+    }
+    @keyframes skel-shine {
+      0% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .skel-hero {
+      height: 180px;
+      border-radius: 18px;
+      margin-bottom: 16px;
+    }
+    .skel-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .skel-stat {
+      flex: 1;
+      height: 70px;
+      border-radius: 14px;
+    }
+    .skel-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .skel-action {
+      height: 80px;
+      border-radius: 14px;
+    }
+    .skel-item {
+      height: 64px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+    }
+    .skel-text-sm { height: 14px; width: 120px; border-radius: 6px; margin-bottom: 6px; }
+    .skel-text-lg { height: 22px; width: 180px; border-radius: 6px; margin-bottom: 14px; }
+
+    /* AI FAB — Floating Action Button */
+    .ai-fab {
+      position: absolute;
+      bottom: 72px;
+      right: 16px;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 4px 14px rgba(45, 134, 255, 0.35),
+        0 2px 6px rgba(0, 0, 0, 0.12);
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .ai-fab iconify-icon { font-size: 24px; }
+    .ai-fab:hover {
+      transform: scale(1.06);
+      box-shadow:
+        0 6px 20px rgba(45, 134, 255, 0.45),
+        0 3px 8px rgba(0, 0, 0, 0.15);
+    }
+    /* Pulse ring saat pertama kali muncul */
+    .ai-fab::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 20px;
+      border: 2px solid var(--color-primary);
+      opacity: 0;
+      animation: fab-pulse 2s ease-out 1s 2;
+    }
+    @keyframes fab-pulse {
+      0% { opacity: 0.6; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.3); }
+    }
+
+    /* FAB peeked state — half-hidden at right edge */
+    .ai-fab.peeked {
+      right: -28px;
+      border-radius: 16px 0 0 16px;
+      width: 44px;
+      height: 48px;
+      box-shadow:
+        -3px 2px 10px rgba(0, 0, 0, 0.15);
+      opacity: 0.75;
+    }
+    .ai-fab.peeked::before { display: none; }
+    .ai-fab.peeked:hover {
+      right: -24px;
+      opacity: 1;
+      transform: none;
+      box-shadow:
+        -4px 3px 14px rgba(45, 134, 255, 0.3);
+    }
+    .ai-fab.peeked iconify-icon.fab-icon {
+      font-size: 20px;
+      margin-left: -4px;
+    }
+    /* Drag-out arrow hint */
+    .fab-arrow-hint {
+      position: absolute;
+      left: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      animation: arrow-nudge 1.8s ease-in-out infinite;
+    }
+    .fab-arrow-hint iconify-icon {
+      font-size: 14px;
+      color: var(--color-primary);
+      filter: drop-shadow(0 0 3px rgba(45, 134, 255, 0.5));
+    }
+    @keyframes arrow-nudge {
+      0%, 100% { transform: translateY(-50%) translateX(0); opacity: 0.5; }
+      50% { transform: translateY(-50%) translateX(-4px); opacity: 1; }
+    }
+
+    /* Annotation */
+    .annotation {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px 14px;
+      max-width: 320px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #c0c8d2;
+    }
+    .annotation strong { color: #fff; font-weight: 700; }
+    .annotation .anno-label {
+      display: block;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      color: #4ade80;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Mobile · Beranda</h1>
+    <p>3 state + AI FAB: Sesi aktif (hero CTA + FAB normal) · Tidak ada sesi (FAB peeked/hidden) · Loading skeleton</p>
+    <div class="legend">
+      <strong>Reference:</strong> Mekari Talenta home · Linear mobile dashboard · Material You NavigationBar
+    </div>
+  </div>
+
+  <div class="mockup-grid">
+
+    <!-- ========== FRAME 1: HOME — SESI AKTIF ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen home-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <!-- App Bar -->
+          <div class="home-appbar">
+            <div class="home-appbar-brand">MyPresensi</div>
+            <div class="home-appbar-action">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+              <span class="notif-dot"></span>
+            </div>
+            <div class="home-appbar-avatar">RM</div>
+          </div>
+
+          <div class="home-content">
+            <!-- Greeting -->
+            <div class="home-greeting">
+              <h2>Halo, Riki</h2>
+              <p>
+                <iconify-icon icon="solar:sun-2-bold-duotone"></iconify-icon>
+                Selamat siang — Rabu, 15 Mei 2026
+              </p>
+            </div>
+
+            <!-- Hero: Active Session -->
+            <div class="hero-session">
+              <div class="hero-badge">
+                <span class="pulse-dot"></span>
+                SESI AKTIF SEKARANG
+              </div>
+              <h3 class="hero-session-title">Algoritma & Pemrograman</h3>
+              <p class="hero-session-meta">
+                <iconify-icon icon="solar:user-bold-duotone"></iconify-icon> Pak Andi Setiawan, M.Kom<br/>
+                <iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon> Lab Komputer 2<br/>
+                <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 10:00 – 12:00 (dimulai 30 menit lalu)
+              </p>
+              <button class="hero-cta">
+                <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon>
+                Scan QR Sekarang
+              </button>
+            </div>
+
+            <!-- Today Summary -->
+            <div class="home-section-header">
+              <h3>Ringkasan Hari Ini</h3>
+            </div>
+            <div class="today-summary">
+              <div class="today-stat">
+                <div class="today-stat-num success">2/3</div>
+                <div class="today-stat-label">Hadir</div>
+              </div>
+              <div class="today-stat">
+                <div class="today-stat-num info">1</div>
+                <div class="today-stat-label">Sisa Sesi</div>
+              </div>
+              <div class="today-stat">
+                <div class="today-stat-num danger">0</div>
+                <div class="today-stat-label">Alpa</div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="home-section-header">
+              <h3>Aksi Cepat</h3>
+            </div>
+            <div class="quick-actions">
+              <div class="quick-action">
+                <div class="quick-action-icon featured">
+                  <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon>
+                </div>
+                <span class="quick-action-label">Scan QR</span>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon success">
+                  <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+                </div>
+                <span class="quick-action-label">Riwayat</span>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon warning">
+                  <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+                </div>
+                <span class="quick-action-label">Izin</span>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon info">
+                  <iconify-icon icon="solar:user-circle-bold-duotone"></iconify-icon>
+                </div>
+                <span class="quick-action-label">Profil</span>
+              </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="home-section-header">
+              <h3>Aktivitas Terakhir</h3>
+              <a href="#">Lihat semua <iconify-icon icon="solar:alt-arrow-right-bold-duotone"></iconify-icon></a>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-icon success">
+                  <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="activity-body">
+                  <p class="activity-title">Presensi Algoritma berhasil</p>
+                  <p class="activity-meta">
+                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 10:30 · Lokasi tepat di Lab
+                  </p>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon success">
+                  <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="activity-body">
+                  <p class="activity-title">Pengajuan izin disetujui</p>
+                  <p class="activity-meta">
+                    <iconify-icon icon="solar:user-check-rounded-bold-duotone"></iconify-icon> Kemarin · Pak Andi
+                  </p>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon warning">
+                  <iconify-icon icon="solar:danger-triangle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="activity-body">
+                  <p class="activity-title">Telat presensi Basis Data</p>
+                  <p class="activity-meta">
+                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 2 hari lalu · 8 menit setelah mulai
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI FAB — Normal State -->
+          <div class="ai-fab">
+            <iconify-icon icon="solar:chat-square-2-bold-duotone"></iconify-icon>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <div class="bottom-nav">
+            <div class="nav-tab active">
+              <iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon>
+              <span>Beranda</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+              <span>Riwayat</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+              <span>Izin</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+              <span>Notifikasi</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
+              <span>Profil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 1 · Sesi Aktif + FAB Normal
+        <small>Hero gradient · CTA "Scan QR" · AI FAB mengapung kanan bawah</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        <strong>AI FAB</strong> mengapung di kanan bawah di atas bottom nav. Pulse ring muncul <strong>2× saat pertama buka app</strong> (onboarding hint), lalu hilang. Tap → buka <code>AiChatScreen</code>. User bisa <strong>drag ke tepi layar</strong> untuk hide — lihat Frame 2 (peeked state). Posisi terakhir FAB disimpan di <code>SharedPreferences</code> (bukan secure storage, karena bukan secret).
+      </div>
+    </div>
+
+    <!-- ========== FRAME 2: HOME — TIDAK ADA SESI AKTIF ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen home-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="home-appbar">
+            <div class="home-appbar-brand">MyPresensi</div>
+            <div class="home-appbar-action">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+            </div>
+            <div class="home-appbar-avatar">RM</div>
+          </div>
+
+          <div class="home-content">
+            <div class="home-greeting">
+              <h2>Halo, Riki</h2>
+              <p>
+                <iconify-icon icon="solar:cloud-sun-bold-duotone"></iconify-icon>
+                Selamat pagi — Kamis, 16 Mei 2026
+              </p>
+            </div>
+
+            <!-- Hero: Empty State -->
+            <div class="hero-empty">
+              <div class="hero-empty-icon">
+                <iconify-icon icon="solar:calendar-mark-bold-duotone"></iconify-icon>
+              </div>
+              <h3>Tidak ada sesi aktif saat ini</h3>
+              <p>Belum ada dosen yang memulai sesi. Kamu akan mendapat notifikasi saat sesi dimulai.</p>
+              <div class="hero-next-session">
+                <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
+                <div class="hero-next-session-info">
+                  <h4>Sesi berikutnya: Basis Data</h4>
+                  <p>Pak Budi, S.Kom · 13:00 – 15:00 · Lab 1</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Today Summary (all 0) -->
+            <div class="home-section-header">
+              <h3>Ringkasan Hari Ini</h3>
+            </div>
+            <div class="today-summary">
+              <div class="today-stat">
+                <div class="today-stat-num success">0/2</div>
+                <div class="today-stat-label">Hadir</div>
+              </div>
+              <div class="today-stat">
+                <div class="today-stat-num info">2</div>
+                <div class="today-stat-label">Sisa Sesi</div>
+              </div>
+              <div class="today-stat">
+                <div class="today-stat-num danger">0</div>
+                <div class="today-stat-label">Alpa</div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="home-section-header">
+              <h3>Aksi Cepat</h3>
+            </div>
+            <div class="quick-actions">
+              <div class="quick-action">
+                <div class="quick-action-icon featured">
+                  <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon>
+                </div>
+                <span class="quick-action-label">Scan QR</span>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon success">
+                  <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+                </div>
+                <span class="quick-action-label">Riwayat</span>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon warning">
+                  <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+                </div>
+                <span class="quick-action-label">Izin</span>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon info">
+                  <iconify-icon icon="solar:user-circle-bold-duotone"></iconify-icon>
+                </div>
+                <span class="quick-action-label">Profil</span>
+              </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="home-section-header">
+              <h3>Aktivitas Terakhir</h3>
+              <a href="#">Lihat semua <iconify-icon icon="solar:alt-arrow-right-bold-duotone"></iconify-icon></a>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-icon success">
+                  <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="activity-body">
+                  <p class="activity-title">Presensi Algoritma berhasil</p>
+                  <p class="activity-meta">
+                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> Kemarin · 10:30
+                  </p>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon danger">
+                  <iconify-icon icon="solar:close-circle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="activity-body">
+                  <p class="activity-title">Alpa Basis Data (tidak hadir)</p>
+                  <p class="activity-meta">
+                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 2 hari lalu
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI FAB — Peeked State (slid to edge) -->
+          <div class="ai-fab peeked">
+            <span class="fab-arrow-hint">
+              <iconify-icon icon="solar:alt-arrow-left-bold-duotone"></iconify-icon>
+            </span>
+            <iconify-icon icon="solar:chat-square-2-bold-duotone" class="fab-icon"></iconify-icon>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <div class="bottom-nav">
+            <div class="nav-tab active">
+              <iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon>
+              <span>Beranda</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+              <span>Riwayat</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+              <span>Izin</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+              <span>Notifikasi</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
+              <span>Profil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 2 · Tidak Ada Sesi + FAB Peeked
+        <small>Empty hero · FAB setengah tersembunyi di tepi kanan</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        User bisa <strong>drag FAB ke tepi layar</strong> (kiri/kanan) → FAB jadi <strong>peeked</strong>: setengah tersembunyi, opacity 75%, rounded hanya sisi dalam. Hover/sentuh → sedikit muncul kembali (feedback). Tap → tetap buka AI Chat. <strong>Drag balik ke tengah</strong> → kembali ke posisi normal. Posisi (normal/peeked + koordinat) di-persist supaya tidak reset tiap buka app. Pattern mirip <strong>iOS AssistiveTouch</strong> / Samsung floating button.
+      </div>
+    </div>
+
+    <!-- ========== FRAME 3: HOME — LOADING SKELETON ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen home-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="home-appbar">
+            <div class="home-appbar-brand">MyPresensi</div>
+            <div class="home-appbar-action">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+            </div>
+            <div class="home-appbar-avatar">RM</div>
+          </div>
+
+          <div class="home-content">
+            <!-- Skeleton greeting -->
+            <div style="padding: 4px 0 14px;">
+              <div class="skel skel-text-lg"></div>
+              <div class="skel skel-text-sm"></div>
+            </div>
+
+            <!-- Skeleton hero -->
+            <div class="skel skel-hero"></div>
+
+            <!-- Skeleton summary -->
+            <div class="skel-row">
+              <div class="skel skel-stat"></div>
+              <div class="skel skel-stat"></div>
+              <div class="skel skel-stat"></div>
+            </div>
+
+            <!-- Skeleton quick actions -->
+            <div class="skel-grid">
+              <div class="skel skel-action"></div>
+              <div class="skel skel-action"></div>
+              <div class="skel skel-action"></div>
+              <div class="skel skel-action"></div>
+            </div>
+
+            <!-- Skeleton activity items -->
+            <div class="skel skel-item"></div>
+            <div class="skel skel-item"></div>
+            <div class="skel skel-item"></div>
+          </div>
+
+          <!-- Bottom Navigation (always visible even during load) -->
+          <div class="bottom-nav">
+            <div class="nav-tab active">
+              <iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon>
+              <span>Beranda</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+              <span>Riwayat</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+              <span>Izin</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+              <span>Notifikasi</span>
+            </div>
+            <div class="nav-tab">
+              <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
+              <span>Profil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 3 · Loading Skeleton
+        <small>Shimmer placeholder · bottom nav tetap visible</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Skeleton loading muncul saat <strong>pertama kali buka app</strong> atau pull-to-refresh. Bottom nav <strong>selalu visible</strong> (tidak ikut skeleton) supaya user bisa navigasi meski data belum load. Shimmer animasi ~1.4s loop linear. Skeleton shape match bentuk komponen asli (hero rounded 18px, stat rounded 14px, dst) — supaya transisi ke konten halus tanpa layout shift.
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

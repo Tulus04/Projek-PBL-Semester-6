@@ -9,7 +9,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 
 // Default values — sinkron dengan FaceEmbeddingService.defaultThreshold di mobile
 const DEFAULT_THRESHOLD = 0.65
-const DEFAULT_MODE: 'optional' | 'required' = 'optional'
+const DEFAULT_MODE: 'optional' | 'required' = 'required'
 
 export async function GET(req: NextRequest) {
   try {

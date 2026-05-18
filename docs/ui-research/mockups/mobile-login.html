@@ -1,0 +1,419 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile Login — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <link rel="stylesheet" href="_mobile.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .login-screen {
+      background: linear-gradient(180deg, var(--color-primary-surface) 0%, var(--color-bg) 35%);
+    }
+
+    .login-hero {
+      padding: 32px 24px 20px;
+      text-align: center;
+    }
+    .login-logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(45, 134, 255, 0.25);
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .login-logo::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 24px;
+      background: radial-gradient(circle, rgba(244, 180, 0, 0.30) 0%, transparent 60%);
+      z-index: -1;
+    }
+    .login-logo span {
+      color: white;
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 24px;
+    }
+    .login-greeting {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--color-text-primary);
+      letter-spacing: -0.5px;
+      margin: 0 0 6px;
+    }
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    /* Form area */
+    .login-form {
+      padding: 0 24px;
+      flex: 1;
+    }
+    .form-field {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin-bottom: 6px;
+      letter-spacing: 0.2px;
+    }
+    .form-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px;
+      padding: 0 14px;
+      transition: all 0.15s ease;
+    }
+    .form-input-wrap:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(45, 134, 255, 0.12);
+    }
+    .form-input-wrap.error {
+      border-color: var(--color-danger);
+      background: var(--color-danger-tint);
+    }
+    .form-input-wrap iconify-icon.lead {
+      color: var(--color-text-tertiary);
+      font-size: 18px;
+      margin-right: 8px;
+    }
+    .form-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      padding: 14px 0;
+      font-size: 14px;
+      font-family: var(--ff-body);
+      color: var(--color-text-primary);
+    }
+    .form-input::placeholder {
+      color: var(--color-text-tertiary);
+    }
+    .form-input-action {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--color-text-tertiary);
+      flex-shrink: 0;
+      border-radius: 8px;
+    }
+    .form-input-action:hover { background: var(--color-surface-sunken); color: var(--color-text-primary); }
+
+    .form-error-msg {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11.5px;
+      color: var(--color-danger);
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    .form-helper-msg {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+    }
+    .form-helper-msg a {
+      color: var(--color-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    /* Forgot password link */
+    .login-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 4px 0 22px;
+    }
+    .login-checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+    }
+    .login-checkbox-box {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 1.5px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .login-checkbox-box.checked {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+    .login-forgot {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    /* Loading spinner inside button */
+    .btn-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-top-color: white;
+      border-radius: 999px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Footer area */
+    .login-foot {
+      flex-shrink: 0;
+      padding: 16px 24px 28px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      line-height: 1.5;
+    }
+    .login-foot strong {
+      color: var(--color-text-primary);
+      font-weight: 700;
+    }
+
+    /* Annotation */
+    .annotation {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px 14px;
+      max-width: 320px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #c0c8d2;
+    }
+    .annotation strong { color: #fff; font-weight: 700; }
+    .annotation .anno-label {
+      display: block;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      color: #4ade80;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Mobile · Login</h1>
+    <p>2 state: Default login (NIM + password) · Error feedback dengan retry counter</p>
+    <div class="legend">
+      <strong>Reference:</strong> Stripe mobile login · Material You sign-in
+    </div>
+  </div>
+
+  <div class="mockup-grid">
+
+    <!-- ========== FRAME 1: DEFAULT LOGIN ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen login-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="login-hero">
+            <div class="login-logo">
+              <span>MP</span>
+            </div>
+            <h1 class="login-greeting">Selamat datang kembali</h1>
+            <p class="login-subtitle">Masuk untuk mulai presensi hari ini</p>
+          </div>
+
+          <div class="login-form">
+            <div class="form-field">
+              <label class="form-label">NIM atau Email Kampus</label>
+              <div class="form-input-wrap">
+                <iconify-icon icon="solar:at-bold-duotone" class="lead"></iconify-icon>
+                <input class="form-input" type="text" placeholder="2110078 atau riki@politanisamarinda.ac.id" value="2110078" />
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Kata Sandi</label>
+              <div class="form-input-wrap">
+                <iconify-icon icon="solar:lock-keyhole-bold-duotone" class="lead"></iconify-icon>
+                <input class="form-input" type="password" placeholder="Masukkan kata sandi" value="••••••••••" />
+                <button class="form-input-action" tabindex="-1">
+                  <iconify-icon icon="solar:eye-bold-duotone" style="font-size: 18px;"></iconify-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="login-row">
+              <span class="login-checkbox">
+                <span class="login-checkbox-box checked">
+                  <iconify-icon icon="solar:check-read-bold-duotone" style="font-size: 12px;"></iconify-icon>
+                </span>
+                Ingat saya
+              </span>
+              <span class="login-forgot">Lupa kata sandi?</span>
+            </div>
+
+            <button class="btn-mobile-primary">
+              Masuk
+              <iconify-icon icon="solar:arrow-right-bold-duotone"></iconify-icon>
+            </button>
+          </div>
+
+          <div class="login-foot">
+            Belum punya akun? Hubungi <strong>BAAK Politani</strong><br/>
+            untuk aktivasi akses.
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 1 · Default
+        <small>NIM/email + password · remember me · forgot password</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Field input bisa terima <strong>NIM atau email kampus</strong> — server-side normalize ke email (<code>NIM@politanisamarinda.ac.id</code>). Toggle show/hide password punya <code>tabindex=-1</code> supaya keyboard focus skip langsung ke "Masuk". "Lupa kata sandi?" redirect ke flow reset via admin/BAAK (bukan self-service email reset). Checkbox "Ingat saya" persist session JWT di <code>SecureStorage</code>.
+      </div>
+    </div>
+
+    <!-- ========== FRAME 2: ERROR STATE ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen login-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="login-hero" style="padding-top: 16px; padding-bottom: 12px;">
+            <div class="login-logo">
+              <span>MP</span>
+            </div>
+            <h1 class="login-greeting" style="font-size: 20px;">Selamat datang kembali</h1>
+            <p class="login-subtitle">Masuk untuk mulai presensi hari ini</p>
+          </div>
+
+          <div class="login-form">
+
+            <!-- Error banner -->
+            <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: var(--color-danger-tint); border: 1px solid var(--color-danger); border-radius: 12px; margin-bottom: 16px;">
+              <iconify-icon icon="solar:danger-circle-bold-duotone" style="color: var(--color-danger); font-size: 18px; flex-shrink: 0; margin-top: 1px;"></iconify-icon>
+              <div>
+                <p style="margin: 0 0 2px; font-family: var(--ff-heading); font-weight: 700; font-size: 12.5px; color: var(--color-danger);">
+                  NIM atau kata sandi salah
+                </p>
+                <p style="margin: 0; font-size: 11.5px; color: var(--color-text-secondary); line-height: 1.4;">
+                  Sisa percobaan: <strong style="color: var(--color-danger);">2 dari 5</strong>. Akun terkunci 30 menit setelah 5x salah.
+                </p>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">NIM atau Email Kampus</label>
+              <div class="form-input-wrap">
+                <iconify-icon icon="solar:at-bold-duotone" class="lead"></iconify-icon>
+                <input class="form-input" type="text" value="2110078" />
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Kata Sandi</label>
+              <div class="form-input-wrap error">
+                <iconify-icon icon="solar:lock-keyhole-bold-duotone" class="lead"></iconify-icon>
+                <input class="form-input" type="password" value="••••••" />
+                <button class="form-input-action" tabindex="-1">
+                  <iconify-icon icon="solar:eye-bold-duotone" style="font-size: 18px;"></iconify-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="login-row">
+              <span class="login-checkbox">
+                <span class="login-checkbox-box checked">
+                  <iconify-icon icon="solar:check-read-bold-duotone" style="font-size: 12px;"></iconify-icon>
+                </span>
+                Ingat saya
+              </span>
+              <span class="login-forgot">Lupa kata sandi?</span>
+            </div>
+
+            <button class="btn-mobile-primary">
+              <span class="btn-spinner"></span>
+              Masuk
+            </button>
+          </div>
+
+          <div class="login-foot">
+            Belum punya akun? Hubungi <strong>BAAK Politani</strong>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 2 · Error State
+        <small>Banner error generik · sisa percobaan · loading spinner</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Pesan error <strong>generik</strong> ("NIM atau kata sandi salah") — JANGAN bocorkan apakah NIM exists vs password salah (anti user enumeration). Tampilkan <strong>sisa percobaan</strong> 2/5 supaya mahasiswa tahu sebelum lockout (30 menit). Input password pakai <code>.error</code> state (border merah). Tombol Masuk pakai spinner + teks "Masuk" TETAP (bukan "Memproses..."), <code>aria-busy</code>. Setelah lockout: banner berubah "Akun terkunci sementara. Coba lagi dalam X menit."
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

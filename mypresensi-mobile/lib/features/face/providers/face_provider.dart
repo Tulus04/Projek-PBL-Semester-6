@@ -15,7 +15,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/face_models.dart';
 import '../data/face_config_models.dart';
 import '../data/face_repository.dart';
 import '../services/face_detection_service.dart';
@@ -59,18 +58,6 @@ final faceConfigProvider = FutureProvider<FaceConfig>((ref) async {
   } catch (e) {
     debugPrint('[FACE PROVIDER] getFaceConfig failed → fallback: $e');
     return FaceConfig.fallback();
-  }
-});
-
-/// Stored embedding dari server (untuk face verification).
-final storedEmbeddingProvider =
-    FutureProvider.autoDispose<FaceEmbedding?>((ref) async {
-  try {
-    final repo = ref.read(faceRepositoryProvider);
-    return await repo.getStoredEmbedding();
-  } catch (e) {
-    debugPrint('[FACE PROVIDER] No stored embedding: $e');
-    return null;
   }
 });
 
@@ -562,9 +549,10 @@ class FaceDeletionNotifier extends Notifier<FaceDeletionState> {
       final repo = ref.read(faceRepositoryProvider);
       await repo.deleteMyFaceData();
 
-      // Invalidate cache embedding & config — sehingga halaman lain
-      // (mis. verification screen) refetch dan tahu user belum register.
-      ref.invalidate(storedEmbeddingProvider);
+      // Invalidate cache config — mobile akan refetch saat masuk face flow lagi
+      // (mis. user mau register ulang). Tidak perlu invalidate stored embedding
+      // karena sekarang verification server-side, mobile tidak cache embedding.
+      ref.invalidate(faceConfigProvider);
 
       state = state.copyWith(
         status: FaceDeletionStatus.success,
@@ -593,13 +581,14 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
   bool _isExtracting = false;
 
   /// Process frame saat verify.
-  /// Embedding live dibandingkan ke `storedEmbedding` via cosine similarity.
+  /// Live embedding di-extract di mobile (TFLite), kirim ke server,
+  /// server compare dengan stored embedding milik user.
+  /// Mobile TIDAK pernah menerima stored embedding (server-side comparison
+  /// sesuai rule 04-security-and-privacy Section B.2).
   Future<void> onFrame({
     required FaceDetectionResult result,
     required CameraImage cameraImage,
     required CameraDescription camera,
-    required List<double> storedEmbedding,
-    required double threshold,
   }) async {
     if (state.status == VerificationStatus.matched) return;
 
@@ -628,7 +617,7 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
       return;
     }
 
-    // Hindari overlap inference
+    // Hindari overlap inference + overlap network call
     if (_isExtracting) return;
     _isExtracting = true;
 
@@ -638,6 +627,7 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
         await embeddingService.initialize();
       }
 
+      // 1. Extract live embedding dari frame kamera (TFLite, on-device)
       final liveEmbedding = await embeddingService.extractEmbedding(
         cameraImage: cameraImage,
         boundingBox: result.boundingBox!,
@@ -649,30 +639,30 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
         return;
       }
 
-      final similarity = FaceEmbeddingService.cosineSimilarity(
-        liveEmbedding,
-        storedEmbedding,
-      );
-      final clamped = similarity.clamp(0.0, 1.0);
-      final isMatched = clamped >= threshold;
+      // 2. Kirim ke server untuk comparison vs stored embedding
+      final repo = ref.read(faceRepositoryProvider);
+      final response = await repo.verifyEmbedding(liveEmbedding);
 
       state = state.copyWith(
-        status: isMatched
+        status: response.match
             ? VerificationStatus.matched
             : VerificationStatus.verifying,
-        confidence: clamped,
+        confidence: response.similarity,
         isLivenessPassed: true,
         errorMessage: null,
       );
 
-      if (isMatched) {
+      if (response.match) {
         debugPrint(
-          '[FACE VERIFY] ✅ Matched! Confidence: ${(clamped * 100).toStringAsFixed(1)}% '
-          '(threshold ${(threshold * 100).toStringAsFixed(0)}%)',
+          '[FACE VERIFY] ✅ Matched! similarity=${(response.similarity * 100).toStringAsFixed(1)}% '
+          '(threshold ${(response.threshold * 100).toStringAsFixed(0)}%)',
         );
       }
     } catch (e, st) {
       debugPrint('[FACE VERIFY] Error: $e\n$st');
+      // Network/server error — log saja, jangan flip state ke error.
+      // Frame berikutnya akan retry otomatis. Kalau persistent, timeout
+      // 15s di screen yang akan handle ke pop(null).
     } finally {
       _isExtracting = false;
     }

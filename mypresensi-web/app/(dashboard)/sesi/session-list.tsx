@@ -5,11 +5,13 @@
 // Lifecycle: Pending (belum dimulai) → Active (berlangsung) → Ended (selesai)
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Plus, PlayCircle, StopCircle, Trash2, RefreshCw,
   Copy, Check, QrCode, ClipboardList, BookOpen,
   ChevronDown, ChevronUp, Zap, MapPin, Info,
+  Maximize2, Activity,
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import {
@@ -453,6 +455,20 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
 
                       {/* Action Buttons */}
                       <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <a
+                          href={`/sesi/${activeSession.id}/qr`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
+                        >
+                          <Maximize2 size={13} /> Tampilkan Fullscreen
+                        </a>
+                        <Link
+                          href={`/sesi/${activeSession.id}/live`}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
+                        >
+                          <Activity size={13} /> Live Monitor
+                        </Link>
                         <button
                           onClick={() => handleCopyCode(activeSession.session_code!)}
                           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-white hover:bg-gray-50 transition-colors"

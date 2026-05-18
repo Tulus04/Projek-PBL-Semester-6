@@ -577,6 +577,173 @@
     .activity-item .av-meta svg { width: 11px; height: 11px; }
 
     /* =========================================================
+       Mini Stat Card (Statistik Kehadiran Mini) — donut + persentase
+       Pattern: hero-secondary di bawah hero utama. Lebih ringan, tidak
+       saingan visual dengan hero session card.
+       ========================================================= */
+    .stat-mini-card {
+      position: relative;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--r-card);
+      padding: 14px 16px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--sh-card);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: pointer;
+    }
+    .stat-mini-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--sh-card-hover);
+    }
+    .stat-mini-donut {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+    }
+    .stat-mini-donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .stat-mini-donut .track { stroke: var(--color-border); fill: none; stroke-width: 6; }
+    .stat-mini-donut .progress {
+      stroke: var(--color-success);
+      fill: none;
+      stroke-width: 6;
+      stroke-linecap: round;
+      /* circumference 2πr (r=24) ≈ 150.8.
+         Default 92% → dashoffset 150.8 × 0.08 ≈ 12. */
+      stroke-dasharray: 151;
+      stroke-dashoffset: 12;
+    }
+    .stat-mini-donut .pct-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      letter-spacing: -0.3px;
+    }
+    .stat-mini-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .stat-mini-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin: 0 0 2px;
+    }
+    .stat-mini-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0 0 4px;
+      letter-spacing: -0.1px;
+    }
+    .stat-mini-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      flex-wrap: wrap;
+    }
+    .stat-mini-tier {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: var(--color-success-tint);
+      color: var(--color-success);
+      border-radius: var(--r-full);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .stat-mini-tier iconify-icon { width: 11px; height: 11px; }
+    .stat-mini-card .chevron {
+      color: var(--color-text-tertiary);
+      flex-shrink: 0;
+    }
+    .stat-mini-card .chevron iconify-icon { width: 16px; height: 16px; }
+
+    /* =========================================================
+       Next Session Card — empty-state hero ketika tidak ada sesi aktif.
+       Tone lebih kalem (surface neutral, bukan gradient brand).
+       ========================================================= */
+    .next-session-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--r-card);
+      padding: 16px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--sh-card);
+    }
+    .next-session-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--r-md);
+      background: var(--color-primary-surface);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .next-session-icon iconify-icon { width: 22px; height: 22px; }
+    .next-session-info { flex: 1; min-width: 0; }
+    .next-session-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin: 0 0 2px;
+    }
+    .next-session-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0 0 4px;
+      letter-spacing: -0.1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .next-session-meta {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .next-session-meta iconify-icon { width: 12px; height: 12px; color: var(--color-accent); }
+    .countdown-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: var(--color-warning-tint);
+      color: var(--color-warning);
+      border-radius: var(--r-full);
+      font-size: 10px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* =========================================================
        Bottom Navigation Material 3
        ========================================================= */
     .bottom-nav {
@@ -613,17 +780,23 @@
        Camera Screen (Scan QR + Face)
        ========================================================= */
     .camera-screen {
-      position: relative;
-      flex: 1;
+      position: absolute;
+      inset: 0;
       background: #000;
       overflow: hidden;
+      z-index: 0;
+    }
+    /* Status bar & appbar float above camera */
+    .phone-screen:has(.camera-screen) > .status-bar,
+    .phone-screen:has(.camera-screen) > .appbar {
+      position: relative;
+      z-index: 2;
     }
     .camera-bg {
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(135deg, rgba(20, 30, 45, 0.95), rgba(40, 50, 65, 0.95)),
-        repeating-linear-gradient(45deg, transparent 0, transparent 8px, rgba(255, 255, 255, 0.02) 8px, rgba(255, 255, 255, 0.02) 16px);
+        linear-gradient(180deg, rgba(20, 28, 40, 0.95) 0%, rgba(30, 38, 52, 0.92) 40%, rgba(25, 33, 48, 0.95) 100%);
     }
     .camera-overlay {
       position: absolute;
@@ -640,6 +813,7 @@
       height: 220px;
       border-radius: 20px;
       box-shadow: 0 0 0 9999px var(--overlay-60);
+      z-index: 1;
     }
     .qr-frame::before,
     .qr-frame::after,
@@ -701,6 +875,7 @@
       left: 24px;
       right: 24px;
       text-align: center;
+      z-index: 1;
       color: #fff;
       font-family: var(--ff-heading);
       font-weight: 600;
@@ -723,54 +898,72 @@
       display: flex;
       justify-content: center;
       gap: 16px;
+      z-index: 1;
     }
 
-    /* Face oval frame */
+    /* =========================================================
+       Face oval frame — 1 SVG terpadu (track + indicator + outline).
+       Aspect ratio 220 × 280 (rasio 1:1.273, mendekati wajah manusia).
+       Stroke-dasharray: 838 = perimeter ellipse (rx=100, ry=130) hasil
+       Ramanujan ≈ π[3(a+b) − √((3a+b)(a+3b))]. Indicator pakai
+       0.42 × 838 ≈ 352 → progress ~58% (5/7 sampel di mockup ini).
+       ========================================================= */
     .face-oval-wrap {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -55%);
-      width: 240px;
-      height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      transform: translate(-50%, -50%);
+      width: 220px;
+      height: 280px;
+      z-index: 1;
     }
-    .face-oval {
+    /* Stack 1 SVG: track abu (background) + indicator biru (progress).
+       Outline dihilangkan — track sudah cover full ellipse sebagai
+       guide visible, indicator overlay di atasnya. Stroke-width sama
+       (5) sehingga track & indicator menempel persis tanpa kesan
+       indicator menggembung keluar. */
+    .face-rings {
       position: absolute;
       inset: 0;
-      border-radius: 50%;
-      box-shadow: 0 0 0 9999px var(--overlay-60);
-      background: transparent;
+      pointer-events: none;
     }
-    .face-oval-stroke {
-      position: absolute;
-      inset: 0;
-      border: 3px solid rgba(255, 255, 255, 0.4);
-      border-radius: 50%;
-    }
-    /* Circular progress around oval */
-    .face-progress {
-      position: absolute;
-      inset: -10px;
-    }
-    .face-progress svg {
+    .face-rings svg {
       width: 100%;
       height: 100%;
-      transform: rotate(-90deg);
+      transform: rotate(-90deg); /* mulai dari atas, searah jam */
+      overflow: visible; /* glow indicator tidak ke-clip */
     }
-    .face-progress circle {
+    .face-rings ellipse {
       fill: none;
-      stroke-width: 4;
+      stroke-width: 5; /* sama untuk track & indicator → match perfect */
     }
-    .face-progress .track { stroke: rgba(255, 255, 255, 0.15); }
-    .face-progress .indicator {
+    .face-rings .track {
+      stroke: rgba(255, 255, 255, 0.22);
+    }
+    .face-rings .indicator {
       stroke: var(--color-primary);
       stroke-linecap: round;
-      stroke-dasharray: 720;
-      stroke-dashoffset: 250;
-      filter: drop-shadow(0 0 6px rgba(84, 131, 173, 0.6));
+      stroke-dasharray: 838;
+      stroke-dashoffset: 352; /* progress ~58% (5/7 sampel) */
+      filter: drop-shadow(0 0 4px rgba(84, 131, 173, 0.45));
+      transition: stroke-dashoffset 0.4s ease-out;
+    }
+    /* Full-screen dim dengan radial-gradient ellipse cutout.
+       Element ini sibling dari .face-oval-wrap, ditempatkan di
+       .camera-screen langsung sehingga inset:0 = full screen camera.
+       Ellipse size 102×132 = match outline ring (rx=100, ry=130) +
+       1px feather agar edge tidak hard-cut. */
+    .camera-dim-face {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        ellipse 102px 132px at center,
+        transparent 0%,
+        transparent 99%,
+        rgba(0, 0, 0, 0.6) 100%
+      );
+      pointer-events: none;
+      z-index: 0;
     }
     .face-hint {
       position: absolute;
@@ -778,6 +971,7 @@
       left: 24px;
       right: 24px;
       text-align: center;
+      z-index: 1;
     }
     .face-hint-chip {
       display: inline-flex;
@@ -801,7 +995,10 @@
     }
     .face-progress-label {
       position: absolute;
-      top: 40px;
+      /* Geser turun: oval center di 50% screen, top edge ≈ 50% − 140px.
+         Label ditempatkan ~24px di atas top edge oval untuk visual gap
+         yang natural (cukup dekat tapi tidak menempel). */
+      top: calc(50% - 165px);
       left: 50%;
       transform: translateX(-50%);
       padding: 6px 14px;
@@ -811,6 +1008,7 @@
       font-size: 12px;
       font-weight: 600;
       backdrop-filter: blur(8px);
+      z-index: 2;
     }
 
     /* =========================================================
@@ -967,209 +1165,6 @@
       border: 1px solid var(--color-danger);
     }
     .btn svg { width: 16px; height: 16px; }
-
-    /* =========================================================
-       Permission Priming Screen
-       ========================================================= */
-    .prime-content {
-      padding: 24px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .prime-illustration {
-      width: 140px;
-      height: 140px;
-      margin: 24px auto;
-      background: linear-gradient(135deg, var(--color-primary-surface), #d6e6f5);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-    .prime-illustration::before {
-      content: '';
-      position: absolute;
-      inset: -10px;
-      border-radius: 50%;
-      background: var(--color-primary-surface);
-      opacity: 0.5;
-      z-index: -1;
-    }
-    .prime-illustration svg { width: 64px; height: 64px; color: var(--color-primary); stroke-width: 1.5; }
-    .prime-title {
-      font-family: var(--ff-heading);
-      font-weight: 800;
-      font-size: 22px;
-      color: var(--color-text-primary);
-      margin: 0 0 8px;
-      text-align: center;
-      line-height: 1.3;
-    }
-    .prime-desc {
-      font-size: 13px;
-      color: var(--color-text-secondary);
-      text-align: center;
-      margin: 0 0 24px;
-      line-height: 1.6;
-    }
-    .benefit-list {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 16px;
-    }
-    .benefit-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 12px;
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--r-md);
-      margin-bottom: 8px;
-    }
-    .benefit-item .bn-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: var(--r-md);
-      background: var(--color-success-surface);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .benefit-item .bn-icon svg { width: 16px; height: 16px; color: var(--color-success); }
-    .benefit-item .bn-text { flex: 1; }
-    .benefit-item h4 {
-      font-family: var(--ff-heading);
-      font-weight: 700;
-      font-size: 13px;
-      color: var(--color-text-primary);
-      margin: 0 0 2px;
-    }
-    .benefit-item p {
-      font-size: 12px;
-      color: var(--color-text-secondary);
-      margin: 0;
-      line-height: 1.4;
-    }
-    .privacy-note {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 10px 12px;
-      background: var(--color-primary-surface);
-      border-radius: var(--r-md);
-      margin-bottom: 16px;
-    }
-    .privacy-note svg {
-      width: 16px;
-      height: 16px;
-      color: var(--color-primary);
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .privacy-note p {
-      margin: 0;
-      font-size: 11px;
-      color: var(--color-text-primary);
-      line-height: 1.4;
-    }
-    .privacy-note strong { color: var(--color-primary-dark); }
-
-    /* =========================================================
-       Consent Dialog (modal in-screen)
-       ========================================================= */
-    .consent-screen {
-      flex: 1;
-      background: var(--overlay-60);
-      backdrop-filter: blur(6px);
-      display: flex;
-      align-items: flex-end;
-      padding: 16px;
-    }
-    .consent-modal {
-      width: 100%;
-      background: var(--color-surface);
-      border-radius: var(--r-2xl) var(--r-2xl) 0 0;
-      padding: 24px 20px 20px;
-      max-height: 80%;
-      overflow-y: auto;
-      animation: slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    @keyframes slide-up {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .consent-handle {
-      width: 40px;
-      height: 4px;
-      background: var(--color-border-strong);
-      border-radius: var(--r-full);
-      margin: 0 auto 16px;
-    }
-    .consent-icon-wrap {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 16px;
-      border-radius: var(--r-xl);
-      background: linear-gradient(135deg, var(--color-warning-surface), #fde6a3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .consent-icon-wrap svg { width: 32px; height: 32px; color: var(--color-warning); stroke-width: 2; }
-    .consent-title {
-      font-family: var(--ff-heading);
-      font-weight: 800;
-      font-size: 19px;
-      color: var(--color-text-primary);
-      margin: 0 0 8px;
-      text-align: center;
-    }
-    .consent-desc {
-      font-size: 13px;
-      color: var(--color-text-secondary);
-      text-align: center;
-      margin: 0 0 20px;
-      line-height: 1.5;
-    }
-    .consent-points {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 16px;
-      background: var(--color-surface-sunken);
-      border-radius: var(--r-md);
-      padding: 14px 16px;
-    }
-    .consent-points li {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--color-text-primary);
-      line-height: 1.5;
-      padding: 4px 0;
-    }
-    .consent-points li svg {
-      width: 14px;
-      height: 14px;
-      color: var(--color-primary);
-      flex-shrink: 0;
-      margin-top: 3px;
-    }
-    .consent-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .consent-uu {
-      font-size: 10px;
-      color: var(--color-text-tertiary);
-      text-align: center;
-      margin: 0 0 12px;
-    }
 
     /* =========================================================
        Status Bar Custom SVG icons (signal/wifi/battery)
@@ -1503,7 +1498,7 @@
       · Accent <strong style="color:#F4B400;">#F4B400</strong>
       · Navy <strong style="color:#5b8ed4;">#0D2C5E</strong>
       · Plus Jakarta Sans + Inter
-      · 6 screen High Priority
+      · 4 screen High Priority
     </div>
   </header>
 
@@ -1580,18 +1575,18 @@
           <span class="icon-col-tag">Konsisten web · Refined stroke</span>
         </div>
         <div class="icons-grid">
-          <div class="icon-cell"><iconify-icon icon="lucide:house"></iconify-icon><span class="label">Home</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:qr-code"></iconify-icon><span class="label">Scan QR</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:user-circle"></iconify-icon><span class="label">Profil</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:bell"></iconify-icon><span class="label">Notif</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:calendar-days"></iconify-icon><span class="label">Jadwal</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:map-pin"></iconify-icon><span class="label">Lokasi</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:camera"></iconify-icon><span class="label">Kamera</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:file-text"></iconify-icon><span class="label">Izin</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:circle-check"></iconify-icon><span class="label">Sukses</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:shield-check"></iconify-icon><span class="label">Privacy</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:log-out"></iconify-icon><span class="label">Logout</span></div>
-          <div class="icon-cell"><iconify-icon icon="lucide:chevron-right"></iconify-icon><span class="label">Next</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon><span class="label">Home</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon><span class="label">Scan QR</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:user-circle-bold-duotone"></iconify-icon><span class="label">Profil</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:bell-bold-duotone"></iconify-icon><span class="label">Notif</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:calendar-bold-duotone"></iconify-icon><span class="label">Jadwal</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon><span class="label">Lokasi</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:camera-bold-duotone"></iconify-icon><span class="label">Kamera</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon><span class="label">Izin</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon><span class="label">Sukses</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon><span class="label">Privacy</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:logout-3-bold-duotone"></iconify-icon><span class="label">Logout</span></div>
+          <div class="icon-cell"><iconify-icon icon="solar:alt-arrow-right-bold-duotone"></iconify-icon><span class="label">Next</span></div>
         </div>
         <div class="icon-col-meta">
           <strong>Flutter</strong> · <code style="color:#F4B400">lucide_icons_flutter: ^3.0.0</code><br>
@@ -1809,6 +1804,49 @@
               </button>
             </div>
 
+            <!-- Statistik Kehadiran Mini — donut + tier badge.
+                 Klik → buka halaman Riwayat (deep stats). -->
+            <div class="stat-mini-card" role="button" tabindex="0" aria-label="Lihat statistik kehadiran lengkap">
+              <div class="stat-mini-donut">
+                <svg viewBox="0 0 56 56">
+                  <circle class="track" cx="28" cy="28" r="24"></circle>
+                  <circle class="progress" cx="28" cy="28" r="24"></circle>
+                </svg>
+                <span class="pct-label">92%</span>
+              </div>
+              <div class="stat-mini-info">
+                <p class="stat-mini-label">Kehadiran Semester Ini</p>
+                <h4 class="stat-mini-title">12 dari 13 sesi hadir</h4>
+                <div class="stat-mini-meta">
+                  <span class="stat-mini-tier">
+                    <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon>
+                    AMAN
+                  </span>
+                  <span>· Target minimal 75%</span>
+                </div>
+              </div>
+              <span class="chevron">
+                <iconify-icon icon="solar:alt-arrow-right-bold-duotone"></iconify-icon>
+              </span>
+            </div>
+
+            <!-- Sesi Berikutnya — info kalem, bukan saingan hero.
+                 Tampil meskipun ada sesi aktif (preview sesi after current). -->
+            <div class="next-session-card">
+              <div class="next-session-icon">
+                <iconify-icon icon="solar:calendar-mark-bold-duotone"></iconify-icon>
+              </div>
+              <div class="next-session-info">
+                <p class="next-session-label">Sesi Berikutnya</p>
+                <h4 class="next-session-title">Basis Data Lanjut</h4>
+                <div class="next-session-meta">
+                  <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
+                  Kamis, 16 Mei · 13:30
+                  <span class="countdown-pill">+27 jam</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Quick Action Grid -->
             <div class="section-title">
               <h3>Aksi Cepat</h3>
@@ -1995,17 +2033,22 @@
           <div class="camera-screen">
             <div class="camera-bg"></div>
 
+            <!-- Dim radial gradient: cutout ellipse di tengah layar.
+                 Posisi sibling dari face-oval-wrap supaya inset:0 = full
+                 screen, tidak ke-clip ke wrap 220×280. -->
+            <div class="camera-dim-face"></div>
+
             <div class="face-progress-label">
               Sampel 5 dari 7
             </div>
 
             <div class="face-oval-wrap">
-              <div class="face-oval"></div>
-              <div class="face-oval-stroke"></div>
-              <div class="face-progress">
-                <svg viewBox="-2 -2 264 304">
-                  <ellipse class="track" cx="130" cy="150" rx="125" ry="148"></ellipse>
-                  <ellipse class="indicator" cx="130" cy="150" rx="125" ry="148"></ellipse>
+              <!-- Rings: track (abu) + indicator (biru) + outline (putih).
+                   Semua share viewBox 220×280 → simetris terjamin. -->
+              <div class="face-rings">
+                <svg viewBox="0 0 220 280">
+                  <ellipse class="track" cx="110" cy="140" rx="100" ry="130"></ellipse>
+                  <ellipse class="indicator" cx="110" cy="140" rx="100" ry="130"></ellipse>
                 </svg>
               </div>
             </div>
@@ -2118,172 +2161,6 @@
       </div>
     </div>
 
-    <!-- ====================================================
-         SCREEN 5: PERMISSION PRIMING (Camera)
-         ==================================================== -->
-    <div class="mockup-item">
-      <div class="phone-frame">
-        <div class="phone-notch"></div>
-        <div class="phone-screen">
-          <div class="status-bar">
-            <span>09:41</span>
-            <span class="sb-icons">
-              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
-              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
-              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
-            </span>
-          </div>
-
-          <div class="appbar transparent">
-            <div class="icon-btn ghost">
-              <iconify-icon icon="solar:arrow-left-bold-duotone"></iconify-icon>
-            </div>
-            <div style="flex:1;"></div>
-            <div class="icon-btn ghost">
-              <iconify-icon icon="solar:close-circle-bold-duotone"></iconify-icon>
-            </div>
-          </div>
-
-          <div class="prime-content">
-            <div class="prime-illustration">
-              <iconify-icon icon="solar:camera-bold-duotone"></iconify-icon>
-            </div>
-
-            <h2 class="prime-title">Izinkan Akses Kamera</h2>
-            <p class="prime-desc">
-              MyPresensi butuh akses kamera untuk fitur presensi berjalan optimal
-            </p>
-
-            <ul class="benefit-list">
-              <li class="benefit-item">
-                <div class="bn-icon">
-                  <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon>
-                </div>
-                <div class="bn-text">
-                  <h4>Scan QR Sesi Dosen</h4>
-                  <p>Tandai kehadiran dengan scan QR yang ditampilkan dosen</p>
-                </div>
-              </li>
-              <li class="benefit-item">
-                <div class="bn-icon">
-                  <iconify-icon icon="solar:user-id-bold-duotone"></iconify-icon>
-                </div>
-                <div class="bn-text">
-                  <h4>Verifikasi Wajah</h4>
-                  <p>Konfirmasi identitas saat submit presensi untuk keamanan</p>
-                </div>
-              </li>
-            </ul>
-
-            <div class="privacy-note">
-              <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon>
-              <p>
-                <strong>Privasi Anda aman:</strong> Foto tidak disimpan di server. Hanya hash matematika (192 angka) yang dipakai untuk perbandingan. Bisa dihapus kapan saja via Profil.
-              </p>
-            </div>
-          </div>
-
-          <div class="button-group">
-            <button class="btn btn-primary">
-              <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
-              Izinkan Akses Kamera
-            </button>
-            <button class="btn btn-secondary">
-              Nanti Saja
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="mockup-label">5. Permission Priming (Kamera)
-        <small>Edukasi sebelum trigger system permission</small>
-      </div>
-    </div>
-
-    <!-- ====================================================
-         SCREEN 6: CONSENT DIALOG FACE REGISTER (UU PDP)
-         ==================================================== -->
-    <div class="mockup-item">
-      <div class="phone-frame">
-        <div class="phone-notch"></div>
-        <div class="phone-screen">
-          <div class="status-bar dark">
-            <span>09:41</span>
-            <span class="sb-icons">
-              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
-              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
-              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
-            </span>
-          </div>
-
-          <!-- Background (Profile screen behind, blurred) -->
-          <div style="position: absolute; inset: 0; background: var(--color-bg); z-index: 0;">
-            <div class="appbar" style="opacity: 0.5;">
-              <div class="icon-btn"><iconify-icon icon="solar:arrow-left-bold-duotone"></iconify-icon></div>
-              <div class="appbar-title">Profil</div>
-              <div style="width:38px;"></div>
-            </div>
-            <div style="padding: 16px; opacity: 0.5;">
-              <div class="card" style="text-align: center; padding: 24px;">
-                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--color-primary-surface); margin: 0 auto 12px;"></div>
-                <h3 style="margin: 0; font-family: var(--ff-heading); font-size: 16px;">Riki Pradana</h3>
-                <p style="margin: 4px 0 0; font-size: 12px; color: var(--color-text-secondary);">2310201234 · TRPL '23</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="consent-screen" style="position: relative; z-index: 1;">
-            <div class="consent-modal">
-              <div class="consent-handle"></div>
-
-              <div class="consent-icon-wrap">
-                <iconify-icon icon="solar:user-check-rounded-bold-duotone"></iconify-icon>
-              </div>
-
-              <h2 class="consent-title">Persetujuan Data Biometrik</h2>
-              <p class="consent-desc">
-                Sebelum mendaftarkan wajah, mohon baca dan setujui ketentuan berikut
-              </p>
-
-              <ul class="consent-points">
-                <li>
-                  <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon>
-                  <span>Wajah Anda disimpan sebagai <strong>data biometrik</strong> berupa hash matematika (192 angka), bukan foto asli.</span>
-                </li>
-                <li>
-                  <iconify-icon icon="solar:buildings-2-bold-duotone"></iconify-icon>
-                  <span>Data ini <strong>hanya digunakan internal kampus</strong> untuk verifikasi presensi MyPresensi.</span>
-                </li>
-                <li>
-                  <iconify-icon icon="solar:trash-bin-2-bold-duotone"></iconify-icon>
-                  <span>Anda dapat <strong>menghapus kapan saja</strong> melalui menu Profil → Hapus Data Wajah.</span>
-                </li>
-                <li>
-                  <iconify-icon icon="solar:forbidden-circle-bold-duotone"></iconify-icon>
-                  <span><strong>Tidak dibagikan</strong> ke pihak ketiga atau aplikasi lain.</span>
-                </li>
-              </ul>
-
-              <p class="consent-uu">
-                Sesuai UU No. 27/2022 tentang Pelindungan Data Pribadi
-              </p>
-
-              <div class="consent-buttons">
-                <button class="btn btn-primary">
-                  <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
-                  Setuju &amp; Lanjutkan
-                </button>
-                <button class="btn btn-secondary">
-                  Batal
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="mockup-label">6. Consent Dialog Face Register
-        <small>UU PDP Pasal 5-15 · 2-step before camera</small>
-      </div>
-    </div>
 
   </main>
 

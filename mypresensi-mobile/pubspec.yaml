@@ -48,6 +48,13 @@ dependencies:
   tflite_flutter: ^0.12.1               # MobileFaceNet inference
   image: ^4.8.0                         # YUV/NV21 → RGB + crop + resize
 
+  # === File Picker ===
+  image_picker: ^1.1.0                  # Pilih foto bukti izin/sakit (gallery + camera)
+
+  # === Icons (rule 22-mobile-design-system §C) ===
+  iconsax_plus: ^1.0.0                  # Iconsax Bulk (duotone) — fintech ID vibe
+  shared_preferences: ^2.5.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

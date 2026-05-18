@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile · Splash — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <link rel="stylesheet" href="_mobile.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* Splash gradient screen */
+    .splash-screen {
+      background: linear-gradient(135deg, #0d2c5e 0%, #1a3a73 50%, #2D86FF 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .splash-screen::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      right: -30%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(244, 180, 0, 0.30) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .splash-screen::after {
+      content: '';
+      position: absolute;
+      bottom: -25%;
+      left: -20%;
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(74, 222, 128, 0.18) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .splash-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    .splash-logo {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 28px;
+      background: white;
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.30);
+      position: relative;
+    }
+    .splash-logo-text {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 32px;
+      background: linear-gradient(135deg, #2D86FF, #0D2C5E);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+    .splash-logo-glow {
+      position: absolute;
+      inset: -8px;
+      border-radius: 36px;
+      background: radial-gradient(circle, rgba(244, 180, 0, 0.45) 0%, transparent 70%);
+      z-index: -1;
+      animation: splash-glow 2.4s ease-in-out infinite;
+    }
+    @keyframes splash-glow {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    .splash-brand {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 32px;
+      letter-spacing: -1px;
+      margin: 0 0 8px;
+    }
+    .splash-tagline {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0 0 32px;
+      line-height: 1.5;
+    }
+    .splash-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    .splash-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.5);
+      animation: splash-dot-pulse 1.2s ease-in-out infinite;
+    }
+    .splash-dot:nth-child(2) { animation-delay: 0.2s; }
+    .splash-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes splash-dot-pulse {
+      0%, 100% { transform: scale(0.8); opacity: 0.4; }
+      50% { transform: scale(1.2); opacity: 1; background: var(--color-accent); }
+    }
+    .splash-foot {
+      position: absolute;
+      bottom: 32px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.55);
+      z-index: 2;
+    }
+    .splash-foot strong { color: rgba(255, 255, 255, 0.85); font-weight: 600; }
+
+    /* Annotation */
+    .annotation {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px 14px;
+      max-width: 320px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #c0c8d2;
+    }
+    .annotation strong { color: #fff; font-weight: 700; }
+    .annotation .anno-label {
+      display: block;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      color: #4ade80;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Showcase Header -->
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Mobile · Splash</h1>
+    <p>1 frame: Splash brand reveal · loading state · auto-redirect ke Login atau Home</p>
+    <div class="legend">
+      <strong>Reference:</strong> flutter_native_splash 2.4.x · Material You splash pattern
+    </div>
+  </div>
+
+  <div class="mockup-grid">
+
+    <!-- ========== FRAME 1: SPLASH ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen splash-screen">
+          <div class="phone-notch"></div>
+
+          <div class="splash-content">
+            <div class="splash-logo">
+              <div class="splash-logo-glow"></div>
+              <span class="splash-logo-text">MP</span>
+            </div>
+            <h1 class="splash-brand">MyPresensi</h1>
+            <p class="splash-tagline">
+              Sistem absensi mahasiswa<br/>
+              Politeknik Pertanian Negeri Samarinda
+            </p>
+            <div class="splash-dots">
+              <span class="splash-dot"></span>
+              <span class="splash-dot"></span>
+              <span class="splash-dot"></span>
+            </div>
+          </div>
+
+          <div class="splash-foot">
+            <strong>Politani Samarinda</strong> · TRPL · v1.0.0
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 1 · Splash
+        <small>Brand reveal · gold glow · loading dots</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Logo native splash via <strong>flutter_native_splash</strong> 2.4.x. Dwell ~2s sambil cek session token di <code>SecureStorage</code>. Jika token valid → langsung Home. Jika tidak → Login screen. Tidak ada onboarding — target user (mahasiswa TRPL Politani) sudah tahu konteks app lewat sosialisasi kampus.
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

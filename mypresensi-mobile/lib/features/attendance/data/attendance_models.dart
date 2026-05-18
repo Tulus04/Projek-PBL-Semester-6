@@ -3,6 +3,14 @@
 // Digunakan oleh AttendanceRepository dan provider.
 
 /// Model sesi aktif dari GET /api/mobile/sessions/active
+///
+/// Catatan: model ini juga di-reuse oleh response
+/// GET /api/mobile/sessions/eligible-for-leave (lihat [EligibleSessionsResponse]).
+/// Endpoint eligible-for-leave TIDAK return field `mode`, `location_lat`,
+/// `location_lng`, `radius_meters`, `already_submitted` — semuanya akan default
+/// ke nilai aman (offline / 0 / 150 / false) yang tidak dipakai di flow izin.
+/// Field [dosenName] hanya terisi dari endpoint eligible-for-leave; di
+/// /sessions/active akan null karena backend tidak return.
 class ActiveSession {
   final String id;
   final String courseCode;
@@ -15,6 +23,7 @@ class ActiveSession {
   final int radiusMeters;
   final String startedAt;
   final bool alreadySubmitted;
+  final String? dosenName;
 
   const ActiveSession({
     required this.id,
@@ -28,6 +37,7 @@ class ActiveSession {
     required this.radiusMeters,
     required this.startedAt,
     required this.alreadySubmitted,
+    this.dosenName,
   });
 
   factory ActiveSession.fromJson(Map<String, dynamic> json) {
@@ -43,6 +53,7 @@ class ActiveSession {
       radiusMeters: json['radius_meters'] as int? ?? 150,
       startedAt: json['started_at'] as String? ?? '',
       alreadySubmitted: json['already_submitted'] as bool? ?? false,
+      dosenName: json['dosen_name'] as String?,
     );
   }
 
@@ -156,4 +167,59 @@ class QrCodeData {
 
     return QrCodeData(sessionId: sessionId, sessionCode: code);
   }
+}
+
+/// Exception khusus saat submit attendance — membawa `errorCode` dari server
+/// agar UI bisa distinguish kasus tertentu (mis. face_not_registered → dialog redirect,
+/// face_mismatch → dialog retry).
+///
+/// Server return `{ error: string, error_code?: string }` di body untuk error 4xx.
+/// errorCode null = error generik tanpa special handling.
+class AttendanceSubmitException implements Exception {
+  final String message;
+  final String? errorCode;
+  final int? statusCode;
+
+  const AttendanceSubmitException(this.message, {this.errorCode, this.statusCode});
+
+  @override
+  String toString() => message;
+}
+
+/// Response wrapper untuk GET /api/mobile/sessions/eligible-for-leave.
+///
+/// Dipakai oleh wizard "Ajukan Izin" step 1 (Pilih Sesi) untuk menampilkan
+/// dua group: sesi yang sedang berlangsung ([activeSessions]) dan sesi yang
+/// sudah lewat tapi belum di-handle dalam 7 hari terakhir ([recentSessions]).
+///
+/// Backend menjamin item di kedua list belum punya attendance `hadir` maupun
+/// leave_request `pending/approved` — UI tidak perlu re-filter.
+class EligibleSessionsResponse {
+  final List<ActiveSession> activeSessions;
+  final List<ActiveSession> recentSessions;
+
+  const EligibleSessionsResponse({
+    required this.activeSessions,
+    required this.recentSessions,
+  });
+
+  factory EligibleSessionsResponse.fromJson(Map<String, dynamic> json) {
+    final active = (json['active_sessions'] as List<dynamic>? ?? const [])
+        .map((e) => ActiveSession.fromJson(e as Map<String, dynamic>))
+        .toList(growable: false);
+    final recent = (json['recent_sessions'] as List<dynamic>? ?? const [])
+        .map((e) => ActiveSession.fromJson(e as Map<String, dynamic>))
+        .toList(growable: false);
+    return EligibleSessionsResponse(
+      activeSessions: active,
+      recentSessions: recent,
+    );
+  }
+
+  /// Helper: gabungan kedua list (untuk total count atau check non-empty).
+  List<ActiveSession> get all => [...activeSessions, ...recentSessions];
+
+  /// True jika kedua list kosong — UI menampilkan empty state "Tidak ada sesi
+  /// yang bisa diajukan izin saat ini."
+  bool get isEmpty => activeSessions.isEmpty && recentSessions.isEmpty;
 }

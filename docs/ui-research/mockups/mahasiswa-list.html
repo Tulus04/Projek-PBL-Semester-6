@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mahasiswa List — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* ===== Filter bar ===== */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 280px;
+      max-width: 360px;
+    }
+    .filter-bar .right-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+    .filter-active-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--color-primary-surface);
+      border: 1px dashed var(--color-primary);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+    .filter-active-count:hover { background: var(--color-primary-surface); cursor: pointer; }
+
+    /* ===== Bulk action bar ===== */
+    .bulk-action-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--color-primary-surface);
+      border: 1px solid var(--color-primary);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      animation: slide-down 0.2s ease;
+    }
+    @keyframes slide-down {
+      from { transform: translateY(-8px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .bulk-count {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--color-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bulk-count strong {
+      background: var(--color-primary);
+      color: white;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-family: var(--ff-mono);
+      font-size: 12px;
+    }
+    .bulk-actions {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .bulk-actions .btn {
+      height: 30px;
+      padding: 0 12px;
+      font-size: 12px;
+    }
+
+    /* ===== Table custom ===== */
+    .data-table .checkbox-cell { width: 36px; padding: 0 0 0 16px; }
+    .data-table .actions-cell { width: 48px; text-align: center; }
+    .table-checkbox {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1.5px solid var(--color-border-strong);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      flex-shrink: 0;
+    }
+    .table-checkbox.checked {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+    .table-checkbox.checked iconify-icon { font-size: 12px; }
+    .table-checkbox.indeterminate {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+
+    .mhs-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .mhs-info { min-width: 0; }
+    .mhs-name {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      font-size: 13px;
+      margin: 0 0 2px;
+    }
+    .mhs-email {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      font-family: var(--ff-mono);
+    }
+    .nim-cell {
+      font-family: var(--ff-mono);
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+    .kehadiran-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 100px;
+    }
+    .kehadiran-track {
+      height: 6px;
+      background: var(--color-surface-sunken);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .kehadiran-fill {
+      height: 100%;
+      background: var(--color-success);
+      border-radius: 999px;
+    }
+    .kehadiran-fill.warning { background: var(--color-warning); }
+    .kehadiran-fill.danger { background: var(--color-danger); }
+    .kehadiran-num {
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+    .table-action-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+    }
+    .table-action-btn:hover {
+      background: var(--color-primary-surface);
+      color: var(--color-primary);
+    }
+    .table-action-btn iconify-icon { font-size: 16px; }
+
+    /* ===== Floating dropdown demo ===== */
+    .demo-dropdown-wrapper {
+      position: absolute;
+      right: 32px;
+      transform: translateY(-12px);
+      z-index: 5;
+    }
+
+    /* ===== Stats summary above table ===== */
+    .table-stats {
+      display: flex;
+      gap: 24px;
+      padding: 16px 20px;
+      background: var(--color-surface);
+      border-radius: 12px 12px 0 0;
+      border: 1px solid var(--color-border);
+      border-bottom: none;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .stat-value {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--color-text-primary);
+    }
+    .stat-value.success { color: var(--color-success); }
+    .stat-value.warning { color: var(--color-warning); }
+    .stat-divider {
+      width: 1px;
+      background: var(--color-border);
+    }
+
+    /* ===== Connected table+stats ===== */
+    .table-card .data-table { box-shadow: none; border-radius: 0 0 12px 12px; border: 1px solid var(--color-border); border-top: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Showcase Header -->
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="lucide:arrow-left" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>2. Mahasiswa List — CRUD Master Data</h1>
+    <p>Filter chip · bulk action · sort · pagination · row hover · action dropdown</p>
+    <div class="legend">
+      <strong>Reference:</strong> shadcn/ui CRUD blocks · Linear list · Stripe table · Mekari Talenta
+    </div>
+  </div>
+
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="browser-lights">
+        <div class="light red"></div>
+        <div class="light yellow"></div>
+        <div class="light green"></div>
+      </div>
+      <div class="browser-url">
+        <iconify-icon icon="lucide:lock"></iconify-icon>
+        mypresensi.politani.ac.id/admin/mahasiswa
+      </div>
+      <div class="browser-tabs-hint">filter: angkatan=2022, status=aktif</div>
+    </div>
+
+    <div class="admin-shell">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-logo">MP</div>
+          <div class="sidebar-brand-name">
+            MyPresensi
+            <small>Politani Samarinda</small>
+          </div>
+        </div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:layout-dashboard"></iconify-icon>
+          Dashboard
+        </a>
+        <div class="sidebar-section-header">Data Master</div>
+        <a class="sidebar-nav-item active">
+          <iconify-icon icon="lucide:graduation-cap"></iconify-icon>
+          Mahasiswa
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:users"></iconify-icon>
+          Dosen
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:book-open"></iconify-icon>
+          Mata Kuliah
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:map-pin"></iconify-icon>
+          Lokasi Kampus
+        </a>
+        <div class="sidebar-section-header">Operasional</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:calendar-check-2"></iconify-icon>
+          Sesi
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:file-text"></iconify-icon>
+          Pengajuan Izin
+          <span class="badge">7</span>
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:bar-chart-3"></iconify-icon>
+          Rekap
+        </a>
+        <div class="sidebar-section-header">Sistem</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:scroll-text"></iconify-icon>
+          Audit Log
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:settings-2"></iconify-icon>
+          Settings
+        </a>
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">SR</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">Siti Rahayu</div>
+            <div class="sidebar-user-role">Admin</div>
+          </div>
+          <iconify-icon icon="lucide:chevrons-up-down" style="color: var(--color-text-tertiary);"></iconify-icon>
+        </div>
+      </aside>
+
+      <div class="admin-content">
+
+        <!-- Topbar -->
+        <header class="topbar">
+          <div class="topbar-breadcrumb">
+            <iconify-icon icon="lucide:home" style="font-size: 14px;"></iconify-icon>
+            <span>Beranda</span>
+            <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+            <span>Data Master</span>
+            <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+            <span class="current">Mahasiswa</span>
+          </div>
+          <div class="topbar-search">
+            <iconify-icon icon="lucide:search"></iconify-icon>
+            <span>Cari mahasiswa, sesi, atau MK...</span>
+            <kbd>Ctrl K</kbd>
+          </div>
+          <button class="topbar-icon-btn">
+            <iconify-icon icon="lucide:help-circle"></iconify-icon>
+          </button>
+          <button class="topbar-icon-btn">
+            <iconify-icon icon="lucide:bell"></iconify-icon>
+            <span class="dot"></span>
+          </button>
+        </header>
+
+        <div class="page-body">
+
+          <!-- Page header -->
+          <div class="page-header">
+            <div class="page-title-group">
+              <div class="page-title-icon">
+                <iconify-icon icon="lucide:graduation-cap"></iconify-icon>
+              </div>
+              <div class="page-title">
+                <h1>Mahasiswa</h1>
+                <p>248 mahasiswa terdaftar · 232 aktif · 16 nonaktif</p>
+              </div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost btn-sm">
+                <iconify-icon icon="lucide:upload"></iconify-icon>
+                Impor CSV
+              </button>
+              <button class="btn btn-ghost btn-sm">
+                <iconify-icon icon="lucide:download"></iconify-icon>
+                Export
+              </button>
+              <button class="btn btn-primary btn-sm">
+                <iconify-icon icon="lucide:plus"></iconify-icon>
+                Tambah Mahasiswa
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter bar -->
+          <div class="filter-bar">
+            <div class="input-field search-input">
+              <iconify-icon icon="lucide:search"></iconify-icon>
+              <input type="text" placeholder="Cari nama, NIM, atau email..." value="" />
+            </div>
+            <button class="filter-chip active">
+              <iconify-icon icon="lucide:calendar"></iconify-icon>
+              Angkatan: 2022
+              <iconify-icon icon="lucide:x" style="font-size: 12px; margin-left: 2px;"></iconify-icon>
+            </button>
+            <button class="filter-chip active">
+              <iconify-icon icon="lucide:circle-check"></iconify-icon>
+              Status: Aktif
+              <iconify-icon icon="lucide:x" style="font-size: 12px; margin-left: 2px;"></iconify-icon>
+            </button>
+            <button class="filter-chip">
+              <iconify-icon icon="lucide:plus"></iconify-icon>
+              Tambah Filter
+            </button>
+            <button class="filter-active-count">
+              <iconify-icon icon="lucide:filter-x"></iconify-icon>
+              Reset 2 filter
+            </button>
+          </div>
+
+          <!-- Bulk action bar (visible because 3 selected) -->
+          <div class="bulk-action-bar">
+            <span class="bulk-count">
+              <strong>3</strong>
+              mahasiswa dipilih
+            </span>
+            <div class="bulk-actions">
+              <button class="btn btn-secondary">
+                <iconify-icon icon="lucide:download"></iconify-icon>
+                Export Terpilih
+              </button>
+              <button class="btn btn-ghost">
+                <iconify-icon icon="lucide:circle-off"></iconify-icon>
+                Nonaktifkan
+              </button>
+              <button class="btn btn-ghost" style="color: var(--color-danger);">
+                <iconify-icon icon="lucide:trash-2"></iconify-icon>
+                Hapus
+              </button>
+              <button class="btn btn-ghost" style="margin-left: 8px;">
+                <iconify-icon icon="lucide:x"></iconify-icon>
+                Batal
+              </button>
+            </div>
+          </div>
+
+          <!-- Stats summary + Table -->
+          <div class="table-card">
+            <div class="table-stats">
+              <div class="stat-item">
+                <span class="stat-label">Total</span>
+                <span class="stat-value">248</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-label">Aktif</span>
+                <span class="stat-value success">232</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-label">Nonaktif</span>
+                <span class="stat-value warning">16</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-label">Wajah Terdaftar</span>
+                <span class="stat-value">198 <small style="font-size: 11px; color: var(--color-text-tertiary); font-weight: 500;">(79.8%)</small></span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-label">Rata-Rata Kehadiran</span>
+                <span class="stat-value success">87.3%</span>
+              </div>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="checkbox-cell">
+                    <span class="table-checkbox indeterminate">
+                      <iconify-icon icon="lucide:minus"></iconify-icon>
+                    </span>
+                  </th>
+                  <th>Mahasiswa</th>
+                  <th>NIM</th>
+                  <th>Angkatan</th>
+                  <th>Status</th>
+                  <th>Kehadiran</th>
+                  <th>Wajah</th>
+                  <th>Presensi Terakhir</th>
+                  <th class="actions-cell"></th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <tr>
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox checked"><iconify-icon icon="lucide:check"></iconify-icon></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar alt-1">RM</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Riki Mahbubillah</p>
+                        <span class="mhs-email">riki.mahbubillah@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651001</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:circle-check"></iconify-icon> Aktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill" style="width: 95%"></div></div>
+                      <span class="kehadiran-num">95% · 38/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Terdaftar</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-text-secondary);">14:18 hari ini</span></td>
+                  <td class="actions-cell">
+                    <button class="table-action-btn"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox checked"><iconify-icon icon="lucide:check"></iconify-icon></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar alt-2">SW</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Sari Wulandari</p>
+                        <span class="mhs-email">sari.wulandari@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651002</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:circle-check"></iconify-icon> Aktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill" style="width: 92%"></div></div>
+                      <span class="kehadiran-num">92% · 37/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Terdaftar</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-text-secondary);">14:15 hari ini</span></td>
+                  <td class="actions-cell">
+                    <button class="table-action-btn"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                  </td>
+                </tr>
+
+                <tr style="position: relative;">
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox checked"><iconify-icon icon="lucide:check"></iconify-icon></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar alt-3">JS</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Joko Susilo</p>
+                        <span class="mhs-email">joko.susilo@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651003</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:circle-check"></iconify-icon> Aktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill warning" style="width: 78%"></div></div>
+                      <span class="kehadiran-num">78% · 31/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Terdaftar</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-text-secondary);">Kemarin 10:23</span></td>
+                  <td class="actions-cell" style="position: relative;">
+                    <button class="table-action-btn" style="background: var(--color-primary-surface); color: var(--color-primary);"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                    <!-- DEMO: dropdown menu shown for this row -->
+                    <div class="dropdown-menu" style="position: absolute; right: 8px; top: 100%; margin-top: 4px; text-align: left;">
+                      <div class="dropdown-item"><iconify-icon icon="lucide:eye"></iconify-icon> Lihat Detail</div>
+                      <div class="dropdown-item"><iconify-icon icon="lucide:edit-2"></iconify-icon> Edit Data</div>
+                      <div class="dropdown-item"><iconify-icon icon="lucide:key-round"></iconify-icon> Reset Password</div>
+                      <div class="dropdown-item"><iconify-icon icon="lucide:scan-face"></iconify-icon> Hapus Wajah Terdaftar</div>
+                      <div class="dropdown-item"><iconify-icon icon="lucide:bar-chart-3"></iconify-icon> Rekap Kehadiran</div>
+                      <div class="dropdown-separator"></div>
+                      <div class="dropdown-item"><iconify-icon icon="lucide:circle-off"></iconify-icon> Nonaktifkan Akun</div>
+                      <div class="dropdown-item danger"><iconify-icon icon="lucide:trash-2"></iconify-icon> Hapus Permanen...</div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox"></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar alt-4">YP</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Yono Pratama</p>
+                        <span class="mhs-email">yono.pratama@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651004</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-warning"><iconify-icon icon="lucide:circle-pause"></iconify-icon> Nonaktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill danger" style="width: 42%"></div></div>
+                      <span class="kehadiran-num">42% · 17/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-neutral"><iconify-icon icon="lucide:x"></iconify-icon> Belum</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-danger); font-weight: 600;">3 minggu lalu</span></td>
+                  <td class="actions-cell">
+                    <button class="table-action-btn"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox"></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar">AS</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Andi Saputra</p>
+                        <span class="mhs-email">andi.saputra@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651005</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:circle-check"></iconify-icon> Aktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill" style="width: 88%"></div></div>
+                      <span class="kehadiran-num">88% · 35/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Terdaftar</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-text-secondary);">Kemarin 13:45</span></td>
+                  <td class="actions-cell">
+                    <button class="table-action-btn"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox"></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar alt-1">DK</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Dewi Kusuma</p>
+                        <span class="mhs-email">dewi.kusuma@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651006</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:circle-check"></iconify-icon> Aktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill" style="width: 100%"></div></div>
+                      <span class="kehadiran-num">100% · 40/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Terdaftar</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-text-secondary);">14:22 hari ini</span></td>
+                  <td class="actions-cell">
+                    <button class="table-action-btn"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox"></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar alt-2">FP</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Fajar Pratama</p>
+                        <span class="mhs-email">fajar.pratama@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651007</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:circle-check"></iconify-icon> Aktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill" style="width: 85%"></div></div>
+                      <span class="kehadiran-num">85% · 34/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-warning"><iconify-icon icon="lucide:alert-circle"></iconify-icon> Belum</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-text-secondary);">14:10 hari ini</span></td>
+                  <td class="actions-cell">
+                    <button class="table-action-btn"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox"></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar alt-3">NF</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Nadya Fitri</p>
+                        <span class="mhs-email">nadya.fitri@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651008</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:circle-check"></iconify-icon> Aktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill" style="width: 97%"></div></div>
+                      <span class="kehadiran-num">97% · 39/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Terdaftar</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-text-secondary);">14:21 hari ini</span></td>
+                  <td class="actions-cell">
+                    <button class="table-action-btn"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox"></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar alt-4">BP</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Bagas Pradana</p>
+                        <span class="mhs-email">bagas.pradana@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651009</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:circle-check"></iconify-icon> Aktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill warning" style="width: 72%"></div></div>
+                      <span class="kehadiran-num">72% · 29/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Terdaftar</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-text-secondary);">2 hari lalu</span></td>
+                  <td class="actions-cell">
+                    <button class="table-action-btn"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="checkbox-cell">
+                    <span class="table-checkbox"></span>
+                  </td>
+                  <td>
+                    <div class="mhs-cell">
+                      <div class="avatar">RA</div>
+                      <div class="mhs-info">
+                        <p class="mhs-name">Rina Anggraini</p>
+                        <span class="mhs-email">rina.anggraini@politani.ac.id</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="nim-cell">2210651010</td>
+                  <td>2022</td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:circle-check"></iconify-icon> Aktif</span></td>
+                  <td>
+                    <div class="kehadiran-bar">
+                      <div class="kehadiran-track"><div class="kehadiran-fill" style="width: 90%"></div></div>
+                      <span class="kehadiran-num">90% · 36/40 sesi</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Terdaftar</span></td>
+                  <td><span style="font-size: 12px; color: var(--color-text-secondary);">14:08 hari ini</span></td>
+                  <td class="actions-cell">
+                    <button class="table-action-btn"><iconify-icon icon="lucide:more-horizontal"></iconify-icon></button>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div style="display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--color-surface); border: 1px solid var(--color-border); border-top: none; border-radius: 0 0 12px 12px;">
+              <span style="font-size: 12px; color: var(--color-text-secondary);">Tampilkan</span>
+              <div class="input-field" style="width: 80px; height: 32px;">
+                <select style="padding: 0;">
+                  <option>20</option>
+                  <option>50</option>
+                  <option>100</option>
+                </select>
+                <iconify-icon icon="lucide:chevron-down" style="font-size: 14px;"></iconify-icon>
+              </div>
+              <span style="font-size: 12px; color: var(--color-text-secondary);">per halaman</span>
+
+              <span style="margin-left: auto; font-size: 12px; color: var(--color-text-secondary);">
+                Menampilkan <strong style="color: var(--color-text-primary);">1–20</strong> dari <strong style="color: var(--color-text-primary);">248</strong> mahasiswa
+              </span>
+
+              <button class="page-btn" disabled>
+                <iconify-icon icon="lucide:chevron-left" style="font-size: 14px;"></iconify-icon>
+              </button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <span style="color: var(--color-text-tertiary); font-size: 12px;">...</span>
+              <button class="page-btn">13</button>
+              <button class="page-btn">
+                <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

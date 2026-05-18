@@ -51,18 +51,26 @@ class FaceRepository {
     }
   }
 
-  /// GET /api/mobile/face/embedding — Download stored embedding
-  Future<FaceEmbedding> getStoredEmbedding() async {
+  /// POST /api/mobile/face/verify — Server-side verification.
+  /// Mobile kirim live embedding, server compare dengan stored embedding
+  /// milik user (yang TIDAK pernah keluar dari server).
+  ///
+  /// Return [FaceVerifyResponse] dengan match boolean + similarity score.
+  /// Throws Exception (pesan Bahasa Indonesia) kalau gagal — caller
+  /// (provider) handle error tanpa crash UI.
+  Future<FaceVerifyResponse> verifyEmbedding(List<double> liveEmbedding) async {
     try {
       final dio = DioClient.instance;
-      final response = await dio.get('/api/mobile/face/embedding');
+      final response = await dio.post(
+        ApiEndpoints.faceVerify,
+        data: {'embedding': liveEmbedding},
+      );
 
-      return FaceEmbedding.fromJson(
+      return FaceVerifyResponse.fromJson(
         response.data as Map<String, dynamic>,
       );
     } catch (e) {
-      debugPrint('[FACE REPO] Get embedding error: $e');
-
+      debugPrint('[FACE REPO] Verify error: $e');
       final errorMsg = _extractErrorMessage(e);
       throw Exception(errorMsg);
     }

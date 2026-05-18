@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Chat Widget — Mockup Variants — MyPresensi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/iconify-icon@2.0.0/dist/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="_tokens.css" />
+  <style>
+    body { padding: 24px 16px 80px; }
+
+    .grid-variants {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .variant-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .variant-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .variant-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(45, 134, 255, 0.16);
+      border: 1px solid rgba(45, 134, 255, 0.3);
+      border-radius: 999px;
+      color: #cfe1ff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .variant-title {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      margin: 0;
+    }
+    .variant-sub {
+      margin: 0;
+      font-size: 12px;
+      color: #9ba3ad;
+      line-height: 1.45;
+    }
+
+    .preview-frame {
+      background: var(--color-surface-sunken);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      min-height: 720px;
+    }
+
+    /* === Chat Panel base shape (semua variant berbagi struktur) === */
+    .chat-panel {
+      width: 100%;
+      max-width: 380px;
+      height: 680px;
+      background: var(--color-surface);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--sh-card-elevated);
+      border: 1px solid var(--color-border);
+    }
+
+    /* === Body chat (umum) === */
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #fff;
+    }
+    .chat-bubble {
+      max-width: 86%;
+      padding: 10px 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      border-radius: 14px;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: var(--color-primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-bubble.assistant {
+      align-self: flex-start;
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-bottom-left-radius: 4px;
+    }
+    .chat-bubble strong { font-weight: 700; }
+    .chat-bubble ol, .chat-bubble ul { padding-left: 18px; margin: 6px 0; }
+    .chat-bubble li { margin-bottom: 4px; }
+
+    .typing-indicator {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .typing-indicator span {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--color-text-tertiary);
+      animation: typing-bounce 1s infinite ease-in-out;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay: 120ms; }
+    .typing-indicator span:nth-child(3) { animation-delay: 240ms; }
+    @keyframes typing-bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-3px); opacity: 1; }
+    }
+
+    .suggestion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .suggestion-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+    .suggestion-chip:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-surface);
+    }
+    .suggestion-chip-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .suggestion-chip-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+    .suggestion-chip-desc {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+    .suggestion-chip-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--color-primary-surface);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .suggestion-chip-icon iconify-icon { font-size: 16px; }
+
+    .empty-card {
+      text-align: center;
+      padding: 24px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .empty-card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--color-primary-surface);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .empty-card-icon iconify-icon { font-size: 26px; }
+    .empty-card h3 {
+      font-family: var(--ff-heading);
+      font-size: 15px;
+      font-weight: 700;
+      margin: 4px 0 0;
+      color: var(--color-text-primary);
+    }
+    .empty-card p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+      max-width: 260px;
+    }
+
+    /* === Input area (umum) === */
+    .chat-input-wrap {
+      padding: 12px;
+      border-top: 1px solid var(--color-border);
+      background: var(--color-surface);
+    }
+    .chat-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--color-surface-sunken);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 4px 4px 4px 14px;
+      transition: all 0.15s ease;
+    }
+    .chat-input:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(45, 134, 255, 0.15);
+      background: var(--color-surface);
+    }
+    .chat-input input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--ff-body);
+      font-size: 13px;
+      height: 36px;
+      color: var(--color-text-primary);
+    }
+    .chat-send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-primary);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .chat-send-btn:disabled {
+      background: var(--color-border-strong);
+      cursor: not-allowed;
+    }
+
+    /* === Floating button (umum, beda di variant) === */
+    .fab-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 12px;
+      margin-top: 8px;
+    }
+    .fab-row-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    /* ============================================================
+       VARIANT A — Corporate Clean (minimal, solid, no gradient)
+       ============================================================ */
+    .panel-a .chat-header {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .panel-a .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .panel-a .header-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--color-primary-surface);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .panel-a .header-title {
+      font-family: var(--ff-heading);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      line-height: 1.2;
+    }
+    .panel-a .header-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--color-success);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .panel-a .header-status .dot-online {
+      width: 6px;
+      height: 6px;
+      background: var(--color-success);
+      border-radius: 999px;
+    }
+    .panel-a .header-close {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+    }
+    .panel-a .header-close:hover { background: var(--color-surface-sunken); }
+    .panel-a .chat-body { background: var(--color-bg); }
+
+    .fab-a {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px 10px 14px;
+      background: var(--color-primary);
+      color: #fff;
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      box-shadow: var(--sh-button);
+    }
+    .fab-a .fab-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ============================================================
+       VARIANT B — Modern Elevated (subtle gradient di header saja)
+       ============================================================ */
+    .panel-b .chat-header {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      color: #fff;
+      padding: 18px 18px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .panel-b .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .panel-b .header-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .panel-b .header-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .panel-b .header-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .panel-b .header-eyebrow .dot-online {
+      width: 5px;
+      height: 5px;
+      background: #4ade80;
+      border-radius: 999px;
+    }
+    .panel-b .header-title {
+      font-family: var(--ff-heading);
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .panel-b .header-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.78);
+    }
+    .panel-b .header-close {
+      width: 30px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .panel-b .header-close:hover { background: rgba(255, 255, 255, 0.2); }
+    .panel-b .chat-body { background: var(--color-bg); }
+
+    .fab-b {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      color: #fff;
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      box-shadow: var(--sh-button);
+      position: relative;
+    }
+    .fab-b .fab-dot {
+      position: absolute;
+      top: 6px;
+      right: 12px;
+      width: 8px;
+      height: 8px;
+      background: var(--color-accent);
+      border-radius: 999px;
+      border: 2px solid var(--color-primary-dark);
+    }
+
+    /* ============================================================
+       VARIANT C — Hero Branded (sesuai hero-card existing dashboard)
+       ============================================================ */
+    .panel-c .chat-header {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      color: #fff;
+      padding: 18px 18px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      isolation: isolate;
+    }
+    .panel-c .chat-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, var(--color-accent-soft) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .panel-c .chat-header > * { position: relative; z-index: 1; }
+
+    .panel-c .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .panel-c .header-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .panel-c .header-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .panel-c .header-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #fff;
+      width: fit-content;
+    }
+    .panel-c .header-eyebrow .dot-online {
+      width: 5px;
+      height: 5px;
+      background: #4ade80;
+      border-radius: 999px;
+      animation: pulse-dot 2s infinite;
+    }
+    .panel-c .header-title {
+      font-family: var(--ff-heading);
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+    .panel-c .header-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.78);
+    }
+    .panel-c .header-close {
+      width: 30px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .panel-c .header-close:hover { background: rgba(255, 255, 255, 0.2); }
+    .panel-c .chat-body { background: var(--color-bg); }
+
+    .fab-c {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px 10px 14px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      color: #fff;
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      box-shadow: var(--sh-hero);
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .fab-c::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 100% 0%, var(--color-accent-soft) 0%, transparent 60%);
+      z-index: 0;
+    }
+    .fab-c > * { position: relative; z-index: 1; }
+    .fab-c .fab-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.20);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .pc-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .pc-box .pc-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .pc-box.pros .pc-title { color: #4ade80; }
+    .pc-box.cons .pc-title { color: #fb923c; }
+    .pc-box ul {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 12px;
+      color: #c0c8d2;
+      line-height: 1.55;
+    }
+    .pc-box li { margin-bottom: 4px; }
+
+    .compare-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto 32px;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+    }
+    .compare-bar strong { color: #fff; }
+    .compare-bar span { color: #9ba3ad; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="showcase-header">
+    <a class="nav-back" href="index.html">← Index</a>
+    <h1>AI Chat Widget — 3 Variant Mockup</h1>
+    <p>Pilih satu sebagai base sebelum implementasi final. Semua pakai design token Politani Web (<code>_tokens.css</code>).</p>
+    <div class="legend">
+      <strong>Primary:</strong> #2D86FF
+      <span>·</span>
+      <strong>Navy:</strong> #0D2C5E
+      <span>·</span>
+      <strong>Gold:</strong> #F4B400
+    </div>
+  </div>
+
+  <div class="compare-bar">
+    <strong>Hal yang sengaja saya samakan di semua variant:</strong>
+    <span>palette TRPL only · bubble user solid primary · markdown <strong>bold</strong> dirender · input flat · typing 3-dot · suggestion chip dengan icon kategori</span>
+  </div>
+
+  <div class="grid-variants">
+
+    <!-- ============================================================
+         VARIANT A — Corporate Clean
+         ============================================================ -->
+    <div class="variant-card">
+      <div class="variant-head">
+        <div>
+          <span class="variant-tag">Variant A</span>
+          <h2 class="variant-title">Corporate Clean</h2>
+        </div>
+      </div>
+      <p class="variant-sub">Header putih + icon box. Tanpa gradient. Paling sejajar dengan halaman <code>kpi-card</code>, <code>data-table</code>, dan <code>filter-chip</code>. Cocok untuk admin dashboard yang formal.</p>
+
+      <div class="preview-frame">
+        <div class="chat-panel panel-a">
+          <!-- HEADER -->
+          <div class="chat-header">
+            <div class="header-left">
+              <div class="header-avatar">
+                <iconify-icon icon="lucide:bot" width="20"></iconify-icon>
+              </div>
+              <div>
+                <div class="header-title">Asisten AI</div>
+                <div class="header-status">
+                  <span class="dot-online"></span>
+                  Online · Gemini 2.5 Flash
+                </div>
+              </div>
+            </div>
+            <button class="header-close" aria-label="Tutup">
+              <iconify-icon icon="lucide:x" width="16"></iconify-icon>
+            </button>
+          </div>
+
+          <!-- BODY (empty state) -->
+          <div class="chat-body">
+            <div class="empty-card">
+              <div class="empty-card-icon">
+                <iconify-icon icon="lucide:sparkles" width="24"></iconify-icon>
+              </div>
+              <h3>Apa yang ingin Anda ketahui?</h3>
+              <p>Saya dapat menjawab pertanyaan tentang data presensi, izin, dan insight mahasiswa.</p>
+            </div>
+
+            <div class="suggestion-list">
+              <button class="suggestion-chip">
+                <div class="suggestion-chip-icon">
+                  <iconify-icon icon="lucide:alert-triangle"></iconify-icon>
+                </div>
+                <div class="suggestion-chip-text">
+                  <span class="suggestion-chip-title">Mahasiswa berisiko</span>
+                  <span class="suggestion-chip-desc">Lihat daftar at-risk saat ini</span>
+                </div>
+                <iconify-icon icon="lucide:chevron-right" style="color: var(--color-text-tertiary)"></iconify-icon>
+              </button>
+              <button class="suggestion-chip">
+                <div class="suggestion-chip-icon">
+                  <iconify-icon icon="lucide:file-clock"></iconify-icon>
+                </div>
+                <div class="suggestion-chip-text">
+                  <span class="suggestion-chip-title">Izin pending</span>
+                  <span class="suggestion-chip-desc">Pengajuan menunggu approval</span>
+                </div>
+                <iconify-icon icon="lucide:chevron-right" style="color: var(--color-text-tertiary)"></iconify-icon>
+              </button>
+              <button class="suggestion-chip">
+                <div class="suggestion-chip-icon">
+                  <iconify-icon icon="lucide:trending-up"></iconify-icon>
+                </div>
+                <div class="suggestion-chip-text">
+                  <span class="suggestion-chip-title">Ringkasan 30 hari</span>
+                  <span class="suggestion-chip-desc">Trend presensi terakhir</span>
+                </div>
+                <iconify-icon icon="lucide:chevron-right" style="color: var(--color-text-tertiary)"></iconify-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- INPUT -->
+          <div class="chat-input-wrap">
+            <div class="chat-input">
+              <input type="text" placeholder="Tulis pertanyaan..." />
+              <button class="chat-send-btn" aria-label="Kirim">
+                <iconify-icon icon="lucide:send-horizontal" width="16"></iconify-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating button preview -->
+      <div class="fab-row">
+        <span class="fab-row-label">Floating button</span>
+        <button class="fab-a">
+          <span class="fab-icon"><iconify-icon icon="lucide:sparkles" width="14"></iconify-icon></span>
+          Asisten AI
+        </button>
+      </div>
+
+      <!-- Pros/Cons -->
+      <div class="pros-cons">
+        <div class="pc-box pros">
+          <div class="pc-title">Plus</div>
+          <ul>
+            <li>Paling konsisten dengan dashboard</li>
+            <li>Tanpa gradient — clean SaaS</li>
+            <li>Cepat dirender, kontras tinggi</li>
+          </ul>
+        </div>
+        <div class="pc-box cons">
+          <div class="pc-title">Minus</div>
+          <ul>
+            <li>Kurang "wow factor" untuk demo</li>
+            <li>Identitas AI tidak menonjol</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         VARIANT B — Modern Elevated
+         ============================================================ -->
+    <div class="variant-card">
+      <div class="variant-head">
+        <div>
+          <span class="variant-tag">Variant B</span>
+          <h2 class="variant-title">Modern Elevated</h2>
+        </div>
+      </div>
+      <p class="variant-sub">Header gradient subtle <strong>primary → navy</strong> (palette TRPL only). Body flat. Identitas AI lebih jelas tanpa lebay. Ini titik tengah antara minimalis & branded.</p>
+
+      <div class="preview-frame">
+        <div class="chat-panel panel-b">
+          <!-- HEADER -->
+          <div class="chat-header">
+            <div class="header-left">
+              <div class="header-avatar">
+                <iconify-icon icon="lucide:bot" width="20"></iconify-icon>
+              </div>
+              <div class="header-meta">
+                <div class="header-eyebrow">
+                  <span class="dot-online"></span>
+                  Online
+                </div>
+                <div class="header-title">Asisten AI MyPresensi</div>
+                <div class="header-sub">Insight presensi & mahasiswa</div>
+              </div>
+            </div>
+            <button class="header-close" aria-label="Tutup">
+              <iconify-icon icon="lucide:x" width="14"></iconify-icon>
+            </button>
+          </div>
+
+          <!-- BODY (active chat with markdown) -->
+          <div class="chat-body">
+            <div class="chat-bubble user">
+              Siapa mahasiswa paling berisiko saat ini?
+            </div>
+            <div class="chat-bubble assistant">
+              Berdasarkan data 30 hari terakhir, ada 3 mahasiswa berisiko:
+              <ol>
+                <li><strong>Siti Nurhaliza</strong> (P2100002) — 28,6% <span style="color: var(--color-danger); font-weight: 600;">(KRITIS)</span></li>
+                <li><strong>Dewi Lestari</strong> (P2100004) — 57,1% <span style="color: var(--color-warning); font-weight: 600;">(PERHATIAN)</span></li>
+                <li><strong>Budi Santoso</strong> (P2100003) — 66,7% <span style="color: var(--color-warning); font-weight: 600;">(PERHATIAN)</span></li>
+              </ol>
+              Saran: prioritaskan follow-up untuk <strong>Siti Nurhaliza</strong> karena tergolong kritis.
+            </div>
+            <div class="chat-bubble assistant" style="display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 14px;">
+              <span class="typing-indicator">
+                <span></span><span></span><span></span>
+              </span>
+              <span style="color: var(--color-text-secondary); font-size: 12px;">Menganalisis...</span>
+            </div>
+          </div>
+
+          <!-- INPUT -->
+          <div class="chat-input-wrap">
+            <div class="chat-input">
+              <input type="text" placeholder="Tulis pertanyaan..." />
+              <button class="chat-send-btn" aria-label="Kirim">
+                <iconify-icon icon="lucide:send-horizontal" width="16"></iconify-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating button preview -->
+      <div class="fab-row">
+        <span class="fab-row-label">Floating button</span>
+        <button class="fab-b">
+          <iconify-icon icon="lucide:sparkles" width="15"></iconify-icon>
+          Asisten AI
+          <span class="fab-dot"></span>
+        </button>
+      </div>
+
+      <!-- Pros/Cons -->
+      <div class="pros-cons">
+        <div class="pc-box pros">
+          <div class="pc-title">Plus</div>
+          <ul>
+            <li>Identitas AI jelas tapi tetap formal</li>
+            <li>Gradient palette-only (no random hex)</li>
+            <li>Markdown demo terlihat rapi</li>
+          </ul>
+        </div>
+        <div class="pc-box cons">
+          <div class="pc-title">Minus</div>
+          <ul>
+            <li>Header tetap dominan</li>
+            <li>Sedikit kontras dengan rest dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         VARIANT C — Hero Branded
+         ============================================================ -->
+    <div class="variant-card">
+      <div class="variant-head">
+        <div>
+          <span class="variant-tag">Variant C</span>
+          <h2 class="variant-title">Hero Branded</h2>
+        </div>
+      </div>
+      <p class="variant-sub">Header pakai pattern <code>.hero-card</code> existing (gold glow + navy gradient). Paling sejalan dengan <em>hero greeting card</em> dashboard mahasiswa & dosen. Demo paling premium.</p>
+
+      <div class="preview-frame">
+        <div class="chat-panel panel-c">
+          <!-- HEADER with hero pattern -->
+          <div class="chat-header">
+            <div class="header-left">
+              <div class="header-avatar">
+                <iconify-icon icon="lucide:sparkles" width="20"></iconify-icon>
+              </div>
+              <div class="header-meta">
+                <div class="header-eyebrow">
+                  <span class="dot-online"></span>
+                  Asisten AI · Online
+                </div>
+                <div class="header-title">Tanya MyPresensi</div>
+                <div class="header-sub">Analisis presensi, izin, dan insight</div>
+              </div>
+            </div>
+            <button class="header-close" aria-label="Tutup">
+              <iconify-icon icon="lucide:x" width="14"></iconify-icon>
+            </button>
+          </div>
+
+          <!-- BODY (active chat - shorter) -->
+          <div class="chat-body">
+            <div class="chat-bubble user">
+              Berapa pengajuan izin yang masih pending?
+            </div>
+            <div class="chat-bubble assistant">
+              Saat ini ada <strong>3 pengajuan izin/sakit</strong> menunggu approval:
+              <ul>
+                <li><strong>Ahmad Rizki</strong> — Izin RPL · 14 Mei</li>
+                <li><strong>Dewi Lestari</strong> — Sakit PWPB · 13 Mei</li>
+                <li><strong>Budi Santoso</strong> — Izin Kalkulus · 12 Mei</li>
+              </ul>
+              Buka <strong>Menu Izin</strong> untuk review detail.
+            </div>
+
+            <div class="empty-card" style="padding-top: 12px;">
+              <p style="font-size: 11px; color: var(--color-text-tertiary);">Atau pilih shortcut di bawah</p>
+            </div>
+
+            <div class="suggestion-list">
+              <button class="suggestion-chip">
+                <div class="suggestion-chip-icon">
+                  <iconify-icon icon="lucide:alert-triangle"></iconify-icon>
+                </div>
+                <div class="suggestion-chip-text">
+                  <span class="suggestion-chip-title">Mahasiswa berisiko</span>
+                </div>
+                <iconify-icon icon="lucide:chevron-right" style="color: var(--color-text-tertiary)"></iconify-icon>
+              </button>
+              <button class="suggestion-chip">
+                <div class="suggestion-chip-icon">
+                  <iconify-icon icon="lucide:trending-up"></iconify-icon>
+                </div>
+                <div class="suggestion-chip-text">
+                  <span class="suggestion-chip-title">Ringkasan 30 hari</span>
+                </div>
+                <iconify-icon icon="lucide:chevron-right" style="color: var(--color-text-tertiary)"></iconify-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- INPUT -->
+          <div class="chat-input-wrap">
+            <div class="chat-input">
+              <input type="text" placeholder="Tulis pertanyaan..." />
+              <button class="chat-send-btn" aria-label="Kirim">
+                <iconify-icon icon="lucide:send-horizontal" width="16"></iconify-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating button preview -->
+      <div class="fab-row">
+        <span class="fab-row-label">Floating button</span>
+        <button class="fab-c">
+          <span class="fab-icon"><iconify-icon icon="lucide:sparkles" width="14"></iconify-icon></span>
+          Tanya MyPresensi
+        </button>
+      </div>
+
+      <!-- Pros/Cons -->
+      <div class="pros-cons">
+        <div class="pc-box pros">
+          <div class="pc-title">Plus</div>
+          <ul>
+            <li>Sejalan dengan hero card existing</li>
+            <li>Wow factor tertinggi untuk demo PBL</li>
+            <li>Gold accent jadi pembeda halus</li>
+          </ul>
+        </div>
+        <div class="pc-box cons">
+          <div class="pc-title">Minus</div>
+          <ul>
+            <li>Header paling dominan (radial gold)</li>
+            <li>Cocok untuk fitur unggulan, bukan utility</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

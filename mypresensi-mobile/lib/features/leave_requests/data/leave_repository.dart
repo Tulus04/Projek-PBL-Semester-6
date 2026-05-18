@@ -2,6 +2,8 @@
 // Repository untuk pengajuan izin/sakit — wrap API call POST submit & GET my.
 // Pesan error di-translate ke Bahasa Indonesia mengikuti pola repository lain.
 
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../../../core/network/dio_client.dart';
@@ -23,6 +25,51 @@ class LeaveRepository {
         response.data as Map<String, dynamic>,
       );
       debugPrint('[LEAVE] Submit OK: ${result.id} status=${result.status.name}');
+      return result;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Upload bukti foto ke server. Server validasi mime + size + magic bytes,
+  /// place ke bucket `leave-evidence` lalu return path.
+  ///
+  /// Path nanti dipasang di [SubmitLeaveRequest.evidencePath] saat submit.
+  /// Throws String berisi pesan Bahasa Indonesia jika gagal.
+  Future<UploadEvidenceResponse> uploadEvidence(File file) async {
+    try {
+      // Tentukan content type dari ekstensi (image_picker biasanya kasih JPEG)
+      final lower = file.path.toLowerCase();
+      String contentType;
+      if (lower.endsWith('.png')) {
+        contentType = 'image/png';
+      } else if (lower.endsWith('.webp')) {
+        contentType = 'image/webp';
+      } else {
+        contentType = 'image/jpeg';
+      }
+
+      final multipartFile = await MultipartFile.fromFile(
+        file.path,
+        contentType: DioMediaType.parse(contentType),
+      );
+      final formData = FormData.fromMap({'file': multipartFile});
+
+      final response = await _dio.post(
+        ApiEndpoints.leaveRequestUpload,
+        data: formData,
+        options: Options(
+          headers: {
+            // Dio akan auto-set boundary; cukup pastikan header tidak override
+            // Content-Type dari FormData.
+          },
+        ),
+      );
+
+      final result = UploadEvidenceResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+      debugPrint('[LEAVE] Upload OK: ${result.path}');
       return result;
     } on DioException catch (e) {
       throw _handleError(e);

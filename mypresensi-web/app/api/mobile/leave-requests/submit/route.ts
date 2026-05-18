@@ -10,6 +10,10 @@ import {
   checkSlidingRateLimit,
   getDeviceId,
 } from '../../_lib/rate-limit'
+import {
+  EVIDENCE_PATH_REGEX,
+  isPathOwnedByUser,
+} from '../../_lib/storage-utils'
 import { createAdminClient } from '@/lib/supabase/server'
 import { logAudit } from '@/lib/audit-logger'
 import { z } from 'zod'
@@ -26,7 +30,14 @@ const submitSchema = z.object({
     .string()
     .min(10, 'Alasan minimal 10 karakter')
     .max(500, 'Alasan maksimal 500 karakter'),
-  evidence_url: z.string().url('URL bukti tidak valid').max(500).optional().nullable(),
+  // evidence_path: hasil upload via /upload-evidence — format
+  // '<uuid_user>/<32hex>.<jpg|png|webp>'. Optional.
+  // Server akan validate prefix === user.id sebagai defense in depth selain RLS.
+  evidence_path: z
+    .string()
+    .regex(EVIDENCE_PATH_REGEX, 'Format path bukti tidak valid')
+    .optional()
+    .nullable(),
 })
 
 // ===========================
@@ -57,6 +68,12 @@ export async function POST(req: NextRequest) {
       return errorResponse(parsed.error.errors[0]?.message ?? 'Input tidak valid', 400)
     }
     const input = parsed.data
+
+    // 3a. Defense in depth: kalau evidence_path dikirim, prefix harus user.id sendiri.
+    // Mencegah attacker submit dengan path yang menunjuk file user lain.
+    if (input.evidence_path && !isPathOwnedByUser(input.evidence_path, user.id)) {
+      return errorResponse('Bukti pendukung tidak valid.', 403)
+    }
 
     const supabase = createAdminClient()
 
@@ -127,7 +144,9 @@ export async function POST(req: NextRequest) {
         session_id: input.session_id,
         type: input.type,
         reason: input.reason,
-        evidence_url: input.evidence_url ?? null,
+        // Kolom legacy `evidence_url` sekarang menyimpan PATH (bukan full URL).
+        // Web admin/dosen akan generate signed URL on-demand via server action.
+        evidence_url: input.evidence_path ?? null,
         status: 'pending',
       })
       .select('id, created_at')
@@ -149,6 +168,7 @@ export async function POST(req: NextRequest) {
         student_nim: user.nim_nip,
         session_id: input.session_id,
         type: input.type,
+        has_evidence: !!input.evidence_path,
         device_id: deviceId,
         user_agent: req.headers.get('user-agent') ?? null,
       },

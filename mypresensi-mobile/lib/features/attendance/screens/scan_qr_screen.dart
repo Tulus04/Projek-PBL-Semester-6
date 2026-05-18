@@ -8,6 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../face/data/face_config_models.dart';
+import '../../face/data/face_models.dart';
+import '../../face/providers/face_provider.dart';
+import '../data/attendance_models.dart';
 import '../providers/attendance_provider.dart';
 
 class ScanQrScreen extends ConsumerStatefulWidget {
@@ -64,22 +69,168 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
     _processSubmit(qrData);
   }
 
-  Future<void> _processSubmit(dynamic qrData) async {
+  Future<void> _processSubmit(QrCodeData qrData) async {
+    // === Pre-flight: cek face_verification_mode ===
+    // Phase 2 v7 (17 Mei 2026): kalau mode 'required', mahasiswa harus:
+    //   1. Sudah daftar wajah (is_face_registered = true), kalau belum → dialog redirect
+    //   2. Verify wajah dulu via /face-verify, hasilnya dikirim ke server saat submit
+    // Kalau mode 'optional' (legacy), submit langsung tanpa face verify.
+    FaceVerificationResult? faceResult;
+
+    try {
+      final faceConfig = await ref.read(faceConfigProvider.future);
+
+      if (faceConfig.verificationMode == FaceVerificationMode.required) {
+        // Cek apakah user sudah register wajah
+        final isFaceRegistered =
+            ref.read(authProvider).user?.isFaceRegistered ?? false;
+
+        if (!isFaceRegistered) {
+          if (!mounted) return;
+          await _showFaceNotRegisteredDialog();
+          setState(() => _isProcessing = false);
+          return;
+        }
+
+        // Push face verification screen, tunggu result
+        if (!mounted) return;
+        final result =
+            await context.push<FaceVerificationResult?>('/face-verify');
+
+        if (!mounted) return;
+
+        if (result == null) {
+          // User cancel atau timeout 15s — izinkan scan ulang
+          _showError(
+            'Verifikasi wajah gagal atau dibatalkan. Coba lagi dengan pencahayaan yang lebih baik.',
+          );
+          setState(() => _isProcessing = false);
+          return;
+        }
+
+        faceResult = result;
+      }
+    } catch (e) {
+      // Network error fetch config — fallback: lanjut submit, server akan gate kalau perlu
+      debugPrint('[SCAN QR] Face config fetch error: $e');
+    }
+
+    if (!mounted) return;
+
+    // === Submit ke server ===
     final success = await ref
         .read(attendanceSubmitProvider.notifier)
-        .submitFromQr(qrData);
+        .submitFromQr(qrData, faceResult: faceResult);
 
     if (!mounted) return;
 
     if (success) {
       // Navigate ke result screen
       context.push('/attendance-result');
-    } else {
-      // Tampilkan error, izinkan scan ulang
-      final errMsg = ref.read(attendanceSubmitProvider).errorMessage;
-      _showError(errMsg ?? 'Gagal submit presensi.');
-      setState(() => _isProcessing = false);
+      return;
     }
+
+    // === Handle error — cek error_code untuk routing dialog yang sesuai ===
+    final submitState = ref.read(attendanceSubmitProvider);
+    final errCode = submitState.errorCode;
+    final errMsg = submitState.errorMessage ?? 'Gagal submit presensi.';
+
+    if (errCode == 'face_not_registered') {
+      // Defense in depth: server reject walau pre-flight pass (race condition / cache stale)
+      await _showFaceNotRegisteredDialog();
+    } else if (errCode == 'face_mismatch') {
+      await _showFaceMismatchDialog(errMsg);
+    } else {
+      _showError(errMsg);
+    }
+
+    setState(() => _isProcessing = false);
+  }
+
+  /// Dialog: wajah belum terdaftar — ajak ke face registration screen.
+  Future<void> _showFaceNotRegisteredDialog() async {
+    if (!mounted) return;
+    final shouldRegister = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        icon: Icon(Icons.face_retouching_off, color: AppColors.primary, size: 40),
+        title: const Text(
+          'Wajah Belum Didaftarkan',
+          style: TextStyle(fontWeight: FontWeight.w700),
+          textAlign: TextAlign.center,
+        ),
+        content: const Text(
+          'Sebelum melakukan presensi, Anda perlu mendaftarkan wajah terlebih dahulu. Proses ini hanya perlu dilakukan sekali.',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 13, height: 1.5),
+        ),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(
+              'Nanti Saja',
+              style: TextStyle(color: AppColors.textTertiary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            child: const Text('Daftar Sekarang'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldRegister == true && mounted) {
+      context.push('/face-register');
+    }
+  }
+
+  /// Dialog: wajah tidak cocok — minta retry.
+  Future<void> _showFaceMismatchDialog(String message) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        icon: Icon(Icons.face_unlock_outlined, color: AppColors.warning, size: 40),
+        title: const Text(
+          'Wajah Tidak Cocok',
+          style: TextStyle(fontWeight: FontWeight.w700),
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 13, height: 1.5),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            ),
+            child: const Text('Coba Lagi'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showError(String message) {

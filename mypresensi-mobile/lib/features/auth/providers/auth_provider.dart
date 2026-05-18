@@ -189,6 +189,27 @@ class AuthNotifier extends Notifier<AuthState> {
     debugPrint('[AUTH] markFaceRegistered: updated locally');
   }
 
+  /// Update avatar URL lokal setelah upload berhasil. Tidak mereset auth state
+  /// — UI yang watch authProvider auto-rebuild dengan URL baru.
+  void markAvatarUpdated(String newAvatarUrl) {
+    final currentUser = state.user;
+    if (currentUser == null) return;
+
+    final updatedUser = UserModel(
+      id: currentUser.id,
+      fullName: currentUser.fullName,
+      nimNip: currentUser.nimNip,
+      role: currentUser.role,
+      semester: currentUser.semester,
+      kelas: currentUser.kelas,
+      phone: currentUser.phone,
+      avatarUrl: newAvatarUrl,
+      isFaceRegistered: currentUser.isFaceRegistered,
+    );
+    state = state.copyWith(user: updatedUser);
+    debugPrint('[AUTH] markAvatarUpdated: $newAvatarUrl');
+  }
+
   /// Update local flag isFaceRegistered = false setelah user hapus data wajah
   /// (UU PDP hak hapus). Tidak mereset auth state — user tetap login.
   void markFaceUnregistered() {

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audit Log Timeline — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .audit-grid {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 24px;
+    }
+    .audit-main {
+      min-width: 0;
+    }
+
+    /* Stats bar at top */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--color-surface);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--sh-card);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .stat-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-card-icon iconify-icon { font-size: 20px; }
+    .stat-card-icon.primary { background: var(--color-primary-surface); color: var(--color-primary); }
+    .stat-card-icon.success { background: var(--color-success-tint); color: var(--color-success); }
+    .stat-card-icon.warning { background: var(--color-warning-tint); color: var(--color-warning); }
+    .stat-card-icon.danger  { background: var(--color-danger-tint);  color: var(--color-danger); }
+    .stat-card-info { min-width: 0; }
+    .stat-card-num {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--color-text-primary);
+      line-height: 1;
+    }
+    .stat-card-label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* Filter bar */
+    .audit-filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: var(--color-surface);
+      border-radius: 12px;
+      box-shadow: var(--sh-card);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .audit-filters .search-input { flex: 1; min-width: 200px; max-width: 280px; }
+    .audit-filters .right-action {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+    .date-range-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      cursor: pointer;
+      font-family: var(--ff-mono);
+      font-weight: 500;
+    }
+    .date-range-picker:hover { border-color: var(--color-primary); }
+    .date-range-picker iconify-icon { color: var(--color-text-secondary); }
+
+    /* Custom timeline overrides */
+    .audit-timeline { padding-left: 32px; }
+    .audit-timeline::before { left: 9px; }
+    .audit-day-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 16px;
+      position: relative;
+    }
+    .audit-day-divider:first-child { margin-top: 0; }
+    .audit-day-divider .day-label {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--color-text-primary);
+      letter-spacing: -0.2px;
+    }
+    .audit-day-divider .day-date {
+      font-family: var(--ff-mono);
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+    }
+    .audit-day-divider .day-count {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      padding: 2px 8px;
+      background: var(--color-surface-sunken);
+      border-radius: 999px;
+    }
+
+    /* Audit item card */
+    .audit-item {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      transition: all 0.15s ease;
+    }
+    .audit-item:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--sh-card-hover);
+      transform: translateX(2px);
+    }
+    .audit-item::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 22px;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--color-primary);
+      border: 3px solid var(--color-bg);
+      box-shadow: 0 0 0 1px var(--color-border);
+      z-index: 1;
+    }
+    .audit-item.success::before { background: var(--color-success); }
+    .audit-item.warning::before { background: var(--color-warning); }
+    .audit-item.danger::before { background: var(--color-danger); }
+    .audit-item.info::before { background: var(--color-info); }
+
+    .audit-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #94a3b8, #475569);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .audit-avatar.alt-1 { background: linear-gradient(135deg, #fb7185, #be123c); }
+    .audit-avatar.alt-2 { background: linear-gradient(135deg, #34d399, #047857); }
+    .audit-avatar.alt-3 { background: linear-gradient(135deg, #fbbf24, #b45309); }
+    .audit-avatar.alt-4 { background: linear-gradient(135deg, #a78bfa, #6d28d9); }
+    .audit-avatar.system { background: linear-gradient(135deg, #0D2C5E, #2D86FF); }
+    .audit-content { flex: 1; min-width: 0; }
+    .audit-header-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+    .audit-actor {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--color-text-primary);
+    }
+    .audit-action-text {
+      font-size: 13px;
+      color: var(--color-text-primary);
+      line-height: 1.4;
+    }
+    .audit-action-text strong {
+      font-weight: 600;
+    }
+    .audit-action-text .field-change {
+      font-family: var(--ff-mono);
+      font-size: 12px;
+      padding: 1px 6px;
+      background: var(--color-surface-sunken);
+      border-radius: 4px;
+      color: var(--color-text-primary);
+    }
+    .audit-action-text .field-change.old { text-decoration: line-through; color: var(--color-danger); background: var(--color-danger-tint); }
+    .audit-action-text .field-change.new { color: var(--color-success); background: var(--color-success-tint); }
+    .audit-time {
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .audit-meta-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .audit-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+    }
+    .audit-meta-item iconify-icon { font-size: 13px; }
+
+    /* Sidebar — Filter facets */
+    .facet-card {
+      background: var(--color-surface);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--sh-card);
+      margin-bottom: 16px;
+    }
+    .facet-title {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      margin: 0 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .facet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .facet-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--color-text-primary);
+    }
+    .facet-item:hover { background: var(--color-primary-surface); }
+    .facet-item.active {
+      background: var(--color-primary-surface);
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+    .facet-item .facet-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .facet-item .facet-count {
+      margin-left: auto;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      color: var(--color-text-tertiary);
+      padding: 1px 6px;
+      background: var(--color-surface-sunken);
+      border-radius: 999px;
+    }
+    .facet-item.active .facet-count {
+      background: var(--color-primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="lucide:arrow-left" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>4. Audit Log — Timeline Grouped by Date</h1>
+    <p>Group by date · color-coded dot per severity · filter facets · export CSV · forensic view</p>
+    <div class="legend">
+      <strong>Reference:</strong> Stripe Events · Linear Activity · GitHub Audit Log
+    </div>
+  </div>
+
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="browser-lights">
+        <div class="light red"></div>
+        <div class="light yellow"></div>
+        <div class="light green"></div>
+      </div>
+      <div class="browser-url">
+        <iconify-icon icon="lucide:lock"></iconify-icon>
+        mypresensi.politani.ac.id/admin/audit
+      </div>
+      <div class="browser-tabs-hint">filter: severity=warning,danger</div>
+    </div>
+
+    <div class="admin-shell">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-logo">MP</div>
+          <div class="sidebar-brand-name">
+            MyPresensi
+            <small>Politani Samarinda</small>
+          </div>
+        </div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:layout-dashboard"></iconify-icon>
+          Dashboard
+        </a>
+        <div class="sidebar-section-header">Data Master</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:graduation-cap"></iconify-icon>
+          Mahasiswa
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:users"></iconify-icon>
+          Dosen
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:book-open"></iconify-icon>
+          Mata Kuliah
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:map-pin"></iconify-icon>
+          Lokasi Kampus
+        </a>
+        <div class="sidebar-section-header">Operasional</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:calendar-check-2"></iconify-icon>
+          Sesi
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:file-text"></iconify-icon>
+          Pengajuan Izin
+          <span class="badge">7</span>
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:bar-chart-3"></iconify-icon>
+          Rekap
+        </a>
+        <div class="sidebar-section-header">Sistem</div>
+        <a class="sidebar-nav-item active">
+          <iconify-icon icon="lucide:scroll-text"></iconify-icon>
+          Audit Log
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:settings-2"></iconify-icon>
+          Settings
+        </a>
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">SR</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">Siti Rahayu</div>
+            <div class="sidebar-user-role">Admin</div>
+          </div>
+          <iconify-icon icon="lucide:chevrons-up-down" style="color: var(--color-text-tertiary);"></iconify-icon>
+        </div>
+      </aside>
+
+      <div class="admin-content">
+
+        <!-- Topbar -->
+        <header class="topbar">
+          <div class="topbar-breadcrumb">
+            <iconify-icon icon="lucide:home" style="font-size: 14px;"></iconify-icon>
+            <span>Beranda</span>
+            <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+            <span>Sistem</span>
+            <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+            <span class="current">Audit Log</span>
+          </div>
+          <div class="topbar-search">
+            <iconify-icon icon="lucide:search"></iconify-icon>
+            <span>Cari mahasiswa, sesi, atau MK...</span>
+            <kbd>Ctrl K</kbd>
+          </div>
+          <button class="topbar-icon-btn">
+            <iconify-icon icon="lucide:help-circle"></iconify-icon>
+          </button>
+          <button class="topbar-icon-btn">
+            <iconify-icon icon="lucide:bell"></iconify-icon>
+            <span class="dot"></span>
+          </button>
+        </header>
+
+        <div class="page-body">
+
+          <div class="page-header">
+            <div class="page-title-group">
+              <div class="page-title-icon">
+                <iconify-icon icon="lucide:scroll-text"></iconify-icon>
+              </div>
+              <div class="page-title">
+                <h1>Audit Log</h1>
+                <p>Jejak aktivitas semua user · forensic mode untuk investigasi</p>
+              </div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost btn-sm">
+                <iconify-icon icon="lucide:refresh-cw"></iconify-icon>
+                Refresh
+              </button>
+              <button class="btn btn-secondary btn-sm">
+                <iconify-icon icon="lucide:download"></iconify-icon>
+                Export CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- Stats strip -->
+          <div class="stats-strip">
+            <div class="stat-card">
+              <div class="stat-card-icon primary">
+                <iconify-icon icon="lucide:activity"></iconify-icon>
+              </div>
+              <div class="stat-card-info">
+                <div class="stat-card-num">1,247</div>
+                <div class="stat-card-label">Total event 30 hari</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-icon success">
+                <iconify-icon icon="lucide:check-circle-2"></iconify-icon>
+              </div>
+              <div class="stat-card-info">
+                <div class="stat-card-num">182</div>
+                <div class="stat-card-label">Aktivitas hari ini</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-icon warning">
+                <iconify-icon icon="lucide:alert-triangle"></iconify-icon>
+              </div>
+              <div class="stat-card-info">
+                <div class="stat-card-num">14</div>
+                <div class="stat-card-label">Aksi mencurigakan</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-icon danger">
+                <iconify-icon icon="lucide:shield-alert"></iconify-icon>
+              </div>
+              <div class="stat-card-info">
+                <div class="stat-card-num">3</div>
+                <div class="stat-card-label">Reject mock GPS</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter bar -->
+          <div class="audit-filters">
+            <div class="input-field search-input">
+              <iconify-icon icon="lucide:search"></iconify-icon>
+              <input type="text" placeholder="Cari user, action, atau target ID..." />
+            </div>
+            <button class="date-range-picker">
+              <iconify-icon icon="lucide:calendar"></iconify-icon>
+              13 Mei – 15 Mei 2026
+              <iconify-icon icon="lucide:chevron-down" style="font-size: 14px;"></iconify-icon>
+            </button>
+            <button class="filter-chip">
+              <iconify-icon icon="lucide:user"></iconify-icon>
+              Semua user
+              <iconify-icon icon="lucide:chevron-down" style="font-size: 12px;"></iconify-icon>
+            </button>
+            <button class="filter-chip active">
+              <iconify-icon icon="lucide:alert-triangle"></iconify-icon>
+              Severity: warning, danger
+              <iconify-icon icon="lucide:x" style="font-size: 12px; margin-left: 2px;"></iconify-icon>
+            </button>
+          </div>
+
+          <!-- Main grid: timeline + facet sidebar -->
+          <div class="audit-grid">
+
+            <div class="audit-main">
+
+              <!-- ===== TODAY ===== -->
+              <div class="audit-day-divider">
+                <span class="day-label">Hari Ini</span>
+                <span class="day-date">Jumat, 15 Mei 2026</span>
+                <span class="day-count">14 aktivitas</span>
+              </div>
+
+              <div class="audit-timeline">
+
+                <div class="audit-item danger">
+                  <div class="audit-avatar system">
+                    <iconify-icon icon="lucide:shield-alert" style="font-size: 16px;"></iconify-icon>
+                  </div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Sistem</span>
+                      <span class="badge badge-danger">mock_location_detected</span>
+                      <span class="audit-time">13:55:23</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Deteksi <strong>mock GPS</strong> saat submit presensi oleh <strong>Yono Pratama</strong> (2210651004) — presensi ditolak otomatis.
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        192.168.43.27
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:smartphone"></iconify-icon>
+                        Xiaomi Redmi Note 10 · Android 12
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:book-open"></iconify-icon>
+                        sesi: Algoritma Pemrograman
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item warning">
+                  <div class="audit-avatar alt-3">YP</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Yono Pratama</span>
+                      <span class="badge badge-warning">login_failed</span>
+                      <span class="audit-time">13:53:12</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Gagal login mobile — percobaan ke <strong>4 dari 5</strong>. Password salah.
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        192.168.43.27
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:smartphone"></iconify-icon>
+                        Xiaomi Redmi Note 10
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item warning">
+                  <div class="audit-avatar alt-3">SR</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Siti Rahayu</span>
+                      <span class="badge badge-primary">settings_update</span>
+                      <span class="audit-time">14:10:45</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Mengubah <strong>geofence_radius_meters</strong>:
+                      <span class="field-change old">150</span>
+                      <iconify-icon icon="lucide:arrow-right" style="vertical-align: middle; font-size: 14px; color: var(--color-text-tertiary);"></iconify-icon>
+                      <span class="field-change new">200</span>
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        103.244.118.42
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:monitor"></iconify-icon>
+                        Chrome 124 · Windows 11
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item info">
+                  <div class="audit-avatar alt-4">BH</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Dr. Budi Hartono</span>
+                      <span class="badge badge-info">session_start</span>
+                      <span class="audit-time">14:23:08</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Memulai sesi <strong>Algoritma Pemrograman</strong> · TI-3A · OTP <code style="font-family: var(--ff-mono); background: var(--color-surface-sunken); padding: 1px 6px; border-radius: 4px;">847392</code>
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        103.244.118.51
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:monitor"></iconify-icon>
+                        Chrome 124 · Windows 11
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:map-pin"></iconify-icon>
+                        Lab Komputer 1
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item success">
+                  <div class="audit-avatar alt-1">RM</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Riki Mahbubillah</span>
+                      <span class="badge badge-success">mobile_attendance_submit</span>
+                      <span class="audit-time">14:18:32</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Submit presensi <strong>Algoritma Pemrograman</strong> · status: <strong>hadir</strong> · jarak GPS: <strong>12m</strong> · face similarity: <strong>0.87</strong>
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        103.244.118.103
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:smartphone"></iconify-icon>
+                        Samsung Galaxy A52 · Android 13
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item warning">
+                  <div class="audit-avatar alt-3">SR</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Siti Rahayu</span>
+                      <span class="badge badge-warning">password_reset</span>
+                      <span class="audit-time">14:05:18</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Reset password mahasiswa <strong>Joko Susilo</strong> (2210651003) — flag <code style="font-family: var(--ff-mono); font-size: 11px;">must_change_password=true</code>
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        103.244.118.42
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:monitor"></iconify-icon>
+                        Chrome 124 · Windows 11
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item">
+                  <div class="audit-avatar alt-3">SR</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Siti Rahayu</span>
+                      <span class="badge badge-primary">student_create</span>
+                      <span class="audit-time">13:42:51</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Menambahkan mahasiswa baru <strong>Sari Wulandari</strong> (2210651002) · angkatan 2022
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        103.244.118.42
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:monitor"></iconify-icon>
+                        Chrome 124 · Windows 11
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- ===== YESTERDAY ===== -->
+              <div class="audit-day-divider">
+                <span class="day-label">Kemarin</span>
+                <span class="day-date">Kamis, 14 Mei 2026</span>
+                <span class="day-count">38 aktivitas</span>
+              </div>
+
+              <div class="audit-timeline">
+
+                <div class="audit-item danger">
+                  <div class="audit-avatar system">
+                    <iconify-icon icon="lucide:shield-alert" style="font-size: 16px;"></iconify-icon>
+                  </div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Sistem</span>
+                      <span class="badge badge-danger">mock_location_detected</span>
+                      <span class="audit-time">15:33:11</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Deteksi <strong>mock GPS</strong> saat submit oleh <strong>Bagas Pradana</strong> (2210651009) — presensi ditolak.
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        192.168.43.18
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:smartphone"></iconify-icon>
+                        Oppo A78 · Android 13
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item warning">
+                  <div class="audit-avatar alt-3">SR</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Siti Rahayu</span>
+                      <span class="badge badge-warning">student_deactivate</span>
+                      <span class="audit-time">11:20:47</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Menonaktifkan akun <strong>Yono Pratama</strong> · alasan: kehadiran &lt;50% 3 minggu berturut
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        103.244.118.42
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:monitor"></iconify-icon>
+                        Chrome 124 · Windows 11
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item warning">
+                  <div class="audit-avatar alt-2">IP</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Indah Permata</span>
+                      <span class="badge badge-warning">leave_request_reject</span>
+                      <span class="audit-time">10:08:25</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Menolak izin sakit <strong>Joko Susilo</strong> — alasan: lampiran tidak lengkap
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        103.244.118.79
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:monitor"></iconify-icon>
+                        Safari 17 · macOS 14
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item info">
+                  <div class="audit-avatar alt-3">SR</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Siti Rahayu</span>
+                      <span class="badge badge-info">csv_import</span>
+                      <span class="audit-time">09:15:33</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Impor CSV mahasiswa angkatan 2025 — <strong>40 berhasil</strong>, 2 duplikat dilewati
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:file"></iconify-icon>
+                        mhs_2025_batch1.csv (4.2 KB)
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:monitor"></iconify-icon>
+                        Chrome 124 · Windows 11
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- ===== 2 DAYS AGO ===== -->
+              <div class="audit-day-divider">
+                <span class="day-label">Rabu</span>
+                <span class="day-date">13 Mei 2026</span>
+                <span class="day-count">45 aktivitas</span>
+              </div>
+
+              <div class="audit-timeline">
+
+                <div class="audit-item warning">
+                  <div class="audit-avatar alt-4">BH</div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Dr. Budi Hartono</span>
+                      <span class="badge badge-warning">otp_refresh</span>
+                      <span class="audit-time">14:08:19</span>
+                    </div>
+                    <div class="audit-action-text">
+                      Refresh OTP sesi RPL · OTP lama <code style="font-family: var(--ff-mono); font-size: 11px;">412 887</code> invalid · baru <code style="font-family: var(--ff-mono); font-size: 11px;">963 247</code>
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:network"></iconify-icon>
+                        103.244.118.51
+                      </div>
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:alert-circle"></iconify-icon>
+                        alasan: mahasiswa keluhkan kode tidak cocok
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="audit-item warning">
+                  <div class="audit-avatar system">
+                    <iconify-icon icon="lucide:shield-alert" style="font-size: 16px;"></iconify-icon>
+                  </div>
+                  <div class="audit-content">
+                    <div class="audit-header-row">
+                      <span class="audit-actor">Sistem</span>
+                      <span class="badge badge-warning">rate_limit_hit</span>
+                      <span class="audit-time">10:42:08</span>
+                    </div>
+                    <div class="audit-action-text">
+                      IP <strong>192.168.43.250</strong> hit rate limit endpoint <code style="font-family: var(--ff-mono); font-size: 11px;">/api/mobile/login</code> — auto blokir 30 menit
+                    </div>
+                    <div class="audit-meta-row">
+                      <div class="audit-meta-item">
+                        <iconify-icon icon="lucide:zap"></iconify-icon>
+                        12 request dalam 60 detik
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Load more -->
+              <div style="text-align: center; margin-top: 24px;">
+                <button class="btn btn-secondary">
+                  <iconify-icon icon="lucide:chevron-down"></iconify-icon>
+                  Muat 30 hari sebelumnya
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Sidebar facets -->
+            <aside>
+              <div class="facet-card">
+                <h4 class="facet-title">
+                  Severity
+                  <span style="font-size: 11px; color: var(--color-text-tertiary); font-weight: 400;">14 aktif</span>
+                </h4>
+                <div class="facet-list">
+                  <div class="facet-item">
+                    <span class="facet-dot" style="background: var(--color-text-tertiary);"></span>
+                    <span>Semua</span>
+                    <span class="facet-count">182</span>
+                  </div>
+                  <div class="facet-item">
+                    <span class="facet-dot" style="background: var(--color-success);"></span>
+                    <span>Success</span>
+                    <span class="facet-count">142</span>
+                  </div>
+                  <div class="facet-item">
+                    <span class="facet-dot" style="background: var(--color-info);"></span>
+                    <span>Info</span>
+                    <span class="facet-count">23</span>
+                  </div>
+                  <div class="facet-item active">
+                    <span class="facet-dot" style="background: var(--color-warning);"></span>
+                    <span>Warning</span>
+                    <span class="facet-count">11</span>
+                  </div>
+                  <div class="facet-item active">
+                    <span class="facet-dot" style="background: var(--color-danger);"></span>
+                    <span>Danger</span>
+                    <span class="facet-count">3</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="facet-card">
+                <h4 class="facet-title">Action Type</h4>
+                <div class="facet-list">
+                  <div class="facet-item"><span>mobile_attendance_submit</span><span class="facet-count">52</span></div>
+                  <div class="facet-item"><span>login_success</span><span class="facet-count">38</span></div>
+                  <div class="facet-item"><span>session_start</span><span class="facet-count">14</span></div>
+                  <div class="facet-item"><span>settings_update</span><span class="facet-count">7</span></div>
+                  <div class="facet-item active"><span>mock_location_detected</span><span class="facet-count">3</span></div>
+                  <div class="facet-item active"><span>login_failed</span><span class="facet-count">11</span></div>
+                  <div class="facet-item"><span>password_reset</span><span class="facet-count">4</span></div>
+                  <div class="facet-item" style="color: var(--color-primary); cursor: pointer;">
+                    <iconify-icon icon="lucide:plus" style="font-size: 13px;"></iconify-icon>
+                    <span>Lihat 17 lainnya...</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="facet-card">
+                <h4 class="facet-title">Top Actors</h4>
+                <div class="facet-list">
+                  <div class="facet-item"><span>Sistem (auto)</span><span class="facet-count">68</span></div>
+                  <div class="facet-item"><span>Siti Rahayu</span><span class="facet-count">42</span></div>
+                  <div class="facet-item"><span>Dr. Budi Hartono</span><span class="facet-count">28</span></div>
+                  <div class="facet-item"><span>Indah Permata</span><span class="facet-count">17</span></div>
+                  <div class="facet-item"><span>Rini Astuti</span><span class="facet-count">12</span></div>
+                </div>
+              </div>
+            </aside>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

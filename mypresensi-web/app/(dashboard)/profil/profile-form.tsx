@@ -3,7 +3,7 @@
 // Client Component — form edit profil + ganti password.
 // Menggunakan SweetAlert2 untuk notifikasi, Lucide untuk ikon.
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useLayoutEffect } from 'react'
 import Image from 'next/image'
 import {
   Camera, Save, Lock, Eye, EyeOff,
@@ -40,6 +40,16 @@ export default function ProfileForm({ profile, email }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const pwFormRef = useRef<HTMLFormElement>(null)
+
+  // Animated tab indicator — ukur posisi tab aktif lalu animate underline glide.
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 })
+  // useLayoutEffect supaya pengukuran terjadi sebelum paint (no flicker).
+  // Aman di Client Component — Next.js handle SSR fallback.
+  useLayoutEffect(() => {
+    const el = tabRefs.current[activeTab]
+    if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth })
+  }, [activeTab])
 
   if (!profile) {
     return (
@@ -167,29 +177,34 @@ export default function ProfileForm({ profile, email }: Props) {
       </div>
 
       {/* ==================== */}
-      {/* TAB NAVIGATION       */}
+      {/* TAB NAVIGATION — underline glide via absolute indicator (Tier 2 anim) */}
       {/* ==================== */}
-      <div className="flex gap-1 border-b border-border">
+      <div className="relative flex gap-1 border-b border-border">
         <button
+          ref={(el) => { tabRefs.current['info'] = el }}
           onClick={() => setActiveTab('info')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
-            activeTab === 'info'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-text-secondary hover:text-text-primary'
+          className={`px-4 py-2.5 text-sm font-medium transition-colors ${
+            activeTab === 'info' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'
           }`}
         >
           Informasi Profil
         </button>
         <button
+          ref={(el) => { tabRefs.current['password'] = el }}
           onClick={() => setActiveTab('password')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-1.5 ${
-            activeTab === 'password'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-text-secondary hover:text-text-primary'
+          className={`px-4 py-2.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
+            activeTab === 'password' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'
           }`}
         >
           <Lock size={14} /> Ubah Password
         </button>
+
+        {/* Sliding underline indicator */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 h-0.5 -mb-px bg-primary transition-all duration-300 ease-out"
+          style={{ left: indicator.left, width: indicator.width }}
+        />
       </div>
 
       {/* ==================== */}

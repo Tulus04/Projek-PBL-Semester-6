@@ -267,9 +267,24 @@
    SIDEBAR
    ============================================ */
 .sidebar-nav-item {
-  @apply flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 w-full;
+  @apply relative flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 w-full;
   color: rgb(var(--color-text-secondary));
   font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Indicator bar kiri — grow from 0 to full saat active (Tier 2 animation) */
+.sidebar-nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 60%;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background-color: rgb(var(--color-primary));
+  transform: translateY(-50%) scaleY(0);
+  transform-origin: center;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-nav-item:hover {
@@ -281,15 +296,132 @@
   background-color: rgba(var(--color-primary-subtle));
   color: rgb(var(--color-primary));
   font-weight: 600;
-  /* Indicator bar kiri — visual cue "halaman aktif" */
-  box-shadow: inset 3px 0 0 rgb(var(--color-primary));
+}
+
+.sidebar-nav-item.active::before {
+  transform: translateY(-50%) scaleY(1);
 }
 
 /* ============================================
-   SKELETON LOADING (Mekari Talenta style)
+   SKELETON LOADING — shimmer linear gradient
    ============================================ */
 .skeleton {
-  @apply animate-pulse bg-gray-200 rounded-lg;
+  @apply rounded-lg;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--color-border), 0.6) 0%,
+    rgba(var(--color-border), 0.3) 50%,
+    rgba(var(--color-border), 0.6) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================
+   PAGE & ELEMENT TRANSITIONS — Tier 1 & 2
+   ============================================ */
+
+/* Page enter: fade + slight up. Dipasang di main wrapper. */
+@keyframes page-in {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-page-in {
+  animation: page-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Stagger fade-up untuk list children (KPI cards, dll).
+   Pakai inline style animationDelay untuk per-index stagger.
+   Default: 200ms ease-out, opacity 0 → 1 + translateY 6px. */
+@keyframes stagger-in {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-stagger-in {
+  animation: stagger-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Slide-in horizontal untuk split-screen layout (login, halaman 2-kolom).
+   Kiri slide dari kiri, kanan slide dari kanan. Lebih dramatic dari page-in
+   karena halaman entry deserve sedikit lebih ekspresif. */
+@keyframes slide-in-left {
+  0% { opacity: 0; transform: translateX(-24px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-in-right {
+  0% { opacity: 0; transform: translateX(24px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in-left {
+  animation: slide-in-left 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-slide-in-right {
+  animation: slide-in-right 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Drift animation untuk decorative blur circles (background depth).
+   Sub-perceptual — loop sangat lambat (18-22s) supaya tidak distracting. */
+@keyframes drift-blur-1 {
+  0%, 100% { transform: translate(6rem, -6rem) scale(1); }
+  50% { transform: translate(4rem, -4rem) scale(1.08); }
+}
+@keyframes drift-blur-2 {
+  0%, 100% { transform: translate(-8rem, 8rem) scale(1); }
+  50% { transform: translate(-6rem, 6rem) scale(1.05); }
+}
+.animate-drift-blur-1 {
+  animation: drift-blur-1 18s ease-in-out infinite;
+}
+.animate-drift-blur-2 {
+  animation: drift-blur-2 22s ease-in-out infinite;
+}
+
+/* Progress bar indeterminate — dipakai di card form saat submit/fetch.
+   Garis 2px di atas card dengan animasi sliding loop. Reusable untuk
+   action-level loading state (dashboard, form, dll). */
+@keyframes progress-indeterminate {
+  0% { left: -30%; width: 30%; }
+  50% { width: 40%; }
+  100% { left: 100%; width: 30%; }
+}
+.progress-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(45, 134, 255, 0.15);
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+.progress-top-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 30%;
+  background: var(--color-primary);
+  animation: progress-indeterminate 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* ============================================
+   ACCESSIBILITY — Respect prefers-reduced-motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ============================================
@@ -555,4 +687,49 @@ a:focus-visible {
 
 .animate-pulse-once {
   animation: pulse-once 1.2s ease-out;
+}
+
+@keyframes ai-panel-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(18px, 22px, 0) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-ai-panel-in {
+  animation: ai-panel-in 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ai-message-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-ai-message-in {
+  animation: ai-message-in 220ms ease-out both;
+}
+
+@keyframes ai-dot {
+  0%, 80%, 100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+.animate-ai-dot {
+  animation: ai-dot 1s ease-in-out infinite;
 }

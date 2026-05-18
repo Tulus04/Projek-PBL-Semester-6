@@ -183,3 +183,86 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
   revalidatePath('/izin')
   return { error: null }
 }
+
+/**
+ * Generate signed URL untuk view bukti izin/sakit. Dipakai saat admin/dosen
+ * klik tombol "Lihat Bukti" di tabel izin.
+ *
+ * SECURITY:
+ * - Auth via cookie session (`createClient`).
+ * - Authorization: admin lihat semua, dosen hanya MK miliknya. RLS storage
+ *   sudah enforce, tapi kita tetap cek di server action sebagai defense in depth
+ *   dan untuk pesan error yang ramah.
+ * - Signed URL TTL 5 menit — cukup untuk klik dan lihat, expired otomatis.
+ *
+ * @returns { url: string } untuk success, atau { error: string } kalau gagal.
+ */
+export async function getLeaveEvidenceSignedUrl(requestId: string): Promise<
+  { url: string; error: null } | { url: null; error: string }
+> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { url: null, error: 'Anda harus login terlebih dahulu.' }
+
+  const adminClient = createAdminClient()
+
+  // Cek role user
+  const { data: profile } = await adminClient
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'dosen')) {
+    return { url: null, error: 'Akses ditolak.' }
+  }
+
+  // Ambil leave_request + cek ownership untuk dosen
+  const { data: request } = await adminClient
+    .from('leave_requests')
+    .select(
+      `id, evidence_url,
+       session:sessions!session_id(course:courses!course_id(dosen_id))`,
+    )
+    .eq('id', requestId)
+    .single()
+
+  if (!request) {
+    return { url: null, error: 'Pengajuan tidak ditemukan.' }
+  }
+
+  const path = request.evidence_url
+  if (!path) {
+    return { url: null, error: 'Pengajuan ini tidak menyertakan bukti.' }
+  }
+
+  // Defense in depth: dosen hanya bisa lihat bukti pengajuan untuk MK dia ampu
+  if (profile.role === 'dosen') {
+    type SessionWithCourse = { course?: { dosen_id?: string } | { dosen_id?: string }[] | null }
+    const sessionRaw = request.session as unknown as
+      | SessionWithCourse
+      | SessionWithCourse[]
+      | null
+    const sessionObj = Array.isArray(sessionRaw) ? sessionRaw[0] : sessionRaw
+    const courseRaw = sessionObj?.course
+    const courseObj = Array.isArray(courseRaw) ? courseRaw[0] : courseRaw
+    const ownerDosenId = courseObj?.dosen_id
+
+    if (!ownerDosenId || ownerDosenId !== user.id) {
+      return { url: null, error: 'Akses ditolak. Anda bukan dosen MK terkait.' }
+    }
+  }
+
+  // Generate signed URL — TTL 5 menit
+  const { data: signed, error: signError } = await adminClient.storage
+    .from('leave-evidence')
+    .createSignedUrl(path, 300)
+
+  if (signError || !signed?.signedUrl) {
+    console.error('[getLeaveEvidenceSignedUrl] Sign error:', signError)
+    return { url: null, error: 'Gagal membuat link bukti. Coba lagi.' }
+  }
+
+  return { url: signed.signedUrl, error: null }
+}

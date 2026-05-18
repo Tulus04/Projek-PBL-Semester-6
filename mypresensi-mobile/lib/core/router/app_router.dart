@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/splash_screen.dart';
+import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/auth/screens/change_password_screen.dart';
 import '../../features/attendance/screens/scan_qr_screen.dart';
 import '../../features/attendance/screens/attendance_result_screen.dart';
@@ -17,6 +18,7 @@ import '../../features/face/screens/face_registration_screen.dart';
 import '../../features/face/screens/face_verification_screen.dart';
 import '../../features/leave_requests/screens/my_leave_requests_screen.dart';
 import '../../features/leave_requests/screens/submit_leave_request_screen.dart';
+import '../../features/ai/screens/ai_chat_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 
 /// Listenable yang dipicu setiap auth state berubah,
@@ -127,10 +129,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isOnSplash = currentPath == '/splash';
       final isOnLogin = currentPath == '/login';
       final isOnChangePassword = currentPath == '/change-password';
+      final isOnOnboarding = currentPath == '/onboarding';
 
       // 1. Splash animation belum selesai → tetap di splash
       if (!authState.splashCompleted) {
         return isOnSplash ? null : '/splash';
+      }
+
+      // 1b. Onboarding screen — bypass auth check.
+      // User di /onboarding boleh stay di sana sampai mereka selesai
+      // (Tap "Lewati" atau "Masuk Sekarang" akan navigate /login secara manual).
+      if (isOnOnboarding) {
+        return null;
       }
 
       // 2. Sedang loading (login in progress) → JANGAN redirect.
@@ -170,6 +180,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _fadeTransition(
           state: state,
           child: const LoginScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        pageBuilder: (context, state) => _fadeTransition(
+          state: state,
+          child: const OnboardingScreen(),
         ),
       ),
       GoRoute(
@@ -213,15 +230,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/face-verify',
-        // Threshold dibaca dari faceConfigProvider (server settings) di dalam screen.
-        // Caller boleh pass `extra: <double>` untuk override (testing only).
-        pageBuilder: (context, state) {
-          final overrideThreshold = state.extra is double ? state.extra as double : null;
-          return _slideTransition(
-            state: state,
-            child: FaceVerificationScreen(threshold: overrideThreshold),
-          );
-        },
+        // Threshold di-decide server (POST /face/verify) berdasarkan settings.
+        // Mobile tidak lagi terlibat dalam decision match/no-match — comparison
+        // server-side sesuai rule 04-security-and-privacy Section B.2.
+        pageBuilder: (context, state) => _slideTransition(
+          state: state,
+          child: const FaceVerificationScreen(),
+        ),
       ),
 
       // === Leave requests (izin/sakit) — slide from right ===
@@ -237,6 +252,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _slideTransition(
           state: state,
           child: const SubmitLeaveRequestScreen(),
+        ),
+      ),
+
+      // === AI Chat — slide from right ===
+      // Diakses dari Profile (post Phase 5 v7: AI dipindah dari tab utama).
+      GoRoute(
+        path: '/ai-chat',
+        pageBuilder: (context, state) => _slideTransition(
+          state: state,
+          child: const AiChatScreen(),
         ),
       ),
     ],

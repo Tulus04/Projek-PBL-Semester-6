@@ -8,6 +8,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/layout/sidebar'
 import TopBar from '@/components/layout/topbar'
 import { SidebarProvider } from '@/components/layout/sidebar-provider'
+import PageTransition from '@/components/layout/page-transition'
 import AiChatWidget from '@/components/ai/ai-chat-widget'
 
 export default async function DashboardLayout({
@@ -53,7 +54,7 @@ export default async function DashboardLayout({
             tabIndex={-1}
             className="flex-1 overflow-y-auto p-4 md:p-6"
           >
-            {children}
+            <PageTransition>{children}</PageTransition>
 
             {/* Footer */}
             <footer className="mt-8 pt-4 pb-2 border-t border-border">

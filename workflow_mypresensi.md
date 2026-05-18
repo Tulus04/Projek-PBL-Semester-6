@@ -1,5 +1,18 @@
 # Alur Kerja MyPresensi — Workflow Lengkap
 
+> **Status (v7, 17 Mei 2026)**: Dokumen ini adalah **reference non-teknis** (alur Mermaid & tabel role).
+> Source of truth teknis: `docs/plans/implementation_plan.md v7`.
+> Source of truth keputusan security: `docs/decisions/security-architecture-final.md`.
+>
+> **Yang sudah implementasi (✅)**: GPS Haversine + mock detection, QR statis per sesi, face register/verify 192-D, izin/sakit flow, real-time monitor dosen, audit log.
+>
+> **Yang sedang dieksekusi (⏳)**:
+> - **Phase 2** — Face match WAJIB di **kedua mode** (offline + online) di `submit/route.ts`. Adjustment 17 Mei 2026: dari "offline only" → "kedua mode" untuk cover threat titip absen online.
+> - **Phase 3** — QR rolling 5s (TOTP-like, tolerance ±2 = 15s effective)
+>
+> **Yang DI-SKIP dari v7 (acceptable risk)**:
+> - ~~Phase 4 Manual Override Dosen~~ — edge case kamera rusak HP sangat rare. Mahasiswa solve via pinjam HP teman (prosedur informal) atau ajukan izin via fitur leave_request yang sudah ada.
+
 ## Overview Arsitektur
 
 ```mermaid
@@ -77,19 +90,19 @@ sequenceDiagram
 
     Note over M: App otomatis jalankan verifikasi
 
-    M->>M: 📍 Cek GPS (dalam radius kampus?)
-    M->>M: 📸 Cek Wajah (face match?)
+    M->>M: 📍 Cek GPS (dalam radius kampus, mode offline saja?)
+    M->>M: 📸 Cek Wajah (face match, kedua mode WAJIB)
     M->>S: Submit: QR code + GPS + face data
 
     S->>S: Validasi server-side
-    Note over S: 1. Session code valid?<br/>2. GPS dalam radius? (Haversine)<br/>3. Face match?<br/>4. Belum pernah absen?<br/>5. Masih dalam waktu sesi?
+    Note over S: 1. Sesi aktif & belum closed?<br/>2. Session code valid + match rolling window?<br/>3. Mahasiswa enrolled di MK?<br/>4. is_mock_location=true → REJECT 403<br/>5. GPS dalam radius (mode offline saja)?<br/>6. Face match WAJIB (KEDUA mode)?<br/>7. Belum pernah absen (UNIQUE)?<br/>8. Auto-classify terlambat (>15 menit)?
 
-    alt Semua valid
+    alt Semua valid + on-time
         S-->>M: ✅ Presensi berhasil — Hadir
-    else Terlambat
+    else Valid tapi >15 menit
         S-->>M: ⚠️ Presensi dicatat — Terlambat
-    else Gagal
-        S-->>M: ❌ Presensi ditolak + alasan
+    else Mock GPS / GPS jauh / Face mismatch
+        S-->>M: ❌ Presensi ditolak + alasan ramah Indonesia
     end
 
     Note over D: Monitoring real-time
@@ -166,13 +179,13 @@ flowchart LR
 
 ---
 
-## Security Flow
+## Security Flow (3-Layer Defense in Depth)
 
 ```mermaid
 flowchart TD
-    S1["3 Layer Verifikasi"] --> S2["🔐 QR Code<br/>Bukti ada di kelas<br/>(session-specific, rotating)"]
-    S1 --> S3["📍 GPS Geofencing<br/>Bukti lokasi fisik<br/>(server-side Haversine)"]
-    S1 --> S4["📸 Face Verification<br/>Bukti identitas<br/>(anti-titip absen)"]
+    S1["3 Layer Verifikasi"] --> S2["🔐 Layer 1: QR Code<br/>Rolling 5 detik (TOTP-like)<br/>tolerance ±2 = 15s effective<br/>Session-specific binding"]
+    S1 --> S3["📍 Layer 2: GPS + Mock Detection<br/>Haversine server-side<br/>radius 150m (mode offline saja)<br/>isMocked=true → reject 403 (kedua mode)"]
+    S1 --> S4["📸 Layer 3: Face Verification<br/>MobileFaceNet 192-D<br/>cosine similarity ≥0.65<br/>WAJIB di KEDUA mode (Phase 2)"]
 
     S2 --> V["Server Validasi"]
     S3 --> V
@@ -184,10 +197,52 @@ flowchart TD
     style R fill:#1A7F37,color:#fff
 ```
 
-**Kenapa 3 layer?**
-- **QR saja** → bisa dishare via foto/screenshot
-- **QR + GPS** → bisa dipalsukan lokasi (fake GPS)
+**Kenapa 3 layer (masing-masing cover threat berbeda, bukan duplikasi)?**
+- **QR saja** → bisa dishare via foto/screenshot → di-cover oleh **rolling 5s** (Layer 1) ATAU **face match wajib** (Layer 3)
+- **QR + GPS** → bisa dipalsukan lokasi (fake GPS app) → di-cover oleh **`isMocked=true` reject + face match** (Layer 2 + 3)
+- **QR + Face** (mode online, GPS skip) → mahasiswa A kasih akun ke B di rumah → face B ≠ face A → reject. Layer 3 cover gap GPS-skip.
 - **QR + GPS + Face** → hampir mustahil dipalsukan (harus fisik ada di lokasi + wajah cocok)
+
+**Yang TIDAK di-cover (acceptable risk)**:
+- Active liveness challenge (mudah di-bypass video) — hanya basic presence detection ML Kit
+- Root device / emulator (freeRASP skipped, low ROI PBL)
+- MITM via cert pinning (HTTPS default cukup di kampus)
+- Edge case kamera HP rusak → ditangani via **prosedur informal pinjam HP teman** (lihat section di bawah)
+- Credential sharing saat pinjam HP teman → mitigasi manual: mahasiswa wajib ganti password setelahnya
+
+---
+
+## Prosedur Kamera Rusak HP (Informal — Tidak Ada Fitur Dedicated)
+
+> **Catatan**: Phase 4 Manual Override Dosen DI-SKIP dari v7. Edge case kamera HP rusak frekuensinya sangat rendah (HP smartphone modern). Mahasiswa solve via prosedur informal di bawah.
+
+```mermaid
+flowchart TD
+    M1["Mahasiswa A: kamera HP rusak"] --> M2{"Bisa hadir fisik<br/>(datang ke kampus / kos teman)?"}
+    M2 -->|Tidak (sakit, isolasi)| L1["Ajukan Izin/Sakit via fitur yang ada<br/>(leave_request + bukti foto)"]
+    L1 --> L2["Dosen approve via web<br/>→ status: izin/sakit"]
+
+    M2 -->|Ya| T1["WhatsApp teman B:<br/>'Boleh pinjam HP pas kuliah?'"]
+    T1 --> T2["Datang ke tempat B<br/>sebelum sesi mulai"]
+    T2 --> T3["B logout dari akunnya di HP B"]
+    T3 --> T4["A login akun A di HP B"]
+    T4 --> T5["A pose wajah sendiri di kamera HP B"]
+    T5 --> S1["Server validasi:<br/>face A cocok dengan embedding A di DB"]
+    S1 --> R1["✅ Status: Hadir (normal)"]
+    R1 --> T6["A logout dari HP B"]
+    T6 --> T7["A ganti password<br/>(mitigasi credential sharing)"]
+
+    style R1 fill:#1A7F37,color:#fff
+    style L2 fill:#0969DA,color:#fff
+    style T7 fill:#9A6700,color:#fff
+```
+
+**Konsekuensi yang diterima (transparan)**:
+- Tidak ada UI dosen "Tandai Hadir Manual" — dosen tidak terlibat di flow ini
+- Audit trail: hanya `device_id` anomaly (login dari device yang berbeda dari biasanya) di tabel `attendances`
+- Risk credential sharing: mahasiswa B tahu password A sampai A ganti password (manual compliance)
+- Frekuensi diharapkan: <1% mahasiswa per semester
+- Kalau frekuensi ternyata lebih tinggi dari ekspektasi, evaluasi tambah Phase 4 di iterasi berikutnya
 
 ---
 

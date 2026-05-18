@@ -29,6 +29,34 @@ class AttendanceRepository {
     }
   }
 
+  /// Ambil daftar sesi yang eligible untuk diajukan izin/sakit oleh mahasiswa.
+  ///
+  /// Endpoint return dua group:
+  /// - `active_sessions`: sesi yang sedang berlangsung (mahasiswa belum hadir
+  ///   dan belum punya leave_request pending/approved).
+  /// - `recent_sessions`: sesi yang sudah lewat (≤ 7 hari terakhir) tapi belum
+  ///   di-handle (belum hadir, belum ada leave_request pending/approved).
+  ///
+  /// Backend sudah filter — UI tidak perlu re-filter. Dipakai oleh wizard
+  /// "Ajukan Izin" step 1 (Pilih Sesi).
+  Future<EligibleSessionsResponse> getEligibleSessionsForLeave() async {
+    try {
+      final response = await _dio.get(ApiEndpoints.sessionsEligibleForLeave);
+      final result = EligibleSessionsResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+
+      debugPrint(
+        '[ATTENDANCE] Fetched eligible sessions for leave: '
+        '${result.activeSessions.length} active, '
+        '${result.recentSessions.length} recent',
+      );
+      return result;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// Submit presensi ke server
   /// Return [AttendanceSubmitResponse] jika berhasil, throw String jika gagal
   Future<AttendanceSubmitResponse> submitAttendance(
@@ -53,17 +81,33 @@ class AttendanceRepository {
     }
   }
 
-  /// Handle Dio error → throw pesan user-friendly Bahasa Indonesia
-  String _handleError(DioException e) {
+  /// Handle Dio error → throw pesan user-friendly Bahasa Indonesia.
+  /// Jika server response body punya `error_code`, throw [AttendanceSubmitException]
+  /// dengan field tersebut. Caller bisa cek `e.errorCode` untuk routing UI khusus
+  /// (mis. `face_not_registered` → dialog redirect ke /face-register).
+  Object _handleError(DioException e) {
     if (e.response != null) {
       final data = e.response?.data;
+      final statusCode = e.response?.statusCode;
+
       if (data is Map<String, dynamic>) {
         final serverError = data['error'] as String?;
+        final errorCode = data['error_code'] as String?;
+
+        // Server kirim error_code → throw structured exception
+        if (errorCode != null && errorCode.isNotEmpty) {
+          return AttendanceSubmitException(
+            serverError ?? 'Terjadi kesalahan.',
+            errorCode: errorCode,
+            statusCode: statusCode,
+          );
+        }
+
         if (serverError != null && serverError.isNotEmpty) {
           return serverError;
         }
       }
-      switch (e.response?.statusCode) {
+      switch (statusCode) {
         case 400:
           return 'Data tidak valid. Pastikan QR code benar.';
         case 401:
@@ -79,7 +123,7 @@ class AttendanceRepository {
         case 500:
           return 'Server sedang bermasalah. Coba lagi nanti.';
         default:
-          return 'Terjadi kesalahan. (${e.response?.statusCode})';
+          return 'Terjadi kesalahan. ($statusCode)';
       }
     }
 
