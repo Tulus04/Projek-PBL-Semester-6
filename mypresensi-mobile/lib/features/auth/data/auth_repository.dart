@@ -47,6 +47,10 @@ class AuthRepository {
         refreshToken: data['refresh_token'] as String,
       );
 
+      // Simpan email login terakhir untuk auto-fill di login screen next time.
+      // BUKAN password — password TIDAK PERNAH disimpan (rule 04-security A).
+      await SecureStorage.saveLastLoginEmail(email);
+
       // Parse dan simpan user data
       final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
       await SecureStorage.saveUserData(user.toJsonString());

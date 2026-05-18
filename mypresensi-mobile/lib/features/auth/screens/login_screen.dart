@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/storage/secure_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
@@ -42,6 +43,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       CurvedAnimation(parent: _animController, curve: Curves.easeOut),
     );
     _animController.forward();
+
+    // Auto-fill email dari login terakhir (rule 04-security: email = Tier 2 PII,
+    // OK disimpan secure storage). Password TIDAK pernah disimpan — user tetap
+    // wajib ketik manual untuk re-login. Plus autofillHints di TextField biar
+    // OS-level keychain (Smart Lock / Samsung Pass) bisa offer fill password.
+    _loadLastLoginEmail();
+  }
+
+  Future<void> _loadLastLoginEmail() async {
+    final email = await SecureStorage.getLastLoginEmail();
+    if (!mounted || email == null || email.isEmpty) return;
+    setState(() {
+      _emailController.text = email;
+    });
   }
 
   @override
@@ -186,6 +201,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               enabled: !authState.isLoading,
                               autocorrect: false,
                               enableSuggestions: false,
+                              // OS-level autofill (Android Smart Lock / Samsung Pass).
+                              autofillHints: const [
+                                AutofillHints.email,
+                                AutofillHints.username,
+                              ],
                               decoration: const InputDecoration(
                                 hintText: 'nama@politani.ac.id',
                                 prefixIcon:
@@ -212,6 +232,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               textInputAction: TextInputAction.done,
                               enabled: !authState.isLoading,
                               onFieldSubmitted: (_) => _handleLogin(),
+                              // OS-level autofill — kalau user pernah save di
+                              // Smart Lock / password manager, bisa offer fill.
+                              // App TIDAK simpan password sendiri (rule 04-security).
+                              autofillHints: const [AutofillHints.password],
                               decoration: InputDecoration(
                                 hintText: 'Masukkan password',
                                 prefixIcon: const Icon(Icons.lock_outline,

@@ -18,6 +18,10 @@ class SecureStorage {
   static const _refreshTokenKey = 'refresh_token';
   static const _userDataKey = 'user_data';
   static const _deviceIdKey = 'device_id';
+  // Last login email — persist lintas logout untuk auto-fill di login screen.
+  // Email = Tier 2 PII, OK disimpan secure storage (bukan plaintext shared_preferences).
+  // BUKAN password — password TIDAK PERNAH disimpan (rule 04-security A).
+  static const _lastLoginEmailKey = 'last_login_email';
 
   // === Token ===
   static Future<void> saveTokens({
@@ -47,6 +51,23 @@ class SecureStorage {
     return _storage.read(key: _userDataKey);
   }
 
+  // === Last Login Email ===
+  /// Simpan email terakhir login untuk auto-fill di login screen.
+  /// Persist lintas logout (sengaja — UX nyaman di HP single-user).
+  static Future<void> saveLastLoginEmail(String email) async {
+    await _storage.write(key: _lastLoginEmailKey, value: email);
+  }
+
+  /// Ambil email terakhir login. Null kalau belum pernah atau di-clear manual.
+  static Future<String?> getLastLoginEmail() async {
+    return _storage.read(key: _lastLoginEmailKey);
+  }
+
+  /// Hapus email auto-fill (dipanggil dari Settings kalau user mau "lupakan saya").
+  static Future<void> clearLastLoginEmail() async {
+    await _storage.delete(key: _lastLoginEmailKey);
+  }
+
   // === Device ID ===
   /// Ambil atau generate device_id unik untuk device ini.
   /// Disimpan permanen — TIDAK di-clear saat logout. Identitas device
@@ -71,15 +92,20 @@ class SecureStorage {
   }
 
   // === Clear All ===
-  /// Hapus token + user data, TAPI **pertahankan** device_id.
-  /// Device_id sengaja tetap untuk konsistensi rate-limit & audit antar
-  /// login session di device yang sama.
+  /// Hapus token + user data, TAPI **pertahankan** device_id + last_login_email.
+  /// - device_id: konsistensi rate-limit & audit antar login session.
+  /// - last_login_email: UX auto-fill di login screen (persist lintas logout).
+  ///   User bisa hapus manual via clearLastLoginEmail() atau "lupakan saya" UI.
   static Future<void> clearAll() async {
-    // Backup device_id sebelum deleteAll
+    // Backup field yang sengaja persist
     final deviceId = await _storage.read(key: _deviceIdKey);
+    final lastEmail = await _storage.read(key: _lastLoginEmailKey);
     await _storage.deleteAll();
     if (deviceId != null && deviceId.isNotEmpty) {
       await _storage.write(key: _deviceIdKey, value: deviceId);
+    }
+    if (lastEmail != null && lastEmail.isNotEmpty) {
+      await _storage.write(key: _lastLoginEmailKey, value: lastEmail);
     }
   }
 

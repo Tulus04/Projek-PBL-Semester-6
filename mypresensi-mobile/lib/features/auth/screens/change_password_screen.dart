@@ -330,7 +330,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                                         SizedBox(width: 8),
                                         Flexible(
                                           child: Text(
-                                            'Simpan Password Baru',
+                                            'Simpan',
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
                                           ),
