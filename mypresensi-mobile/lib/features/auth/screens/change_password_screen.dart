@@ -318,10 +318,17 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                                   : const Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(Icons.shield_outlined, size: 18),
                                         SizedBox(width: 8),
-                                        Text('Simpan Password Baru'),
+                                        Flexible(
+                                          child: Text(
+                                            'Simpan Password Baru',
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ),
                                       ],
                                     ),
                             ),

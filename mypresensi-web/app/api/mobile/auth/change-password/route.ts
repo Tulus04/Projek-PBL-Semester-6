@@ -83,10 +83,39 @@ export async function POST(req: NextRequest) {
     )
 
     if (updateError) {
+      // Log full error untuk diagnose — JANGAN expose ke client.
+      console.error('[CHANGE_PASSWORD] Supabase auth update error:', {
+        userId: user.id,
+        errorMessage: updateError.message,
+        errorCode: updateError.code,
+        errorStatus: updateError.status,
+      })
+
       // Cek apakah password sama dengan yang lama
       if (updateError.message?.includes('same password')) {
         return Response.json(
           { error: 'Password baru tidak boleh sama dengan password lama.' },
+          { status: 400 }
+        )
+      }
+      // Cek apakah password lemah (Supabase HIBP / weak password check)
+      if (
+        updateError.message?.toLowerCase().includes('weak') ||
+        updateError.message?.toLowerCase().includes('compromised') ||
+        updateError.message?.toLowerCase().includes('pwned')
+      ) {
+        return Response.json(
+          {
+            error:
+              'Password terlalu mudah ditebak atau pernah bocor. Pakai kombinasi unik (huruf besar + kecil + angka + simbol).',
+          },
+          { status: 400 }
+        )
+      }
+      // Cek policy length minimum dari Supabase Auth (kalau dashboard set > 8)
+      if (updateError.message?.toLowerCase().includes('password')) {
+        return Response.json(
+          { error: `Password tidak diterima: ${updateError.message}` },
           { status: 400 }
         )
       }
