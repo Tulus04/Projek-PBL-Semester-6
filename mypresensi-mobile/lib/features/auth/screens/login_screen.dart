@@ -119,11 +119,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      // Tap di area kosong → dismiss keyboard + clear text selection.
-      // Listener di luar Scaffold body, tidak ubah indentasi child tree.
-      body: Listener(
-        behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+      // Tap area kosong → dismiss keyboard + clear text selection.
+      // GestureDetector dengan behavior:opaque hanya respond di area tidak-tertutup
+      // child interactive (TextField, Button) → tidak ganggu single-tap pada field.
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
         child: Center(
           child: SingleChildScrollView(

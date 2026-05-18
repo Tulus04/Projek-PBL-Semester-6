@@ -104,10 +104,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
 
     return Scaffold(
       // Tap area kosong → dismiss keyboard + clear text selection (Issue #2).
-      // Listener tidak block child interactivity (translucent), tidak ubah indentasi.
-      body: Listener(
-        behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+      // GestureDetector dengan behavior:opaque hanya respond di area tidak-tertutup
+      // child interactive (TextField, Button) → tidak ganggu single-tap pada field.
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
