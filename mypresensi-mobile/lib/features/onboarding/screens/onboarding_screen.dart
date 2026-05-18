@@ -176,8 +176,9 @@ class _OnboardingTopbar extends StatelessWidget {
       child: Row(
         children: [
           // Skip button (atau placeholder spacer)
+          // Width 88 untuk akomodasi text "Lewati" + padding tanpa wrap.
           SizedBox(
-            width: 64,
+            width: 88,
             child: showSkip
                 ? Align(
                     alignment: Alignment.centerLeft,
@@ -195,7 +196,12 @@ class _OnboardingTopbar extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      child: const Text('Lewati'),
+                      child: const Text(
+                        'Lewati',
+                        maxLines: 1,
+                        overflow: TextOverflow.visible,
+                        softWrap: false,
+                      ),
                     ),
                   )
                 : null,
@@ -222,7 +228,7 @@ class _OnboardingTopbar extends StatelessWidget {
               }),
             ),
           ),
-          const SizedBox(width: 64),
+          const SizedBox(width: 88),
         ],
       ),
     );
@@ -238,7 +244,7 @@ class _OnboardingStep1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -414,7 +420,7 @@ class _OnboardingStep3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
