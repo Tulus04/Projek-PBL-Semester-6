@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Dosen — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* ===== Page-specific dosen dashboard ===== */
+    .greeting-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    /* Hero greeting card (gradient + gold) */
+    .greeting-card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      color: white;
+      border-radius: var(--r-card);
+      padding: 24px 28px;
+      box-shadow: var(--sh-hero);
+      isolation: isolate;
+    }
+    .greeting-card::before {
+      content: '';
+      position: absolute;
+      top: -40%; right: -10%;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, var(--color-accent-soft) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    .greeting-card::after {
+      content: '';
+      position: absolute;
+      bottom: -30%; left: 30%;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.10) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .greeting-card > * { position: relative; z-index: 1; }
+    .greeting-time {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .greeting-card h2 {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 26px; margin: 0 0 6px;
+      letter-spacing: -0.4px;
+    }
+    .greeting-card p { font-size: 13px; opacity: 0.88; margin: 0 0 18px; line-height: 1.5; }
+    .greeting-cta-row { display: flex; gap: 10px; }
+    .greeting-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px;
+      background: white;
+      color: var(--color-primary-dark);
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      transition: all 0.15s ease;
+    }
+    .greeting-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.20); }
+    .greeting-cta.outline {
+      background: rgba(255, 255, 255, 0.14);
+      color: white;
+      box-shadow: none;
+      border: 1px solid rgba(255, 255, 255, 0.30);
+      backdrop-filter: blur(10px);
+    }
+    .greeting-cta.outline:hover { background: rgba(255, 255, 255, 0.22); }
+
+    /* Live session card di kanan greeting */
+    .live-session-card {
+      background: var(--color-surface);
+      border-radius: var(--r-card);
+      padding: 20px;
+      box-shadow: var(--sh-card);
+      display: flex; flex-direction: column;
+      gap: 14px;
+    }
+    .live-session-empty {
+      text-align: center;
+      padding: 24px 12px;
+      color: var(--color-text-secondary);
+    }
+    .live-session-empty .empty-icon-circle { margin: 0 auto 12px; }
+    .live-session-empty p { font-size: 13px; margin: 0; }
+    .live-session-active {
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(26, 127, 55, 0.06), rgba(26, 127, 55, 0.02));
+      border: 1.5px solid var(--color-success);
+      padding: 16px;
+    }
+    .live-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px;
+      background: var(--color-success);
+      color: white;
+      border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-bottom: 10px;
+    }
+    .live-pill .pulse {
+      width: 6px; height: 6px;
+      background: white;
+      border-radius: 999px;
+      animation: pulse-dot 1.6s infinite;
+    }
+    .live-mk-name {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-text-primary);
+      margin: 0 0 4px;
+    }
+    .live-mk-meta {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      display: flex; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .live-mk-meta span { display: inline-flex; align-items: center; gap: 4px; }
+    .live-mk-meta iconify-icon { font-size: 13px; }
+    .live-progress-bar {
+      height: 8px;
+      background: var(--color-success-tint);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .live-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-success) 0%, #22c55e 100%);
+      border-radius: 999px;
+      width: 75%;
+    }
+    .live-progress-text {
+      display: flex; justify-content: space-between;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin-bottom: 12px;
+    }
+    .live-progress-text strong { color: var(--color-text-primary); font-weight: 700; }
+    .live-actions { display: flex; gap: 8px; }
+    .live-actions .btn { flex: 1; }
+
+    /* KPI grid 4 cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    /* Content grid: schedule + at-risk students */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .section-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-card-title {
+      font-family: var(--ff-heading); font-weight: 700; font-size: 15px;
+      color: var(--color-text-primary); margin: 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-card-title iconify-icon { color: var(--color-primary); }
+    .section-link {
+      font-size: 12px; color: var(--color-primary);
+      text-decoration: none; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 2px;
+    }
+    .section-link iconify-icon { font-size: 14px; }
+
+    /* Sesi mendatang list (sama pattern admin) */
+    .sesi-list { display: flex; flex-direction: column; gap: 10px; }
+    .sesi-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 14px;
+      background: var(--color-surface-hover);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .sesi-item:hover { border-color: var(--color-primary); background: var(--color-primary-surface); }
+    .sesi-time { flex-shrink: 0; width: 80px; text-align: center; }
+    .sesi-time-day {
+      font-family: var(--ff-body); font-weight: 700;
+      font-size: 11px; color: var(--color-text-tertiary);
+      letter-spacing: 0.5px; text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .sesi-time-start {
+      font-family: var(--ff-mono); font-weight: 700; font-size: 14px;
+      color: var(--color-text-primary); line-height: 1;
+    }
+    .sesi-time-end {
+      font-family: var(--ff-mono); font-size: 11px;
+      color: var(--color-text-secondary); margin-top: 4px;
+    }
+    .sesi-divider {
+      width: 4px; height: 32px;
+      background: var(--color-border);
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .sesi-item.scheduled .sesi-divider { background: var(--color-info); }
+    .sesi-item.today .sesi-divider {
+      background: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.20);
+    }
+    .sesi-info { flex: 1; min-width: 0; }
+    .sesi-name {
+      font-weight: 600; font-size: 14px;
+      color: var(--color-text-primary); margin: 0 0 4px;
+    }
+    .sesi-meta {
+      display: flex; gap: 12px; font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+    .sesi-meta span { display: inline-flex; align-items: center; gap: 4px; }
+    .sesi-meta iconify-icon { font-size: 13px; }
+    .sesi-action-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px;
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      font-family: var(--ff-heading); font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .sesi-action-btn:hover { background: var(--color-primary-hover); }
+    .sesi-action-btn.outline {
+      background: white; color: var(--color-primary);
+      border: 1.5px solid var(--color-primary);
+    }
+    .sesi-action-btn.outline:hover { background: var(--color-primary-surface); }
+
+    /* At-risk students list */
+    .risk-list { display: flex; flex-direction: column; gap: 10px; }
+    .risk-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px;
+      background: var(--color-surface-hover);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .risk-item:hover { border-color: var(--color-warning); background: var(--color-warning-surface); }
+    .risk-item.danger:hover { border-color: var(--color-danger); background: var(--color-danger-surface); }
+    .risk-avatar {
+      width: 36px; height: 36px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #94a3b8, #475569);
+      color: white;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      font-family: var(--ff-heading);
+      flex-shrink: 0;
+    }
+    .risk-avatar.alt-1 { background: linear-gradient(135deg, #fb7185, #be123c); }
+    .risk-avatar.alt-2 { background: linear-gradient(135deg, #fbbf24, #b45309); }
+    .risk-avatar.alt-3 { background: linear-gradient(135deg, #a78bfa, #6d28d9); }
+    .risk-info { flex: 1; min-width: 0; }
+    .risk-name {
+      font-weight: 600; font-size: 13px;
+      color: var(--color-text-primary); margin: 0 0 2px;
+    }
+    .risk-mk { font-size: 11px; color: var(--color-text-tertiary); }
+    .risk-meta {
+      flex-shrink: 0;
+      text-align: right;
+    }
+    .risk-percent {
+      font-family: var(--ff-heading);
+      font-weight: 800; font-size: 16px;
+      line-height: 1;
+    }
+    .risk-percent.warning { color: var(--color-warning); }
+    .risk-percent.danger { color: var(--color-danger); }
+    .risk-label { font-size: 10px; color: var(--color-text-tertiary); margin-top: 3px; }
+
+    /* MK saya cards */
+    .mk-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .mk-card {
+      background: var(--color-surface);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--color-border);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .mk-card:hover { border-color: var(--color-primary); transform: translateY(-2px); box-shadow: var(--sh-card-hover); }
+    .mk-card-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 10px; margin-bottom: 12px;
+    }
+    .mk-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--color-primary-surface);
+      color: var(--color-primary);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mk-icon.accent { background: rgba(244, 180, 0, 0.12); color: var(--color-accent); }
+    .mk-icon.success { background: var(--color-success-tint); color: var(--color-success); }
+    .mk-icon iconify-icon { font-size: 18px; }
+    .mk-name {
+      font-family: var(--ff-heading);
+      font-weight: 700; font-size: 14px;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+      line-height: 1.3;
+    }
+    .mk-code {
+      font-family: var(--ff-mono); font-size: 11px;
+      color: var(--color-text-tertiary);
+    }
+    .mk-stats-row {
+      display: flex; justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid var(--color-border);
+      font-size: 11px;
+    }
+    .mk-stat-label { color: var(--color-text-tertiary); margin-bottom: 2px; }
+    .mk-stat-value { font-weight: 700; color: var(--color-text-primary); font-size: 13px; }
+    .mk-stat-value.success { color: var(--color-success); }
+    .mk-stat-value.warning { color: var(--color-warning); }
+  </style>
+</head>
+<body>
+
+  <!-- ========== Showcase Header ========== -->
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="lucide:arrow-left" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Dashboard Dosen</h1>
+    <p>Hero greeting · live session · KPI MK · jadwal mendatang · mahasiswa berisiko · MK saya</p>
+    <div class="legend">
+      <strong>Reference:</strong> Stripe Dashboard (greeting card) · Linear (KPI) · Notion (MK cards)
+    </div>
+  </div>
+
+  <!-- ========== Browser Frame ========== -->
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="browser-lights">
+        <div class="light red"></div>
+        <div class="light yellow"></div>
+        <div class="light green"></div>
+      </div>
+      <div class="browser-url">
+        <iconify-icon icon="lucide:lock"></iconify-icon>
+        mypresensi.politani.ac.id/dosen/dashboard
+      </div>
+      <div class="browser-tabs-hint">2 tab terbuka</div>
+    </div>
+
+    <!-- ===== Admin Shell (sidebar + topbar + content) ===== -->
+    <div class="admin-shell">
+
+      <!-- ===== SIDEBAR (varian Dosen) ===== -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-logo">MP</div>
+          <div class="sidebar-brand-name">
+            MyPresensi
+            <small>Politani Samarinda</small>
+          </div>
+        </div>
+
+        <a class="sidebar-nav-item active">
+          <iconify-icon icon="lucide:layout-dashboard"></iconify-icon>
+          Dashboard
+        </a>
+
+        <div class="sidebar-section-header">Mengajar</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:book-open"></iconify-icon>
+          Mata Kuliah Saya
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:calendar-check-2"></iconify-icon>
+          Sesi
+          <span class="badge" style="background: var(--color-success);">2</span>
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:radio"></iconify-icon>
+          Live Monitor
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:file-text"></iconify-icon>
+          Pengajuan Izin
+          <span class="badge">3</span>
+        </a>
+
+        <div class="sidebar-section-header">Laporan</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:bar-chart-3"></iconify-icon>
+          Rekap Kehadiran
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:graduation-cap"></iconify-icon>
+          Mahasiswa
+        </a>
+
+        <div class="sidebar-section-header">Akun</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:user-circle"></iconify-icon>
+          Profil
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:settings-2"></iconify-icon>
+          Preferensi
+        </a>
+
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" style="background: linear-gradient(135deg, #a78bfa, #6d28d9);">BH</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">Dr. Budi Hartono</div>
+            <div class="sidebar-user-role">Dosen TRPL</div>
+          </div>
+          <iconify-icon icon="lucide:chevrons-up-down" style="color: var(--color-text-tertiary);"></iconify-icon>
+        </div>
+      </aside>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <div class="admin-content">
+
+        <!-- Topbar -->
+        <header class="topbar">
+          <div class="topbar-breadcrumb">
+            <iconify-icon icon="lucide:home" style="font-size: 14px;"></iconify-icon>
+            <span>Beranda</span>
+            <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+            <span class="current">Dashboard</span>
+          </div>
+          <div class="topbar-search">
+            <iconify-icon icon="lucide:search"></iconify-icon>
+            <span>Cari mahasiswa atau sesi...</span>
+            <kbd>Ctrl K</kbd>
+          </div>
+          <button class="topbar-icon-btn">
+            <iconify-icon icon="lucide:help-circle"></iconify-icon>
+          </button>
+          <button class="topbar-icon-btn">
+            <iconify-icon icon="lucide:bell"></iconify-icon>
+            <span class="dot"></span>
+          </button>
+        </header>
+
+        <!-- Page body -->
+        <div class="page-body">
+
+          <!-- Greeting + Live Session row -->
+          <div class="greeting-row">
+
+            <!-- Hero greeting card -->
+            <div class="greeting-card">
+              <div class="greeting-time">
+                <iconify-icon icon="lucide:sun"></iconify-icon>
+                Selamat pagi · Jumat 15 Mei 2026
+              </div>
+              <h2>Halo, Pak Budi 👋</h2>
+              <p>Anda mengajar <strong>3 sesi hari ini</strong> · sesi terdekat <strong>Algoritma Pemrograman</strong> dimulai 8 menit lagi.</p>
+              <div class="greeting-cta-row">
+                <a href="#" class="greeting-cta">
+                  <iconify-icon icon="lucide:play-circle"></iconify-icon>
+                  Mulai Sesi Sekarang
+                </a>
+                <a href="#" class="greeting-cta outline">
+                  <iconify-icon icon="lucide:calendar"></iconify-icon>
+                  Lihat Jadwal
+                </a>
+              </div>
+            </div>
+
+            <!-- Live session active card -->
+            <div class="live-session-card">
+              <div class="section-card-header" style="margin-bottom: 0;">
+                <h3 class="section-card-title">
+                  <iconify-icon icon="lucide:radio"></iconify-icon>
+                  Sesi Saya
+                </h3>
+                <a href="#" class="section-link">
+                  Live Monitor
+                  <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+                </a>
+              </div>
+
+              <div class="live-session-active">
+                <span class="live-pill">
+                  <span class="pulse"></span>
+                  BERLANGSUNG
+                </span>
+                <h4 class="live-mk-name">Algoritma Pemrograman · TI-3A</h4>
+                <div class="live-mk-meta">
+                  <span><iconify-icon icon="lucide:clock"></iconify-icon> 08:00 – 10:00</span>
+                  <span><iconify-icon icon="lucide:map-pin"></iconify-icon> Lab Komputer 1</span>
+                </div>
+                <div class="live-progress-bar">
+                  <div class="live-progress-fill"></div>
+                </div>
+                <div class="live-progress-text">
+                  <span>Hadir <strong>22</strong> dari 30</span>
+                  <span><strong>75%</strong> kehadiran</span>
+                </div>
+                <div class="live-actions">
+                  <button class="sesi-action-btn outline" style="flex: 1;">
+                    <iconify-icon icon="lucide:refresh-ccw"></iconify-icon>
+                    Refresh OTP
+                  </button>
+                  <button class="sesi-action-btn" style="flex: 1;">
+                    <iconify-icon icon="lucide:eye"></iconify-icon>
+                    Pantau
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI Strip -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">MK Aktif</span>
+                <div class="kpi-icon-box">
+                  <iconify-icon icon="lucide:book-open"></iconify-icon>
+                </div>
+              </div>
+              <div class="kpi-number">4</div>
+              <div class="kpi-trend flat">
+                <iconify-icon icon="lucide:bookmark"></iconify-icon>
+                <span>Semester Genap 2026</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Total Mahasiswa</span>
+                <div class="kpi-icon-box accent">
+                  <iconify-icon icon="lucide:graduation-cap"></iconify-icon>
+                </div>
+              </div>
+              <div class="kpi-number">112</div>
+              <div class="kpi-trend up">
+                <iconify-icon icon="lucide:check-circle-2"></iconify-icon>
+                <span>Tersebar di 4 MK</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Rata-rata Kehadiran</span>
+                <div class="kpi-icon-box success">
+                  <iconify-icon icon="lucide:trending-up"></iconify-icon>
+                </div>
+              </div>
+              <div class="kpi-number">87%</div>
+              <div class="kpi-trend up">
+                <iconify-icon icon="lucide:trending-up"></iconify-icon>
+                <span>+3% dari minggu lalu</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Izin Menunggu</span>
+                <div class="kpi-icon-box warning">
+                  <iconify-icon icon="lucide:file-clock"></iconify-icon>
+                </div>
+              </div>
+              <div class="kpi-number">3</div>
+              <div class="kpi-trend down">
+                <iconify-icon icon="lucide:alert-circle"></iconify-icon>
+                <span>1 lebih dari 24 jam</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sesi mendatang + Mahasiswa berisiko -->
+          <div class="content-grid">
+
+            <!-- Sesi mendatang -->
+            <div class="card">
+              <div class="section-card-header">
+                <h3 class="section-card-title">
+                  <iconify-icon icon="lucide:calendar-check-2"></iconify-icon>
+                  Sesi Mendatang
+                </h3>
+                <a href="sesi-list.html" class="section-link">
+                  Lihat semua
+                  <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+                </a>
+              </div>
+
+              <div class="sesi-list">
+
+                <div class="sesi-item today">
+                  <div class="sesi-time">
+                    <div class="sesi-time-day">HARI INI</div>
+                    <div class="sesi-time-start">13:00</div>
+                    <div class="sesi-time-end">15:00</div>
+                  </div>
+                  <div class="sesi-divider"></div>
+                  <div class="sesi-info">
+                    <h4 class="sesi-name">Rekayasa Perangkat Lunak</h4>
+                    <div class="sesi-meta">
+                      <span><iconify-icon icon="lucide:users"></iconify-icon> TI-3A · 30 mhs</span>
+                      <span><iconify-icon icon="lucide:map-pin"></iconify-icon> Lab Komputer 2</span>
+                    </div>
+                  </div>
+                  <button class="sesi-action-btn">
+                    <iconify-icon icon="lucide:play"></iconify-icon>
+                    Mulai
+                  </button>
+                </div>
+
+                <div class="sesi-item scheduled">
+                  <div class="sesi-time">
+                    <div class="sesi-time-day">SENIN</div>
+                    <div class="sesi-time-start">08:00</div>
+                    <div class="sesi-time-end">10:00</div>
+                  </div>
+                  <div class="sesi-divider"></div>
+                  <div class="sesi-info">
+                    <h4 class="sesi-name">Algoritma Pemrograman</h4>
+                    <div class="sesi-meta">
+                      <span><iconify-icon icon="lucide:users"></iconify-icon> TI-3A · 30 mhs</span>
+                      <span><iconify-icon icon="lucide:map-pin"></iconify-icon> Lab Komputer 1</span>
+                    </div>
+                  </div>
+                  <button class="sesi-action-btn outline">
+                    <iconify-icon icon="lucide:edit-3"></iconify-icon>
+                    Edit
+                  </button>
+                </div>
+
+                <div class="sesi-item scheduled">
+                  <div class="sesi-time">
+                    <div class="sesi-time-day">SELASA</div>
+                    <div class="sesi-time-start">10:00</div>
+                    <div class="sesi-time-end">12:00</div>
+                  </div>
+                  <div class="sesi-divider"></div>
+                  <div class="sesi-info">
+                    <h4 class="sesi-name">Pemrograman Web Lanjut</h4>
+                    <div class="sesi-meta">
+                      <span><iconify-icon icon="lucide:users"></iconify-icon> TI-3B · 28 mhs</span>
+                      <span><iconify-icon icon="lucide:map-pin"></iconify-icon> Lab Komputer 3</span>
+                    </div>
+                  </div>
+                  <button class="sesi-action-btn outline">
+                    <iconify-icon icon="lucide:edit-3"></iconify-icon>
+                    Edit
+                  </button>
+                </div>
+
+                <div class="sesi-item scheduled">
+                  <div class="sesi-time">
+                    <div class="sesi-time-day">RABU</div>
+                    <div class="sesi-time-start">15:30</div>
+                    <div class="sesi-time-end">17:30</div>
+                  </div>
+                  <div class="sesi-divider"></div>
+                  <div class="sesi-info">
+                    <h4 class="sesi-name">Mobile Programming</h4>
+                    <div class="sesi-meta">
+                      <span><iconify-icon icon="lucide:users"></iconify-icon> TI-3C · 24 mhs</span>
+                      <span><iconify-icon icon="lucide:map-pin"></iconify-icon> Lab Komputer 4</span>
+                    </div>
+                  </div>
+                  <button class="sesi-action-btn outline">
+                    <iconify-icon icon="lucide:edit-3"></iconify-icon>
+                    Edit
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Mahasiswa berisiko -->
+            <div class="card">
+              <div class="section-card-header">
+                <h3 class="section-card-title">
+                  <iconify-icon icon="lucide:alert-triangle"></iconify-icon>
+                  Mahasiswa Berisiko
+                </h3>
+                <a href="#" class="section-link">
+                  Semua
+                  <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+                </a>
+              </div>
+
+              <p style="font-size: 12px; color: var(--color-text-tertiary); margin: -8px 0 14px; line-height: 1.5;">
+                Kehadiran &lt; 75% di MK Anda. Klik untuk lihat detail.
+              </p>
+
+              <div class="risk-list">
+
+                <div class="risk-item danger">
+                  <div class="risk-avatar alt-1">YP</div>
+                  <div class="risk-info">
+                    <h4 class="risk-name">Yono Pratama</h4>
+                    <div class="risk-mk">Algoritma · 6 alpa, 2 izin</div>
+                  </div>
+                  <div class="risk-meta">
+                    <div class="risk-percent danger">52%</div>
+                    <div class="risk-label">Sangat rendah</div>
+                  </div>
+                </div>
+
+                <div class="risk-item">
+                  <div class="risk-avatar alt-2">JS</div>
+                  <div class="risk-info">
+                    <h4 class="risk-name">Joko Susilo</h4>
+                    <div class="risk-mk">RPL · 3 alpa, 1 sakit</div>
+                  </div>
+                  <div class="risk-meta">
+                    <div class="risk-percent warning">67%</div>
+                    <div class="risk-label">Di bawah ambang</div>
+                  </div>
+                </div>
+
+                <div class="risk-item">
+                  <div class="risk-avatar alt-3">RW</div>
+                  <div class="risk-info">
+                    <h4 class="risk-name">Rini Wulandari</h4>
+                    <div class="risk-mk">Web Lanjut · 3 alpa</div>
+                  </div>
+                  <div class="risk-meta">
+                    <div class="risk-percent warning">71%</div>
+                    <div class="risk-label">Di bawah ambang</div>
+                  </div>
+                </div>
+
+                <div class="risk-item">
+                  <div class="risk-avatar">DA</div>
+                  <div class="risk-info">
+                    <h4 class="risk-name">Dewi Anggraini</h4>
+                    <div class="risk-mk">Mobile · 2 alpa, 2 izin</div>
+                  </div>
+                  <div class="risk-meta">
+                    <div class="risk-percent warning">73%</div>
+                    <div class="risk-label">Di bawah ambang</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- MK Saya -->
+          <div class="card">
+            <div class="section-card-header">
+              <h3 class="section-card-title">
+                <iconify-icon icon="lucide:book-open"></iconify-icon>
+                Mata Kuliah Saya
+              </h3>
+              <a href="#" class="section-link">
+                Kelola MK
+                <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+              </a>
+            </div>
+
+            <div class="mk-grid">
+              <div class="mk-card">
+                <div class="mk-card-header">
+                  <div class="mk-icon">
+                    <iconify-icon icon="lucide:code-2"></iconify-icon>
+                  </div>
+                  <span class="badge badge-primary">TI-3A</span>
+                </div>
+                <h4 class="mk-name">Algoritma Pemrograman</h4>
+                <div class="mk-code">TRPL-301 · 3 SKS</div>
+                <div class="mk-stats-row" style="margin-top: 12px;">
+                  <div>
+                    <div class="mk-stat-label">Mahasiswa</div>
+                    <div class="mk-stat-value">30</div>
+                  </div>
+                  <div>
+                    <div class="mk-stat-label">Sesi terlaksana</div>
+                    <div class="mk-stat-value">8/14</div>
+                  </div>
+                  <div>
+                    <div class="mk-stat-label">Rata kehadiran</div>
+                    <div class="mk-stat-value success">89%</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mk-card">
+                <div class="mk-card-header">
+                  <div class="mk-icon accent">
+                    <iconify-icon icon="lucide:layers"></iconify-icon>
+                  </div>
+                  <span class="badge badge-primary">TI-3A</span>
+                </div>
+                <h4 class="mk-name">Rekayasa Perangkat Lunak</h4>
+                <div class="mk-code">TRPL-305 · 3 SKS</div>
+                <div class="mk-stats-row" style="margin-top: 12px;">
+                  <div>
+                    <div class="mk-stat-label">Mahasiswa</div>
+                    <div class="mk-stat-value">30</div>
+                  </div>
+                  <div>
+                    <div class="mk-stat-label">Sesi terlaksana</div>
+                    <div class="mk-stat-value">7/14</div>
+                  </div>
+                  <div>
+                    <div class="mk-stat-label">Rata kehadiran</div>
+                    <div class="mk-stat-value success">85%</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mk-card">
+                <div class="mk-card-header">
+                  <div class="mk-icon success">
+                    <iconify-icon icon="lucide:globe"></iconify-icon>
+                  </div>
+                  <span class="badge badge-primary">TI-3B</span>
+                </div>
+                <h4 class="mk-name">Pemrograman Web Lanjut</h4>
+                <div class="mk-code">TRPL-308 · 4 SKS</div>
+                <div class="mk-stats-row" style="margin-top: 12px;">
+                  <div>
+                    <div class="mk-stat-label">Mahasiswa</div>
+                    <div class="mk-stat-value">28</div>
+                  </div>
+                  <div>
+                    <div class="mk-stat-label">Sesi terlaksana</div>
+                    <div class="mk-stat-value">9/14</div>
+                  </div>
+                  <div>
+                    <div class="mk-stat-label">Rata kehadiran</div>
+                    <div class="mk-stat-value warning">82%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,775 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile Notifications — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <link rel="stylesheet" href="_mobile.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* Notification appbar with badge */
+    .notif-appbar-action {
+      position: relative;
+    }
+    .notif-count-badge {
+      position: absolute;
+      top: 4px; right: 4px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: var(--color-danger);
+      color: white;
+      border-radius: 999px;
+      font-family: var(--ff-mono);
+      font-weight: 700;
+      font-size: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+
+    /* Filter tab */
+    .notif-tabs {
+      display: flex;
+      padding: 0 16px;
+      gap: 4px;
+      border-bottom: 1px solid var(--color-border);
+      flex-shrink: 0;
+    }
+    .notif-tab {
+      flex: 1;
+      padding: 12px 0;
+      background: transparent;
+      border: none;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-text-tertiary);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    .notif-tab.active {
+      color: var(--color-primary);
+    }
+    .notif-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 20%; right: 20%;
+      height: 3px;
+      background: var(--color-primary);
+      border-radius: 999px 999px 0 0;
+    }
+    .notif-tab .badge-mini {
+      display: inline-block;
+      padding: 1px 6px;
+      background: var(--color-primary-surface);
+      color: var(--color-primary);
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+    .notif-tab.active .badge-mini { background: var(--color-primary); color: white; }
+
+    /* Date group */
+    .date-group { padding: 12px 16px 0; }
+    .date-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 4px 8px;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .date-group-header .mark-read {
+      color: var(--color-primary);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Notification item */
+    .notif-item-wrap {
+      position: relative;
+      margin-bottom: 8px;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .notif-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 14px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: var(--sh-card);
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s ease;
+    }
+    .notif-item.unread {
+      background: linear-gradient(90deg, var(--color-primary-surface), white);
+    }
+    .notif-item.unread::before {
+      content: '';
+      position: absolute;
+      top: 18px; left: 6px;
+      width: 6px; height: 6px;
+      background: var(--color-primary);
+      border-radius: 999px;
+      box-shadow: 0 0 0 3px rgba(45, 134, 255, 0.20);
+    }
+    .notif-item.unread { padding-left: 22px; }
+
+    .notif-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .notif-icon iconify-icon { font-size: 19px; }
+    .notif-icon.success { background: var(--color-success-tint); color: var(--color-success); }
+    .notif-icon.warning { background: var(--color-warning-tint); color: var(--color-warning); }
+    .notif-icon.info { background: var(--color-info-tint); color: var(--color-info); }
+    .notif-icon.danger { background: var(--color-danger-tint); color: var(--color-danger); }
+    .notif-icon.primary { background: var(--color-primary-surface); color: var(--color-primary); }
+    .notif-icon.gold { background: rgba(244, 180, 0, 0.16); color: var(--color-warning); }
+
+    .notif-content { flex: 1; min-width: 0; }
+    .notif-title {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+      line-height: 1.3;
+    }
+    .notif-body {
+      font-size: 12.5px;
+      color: var(--color-text-secondary);
+      line-height: 1.45;
+      margin: 0 0 6px;
+    }
+    .notif-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10.5px;
+      color: var(--color-text-tertiary);
+    }
+    .notif-meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      background: var(--color-surface-sunken);
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .notif-meta-tag iconify-icon { font-size: 11px; }
+
+    .notif-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      padding: 6px 12px;
+      background: var(--color-primary);
+      color: white;
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 11.5px;
+      cursor: pointer;
+      border: none;
+    }
+    .notif-cta.outline {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1.5px solid var(--color-primary);
+    }
+    .notif-cta iconify-icon { font-size: 12px; }
+
+    /* ============ FRAME 2: SWIPE ACTION ============ */
+    .swipe-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .swipe-action {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: white;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 10px;
+      padding: 0 8px;
+    }
+    .swipe-action iconify-icon { font-size: 20px; }
+    .swipe-action.left {
+      background: var(--color-info);
+      flex: 0 0 80px;
+      max-width: 80px;
+      align-self: stretch;
+    }
+    .swipe-action.right {
+      background: var(--color-danger);
+      flex: 0 0 80px;
+      max-width: 80px;
+      align-self: stretch;
+      margin-left: auto;
+    }
+
+    /* ============ FRAME 3: EMPTY STATE ============ */
+    .empty-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 32px;
+      text-align: center;
+    }
+    .empty-illustration {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin-bottom: 32px;
+    }
+    .empty-bell-circle {
+      width: 140px; height: 140px;
+      margin: 20px auto;
+      background: var(--color-primary-surface);
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: float-1 4s ease-in-out infinite;
+    }
+    .empty-bell-circle::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 999px;
+      border: 2px dashed rgba(45, 134, 255, 0.25);
+      animation: ring-spin 16s linear infinite;
+    }
+    @keyframes ring-spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes float-1 {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .empty-bell-circle iconify-icon {
+      font-size: 64px;
+      color: var(--color-primary);
+    }
+    .empty-confetti {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+    .confetti-dot {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 999px;
+    }
+    .confetti-dot.c1 { top: 12%; left: 8%; background: var(--color-accent); }
+    .confetti-dot.c2 { top: 22%; right: 12%; background: var(--color-success); }
+    .confetti-dot.c3 { bottom: 18%; left: 14%; background: var(--color-info); }
+    .confetti-dot.c4 { bottom: 12%; right: 18%; background: var(--color-primary); }
+
+    .empty-title {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--color-text-primary);
+      letter-spacing: -0.3px;
+      margin: 0 0 8px;
+    }
+    .empty-desc {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      line-height: 1.55;
+      margin: 0 0 22px;
+    }
+
+    .annotation {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px 14px;
+      max-width: 320px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #c0c8d2;
+    }
+    .annotation strong { color: #fff; font-weight: 700; }
+    .annotation .anno-label {
+      display: block;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      color: #4ade80;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Mobile · Notifications</h1>
+    <p>3 state: Inbox group by date · Swipe action reveal · Empty state ramah</p>
+    <div class="legend">
+      <strong>Reference:</strong> iOS Mail swipe · Material You notification · Linear inbox
+    </div>
+  </div>
+
+  <div class="mockup-grid">
+
+    <!-- ========== FRAME 1: INBOX ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <div>
+              <h2 class="appbar-title">Notifikasi</h2>
+              <p class="appbar-subtitle">5 belum dibaca</p>
+            </div>
+          </div>
+
+          <!-- Tabs: 2 tab saja sesuai struktur data backend (is_read flag).
+               Tidak ada konsep "Penting" di tabel notifications. -->
+          <div class="notif-tabs">
+            <button class="notif-tab active">
+              Semua
+            </button>
+            <button class="notif-tab">
+              Belum Dibaca <span class="badge-mini">5</span>
+            </button>
+          </div>
+
+          <div class="content" style="padding: 0;">
+
+            <!-- HARI INI -->
+            <div class="date-group">
+              <div class="date-group-header">
+                <span>Hari Ini</span>
+                <span class="mark-read">Tandai semua</span>
+              </div>
+
+              <!-- 1. Sesi mulai (unread, primary) -->
+              <div class="notif-item-wrap">
+                <div class="notif-item unread">
+                  <div class="notif-icon primary">
+                    <iconify-icon icon="solar:bell-bing-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="notif-content">
+                    <h4 class="notif-title">Sesi RPL sudah dibuka</h4>
+                    <p class="notif-body">
+                      Pak Budi baru saja membuka <strong>Rekayasa Perangkat Lunak</strong>. Yuk presensi sebelum 13:30.
+                    </p>
+                    <div class="notif-meta">
+                      <span class="notif-meta-tag">
+                        <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 2 menit lalu
+                      </span>
+                      <span><iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon> Lab Komputer 2</span>
+                    </div>
+                    <button class="notif-cta">
+                      <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon> Scan Sekarang
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Izin disetujui (unread, success) -->
+              <div class="notif-item-wrap">
+                <div class="notif-item unread">
+                  <div class="notif-icon success">
+                    <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="notif-content">
+                    <h4 class="notif-title">Izin sakitmu disetujui</h4>
+                    <p class="notif-body">
+                      Bu Dewi sudah menyetujui izinmu untuk <strong>Pemrograman Web Lanjut</strong> di tanggal 14 Mei. Semoga lekas pulih ya.
+                    </p>
+                    <div class="notif-meta">
+                      <span class="notif-meta-tag">
+                        <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 4 jam lalu
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. Mock GPS warning (unread, danger) — CTA dihilangkan,
+                   body sudah cukup informatif. Mahasiswa tahu apa yang harus
+                   dilakukan dari pesan body. -->
+              <div class="notif-item-wrap">
+                <div class="notif-item unread">
+                  <div class="notif-icon danger">
+                    <iconify-icon icon="solar:shield-warning-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="notif-content">
+                    <h4 class="notif-title" style="color: var(--color-danger);">Ada yang tidak biasa</h4>
+                    <p class="notif-body">
+                      Kami mendapati aplikasi <strong>fake GPS</strong> aktif di HP-mu saat presensi tadi. Kalau ini bukan kamu, segera hubungi BAAK.
+                    </p>
+                    <div class="notif-meta">
+                      <span class="notif-meta-tag">
+                        <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 6 jam lalu
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- KEMARIN -->
+            <div class="date-group">
+              <div class="date-group-header">
+                <span>Kemarin</span>
+              </div>
+
+              <!-- 4. Reminder (unread, gold) -->
+              <div class="notif-item-wrap">
+                <div class="notif-item unread">
+                  <div class="notif-icon gold">
+                    <iconify-icon icon="solar:bell-bing-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="notif-content">
+                    <h4 class="notif-title">Besok ada Algoritma Pemrograman</h4>
+                    <p class="notif-body">
+                      Mulai jam <strong>08:00</strong> di Lab Komputer 1. Jangan sampai telat ya!
+                    </p>
+                    <div class="notif-meta">
+                      <span class="notif-meta-tag">
+                        <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> Kemarin, 20:00
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. Read - presensi sukses (data riil dari attendance_recorded
+                   notif type, bukan motivational scheduled job). -->
+              <div class="notif-item-wrap">
+                <div class="notif-item">
+                  <div class="notif-icon success">
+                    <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="notif-content">
+                    <h4 class="notif-title">Presensimu tercatat</h4>
+                    <p class="notif-body">
+                      Kamu hadir di <strong>Mobile Programming</strong> jam 15:32. Lokasimu pas di Lab Komputer 1.
+                    </p>
+                    <div class="notif-meta">
+                      <span class="notif-meta-tag">
+                        <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> Kemarin, 15:32
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MINGGU LALU -->
+            <div class="date-group" style="padding-bottom: 12px;">
+              <div class="date-group-header">
+                <span>Minggu Lalu</span>
+              </div>
+
+              <div class="notif-item-wrap">
+                <div class="notif-item">
+                  <div class="notif-icon success">
+                    <iconify-icon icon="solar:user-id-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="notif-content">
+                    <h4 class="notif-title">Wajahmu sudah terdaftar</h4>
+                    <p class="notif-body">
+                      Sekarang kamu bisa pakai verifikasi wajah saat presensi. Mau dihapus kapan-kapan? Buka <strong>Profil → Privasi</strong>.
+                    </p>
+                    <div class="notif-meta">
+                      <span class="notif-meta-tag">
+                        <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 7 hari lalu
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom nav 5-tab (sinkron dengan home + riwayat + mobile-mockup) -->
+          <div class="bottom-nav">
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon>
+              <span>Beranda</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+              <span>Riwayat</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+              <span>Izin</span>
+            </a>
+            <a class="bottom-nav-item active">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+              <span>Notifikasi</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
+              <span>Profil</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 1 · Inbox List
+        <small>Group by date · 5 notif type · CTA inline · unread indicator</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Type icon color-coded: <strong>primary</strong> sesi mulai, <strong>success</strong> izin disetujui / presensi tercatat / wajah terdaftar, <strong>danger</strong> mock GPS warning, <strong>gold</strong> reminder. Unread item: bg gradient + dot biru kiri + padding-left lebih lebar. CTA inline ("Scan Sekarang") hanya untuk notif yang butuh action mahasiswa langsung. Mark-all-read inline per date-group, bukan global di appbar — supaya kontekstual.
+      </div>
+    </div>
+
+    <!-- ========== FRAME 2: SWIPE ACTION ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <div>
+              <h2 class="appbar-title">Notifikasi</h2>
+              <p class="appbar-subtitle">5 belum dibaca</p>
+            </div>
+          </div>
+
+          <div class="notif-tabs">
+            <button class="notif-tab active">Semua</button>
+            <button class="notif-tab">Belum Dibaca <span class="badge-mini">5</span></button>
+          </div>
+
+          <div class="content" style="padding: 0;">
+
+            <div class="date-group">
+              <div class="date-group-header">
+                <span>Hari Ini</span>
+                <span class="mark-read">Tandai semua</span>
+              </div>
+
+              <!-- Item 1: SWIPED LEFT (showing right action - delete) -->
+              <div class="notif-item-wrap" style="position: relative; height: 116px;">
+                <div class="swipe-bg">
+                  <div class="swipe-action right">
+                    <iconify-icon icon="solar:trash-bin-trash-bold-duotone"></iconify-icon>
+                    Hapus
+                  </div>
+                </div>
+                <div class="notif-item unread" style="position: relative; transform: translateX(-80px); transition: transform 0.3s ease;">
+                  <div class="notif-icon primary">
+                    <iconify-icon icon="solar:bell-bing-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="notif-content">
+                    <h4 class="notif-title">Sesi RPL sudah dibuka</h4>
+                    <p class="notif-body">
+                      Pak Budi baru saja membuka RPL. Yuk presensi sebelum 13:30.
+                    </p>
+                    <div class="notif-meta">
+                      <span class="notif-meta-tag">
+                        <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 2 menit lalu
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Item 2: SWIPED RIGHT (showing left action - mark read) -->
+              <div class="notif-item-wrap" style="position: relative; height: 110px;">
+                <div class="swipe-bg">
+                  <div class="swipe-action left">
+                    <iconify-icon icon="solar:check-read-bold-duotone"></iconify-icon>
+                    Tandai dibaca
+                  </div>
+                </div>
+                <div class="notif-item unread" style="position: relative; transform: translateX(80px); transition: transform 0.3s ease;">
+                  <div class="notif-icon success">
+                    <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="notif-content">
+                    <h4 class="notif-title">Izin sakitmu disetujui</h4>
+                    <p class="notif-body">
+                      Bu Dewi sudah menyetujui izinmu untuk Pemrograman Web Lanjut.
+                    </p>
+                    <div class="notif-meta">
+                      <span class="notif-meta-tag">
+                        <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 4 jam lalu
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Item 3 normal (untuk konteks list) -->
+              <div class="notif-item-wrap">
+                <div class="notif-item unread">
+                  <div class="notif-icon danger">
+                    <iconify-icon icon="solar:shield-warning-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="notif-content">
+                    <h4 class="notif-title" style="color: var(--color-danger);">Ada yang tidak biasa</h4>
+                    <p class="notif-body">
+                      Kami mendapati aplikasi fake GPS aktif di HP-mu saat presensi tadi.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Helper toast first-time: pakai position:absolute relative ke
+               phone-screen (parent), z-index 50 di bawah bottom-nav (z 60)
+               supaya tidak ke-overlap. Bottom: tepat di atas bottom-nav. -->
+          <div style="position: absolute; left: 16px; right: 16px; bottom: 78px; z-index: 50; padding: 12px 14px; background: var(--color-text-primary); color: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 10px;">
+            <iconify-icon icon="solar:hand-shake-bold-duotone" style="color: var(--color-accent); font-size: 18px; flex-shrink: 0;"></iconify-icon>
+            <p style="margin: 0; font-size: 12px; line-height: 1.4;">
+              Geser kanan untuk <strong>tandai dibaca</strong>, geser kiri untuk <strong>hapus</strong>
+            </p>
+          </div>
+
+          <!-- Bottom nav 5-tab (sinkron dengan home + riwayat + mobile-mockup) -->
+          <div class="bottom-nav">
+            <a class="bottom-nav-item"><iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon><span>Beranda</span></a>
+            <a class="bottom-nav-item"><iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon><span>Riwayat</span></a>
+            <a class="bottom-nav-item"><iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon><span>Izin</span></a>
+            <a class="bottom-nav-item active"><iconify-icon icon="solar:bell-bold-duotone"></iconify-icon><span>Notifikasi</span></a>
+            <a class="bottom-nav-item"><iconify-icon icon="solar:user-bold-duotone"></iconify-icon><span>Profil</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 2 · Swipe Reveal
+        <small>Dismissible card · 2 arah action · helper toast first-time</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Pakai widget <strong>Dismissible</strong> Flutter dengan arah `horizontal`. Swipe kanan ke kiri (background merah) → hapus, swipe kiri ke kanan (background biru) → tandai dibaca. Helper toast muncul di first-launch supaya user tahu gesture-nya — auto-dismiss setelah 4 detik atau setelah pertama kali swipe.
+      </div>
+    </div>
+
+    <!-- ========== FRAME 3: EMPTY STATE ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <div>
+              <h2 class="appbar-title">Notifikasi</h2>
+              <p class="appbar-subtitle">Semua sudah dibaca</p>
+            </div>
+          </div>
+
+          <div class="notif-tabs">
+            <button class="notif-tab active">Semua</button>
+            <button class="notif-tab">Belum Dibaca</button>
+          </div>
+
+          <div class="empty-screen">
+            <div class="empty-illustration">
+              <span class="confetti-dot c1"></span>
+              <span class="confetti-dot c2"></span>
+              <span class="confetti-dot c3"></span>
+              <span class="confetti-dot c4"></span>
+              <div class="empty-bell-circle">
+                <iconify-icon icon="solar:bell-off-bold-duotone"></iconify-icon>
+              </div>
+            </div>
+
+            <h2 class="empty-title">Belum ada kabar baru</h2>
+            <p class="empty-desc">
+              Saat dosen membuka sesi, izinmu disetujui, atau ada pengingat penting, semuanya akan tampil di sini.
+            </p>
+          </div>
+
+          <!-- Bottom nav 5-tab (sinkron dengan home + riwayat + mobile-mockup) -->
+          <div class="bottom-nav">
+            <a class="bottom-nav-item"><iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon><span>Beranda</span></a>
+            <a class="bottom-nav-item"><iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon><span>Riwayat</span></a>
+            <a class="bottom-nav-item"><iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon><span>Izin</span></a>
+            <a class="bottom-nav-item active"><iconify-icon icon="solar:bell-bold-duotone"></iconify-icon><span>Notifikasi</span></a>
+            <a class="bottom-nav-item"><iconify-icon icon="solar:user-bold-duotone"></iconify-icon><span>Profil</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 3 · Empty State
+        <small>Bell illustration · confetti · pure informational copy</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Empty state JANGAN cuma "Tidak ada notifikasi". Wajib jelaskan <strong>kenapa kosong</strong> + <strong>apa yang akan muncul</strong> di sini. Tidak ada CTA — empty state notifikasi bersifat <strong>occasional</strong> (saat user baru install atau setelah mark-all-read), bukan kondisi yang perlu diperbaiki user. Confetti dot kasih kesan playful tanpa over-animated. Animasi bell circle: float + dashed ring rotating slow.
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

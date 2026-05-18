@@ -1,0 +1,1081 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile Leave Request — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <link rel="stylesheet" href="_mobile.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* Step indicator (top of multi-step form) */
+    .step-bar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px 16px;
+      flex-shrink: 0;
+    }
+    .step-bar-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+    }
+    .step-bar-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 11px;
+      background: var(--color-surface-sunken);
+      color: var(--color-text-tertiary);
+      border: 2px solid transparent;
+      flex-shrink: 0;
+    }
+    .step-bar-circle.done {
+      background: var(--color-success);
+      color: white;
+    }
+    .step-bar-circle.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-surface);
+    }
+    .step-bar-line {
+      flex: 1;
+      height: 2px;
+      background: var(--color-border);
+      margin-top: 14px;
+      align-self: flex-start;
+      max-width: 30px;
+    }
+    .step-bar-line.done { background: var(--color-success); }
+    .step-bar-label {
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 10px;
+      color: var(--color-text-tertiary);
+      letter-spacing: 0.2px;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .step-bar-item.active .step-bar-label { color: var(--color-primary); }
+    .step-bar-item.done .step-bar-label { color: var(--color-text-primary); }
+
+    /* Form section */
+    .form-section {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 18px 16px;
+    }
+    .form-section::-webkit-scrollbar { display: none; }
+    .form-section h3.section-h {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--color-text-primary);
+      letter-spacing: -0.3px;
+      margin: 4px 0 4px;
+    }
+    .form-section p.section-desc {
+      font-size: 12.5px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      margin: 0 0 18px;
+    }
+
+    .form-field-mob {
+      margin-bottom: 14px;
+    }
+    .form-label-mob {
+      display: block;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--color-text-primary);
+      margin-bottom: 6px;
+    }
+    .form-label-mob span.req { color: var(--color-danger); }
+    .form-input-mob {
+      width: 100%;
+      padding: 12px 14px;
+      background: white;
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: var(--ff-body);
+      color: var(--color-text-primary);
+      outline: none;
+      transition: all 0.15s ease;
+    }
+    .form-input-mob:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(45, 134, 255, 0.12); }
+    .form-input-mob.has-value { font-family: var(--ff-heading); font-weight: 600; }
+    textarea.form-input-mob { resize: none; min-height: 80px; line-height: 1.5; }
+    .form-help {
+      margin-top: 5px;
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .form-help iconify-icon { font-size: 12px; }
+
+    /* Session group header — MK name sebagai grouping */
+    .session-group-header {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      padding: 12px 4px 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .session-group-header iconify-icon {
+      font-size: 13px;
+      color: var(--color-primary);
+    }
+
+    /* Session pick item — pilih sesi spesifik (1 izin = 1 session_id) */
+    .session-pick-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: white;
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .session-pick-item:hover { border-color: var(--color-primary); }
+    .session-pick-item.selected {
+      border-color: var(--color-primary);
+      background: var(--color-primary-surface);
+    }
+    .session-pick-item.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--color-surface-sunken);
+    }
+    .session-pick-date {
+      width: 48px;
+      flex-shrink: 0;
+      text-align: center;
+      padding: 4px 0;
+      background: var(--color-primary-surface);
+      border-radius: 10px;
+    }
+    .session-pick-date.disabled-date {
+      background: var(--color-surface-sunken);
+    }
+    .session-pick-day {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 9px;
+      color: var(--color-primary);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .session-pick-date.disabled-date .session-pick-day { color: var(--color-text-tertiary); }
+    .session-pick-num {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--color-primary);
+      line-height: 1;
+    }
+    .session-pick-date.disabled-date .session-pick-num { color: var(--color-text-secondary); }
+    .session-pick-info { flex: 1; min-width: 0; }
+    .session-pick-time {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .session-pick-time iconify-icon { font-size: 14px; color: var(--color-text-tertiary); }
+    .session-pick-meta {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .session-pick-meta iconify-icon { font-size: 12px; }
+    .session-pick-radio {
+      width: 22px; height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--color-border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .session-pick-item.selected .session-pick-radio {
+      border-color: var(--color-primary);
+      background: var(--color-primary);
+    }
+    .session-pick-item.selected .session-pick-radio::after {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      background: white;
+    }
+    .session-pick-status {
+      flex-shrink: 0;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .session-pick-status.upcoming { background: var(--color-info-tint); color: var(--color-info); }
+    .session-pick-status.taken { background: var(--color-surface-sunken); color: var(--color-text-tertiary); }
+
+    /* Selected session card di Step 2 — read-only info */
+    .selected-session-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--color-primary-surface);
+      border: 1px solid var(--color-primary);
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+    .selected-session-card .badge-mk {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+    }
+    .selected-session-card .badge-meta {
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .selected-session-card .badge-meta iconify-icon { font-size: 12px; color: var(--color-primary); }
+
+    /* Type tile (izin / sakit) */
+    .type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .type-tile {
+      padding: 16px 12px;
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .type-tile:hover { border-color: var(--color-primary); }
+    .type-tile.selected {
+      border-color: var(--color-primary);
+      background: var(--color-primary-surface);
+    }
+    .type-tile-icon-wrap {
+      width: 48px; height: 48px;
+      margin: 0 auto 10px;
+      border-radius: 14px;
+      background: var(--color-surface-sunken);
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .type-tile-icon-wrap iconify-icon { font-size: 24px; }
+    .type-tile.selected .type-tile-icon-wrap {
+      background: var(--color-primary);
+      color: white;
+    }
+    .type-tile-name {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+
+    /* Upload zone */
+    .upload-zone {
+      padding: 28px 20px;
+      background: var(--color-primary-surface);
+      border: 2px dashed var(--color-primary);
+      border-radius: 14px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+    .upload-zone iconify-icon {
+      font-size: 32px;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+    }
+    .upload-zone-title {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-primary);
+      margin: 0 0 4px;
+    }
+    .upload-zone-sub {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    /* Uploaded file preview */
+    .file-preview {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: white;
+      border: 1px solid var(--color-success);
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .file-preview-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: var(--color-success-tint);
+      color: var(--color-success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .file-preview-icon iconify-icon { font-size: 18px; }
+    .file-preview-info { flex: 1; min-width: 0; }
+    .file-preview-name {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0 0 2px;
+    }
+    .file-preview-meta {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+    }
+    .file-preview-action {
+      width: 28px; height: 28px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--color-text-tertiary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Review summary card */
+    .review-card {
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .review-card-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .review-card-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .review-card-row:first-child { padding-top: 0; }
+    .review-row-label {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      letter-spacing: 0.3px;
+      font-weight: 600;
+      flex-shrink: 0;
+      width: 80px;
+      padding-top: 1px;
+    }
+    .review-row-value {
+      flex: 1;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      line-height: 1.4;
+    }
+    .review-row-sub {
+      font-family: var(--ff-body);
+      font-weight: 500;
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Timeline (frame 4 right) */
+    .timeline-success-banner {
+      background: linear-gradient(135deg, var(--color-success-tint), rgba(26, 127, 55, 0.04));
+      border: 1px solid var(--color-success);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .tl-banner-icon {
+      width: 44px; height: 44px;
+      border-radius: 999px;
+      background: var(--color-success);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tl-banner-icon iconify-icon { font-size: 24px; }
+    .tl-banner-title {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--color-success);
+      margin: 0 0 2px;
+    }
+    .tl-banner-sub {
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+      font-family: var(--ff-mono);
+    }
+
+    .timeline {
+      position: relative;
+      padding: 4px 0 8px 8px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 17px; top: 16px; bottom: 16px;
+      width: 2px;
+      background: var(--color-border);
+    }
+    .tl-step {
+      display: flex;
+      gap: 14px;
+      padding: 8px 0 16px;
+      position: relative;
+    }
+    .tl-step-dot {
+      width: 22px; height: 22px;
+      border-radius: 999px;
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    .tl-step-dot iconify-icon { font-size: 12px; color: var(--color-text-tertiary); }
+    .tl-step.done .tl-step-dot {
+      background: var(--color-success);
+      border-color: var(--color-success);
+    }
+    .tl-step.done .tl-step-dot iconify-icon { color: white; }
+    .tl-step.active .tl-step-dot {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px rgba(45, 134, 255, 0.18);
+    }
+    .tl-step.active .tl-step-dot iconify-icon { color: white; }
+    .tl-step.active .tl-step-dot::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 999px;
+      background: rgba(45, 134, 255, 0.14);
+      animation: pulse-dot 1.6s infinite;
+      z-index: -1;
+    }
+
+    .tl-step-info { flex: 1; padding-bottom: 4px; }
+    .tl-step-title {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+    }
+    .tl-step.pending .tl-step-title { color: var(--color-text-tertiary); }
+    .tl-step-desc {
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+      margin: 0;
+    }
+    .tl-step-time {
+      font-family: var(--ff-mono);
+      font-size: 10.5px;
+      color: var(--color-text-tertiary);
+      margin-top: 4px;
+    }
+
+    /* Footer with action buttons */
+    .form-foot {
+      flex-shrink: 0;
+      padding: 12px 18px 20px;
+      display: flex;
+      gap: 10px;
+      border-top: 1px solid var(--color-border);
+      background: white;
+    }
+    .form-foot .btn-mobile-primary { flex: 1; }
+
+    /* Annotation */
+    .annotation {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px 14px;
+      max-width: 320px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #c0c8d2;
+    }
+    .annotation strong { color: #fff; font-weight: 700; }
+    .annotation .anno-label {
+      display: block;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      color: #4ade80;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Mobile · Pengajuan Izin</h1>
+    <p>4 step: Pilih Sesi · Tipe + Alasan · Lampiran · Status Timeline tracking pasca submit</p>
+    <div class="legend">
+      <strong>Reference:</strong> Stripe Atlas wizard · Notion forms · Material You stepper
+    </div>
+  </div>
+
+  <div class="mockup-grid">
+
+    <!-- ========== STEP 1: PILIH MK ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <button class="icon-btn ghost">
+              <iconify-icon icon="solar:close-square-bold-duotone"></iconify-icon>
+            </button>
+            <h2 class="appbar-title" style="text-align: center;">Pengajuan Izin</h2>
+            <div style="width: 38px;"></div>
+          </div>
+
+          <!-- Step indicator -->
+          <div class="step-bar">
+            <div class="step-bar-item active">
+              <div class="step-bar-circle active">1</div>
+              <span class="step-bar-label">Sesi</span>
+            </div>
+            <div class="step-bar-line"></div>
+            <div class="step-bar-item">
+              <div class="step-bar-circle">2</div>
+              <span class="step-bar-label">Tipe &amp;<br/>Alasan</span>
+            </div>
+            <div class="step-bar-line"></div>
+            <div class="step-bar-item">
+              <div class="step-bar-circle">3</div>
+              <span class="step-bar-label">Lampiran</span>
+            </div>
+            <div class="step-bar-line"></div>
+            <div class="step-bar-item">
+              <div class="step-bar-circle">4</div>
+              <span class="step-bar-label">Review</span>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-h">Pilih Sesi</h3>
+            <p class="section-desc">Sesi yang belum kamu hadiri. Pilih satu untuk diajukan izin.</p>
+
+            <!-- Section: Sedang Berlangsung — sesi is_active=true belum disubmit -->
+            <div class="session-group-header" style="color: var(--color-success);">
+              <iconify-icon icon="solar:radar-bold-duotone" style="color: var(--color-success);"></iconify-icon>
+              Sedang berlangsung
+            </div>
+
+            <div class="session-pick-item selected">
+              <div class="session-pick-date">
+                <div class="session-pick-day">Sel</div>
+                <div class="session-pick-num">14</div>
+              </div>
+              <div class="session-pick-info">
+                <h4 class="session-pick-time">
+                  <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
+                  10:00 – 12:00
+                </h4>
+                <div class="session-pick-meta">
+                  <iconify-icon icon="solar:book-bookmark-bold-duotone"></iconify-icon>
+                  Pemrograman Web Lanjut · Bu Dewi
+                </div>
+              </div>
+              <span class="session-pick-status upcoming" style="background: var(--color-success-tint); color: var(--color-success);">AKTIF</span>
+              <div class="session-pick-radio"></div>
+            </div>
+
+            <!-- Section: Sudah Lewat (max 7 hari ke belakang) — sesi is_active=false belum dihadiri -->
+            <div class="session-group-header">
+              <iconify-icon icon="solar:rewind-back-bold-duotone"></iconify-icon>
+              Belum sempat hadir
+            </div>
+
+            <div class="session-pick-item">
+              <div class="session-pick-date">
+                <div class="session-pick-day">Sen</div>
+                <div class="session-pick-num">13</div>
+              </div>
+              <div class="session-pick-info">
+                <h4 class="session-pick-time">
+                  <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
+                  08:00 – 10:00
+                </h4>
+                <div class="session-pick-meta">
+                  <iconify-icon icon="solar:book-bookmark-bold-duotone"></iconify-icon>
+                  Algoritma Pemrograman · Pak Budi
+                </div>
+              </div>
+              <span class="session-pick-status taken">KEMARIN</span>
+              <div class="session-pick-radio"></div>
+            </div>
+
+            <div class="session-pick-item">
+              <div class="session-pick-date">
+                <div class="session-pick-day">Jum</div>
+                <div class="session-pick-num">10</div>
+              </div>
+              <div class="session-pick-info">
+                <h4 class="session-pick-time">
+                  <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
+                  13:00 – 15:00
+                </h4>
+                <div class="session-pick-meta">
+                  <iconify-icon icon="solar:book-bookmark-bold-duotone"></iconify-icon>
+                  Basis Data · Bu Indah
+                </div>
+              </div>
+              <span class="session-pick-status taken">4 HARI LALU</span>
+              <div class="session-pick-radio"></div>
+            </div>
+
+            <!-- Empty hint kalau tidak ada sesi -->
+            <div style="padding: 16px 14px; background: var(--color-info-tint); border-radius: 12px; margin-top: 8px; display: flex; gap: 10px;">
+              <iconify-icon icon="solar:info-circle-bold-duotone" style="color: var(--color-info); font-size: 18px; flex-shrink: 0; margin-top: 1px;"></iconify-icon>
+              <p style="margin: 0; font-size: 11.5px; color: var(--color-text-secondary); line-height: 1.5;">
+                Sesi muncul di sini begitu dosen membukanya. Sesi yang sudah lewat kamu hadiri atau lebih dari 7 hari tidak ditampilkan.
+              </p>
+            </div>
+          </div>
+
+          <div class="form-foot">
+            <button class="btn-mobile-primary">
+              Lanjut ke Tipe Izin
+              <iconify-icon icon="solar:arrow-right-bold-duotone"></iconify-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Step 1 · Pilih Sesi
+        <small>Sedang berlangsung + belum sempat hadir (max 7 hari)</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Backend butuh <code>session_id</code> (1 izin = 1 sesi yang sudah ada di tabel <code>sessions</code>). Sesi muncul di DB hanya saat dosen klik "Mulai Sesi" — jadi list di sini menampilkan: <strong>(1)</strong> sesi <code>is_active=true</code> yang belum disubmit attendance, dan <strong>(2)</strong> sesi <code>is_active=false</code> dalam window 7 hari ke belakang yang belum dihadiri / belum diizinkan. Tidak ada konsep "izin pre-emptive untuk sesi besok" karena sesi besok belum ada di DB.
+      </div>
+    </div>
+
+    <!-- ========== STEP 2: TIPE + ALASAN ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <button class="icon-btn ghost"><iconify-icon icon="solar:arrow-left-bold-duotone"></iconify-icon></button>
+            <h2 class="appbar-title" style="text-align: center;">Pengajuan Izin</h2>
+            <div style="width: 38px;"></div>
+          </div>
+
+          <div class="step-bar">
+            <div class="step-bar-item done">
+              <div class="step-bar-circle done"><iconify-icon icon="solar:check-read-bold-duotone" style="font-size: 12px;"></iconify-icon></div>
+              <span class="step-bar-label">Sesi</span>
+            </div>
+            <div class="step-bar-line done"></div>
+            <div class="step-bar-item active">
+              <div class="step-bar-circle active">2</div>
+              <span class="step-bar-label">Tipe &amp;<br/>Alasan</span>
+            </div>
+            <div class="step-bar-line"></div>
+            <div class="step-bar-item">
+              <div class="step-bar-circle">3</div>
+              <span class="step-bar-label">Lampiran</span>
+            </div>
+            <div class="step-bar-line"></div>
+            <div class="step-bar-item">
+              <div class="step-bar-circle">4</div>
+              <span class="step-bar-label">Review</span>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-h">Tipe &amp; Alasan</h3>
+            <p class="section-desc">Pilih jenis izin dan jelaskan alasan kamu tidak hadir.</p>
+
+            <!-- Selected session info — read-only, dari Step 1 -->
+            <div class="selected-session-card">
+              <div class="session-pick-date">
+                <div class="session-pick-day">Sel</div>
+                <div class="session-pick-num">14</div>
+              </div>
+              <div style="flex: 1;">
+                <h4 class="badge-mk">Pemrograman Web Lanjut</h4>
+                <div class="badge-meta">
+                  <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
+                  10:00 – 12:00 · Bu Dewi
+                </div>
+              </div>
+            </div>
+
+            <div class="form-field-mob">
+              <label class="form-label-mob">Jenis Izin <span class="req">*</span></label>
+              <div class="type-grid">
+                <div class="type-tile selected">
+                  <div class="type-tile-icon-wrap">
+                    <iconify-icon icon="solar:pills-bold-duotone"></iconify-icon>
+                  </div>
+                  <h4 class="type-tile-name">Sakit</h4>
+                </div>
+                <div class="type-tile">
+                  <div class="type-tile-icon-wrap">
+                    <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+                  </div>
+                  <h4 class="type-tile-name">Izin</h4>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-field-mob">
+              <label class="form-label-mob">Alasan <span class="req">*</span></label>
+              <textarea class="form-input-mob" placeholder="Jelaskan singkat kenapa kamu tidak bisa hadir...">Demam tinggi sejak kemarin malam, sudah cek ke klinik kampus dan diberi obat. Surat dokter sudah saya dapat untuk lampiran.</textarea>
+              <div class="form-help" style="justify-content: space-between; display: flex;">
+                <span><iconify-icon icon="solar:info-circle-bold-duotone"></iconify-icon> Min. 10 karakter</span>
+                <span style="color: var(--color-success);">132/500</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-foot">
+            <button class="btn-mobile-primary">
+              Lanjut Lampiran
+              <iconify-icon icon="solar:arrow-right-bold-duotone"></iconify-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Step 2 · Tipe &amp; Alasan
+        <small>Selected session card · type tile · alasan dengan counter</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        2 tipe izin sesuai enum DB: <strong>Sakit</strong> dan <strong>Izin</strong>. Sesi yang dipilih di Step 1 ditampilkan sebagai read-only card di atas — tidak ada date picker manual, tanggal otomatis dari sesi. Counter karakter live: hijau saat &ge; 10, merah saat kurang. Backend validasi <code>reason.min(10).max(500)</code>.
+      </div>
+    </div>
+
+    <!-- ========== STEP 3: LAMPIRAN ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <button class="icon-btn ghost"><iconify-icon icon="solar:arrow-left-bold-duotone"></iconify-icon></button>
+            <h2 class="appbar-title" style="text-align: center;">Pengajuan Izin</h2>
+            <div style="width: 38px;"></div>
+          </div>
+
+          <div class="step-bar">
+            <div class="step-bar-item done">
+              <div class="step-bar-circle done"><iconify-icon icon="solar:check-read-bold-duotone" style="font-size: 12px;"></iconify-icon></div>
+              <span class="step-bar-label">Sesi</span>
+            </div>
+            <div class="step-bar-line done"></div>
+            <div class="step-bar-item done">
+              <div class="step-bar-circle done"><iconify-icon icon="solar:check-read-bold-duotone" style="font-size: 12px;"></iconify-icon></div>
+              <span class="step-bar-label">Tipe &amp;<br/>Alasan</span>
+            </div>
+            <div class="step-bar-line done"></div>
+            <div class="step-bar-item active">
+              <div class="step-bar-circle active">3</div>
+              <span class="step-bar-label">Lampiran</span>
+            </div>
+            <div class="step-bar-line"></div>
+            <div class="step-bar-item">
+              <div class="step-bar-circle">4</div>
+              <span class="step-bar-label">Review</span>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-h">Lampiran</h3>
+            <p class="section-desc">Lampirkan surat dokter atau bukti pendukung. Optional untuk izin biasa, sangat disarankan untuk sakit.</p>
+
+            <!-- Upload zone -->
+            <div class="upload-zone">
+              <iconify-icon icon="solar:cloud-upload-bold-duotone"></iconify-icon>
+              <h4 class="upload-zone-title">Tap untuk pilih file</h4>
+              <p class="upload-zone-sub">JPG, PNG, atau WebP · Max 5 MB</p>
+            </div>
+
+            <!-- Uploaded file (1 file saja sesuai backend) -->
+            <div style="font-family: var(--ff-heading); font-weight: 700; font-size: 11px; color: var(--color-text-tertiary); letter-spacing: 0.4px; margin: 12px 4px 8px;">
+              FILE TERLAMPIR
+            </div>
+
+            <div class="file-preview">
+              <div class="file-preview-icon">
+                <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+              </div>
+              <div class="file-preview-info">
+                <h4 class="file-preview-name">surat-dokter-klinik-politani.jpg</h4>
+                <div class="file-preview-meta">
+                  <iconify-icon icon="solar:check-read-bold-duotone" style="color: var(--color-success); font-size: 11px; vertical-align: -1px;"></iconify-icon>
+                  Berhasil diunggah · 1.2 MB
+                </div>
+              </div>
+              <button class="file-preview-action">
+                <iconify-icon icon="solar:trash-bin-trash-bold-duotone" style="font-size: 16px;"></iconify-icon>
+              </button>
+            </div>
+
+            <!-- Privacy note -->
+            <div style="display: flex; gap: 10px; padding: 12px 14px; background: var(--color-info-tint); border-radius: 12px; margin-top: 14px;">
+              <iconify-icon icon="solar:shield-check-bold-duotone" style="color: var(--color-info); font-size: 18px; flex-shrink: 0; margin-top: 1px;"></iconify-icon>
+              <p style="margin: 0; font-size: 11.5px; color: var(--color-text-secondary); line-height: 1.5;">
+                File hanya bisa dilihat oleh dosen pengampu dan admin BAAK. Disimpan dengan aman dan dapat kamu hapus kapan saja.
+              </p>
+            </div>
+          </div>
+
+          <div class="form-foot">
+            <button class="btn-mobile-primary">
+              Lanjut Review
+              <iconify-icon icon="solar:arrow-right-bold-duotone"></iconify-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Step 3 · Lampiran
+        <small>Upload zone · 1 file (sesuai backend) · privacy note</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Pakai <code>image_picker</code> Flutter (sudah ada di stack mobile). Single file saja sesuai schema backend (<code>evidence_path</code> single string). Validasi client: extension whitelist (jpg/jpeg/png/webp) + size &le; 5 MB. Upload via endpoint terpisah <code>POST /upload-evidence</code> yang return <code>path</code> — path dikirim saat submit final di Step 4. Privacy note explicit karena ini bisa berupa data medis sensitif.
+      </div>
+    </div>
+
+    <!-- ========== STEP 4: SUBMITTED + TIMELINE ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <button class="icon-btn ghost"><iconify-icon icon="solar:arrow-left-bold-duotone"></iconify-icon></button>
+            <h2 class="appbar-title" style="text-align: center;">Status Pengajuan</h2>
+            <div style="width: 38px;"></div>
+          </div>
+
+          <div class="form-section" style="padding-top: 4px;">
+
+            <!-- Success banner -->
+            <div class="timeline-success-banner">
+              <div class="tl-banner-icon">
+                <iconify-icon icon="solar:plain-2-bold-duotone"></iconify-icon>
+              </div>
+              <div>
+                <h4 class="tl-banner-title">Pengajuan terkirim</h4>
+                <p class="tl-banner-sub">14:32 WIB · 14 Mei 2026</p>
+              </div>
+            </div>
+
+            <!-- Review summary -->
+            <div class="review-card">
+              <div class="review-card-row">
+                <span class="review-row-label">SESI</span>
+                <div>
+                  <div class="review-row-value">Pemrograman Web Lanjut</div>
+                  <div class="review-row-sub">Selasa, 14 Mei · 10:00–12:00 · Bu Dewi</div>
+                </div>
+              </div>
+              <div class="review-card-row">
+                <span class="review-row-label">TIPE</span>
+                <div>
+                  <div class="review-row-value" style="display: flex; align-items: center; gap: 6px;">
+                    <iconify-icon icon="solar:pills-bold-duotone" style="color: var(--color-warning);"></iconify-icon>
+                    Sakit
+                  </div>
+                </div>
+              </div>
+              <div class="review-card-row">
+                <span class="review-row-label">LAMPIRAN</span>
+                <div class="review-row-value" style="font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                  <iconify-icon icon="solar:document-check-bold-duotone" style="color: var(--color-success);"></iconify-icon>
+                  surat-dokter-klinik-politani.jpg
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline -->
+            <div style="font-family: var(--ff-heading); font-weight: 700; font-size: 11px; color: var(--color-text-tertiary); letter-spacing: 0.4px; margin: 16px 4px 4px;">
+              ALUR PERSETUJUAN
+            </div>
+
+            <div class="timeline">
+              <div class="tl-step done">
+                <div class="tl-step-dot">
+                  <iconify-icon icon="solar:check-read-bold-duotone"></iconify-icon>
+                </div>
+                <div class="tl-step-info">
+                  <h4 class="tl-step-title">Diajukan</h4>
+                  <p class="tl-step-desc">Pengajuanmu sudah masuk ke Bu Dewi.</p>
+                  <div class="tl-step-time">14 Mei · 14:32</div>
+                </div>
+              </div>
+
+              <div class="tl-step active">
+                <div class="tl-step-dot">
+                  <iconify-icon icon="solar:eye-bold-duotone"></iconify-icon>
+                </div>
+                <div class="tl-step-info">
+                  <h4 class="tl-step-title">Menunggu review</h4>
+                  <p class="tl-step-desc">Bu Dewi belum membuka pengajuanmu. Sabar ya, biasanya 1×24 jam.</p>
+                  <div class="tl-step-time">Kami akan kirim notif kalau sudah ada hasil</div>
+                </div>
+              </div>
+
+              <div class="tl-step pending">
+                <div class="tl-step-dot">
+                  <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="tl-step-info">
+                  <h4 class="tl-step-title">Hasil keputusan</h4>
+                  <p class="tl-step-desc">Disetujui atau ditolak akan tampil di sini.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="form-foot">
+            <button class="btn-mobile-primary">
+              Selesai
+              <iconify-icon icon="solar:check-read-bold-duotone"></iconify-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Step 4 · Submitted Timeline
+        <small>Success banner · review summary · 3-step status timeline</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Setelah submit, tampilkan <strong>tracking timeline</strong> langsung di tempat — bukan modal "Berhasil!" yang hilang setelah tap. Tombol "Selesai" → kembali ke screen <strong>Riwayat Izin</strong> (lihat <code>mobile-my-leave-requests.html</code>) sehingga user bisa pantau status tanpa kehilangan konteks. Mapping status DB: <strong>Diajukan</strong> = auto-done saat <code>created_at</code> ada · <strong>Menunggu review</strong> = active (status=<code>pending</code>) dengan pulse animation · <strong>Hasil keputusan</strong> = pending placeholder, jadi green saat <code>status=approved</code> atau red saat <code>rejected</code>. User juga dapat notif push saat status berubah.
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

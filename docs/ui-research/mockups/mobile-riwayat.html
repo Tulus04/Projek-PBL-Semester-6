@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile Riwayat — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <link rel="stylesheet" href="_mobile.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* Summary hero strip */
+    .riwayat-hero {
+      margin: 0 16px 16px;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      border-radius: 18px;
+      color: white;
+      box-shadow: var(--sh-hero);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .riwayat-hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, var(--color-accent-soft) 0%, transparent 60%);
+      z-index: 0;
+    }
+    .riwayat-hero > * { position: relative; z-index: 1; }
+    .riwayat-hero-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      opacity: 0.85;
+      margin-bottom: 6px;
+    }
+    .riwayat-hero-stat {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .riwayat-hero-num {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 36px;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+    .riwayat-hero-percent {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .riwayat-hero-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .riwayat-hero-bar-fill {
+      width: 92%;
+      height: 100%;
+      background: linear-gradient(90deg, #4ade80, #fbbf24);
+      border-radius: 999px;
+    }
+    .riwayat-hero-detail {
+      display: flex;
+      gap: 14px;
+      font-size: 11.5px;
+      opacity: 0.9;
+    }
+    .riwayat-hero-detail span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Filter chip row */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex-shrink: 0;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 14px;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .chip iconify-icon { font-size: 13px; }
+    .chip.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+    .chip.success { color: var(--color-success); border-color: var(--color-success-tint); }
+    .chip.warning { color: var(--color-warning); }
+
+    /* Date group */
+    .date-group {
+      padding: 0 16px;
+      margin-bottom: 8px;
+    }
+    .date-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 4px 8px;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .date-group-header .count {
+      font-family: var(--ff-mono);
+      color: var(--color-text-tertiary);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* Riwayat item card */
+    .riwayat-item {
+      background: white;
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: var(--sh-card);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .riwayat-item:hover { transform: translateY(-1px); box-shadow: var(--sh-card-hover); }
+    .riwayat-item.active {
+      border: 2px solid var(--color-primary);
+      box-shadow: var(--sh-card-hover);
+    }
+    .riwayat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .riwayat-icon iconify-icon { font-size: 22px; }
+    .riwayat-icon.success { background: var(--color-success-tint); color: var(--color-success); }
+    .riwayat-icon.warning { background: var(--color-warning-tint); color: var(--color-warning); }
+    .riwayat-icon.info { background: var(--color-info-tint); color: var(--color-info); }
+    .riwayat-icon.danger { background: var(--color-danger-tint); color: var(--color-danger); }
+
+    .riwayat-content { flex: 1; min-width: 0; }
+    .riwayat-mk {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .riwayat-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      /* Cegah wrap multi-line saat text panjang — clip dengan ellipsis. */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .riwayat-meta iconify-icon { font-size: 12px; flex-shrink: 0; }
+    .riwayat-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .riwayat-status-pill {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .riwayat-status-pill.success { background: var(--color-success-tint); color: var(--color-success); }
+    .riwayat-status-pill.warning { background: var(--color-warning-tint); color: var(--color-warning); }
+    .riwayat-status-pill.info { background: var(--color-info-tint); color: var(--color-info); }
+    .riwayat-status-pill.danger { background: var(--color-danger-tint); color: var(--color-danger); }
+
+    /* ============ FRAME 2: BOTTOM SHEET DETAIL ============ */
+    .sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 32, 64, 0.40);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: flex-end;
+      z-index: 100;
+    }
+    .detail-sheet {
+      width: 100%;
+      max-height: 88%;
+      background: white;
+      border-radius: 24px 24px 0 0;
+      padding: 8px 0 0;
+      animation: sheet-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    @keyframes sheet-up {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--color-border-strong);
+      border-radius: 999px;
+      margin: 8px auto 12px;
+    }
+    .sheet-content {
+      padding: 0 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .sheet-content::-webkit-scrollbar { display: none; }
+
+    .sheet-status-banner {
+      padding: 14px 16px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .sheet-status-banner.success {
+      background: linear-gradient(135deg, var(--color-success-tint), rgba(26, 127, 55, 0.04));
+      border: 1px solid var(--color-success);
+    }
+    .sheet-status-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sheet-status-icon.success {
+      background: var(--color-success);
+      color: white;
+    }
+    .sheet-status-icon iconify-icon { font-size: 24px; }
+    .sheet-status-title {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 16px;
+      margin: 0 0 2px;
+    }
+    .sheet-status-title.success { color: var(--color-success); }
+    .sheet-status-sub {
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+    }
+
+    /* Detail row */
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--color-surface-sunken);
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .detail-icon iconify-icon { font-size: 16px; }
+    .detail-info { flex: 1; min-width: 0; }
+    .detail-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-tertiary);
+      letter-spacing: 0.3px;
+      margin-bottom: 2px;
+    }
+    .detail-value {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--color-text-primary);
+      line-height: 1.3;
+    }
+    .detail-value-sub {
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .detail-row.success .detail-icon {
+      background: var(--color-success-tint);
+      color: var(--color-success);
+    }
+
+    .face-thumb {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #c7d2fe, #a78bfa);
+      position: relative;
+      overflow: hidden;
+      border: 2px solid var(--color-success);
+    }
+    .face-thumb::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      background: radial-gradient(circle at 50% 35%, rgba(0,0,0,0.18) 18%, transparent 22%),
+                  radial-gradient(circle at 35% 35%, rgba(0,0,0,0.4) 5%, transparent 7%),
+                  radial-gradient(circle at 65% 35%, rgba(0,0,0,0.4) 5%, transparent 7%),
+                  radial-gradient(ellipse at 50% 70%, rgba(0,0,0,0.3) 20%, transparent 25%);
+      border-radius: 8px;
+    }
+
+    /* Annotation */
+    .annotation {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px 14px;
+      max-width: 320px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #c0c8d2;
+    }
+    .annotation strong { color: #fff; font-weight: 700; }
+    .annotation .anno-label {
+      display: block;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      color: #4ade80;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Mobile · Riwayat Kehadiran</h1>
+    <p>Smart-date group · hero progress · filter chip · bottom sheet detail dengan face match thumb</p>
+    <div class="legend">
+      <strong>Reference:</strong> Notion mobile timeline · Stripe activity feed · iOS Settings detail sheet · Iconsax/Solar Bold Duotone (sesuai keputusan icon-style)
+    </div>
+  </div>
+
+  <div class="mockup-grid">
+
+    <!-- ========== FRAME 1: LIST VIEW ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <div>
+              <h2 class="appbar-title">Riwayat</h2>
+              <p class="appbar-subtitle">Semester Genap 2026</p>
+            </div>
+          </div>
+
+          <!-- Hero summary -->
+          <div class="riwayat-hero">
+            <div class="riwayat-hero-label">Kehadiran Semester Ini</div>
+            <div class="riwayat-hero-stat">
+              <span class="riwayat-hero-num">92</span>
+              <span class="riwayat-hero-percent">% · Sangat Baik</span>
+            </div>
+            <div class="riwayat-hero-bar">
+              <div class="riwayat-hero-bar-fill"></div>
+            </div>
+            <div class="riwayat-hero-detail">
+              <span><iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon> 44 Hadir</span>
+              <span><iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 2 Telat</span>
+              <span><iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon> 1 Izin</span>
+              <span><iconify-icon icon="solar:health-bold-duotone"></iconify-icon> 1 Sakit</span>
+              <span><iconify-icon icon="solar:close-circle-bold-duotone"></iconify-icon> 2 Alpa</span>
+            </div>
+          </div>
+
+          <!-- Filter chips: 6 status sesuai enum DB (hadir/terlambat/izin/sakit/alpa)
+               + chip "Semua" sebagai default. Total = 50 sesi. -->
+          <div class="filter-row">
+            <button class="chip active">
+              <iconify-icon icon="solar:list-bold-duotone"></iconify-icon> Semua (50)
+            </button>
+            <button class="chip">
+              <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon> Hadir (44)
+            </button>
+            <button class="chip">
+              <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> Telat (2)
+            </button>
+            <button class="chip">
+              <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon> Izin (1)
+            </button>
+            <button class="chip">
+              <iconify-icon icon="solar:health-bold-duotone"></iconify-icon> Sakit (1)
+            </button>
+            <button class="chip">
+              <iconify-icon icon="solar:close-circle-bold-duotone"></iconify-icon> Alpa (2)
+            </button>
+          </div>
+
+          <div class="content" style="padding: 0;">
+
+            <!-- HARI INI -->
+            <div class="date-group">
+              <div class="date-group-header">
+                <span>Hari Ini · Jumat, 15 Mei</span>
+                <span class="count">2 SESI</span>
+              </div>
+
+              <div class="riwayat-item">
+                <div class="riwayat-icon success">
+                  <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="riwayat-content">
+                  <h4 class="riwayat-mk">Rekayasa Perangkat Lunak</h4>
+                  <div class="riwayat-meta">
+                    <span><iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 13:08</span>
+                    <span>·</span>
+                    <span><iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon> 12m</span>
+                  </div>
+                </div>
+                <span class="riwayat-status-pill success">HADIR</span>
+              </div>
+
+              <div class="riwayat-item">
+                <div class="riwayat-icon success">
+                  <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="riwayat-content">
+                  <h4 class="riwayat-mk">Algoritma Pemrograman</h4>
+                  <div class="riwayat-meta">
+                    <span><iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 08:14</span>
+                    <span>·</span>
+                    <span><iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon> 8m</span>
+                  </div>
+                </div>
+                <span class="riwayat-status-pill success">HADIR</span>
+              </div>
+            </div>
+
+            <!-- KEMARIN -->
+            <div class="date-group">
+              <div class="date-group-header">
+                <span>Kemarin · Kamis, 14 Mei</span>
+                <span class="count">1 SESI</span>
+              </div>
+
+              <div class="riwayat-item">
+                <div class="riwayat-icon warning">
+                  <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+                </div>
+                <div class="riwayat-content">
+                  <h4 class="riwayat-mk">Pemrograman Web Lanjut</h4>
+                  <div class="riwayat-meta">
+                    <span><iconify-icon icon="solar:check-circle-bold-duotone" style="color: var(--color-warning);"></iconify-icon> Disetujui dosen</span>
+                  </div>
+                </div>
+                <span class="riwayat-status-pill warning">IZIN</span>
+              </div>
+            </div>
+
+            <!-- MINGGU INI -->
+            <div class="date-group">
+              <div class="date-group-header">
+                <span>Minggu Ini</span>
+                <span class="count">3 SESI</span>
+              </div>
+
+              <div class="riwayat-item">
+                <div class="riwayat-icon success">
+                  <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="riwayat-content">
+                  <h4 class="riwayat-mk">Mobile Programming</h4>
+                  <div class="riwayat-meta">
+                    <span><iconify-icon icon="solar:calendar-bold-duotone"></iconify-icon> Rabu</span>
+                    <span>·</span>
+                    <span><iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 15:32</span>
+                  </div>
+                </div>
+                <span class="riwayat-status-pill success">HADIR</span>
+              </div>
+
+              <div class="riwayat-item">
+                <div class="riwayat-icon info">
+                  <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
+                </div>
+                <div class="riwayat-content">
+                  <h4 class="riwayat-mk">Basis Data</h4>
+                  <div class="riwayat-meta">
+                    <span><iconify-icon icon="solar:calendar-bold-duotone"></iconify-icon> Selasa</span>
+                    <span>·</span>
+                    <span><iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> Telat 8m</span>
+                  </div>
+                </div>
+                <span class="riwayat-status-pill info">TELAT</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom nav 5-tab (sinkron dengan home + mobile-mockup) -->
+          <div class="bottom-nav">
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon>
+              <span>Beranda</span>
+            </a>
+            <a class="bottom-nav-item active">
+              <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+              <span>Riwayat</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+              <span>Izin</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+              <span>Notifikasi</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
+              <span>Profil</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 1 · Smart-Date List
+        <small>Hero progress · 6 chip filter · group by relative date</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Group by <strong>smart date</strong>: "Hari Ini · Jumat, 15 Mei" / "Kemarin · Kamis, 14 Mei" / "Minggu Ini" / "Bulan Ini" / "Lebih Lama" — bukan tanggal absolute. Hero strip pakai gradient primary + gold glow signature, menampilkan 5 status sesuai enum DB (<code>hadir/terlambat/izin/sakit/alpa</code>). Status <strong>TERLAMBAT</strong> pakai pill info biru — distinct dari HADIR — supaya konsisten dengan filter chip "Telat".
+      </div>
+    </div>
+
+    <!-- ========== FRAME 2: BOTTOM SHEET DETAIL ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <!-- Background dim (Frame 1 state ter-blur di belakang sheet) -->
+          <div style="opacity: 0.35; pointer-events: none;">
+            <div class="appbar">
+              <div>
+                <h2 class="appbar-title">Riwayat</h2>
+              </div>
+            </div>
+            <div class="riwayat-hero" style="margin-bottom: 8px;">
+              <div class="riwayat-hero-label">Kehadiran Semester Ini</div>
+              <div class="riwayat-hero-stat">
+                <span class="riwayat-hero-num">92</span>
+                <span class="riwayat-hero-percent">%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom sheet -->
+          <div class="sheet-overlay">
+            <div class="detail-sheet">
+              <div class="sheet-handle"></div>
+
+              <div class="sheet-content">
+                <!-- Status banner -->
+                <div class="sheet-status-banner success">
+                  <div class="sheet-status-icon success">
+                    <iconify-icon icon="solar:check-read-bold-duotone"></iconify-icon>
+                  </div>
+                  <div>
+                    <h3 class="sheet-status-title success">Berhasil Hadir</h3>
+                    <p class="sheet-status-sub">Verifikasi 3 layer lolos: QR · GPS · Wajah</p>
+                  </div>
+                </div>
+
+                <!-- Detail rows -->
+                <div class="detail-row">
+                  <div class="detail-icon">
+                    <iconify-icon icon="solar:book-bookmark-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="detail-info">
+                    <div class="detail-label">MATA KULIAH</div>
+                    <div class="detail-value">Rekayasa Perangkat Lunak</div>
+                    <div class="detail-value-sub">TRPL-305 · 3 SKS · Dr. Budi Hartono</div>
+                  </div>
+                </div>
+
+                <div class="detail-row">
+                  <div class="detail-icon">
+                    <iconify-icon icon="solar:calendar-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="detail-info">
+                    <div class="detail-label">WAKTU PRESENSI</div>
+                    <div class="detail-value">13:08 WIB</div>
+                    <div class="detail-value-sub">Jumat, 15 Mei 2026 · 8 menit setelah sesi mulai</div>
+                  </div>
+                </div>
+
+                <div class="detail-row success">
+                  <div class="detail-icon">
+                    <iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="detail-info">
+                    <div class="detail-label">LOKASI</div>
+                    <div class="detail-value">Lab Komputer 2</div>
+                    <div class="detail-value-sub" style="color: var(--color-success);">
+                      <iconify-icon icon="solar:check-circle-bold-duotone" style="font-size: 12px;"></iconify-icon>
+                      12 meter dari titik pusat · valid (radius 150m)
+                    </div>
+                  </div>
+                </div>
+
+                <div class="detail-row success">
+                  <div class="detail-icon">
+                    <iconify-icon icon="solar:user-id-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="detail-info">
+                    <div class="detail-label">VERIFIKASI WAJAH</div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
+                      <div class="face-thumb"></div>
+                      <div>
+                        <div class="detail-value" style="color: var(--color-success); font-size: 13px;">
+                          Cocok 94%
+                        </div>
+                        <div class="detail-value-sub">Threshold 65% · Liveness OK</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="detail-row">
+                  <div class="detail-icon">
+                    <iconify-icon icon="solar:smartphone-bold-duotone"></iconify-icon>
+                  </div>
+                  <div class="detail-info">
+                    <div class="detail-label">PERANGKAT</div>
+                    <div class="detail-value" style="font-size: 13px;">Xiaomi 13T · Android 14</div>
+                    <div class="detail-value-sub">IP: 36.81.xxx.xxx · Mock GPS: tidak terdeteksi</div>
+                  </div>
+                </div>
+
+                <!-- Padding bottom agar konten terakhir tidak menempel
+                     ke edge sheet. Sheet ditutup via swipe-down handle
+                     atau tap area dim di luar sheet (overlay). -->
+                <div style="height: 24px;"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 2 · Detail Sheet
+        <small>Bottom sheet · status banner · 5 detail row · face match thumb</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Bottom sheet (88% height max) dengan handle drag bar. Detail rows progressive: MK → Waktu → Lokasi (success highlight) → Wajah (thumbnail + similarity %) → Perangkat (anti-fraud info). Sheet <strong>murni informatif</strong> — tutup via <strong>swipe-down handle</strong> atau tap area dim di luar sheet. Tidak ada tombol aksi: untuk kebutuhan sengketa, mahasiswa bisa screenshot sheet ini dan kirim ke dosen via WA — informasinya sudah lengkap (waktu, lokasi, similarity wajah, device).
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

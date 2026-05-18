@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile · Onboarding 3-Step — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <link rel="stylesheet" href="_mobile.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* ======================================
+       Onboarding Screen — 3 step (Welcome / Cara Pakai / Get Started)
+       Design: gradient bg + Iconsax Bold duotone icons + #2D86FF primary
+       Reference: Linear, Notion, Cred onboarding patterns
+       ====================================== */
+
+    .onboarding-screen {
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 60%);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Gradient accent at top */
+    .onboarding-screen::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -80px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(45, 134, 255, 0.18) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .onboarding-screen::after {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: -100px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(244, 180, 0, 0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* ===== Top bar ===== */
+    .ob-topbar {
+      position: relative;
+      z-index: 2;
+      padding: 22px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ob-skip {
+      background: transparent;
+      border: none;
+      font-family: var(--ff-body);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .ob-skip:hover {
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--color-text-primary);
+    }
+
+    .ob-step-indicator {
+      display: flex;
+      gap: 6px;
+    }
+    .ob-step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(45, 134, 255, 0.20);
+      transition: all 0.3s ease;
+    }
+    .ob-step-dot.active {
+      width: 24px;
+      background: #2D86FF;
+    }
+
+    /* ===== Main content ===== */
+    .ob-content {
+      flex: 1;
+      position: relative;
+      z-index: 2;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 24px;
+    }
+
+    .ob-illustration {
+      width: 200px;
+      height: 200px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, #2D86FF 0%, #0D2C5E 100%);
+      box-shadow: 0 30px 60px -15px rgba(45, 134, 255, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .ob-illustration::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -30%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(244, 180, 0, 0.45) 0%, transparent 65%);
+    }
+    .ob-illustration iconify-icon {
+      font-size: 90px;
+      color: white;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.30));
+    }
+
+    .ob-illustration.feature {
+      background: linear-gradient(135deg, #ECFDF5 0%, #DCFCE7 100%);
+      box-shadow: 0 30px 60px -15px rgba(26, 127, 55, 0.30);
+    }
+    .ob-illustration.feature iconify-icon {
+      color: #1A7F37;
+      font-size: 100px;
+      filter: none;
+    }
+
+    .ob-illustration.start {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+      box-shadow: 0 30px 60px -15px rgba(244, 180, 0, 0.30);
+    }
+    .ob-illustration.start iconify-icon {
+      color: #B45309;
+      font-size: 100px;
+      filter: none;
+    }
+
+    .ob-title {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 28px;
+      color: var(--color-text-primary);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      max-width: 320px;
+      margin: 0;
+    }
+    .ob-subtitle {
+      font-family: var(--ff-body);
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      max-width: 320px;
+      margin: 0;
+    }
+
+    /* ===== Feature list (Step 2) ===== */
+    .feature-list {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(45, 134, 255, 0.08);
+      text-align: left;
+    }
+    .feature-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .feature-icon-wrap.qr {
+      background: rgba(45, 134, 255, 0.10);
+      color: #2D86FF;
+    }
+    .feature-icon-wrap.gps {
+      background: rgba(244, 180, 0, 0.15);
+      color: #B45309;
+    }
+    .feature-icon-wrap.face {
+      background: rgba(26, 127, 55, 0.10);
+      color: #1A7F37;
+    }
+    .feature-icon-wrap iconify-icon { font-size: 24px; }
+    .feature-info { flex: 1; min-width: 0; }
+    .feature-name {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+    }
+    .feature-desc {
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    /* ===== Footer ===== */
+    .ob-footer {
+      position: relative;
+      z-index: 2;
+      padding: 16px 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ob-btn-primary {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, #2D86FF 0%, #1E70E0 100%);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px -8px rgba(45, 134, 255, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+    .ob-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px -8px rgba(45, 134, 255, 0.65);
+    }
+    .ob-btn-primary iconify-icon { font-size: 18px; }
+
+    .ob-btn-back {
+      background: transparent;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: var(--color-text-secondary);
+      height: 44px;
+      width: 100%;
+      border-radius: 999px;
+      font-family: var(--ff-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .ob-btn-back:hover { background: rgba(0, 0, 0, 0.03); }
+
+    /* ===== Branding tagline (Step 1) ===== */
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(45, 134, 255, 0.10);
+      border: 1px solid rgba(45, 134, 255, 0.20);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #2D86FF;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .brand-tag iconify-icon { font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- Showcase Header -->
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="lucide:arrow-left" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Mobile · Onboarding 3-Step</h1>
+    <p>Welcome → Cara Pakai → Get Started · pakai gradient + Iconsax Bold + dot indicator + skip optional</p>
+    <div class="legend">
+      <strong>Reference:</strong> Linear · Notion · Cred onboarding · Material You motion
+    </div>
+  </div>
+
+  <div class="mockup-grid">
+
+    <!-- ========== FRAME 1: WELCOME ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen onboarding-screen">
+          <div class="phone-notch"></div>
+
+          <!-- Topbar: skip + step indicator -->
+          <div class="ob-topbar">
+            <button class="ob-skip">Lewati</button>
+            <div class="ob-step-indicator">
+              <div class="ob-step-dot active"></div>
+              <div class="ob-step-dot"></div>
+              <div class="ob-step-dot"></div>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="ob-content">
+            <span class="brand-tag">
+              <iconify-icon icon="solar:verified-check-bold-duotone"></iconify-icon>
+              Politani Samarinda
+            </span>
+
+            <div class="ob-illustration">
+              <iconify-icon icon="solar:hand-shake-bold-duotone"></iconify-icon>
+            </div>
+
+            <h1 class="ob-title">Selamat Datang di MyPresensi</h1>
+            <p class="ob-subtitle">
+              Sistem absensi pintar dengan tiga lapis verifikasi —
+              QR Code, GPS, dan Face Recognition. Khusus mahasiswa
+              Prodi TRPL Politeknik Pertanian Negeri Samarinda.
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div class="ob-footer">
+            <button class="ob-btn-primary">
+              Lanjut
+              <iconify-icon icon="solar:arrow-right-bold-duotone"></iconify-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 1 · Welcome
+        <small>Brand intro · gradient illustration · primary CTA + Skip</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Ditampilkan saat first install (cek <code>SharedPreferences.hasSeenOnboarding</code>).
+        Step indicator 3-dot menunjukkan progress. Tombol "Lewati" di top-right untuk
+        skip ke step terakhir. Animasi slide horizontal antar step (PageView Flutter).
+      </div>
+    </div>
+
+    <!-- ========== FRAME 2: CARA PAKAI (3-LAYER) ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen onboarding-screen">
+          <div class="phone-notch"></div>
+
+          <!-- Topbar -->
+          <div class="ob-topbar">
+            <button class="ob-skip">Lewati</button>
+            <div class="ob-step-indicator">
+              <div class="ob-step-dot"></div>
+              <div class="ob-step-dot active"></div>
+              <div class="ob-step-dot"></div>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="ob-content">
+            <div class="ob-illustration feature">
+              <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon>
+            </div>
+
+            <h1 class="ob-title">Cara Kerja Presensi</h1>
+            <p class="ob-subtitle">
+              Tiga langkah verifikasi memastikan kehadiran kamu valid
+              dan aman dari titip absen.
+            </p>
+
+            <!-- Feature list -->
+            <div class="feature-list">
+              <div class="feature-item">
+                <div class="feature-icon-wrap qr">
+                  <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon>
+                </div>
+                <div class="feature-info">
+                  <h4 class="feature-name">1. Scan QR Code Sesi</h4>
+                  <p class="feature-desc">
+                    Dosen tampilkan QR di kelas, kamu scan via aplikasi
+                    untuk konfirmasi sesi yang benar.
+                  </p>
+                </div>
+              </div>
+
+              <div class="feature-item">
+                <div class="feature-icon-wrap gps">
+                  <iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon>
+                </div>
+                <div class="feature-info">
+                  <h4 class="feature-name">2. Verifikasi Lokasi GPS</h4>
+                  <p class="feature-desc">
+                    Pastikan kamu benar-benar di area kampus dengan
+                    radius geofence yang ditentukan dosen.
+                  </p>
+                </div>
+              </div>
+
+              <div class="feature-item">
+                <div class="feature-icon-wrap face">
+                  <iconify-icon icon="solar:face-id-bold-duotone"></iconify-icon>
+                </div>
+                <div class="feature-info">
+                  <h4 class="feature-name">3. Face Recognition</h4>
+                  <p class="feature-desc">
+                    Pastikan kamu sendiri yang absen, bukan orang
+                    lain pakai HP-mu.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="ob-footer">
+            <button class="ob-btn-primary">
+              Lanjut
+              <iconify-icon icon="solar:arrow-right-bold-duotone"></iconify-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 2 · Cara Pakai
+        <small>3-layer keamanan QR + GPS + Face · feature list duotone</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Edukasi 3-layer defense (QR + GPS + Face). Setiap item pakai duotone
+        icon Solar/Iconsax dengan tint warna sesuai semantic (info/warning/success).
+        Copy ramah, hindari jargon teknis. Tidak ada consent UU PDP di sini —
+        consent face muncul saat first-time face register screen.
+      </div>
+    </div>
+
+    <!-- ========== FRAME 3: GET STARTED ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen onboarding-screen">
+          <div class="phone-notch"></div>
+
+          <!-- Topbar (no skip on last step) -->
+          <div class="ob-topbar">
+            <span style="width: 60px;"></span>
+            <div class="ob-step-indicator">
+              <div class="ob-step-dot"></div>
+              <div class="ob-step-dot"></div>
+              <div class="ob-step-dot active"></div>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="ob-content">
+            <div class="ob-illustration start">
+              <iconify-icon icon="solar:rocket-2-bold-duotone"></iconify-icon>
+            </div>
+
+            <h1 class="ob-title">Siap Untuk Mulai?</h1>
+            <p class="ob-subtitle">
+              Login dengan NIM dan password yang dibagikan kampus.
+              Jika password belum kamu ganti, kamu akan diminta ganti
+              password dulu sebelum bisa pakai aplikasi.
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+              <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(26, 127, 55, 0.06); border-radius: 12px; border: 1px solid rgba(26, 127, 55, 0.18);">
+                <iconify-icon icon="solar:check-circle-bold-duotone" style="color: #1A7F37; font-size: 18px; flex-shrink: 0;"></iconify-icon>
+                <span style="font-size: 12px; color: var(--color-text-primary); font-weight: 500; text-align: left;">
+                  Data kamu disimpan aman dan hanya dipakai internal kampus
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(26, 127, 55, 0.06); border-radius: 12px; border: 1px solid rgba(26, 127, 55, 0.18);">
+                <iconify-icon icon="solar:check-circle-bold-duotone" style="color: #1A7F37; font-size: 18px; flex-shrink: 0;"></iconify-icon>
+                <span style="font-size: 12px; color: var(--color-text-primary); font-weight: 500; text-align: left;">
+                  Bisa hapus data wajah kapan saja lewat menu Profil
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="ob-footer">
+            <button class="ob-btn-primary">
+              Masuk Sekarang
+              <iconify-icon icon="solar:login-3-bold-duotone"></iconify-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 3 · Get Started
+        <small>CTA primary "Masuk Sekarang" → /login · privacy summary 2 point</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Final step. Privacy summary 2 point (data aman + hak hapus) sebagai
+        gentle reassurance, BUKAN consent UU PDP yang formal. Tombol
+        "Masuk Sekarang" set <code>SharedPreferences.hasSeenOnboarding=true</code>
+        lalu navigate ke <code>/login</code> via go_router.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer Note -->
+  <div class="showcase-footer" style="max-width: 880px; margin: 32px auto 60px; padding: 0 24px;">
+    <div class="annotation" style="text-align: left;">
+      <span class="anno-label">Implementasi Notes</span>
+      <ul style="margin: 8px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.6;">
+        <li><strong>Trigger</strong>: cek <code>SharedPreferences.hasSeenOnboarding</code> di splash. Kalau false → /onboarding, kalau true → /login.</li>
+        <li><strong>Skip behavior</strong>: tombol "Lewati" set flag dan navigate /login langsung.</li>
+        <li><strong>Get Started behavior</strong>: tombol "Masuk Sekarang" set flag dan navigate /login.</li>
+        <li><strong>Animation</strong>: PageView Flutter dengan transition slide horizontal 300ms ease-in-out.</li>
+        <li><strong>Tidak ada consent UU PDP di sini</strong> — consent biometrik muncul di Face Register screen (existing rule 04-security-and-privacy.md Section B.5).</li>
+        <li><strong>Library</strong>: tidak butuh deps baru. PageController + PageView dari Flutter standar.</li>
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>

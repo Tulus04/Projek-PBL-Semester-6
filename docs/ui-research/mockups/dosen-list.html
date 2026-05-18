@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dosen List — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-input { flex: 1; min-width: 280px; max-width: 360px; }
+    .filter-bar .right-actions { margin-left: auto; display: flex; gap: 8px; }
+
+    /* Bulk action bar */
+    .bulk-action-bar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      background: var(--color-primary-surface);
+      border: 1px solid var(--color-primary);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .bulk-count {
+      font-weight: 600; font-size: 13px;
+      color: var(--color-primary);
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .bulk-count strong {
+      background: var(--color-primary); color: white;
+      padding: 2px 10px; border-radius: 999px;
+      font-family: var(--ff-mono); font-size: 12px;
+    }
+    .bulk-actions { display: flex; gap: 6px; margin-left: auto; }
+    .bulk-actions .btn { height: 30px; padding: 0 12px; font-size: 12px; }
+
+    /* Table */
+    .data-table .checkbox-cell { width: 36px; padding: 0 0 0 16px; }
+    .data-table .actions-cell { width: 48px; text-align: center; }
+    .table-checkbox {
+      width: 16px; height: 16px;
+      border-radius: 4px;
+      border: 1.5px solid var(--color-border-strong);
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: white; flex-shrink: 0;
+    }
+    .table-checkbox.checked, .table-checkbox.indeterminate {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+    .table-checkbox iconify-icon { font-size: 12px; }
+
+    .dosen-cell { display: flex; align-items: center; gap: 12px; }
+    .dosen-info { min-width: 0; }
+    .dosen-name {
+      font-weight: 600; color: var(--color-text-primary);
+      font-size: 13px; margin: 0 0 2px;
+    }
+    .dosen-email {
+      font-size: 11px; color: var(--color-text-secondary);
+      font-family: var(--ff-mono);
+    }
+    .nidn-cell {
+      font-family: var(--ff-mono); font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+    .keahlian-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .keahlian-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--color-info-tint);
+      color: var(--color-info);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .mk-count-cell {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--ff-mono); font-weight: 600;
+      font-size: 13px; color: var(--color-text-primary);
+    }
+    .mk-count-cell iconify-icon {
+      color: var(--color-primary);
+      font-size: 14px;
+    }
+
+    .table-action-btn {
+      width: 28px; height: 28px;
+      border-radius: 6px; border: none;
+      background: transparent; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--color-text-secondary);
+    }
+    .table-action-btn:hover {
+      background: var(--color-primary-surface); color: var(--color-primary);
+    }
+    .table-action-btn iconify-icon { font-size: 16px; }
+
+    .demo-dropdown-wrapper {
+      position: absolute;
+      right: 32px;
+      transform: translateY(-12px);
+      z-index: 5;
+    }
+
+    /* Stats summary */
+    .table-stats {
+      display: flex; gap: 24px;
+      padding: 16px 20px;
+      background: var(--color-surface);
+      border-radius: 12px 12px 0 0;
+      border: 1px solid var(--color-border);
+      border-bottom: none;
+    }
+    .stat-item { display: flex; flex-direction: column; gap: 2px; }
+    .stat-label { font-size: 11px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .stat-value { font-family: var(--ff-heading); font-weight: 700; font-size: 18px; color: var(--color-text-primary); }
+    .stat-value.success { color: var(--color-success); }
+    .stat-value.warning { color: var(--color-warning); }
+  </style>
+</head>
+<body>
+
+  <!-- Showcase Header -->
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="lucide:arrow-left" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Daftar Dosen</h1>
+    <p>Filter prodi · bulk action · NIDN · keahlian · jumlah MK diampu</p>
+    <div class="legend">
+      <strong>Reference:</strong> Linear Members · Notion Workspace
+    </div>
+  </div>
+
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="browser-lights">
+        <div class="light red"></div><div class="light yellow"></div><div class="light green"></div>
+      </div>
+      <div class="browser-url">
+        <iconify-icon icon="lucide:lock"></iconify-icon>
+        mypresensi.politani.ac.id/admin/dosen
+      </div>
+    </div>
+
+    <div class="admin-shell">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-logo">MP</div>
+          <div class="sidebar-brand-name">MyPresensi <small>Politani Samarinda</small></div>
+        </div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:layout-dashboard"></iconify-icon> Dashboard
+        </a>
+        <div class="sidebar-section-header">Data Master</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:graduation-cap"></iconify-icon> Mahasiswa
+        </a>
+        <a class="sidebar-nav-item active">
+          <iconify-icon icon="lucide:users"></iconify-icon> Dosen
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:book-open"></iconify-icon> Mata Kuliah
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:map-pin"></iconify-icon> Lokasi Kampus
+        </a>
+        <div class="sidebar-section-header">Operasional</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:calendar-check-2"></iconify-icon> Sesi
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:file-text"></iconify-icon> Pengajuan Izin
+          <span class="badge">7</span>
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:bar-chart-3"></iconify-icon> Rekap
+        </a>
+        <div class="sidebar-section-header">Sistem</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:scroll-text"></iconify-icon> Audit Log
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:settings-2"></iconify-icon> Settings
+        </a>
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">SR</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">Siti Rahayu</div>
+            <div class="sidebar-user-role">Admin</div>
+          </div>
+          <iconify-icon icon="lucide:chevrons-up-down" style="color: var(--color-text-tertiary);"></iconify-icon>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="admin-content">
+        <header class="topbar">
+          <div class="topbar-breadcrumb">
+            <iconify-icon icon="lucide:home" style="font-size: 14px;"></iconify-icon>
+            <span>Beranda</span>
+            <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+            <span>Data Master</span>
+            <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+            <span class="current">Dosen</span>
+          </div>
+          <div class="topbar-search">
+            <iconify-icon icon="lucide:search"></iconify-icon>
+            <span>Cari mahasiswa, sesi, atau MK...</span>
+            <kbd>Ctrl K</kbd>
+          </div>
+          <button class="topbar-icon-btn"><iconify-icon icon="lucide:help-circle"></iconify-icon></button>
+          <button class="topbar-icon-btn"><iconify-icon icon="lucide:bell"></iconify-icon><span class="dot"></span></button>
+        </header>
+
+        <div class="page-body">
+
+          <!-- Page header -->
+          <div class="page-header">
+            <div class="page-title-group">
+              <div class="page-title-icon"><iconify-icon icon="lucide:users"></iconify-icon></div>
+              <div class="page-title">
+                <h1>Daftar Dosen</h1>
+                <p>18 dosen aktif · Prodi TRPL · Politeknik Pertanian Negeri Samarinda</p>
+              </div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost btn-sm">
+                <iconify-icon icon="lucide:upload"></iconify-icon> Impor CSV
+              </button>
+              <button class="btn btn-ghost btn-sm">
+                <iconify-icon icon="lucide:download"></iconify-icon> Ekspor
+              </button>
+              <button class="btn btn-primary btn-sm">
+                <iconify-icon icon="lucide:user-plus"></iconify-icon> Tambah Dosen
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter bar -->
+          <div class="filter-bar">
+            <div class="input-field search-input">
+              <iconify-icon icon="lucide:search"></iconify-icon>
+              <input type="text" placeholder="Cari nama, NIDN, atau email..." />
+            </div>
+
+            <button class="filter-chip active">
+              <iconify-icon icon="lucide:check-circle-2"></iconify-icon>
+              Semua
+            </button>
+            <button class="filter-chip">
+              <iconify-icon icon="lucide:badge-check"></iconify-icon>
+              Aktif (16)
+            </button>
+            <button class="filter-chip">
+              <iconify-icon icon="lucide:badge-x"></iconify-icon>
+              Non-aktif (2)
+            </button>
+            <button class="filter-chip">
+              <iconify-icon icon="lucide:book-open"></iconify-icon>
+              Mengampu MK
+            </button>
+            <button class="filter-chip">
+              <iconify-icon icon="lucide:filter"></iconify-icon>
+              Bidang Keahlian
+              <iconify-icon icon="lucide:chevron-down"></iconify-icon>
+            </button>
+
+            <div class="right-actions">
+              <span class="filter-active-count">
+                <iconify-icon icon="lucide:filter"></iconify-icon>
+                2 filter aktif
+                <iconify-icon icon="lucide:x" style="font-size: 13px;"></iconify-icon>
+              </span>
+            </div>
+          </div>
+
+          <!-- Bulk action bar (3 selected) -->
+          <div class="bulk-action-bar">
+            <span class="bulk-count">
+              <strong>3</strong>
+              dosen dipilih dari halaman ini
+            </span>
+            <div class="bulk-actions">
+              <button class="btn btn-secondary">
+                <iconify-icon icon="lucide:mail"></iconify-icon> Kirim Email
+              </button>
+              <button class="btn btn-secondary">
+                <iconify-icon icon="lucide:archive"></iconify-icon> Arsipkan
+              </button>
+              <button class="btn btn-danger">
+                <iconify-icon icon="lucide:trash-2"></iconify-icon> Nonaktifkan
+              </button>
+              <button class="btn btn-ghost">
+                <iconify-icon icon="lucide:x"></iconify-icon> Batal
+              </button>
+            </div>
+          </div>
+
+          <!-- Stats di atas table -->
+          <div class="table-stats">
+            <div class="stat-item">
+              <span class="stat-label">Total</span>
+              <span class="stat-value">18</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Aktif</span>
+              <span class="stat-value success">16</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Non-aktif</span>
+              <span class="stat-value warning">2</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Rata MK / Dosen</span>
+              <span class="stat-value">2.6</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Belum Ampu MK</span>
+              <span class="stat-value warning">3</span>
+            </div>
+          </div>
+
+          <!-- Data table -->
+          <table class="data-table" style="border-radius: 0 0 16px 16px; border-top: none;">
+            <thead>
+              <tr>
+                <th class="checkbox-cell">
+                  <span class="table-checkbox indeterminate">
+                    <iconify-icon icon="lucide:minus"></iconify-icon>
+                  </span>
+                </th>
+                <th>Dosen</th>
+                <th>NIDN</th>
+                <th>Bidang Keahlian</th>
+                <th class="center">MK Diampu</th>
+                <th>Status</th>
+                <th class="right">Bergabung</th>
+                <th class="actions-cell"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="checkbox-cell">
+                  <span class="table-checkbox checked"><iconify-icon icon="lucide:check"></iconify-icon></span>
+                </td>
+                <td>
+                  <div class="dosen-cell">
+                    <div class="avatar alt-4">BH</div>
+                    <div class="dosen-info">
+                      <div class="dosen-name">Dr. Budi Hartono, M.Kom</div>
+                      <div class="dosen-email">budi.hartono@politani.ac.id</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="nidn-cell">0012068501</td>
+                <td>
+                  <div class="keahlian-tags">
+                    <span class="keahlian-tag">Algoritma</span>
+                    <span class="keahlian-tag">RPL</span>
+                  </div>
+                </td>
+                <td class="center">
+                  <span class="mk-count-cell">
+                    <iconify-icon icon="lucide:book-open"></iconify-icon>
+                    3
+                  </span>
+                </td>
+                <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Aktif</span></td>
+                <td class="right" style="font-family: var(--ff-mono); font-size: 12px; color: var(--color-text-secondary);">2018-08-15</td>
+                <td class="actions-cell">
+                  <button class="table-action-btn"><iconify-icon icon="lucide:more-vertical"></iconify-icon></button>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="checkbox-cell">
+                  <span class="table-checkbox checked"><iconify-icon icon="lucide:check"></iconify-icon></span>
+                </td>
+                <td>
+                  <div class="dosen-cell">
+                    <div class="avatar alt-1">IP</div>
+                    <div class="dosen-info">
+                      <div class="dosen-name">Indah Permata, M.Kom</div>
+                      <div class="dosen-email">indah.permata@politani.ac.id</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="nidn-cell">0023118702</td>
+                <td>
+                  <div class="keahlian-tags">
+                    <span class="keahlian-tag">Basis Data</span>
+                    <span class="keahlian-tag">Data Mining</span>
+                  </div>
+                </td>
+                <td class="center">
+                  <span class="mk-count-cell">
+                    <iconify-icon icon="lucide:book-open"></iconify-icon>
+                    2
+                  </span>
+                </td>
+                <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Aktif</span></td>
+                <td class="right" style="font-family: var(--ff-mono); font-size: 12px; color: var(--color-text-secondary);">2019-01-10</td>
+                <td class="actions-cell">
+                  <button class="table-action-btn"><iconify-icon icon="lucide:more-vertical"></iconify-icon></button>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="checkbox-cell">
+                  <span class="table-checkbox checked"><iconify-icon icon="lucide:check"></iconify-icon></span>
+                </td>
+                <td>
+                  <div class="dosen-cell">
+                    <div class="avatar alt-2">RA</div>
+                    <div class="dosen-info">
+                      <div class="dosen-name">Rini Astuti, M.T</div>
+                      <div class="dosen-email">rini.astuti@politani.ac.id</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="nidn-cell">0017098903</td>
+                <td>
+                  <div class="keahlian-tags">
+                    <span class="keahlian-tag">Mobile</span>
+                    <span class="keahlian-tag">Flutter</span>
+                  </div>
+                </td>
+                <td class="center">
+                  <span class="mk-count-cell">
+                    <iconify-icon icon="lucide:book-open"></iconify-icon>
+                    3
+                  </span>
+                </td>
+                <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Aktif</span></td>
+                <td class="right" style="font-family: var(--ff-mono); font-size: 12px; color: var(--color-text-secondary);">2020-03-22</td>
+                <td class="actions-cell">
+                  <button class="table-action-btn"><iconify-icon icon="lucide:more-vertical"></iconify-icon></button>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="checkbox-cell">
+                  <span class="table-checkbox"></span>
+                </td>
+                <td>
+                  <div class="dosen-cell">
+                    <div class="avatar alt-3">AS</div>
+                    <div class="dosen-info">
+                      <div class="dosen-name">Ahmad Subekti, M.Kom</div>
+                      <div class="dosen-email">ahmad.subekti@politani.ac.id</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="nidn-cell">0019047801</td>
+                <td>
+                  <div class="keahlian-tags">
+                    <span class="keahlian-tag">Jaringan</span>
+                    <span class="keahlian-tag">Cybersec</span>
+                  </div>
+                </td>
+                <td class="center">
+                  <span class="mk-count-cell">
+                    <iconify-icon icon="lucide:book-open"></iconify-icon>
+                    2
+                  </span>
+                </td>
+                <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Aktif</span></td>
+                <td class="right" style="font-family: var(--ff-mono); font-size: 12px; color: var(--color-text-secondary);">2017-11-05</td>
+                <td class="actions-cell">
+                  <button class="table-action-btn"><iconify-icon icon="lucide:more-vertical"></iconify-icon></button>
+                </td>
+              </tr>
+
+              <tr style="position: relative;">
+                <td class="checkbox-cell">
+                  <span class="table-checkbox"></span>
+                </td>
+                <td>
+                  <div class="dosen-cell">
+                    <div class="avatar">DM</div>
+                    <div class="dosen-info">
+                      <div class="dosen-name">Dewi Maharani, M.Sc</div>
+                      <div class="dosen-email">dewi.maharani@politani.ac.id</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="nidn-cell">0028079002</td>
+                <td>
+                  <div class="keahlian-tags">
+                    <span class="keahlian-tag">UI/UX</span>
+                    <span class="keahlian-tag">Web</span>
+                  </div>
+                </td>
+                <td class="center">
+                  <span class="mk-count-cell">
+                    <iconify-icon icon="lucide:book-open"></iconify-icon>
+                    3
+                  </span>
+                </td>
+                <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Aktif</span></td>
+                <td class="right" style="font-family: var(--ff-mono); font-size: 12px; color: var(--color-text-secondary);">2021-08-18</td>
+                <td class="actions-cell">
+                  <button class="table-action-btn" style="background: var(--color-primary-surface); color: var(--color-primary);">
+                    <iconify-icon icon="lucide:more-vertical"></iconify-icon>
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Demo dropdown menu -->
+              <tr>
+                <td colspan="8" style="padding: 0; border: none; position: relative;">
+                  <div class="demo-dropdown-wrapper">
+                    <div class="dropdown-menu">
+                      <div class="dropdown-item">
+                        <iconify-icon icon="lucide:eye"></iconify-icon> Lihat detail
+                      </div>
+                      <div class="dropdown-item">
+                        <iconify-icon icon="lucide:edit-3"></iconify-icon> Edit data
+                      </div>
+                      <div class="dropdown-item">
+                        <iconify-icon icon="lucide:book-open"></iconify-icon> Kelola MK diampu
+                      </div>
+                      <div class="dropdown-item">
+                        <iconify-icon icon="lucide:key"></iconify-icon> Reset password
+                      </div>
+                      <div class="dropdown-separator"></div>
+                      <div class="dropdown-item danger">
+                        <iconify-icon icon="lucide:user-x"></iconify-icon> Nonaktifkan akun
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="checkbox-cell">
+                  <span class="table-checkbox"></span>
+                </td>
+                <td>
+                  <div class="dosen-cell">
+                    <div class="avatar alt-1">YS</div>
+                    <div class="dosen-info">
+                      <div class="dosen-name">Yusuf Saputra, M.T</div>
+                      <div class="dosen-email">yusuf.saputra@politani.ac.id</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="nidn-cell">0011058503</td>
+                <td>
+                  <div class="keahlian-tags">
+                    <span class="keahlian-tag">Cloud</span>
+                    <span class="keahlian-tag">DevOps</span>
+                  </div>
+                </td>
+                <td class="center">
+                  <span class="mk-count-cell">
+                    <iconify-icon icon="lucide:book-open"></iconify-icon>
+                    0
+                  </span>
+                </td>
+                <td><span class="badge badge-warning"><iconify-icon icon="lucide:user-x"></iconify-icon> Non-aktif</span></td>
+                <td class="right" style="font-family: var(--ff-mono); font-size: 12px; color: var(--color-text-secondary);">2016-06-12</td>
+                <td class="actions-cell">
+                  <button class="table-action-btn"><iconify-icon icon="lucide:more-vertical"></iconify-icon></button>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="checkbox-cell">
+                  <span class="table-checkbox"></span>
+                </td>
+                <td>
+                  <div class="dosen-cell">
+                    <div class="avatar alt-4">MA</div>
+                    <div class="dosen-info">
+                      <div class="dosen-name">Maya Aditya, M.Kom</div>
+                      <div class="dosen-email">maya.aditya@politani.ac.id</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="nidn-cell">0024029104</td>
+                <td>
+                  <div class="keahlian-tags">
+                    <span class="keahlian-tag">AI/ML</span>
+                    <span class="keahlian-tag">Data Sci</span>
+                  </div>
+                </td>
+                <td class="center">
+                  <span class="mk-count-cell">
+                    <iconify-icon icon="lucide:book-open"></iconify-icon>
+                    2
+                  </span>
+                </td>
+                <td><span class="badge badge-success"><iconify-icon icon="lucide:check"></iconify-icon> Aktif</span></td>
+                <td class="right" style="font-family: var(--ff-mono); font-size: 12px; color: var(--color-text-secondary);">2022-02-14</td>
+                <td class="actions-cell">
+                  <button class="table-action-btn"><iconify-icon icon="lucide:more-vertical"></iconify-icon></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Pagination -->
+          <div class="pagination">
+            <span class="pagination-info">Menampilkan 1–7 dari 18 dosen</span>
+            <button class="page-btn" disabled><iconify-icon icon="lucide:chevron-left"></iconify-icon></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn"><iconify-icon icon="lucide:chevron-right"></iconify-icon></button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

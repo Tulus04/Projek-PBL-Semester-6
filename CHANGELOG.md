@@ -1,7 +1,733 @@
 # CHANGELOG — MyPresensi
 
 > Format: [Tanggal] | Sesi | Fase | Jenis | Deskripsi
-> Jenis: [ADD] = file/fitur baru | [MOD] = modifikasi | [FIX] = perbaikan bug | [DEL] = hapus | [CFG] = konfigurasi
+> Jenis: [ADD] = file/fitur baru | [MOD] = modifikasi | [FIX] = perbaikan bug | [DEL] = hapus | [CFG] = konfigurasi | [SEC] = security hardening | [DOC] = dokumentasi
+
+---
+
+## [2026-05-18] — Sesi: Onboarding Mobile (Phase B3) — Welcome Flow 3-Step
+
+### Target Sesi: Onboarding 3-step (Welcome → Cara Pakai → Get Started) untuk first-time install. Mockup baru karena annotation mockup lama eksplisit bilang "tidak perlu onboarding". User decision: bikin mockup HTML dulu, baru implement Flutter (workflow mockup-driven konsisten). Decision visual: Iconsax Bold + #2D86FF gradient (sesuai design system mobile). Decision content: 3 step tanpa consent UU PDP formal (consent face tetap di Face Register existing).
+
+### MOCKUP
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 13:30 | [ADD] | `docs/ui-research/mockups/mobile-onboarding.html` | Mockup HTML baru 3 frame: Frame 1 Welcome (brand tag + illustration card primary gradient + Hand-shake icon + title + subtitle), Frame 2 Cara Pakai (illustration success + 3 feature item duotone QR/GPS/Face), Frame 3 Get Started (illustration amber + privacy summary 2-point + tombol Masuk Sekarang). Step indicator dot + Skip button top-right |
+| 13:35 | [MOD] | `docs/ui-research/mockups/index.html` | Tambah card Onboarding di gallery section "Mahasiswa — Mobile" |
+
+### MOBILE — Implementation
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 13:40 | [CFG] | `mypresensi-mobile/pubspec.yaml` | Tambah dependency `shared_preferences` via `flutter pub add shared_preferences` (untuk flag `hasSeenOnboarding`) |
+| 13:45 | [ADD] | `mypresensi-mobile/lib/features/onboarding/screens/onboarding_screen.dart` | Screen baru lengkap (~600 LOC). PageView dengan 3 step + step indicator dot animated 8↔24px + Skip button + footer pill button. Sub-components: `_OnboardingTopbar`, `_OnboardingStep1/2/3`, `_IllustrationCard` (200×200 gradient + icon Iconsax Bold 90px + radial accent), `_FeatureListItem` (icon wrap + name + desc), `_PrivacyPoint` (check icon + text). Helper async `_markOnboardingSeen()` set SharedPreferences flag. Navigate go('/login') saat selesai/skip. Catatan: icon Step 3 pakai `airplane` (alternatif dari `rocket` yang tidak tersedia di iconsax_plus 1.0.0) |
+| 13:55 | [MOD] | `mypresensi-mobile/lib/features/auth/screens/splash_screen.dart` | Tambah cek SharedPreferences `hasSeenOnboarding` di akhir animasi splash. Kalau false → navigate '/onboarding' via Future.microtask. Kalau true → existing flow. Import `go_router` + `shared_preferences` |
+| 14:00 | [MOD] | `mypresensi-mobile/lib/core/router/app_router.dart` | Tambah route `/onboarding` dengan `_fadeTransition` + import OnboardingScreen. Update redirect logic: `isOnOnboarding` bypass auth check (user di /onboarding boleh stay sampai selesai) |
+
+### Verifikasi Phase B3
+
+| Item | Hasil |
+|------|-------|
+| `flutter pub get` (mobile) | ✅ shared_preferences 2.5.5 + 6 dep packages installed |
+| `flutter analyze` (mobile) | ✅ "No issues found!" |
+
+### Catatan
+- **Spec referensi**: `.kiro/specs/onboarding-mobile/{requirements,design,tasks}.md` (15 task, 13 EARS requirements, 1 algoritma formal, 15 keputusan arsitektur)
+- **Anti-yes-man push-back**: User awalnya minta hapus consent UU PDP dari project. Saya bantah karena rule `04-security-and-privacy.md` Section B.5 eksplisit "WAJIB" + UU PDP 2022 mengharuskan consent biometrik. Compromise: pindah consent ke Face Register screen existing (bukan dihapus total). User setuju.
+- **Mockup-first workflow**: Original mockup `mobile-splash-onboarding.html` annotation eksplisit "Tidak ada onboarding". User minta bikin mockup baru dulu (konsisten dengan workflow mockup-driven). Hasil: 2 mockup file untuk first-launch (splash + onboarding terpisah)
+- **Out of scope**: Lottie animation, localization, refactor splash UI, consent UU PDP formal
+- **Pending user**: Manual smoke test cold install — uninstall + reinstall app → verify /onboarding muncul → swipe 3 step → tap "Masuk Sekarang" → verify /login + flag set → restart app → verify TIDAK lagi muncul onboarding (langsung splash → /login)
+- **Library lock dipatuhi**: `shared_preferences` adalah package locked di rule `03-design-and-libraries.md` mobile lib table
+- **Effort actual**: ~1.5 jam (lebih cepat dari estimasi 2 jam karena design system + token sudah mature)
+
+---
+
+## [2026-05-18] — Sesi: Live Monitor Dosen Web (Phase B2) — Showcase Real-time
+
+### Target Sesi: Halaman live monitor sesi presensi untuk dosen di route `/sesi/[id]/live`. Geofence ring SVG stylized 380px (3 concentric circles) + KPI bar 4 cards animated counter + activity feed 20-event scrollable + student grid dengan filter chip 5 status (Semua/Hadir/Telat/Belum/Ditolak). Subscribe Supabase Realtime via hook `useRealtimeAttendances` (Phase C1). Reference: Stripe Atlas Live, Linear Insights, Supabase Realtime Dashboard. Spec: `.kiro/specs/live-monitor-dosen/`. Verifikasi: `npm run type-check` exit 0, `npm run lint` clean, `npm run build` success.
+
+### BACKEND — Endpoint Live State
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 11:30 | [ADD] | `app/api/admin/sessions/[id]/live-state/route.ts` | Endpoint baru `GET /api/admin/sessions/[id]/live-state`. Auth `requireRole(['admin','dosen'])` + `canAccessCourse` ownership. Rate limit 30 req/60s per (userId, sessionId). Parallel fetch enrollments JOIN profiles + attendances via `Promise.all`. Merge: setiap enrollment → cek attendance match → status 'belum' kalau belum scan. Return `{ students: StudentLiveRow[], stats: LiveStats }`. Tidak expose session_code. Read-only, tidak ada audit log |
+
+### FRONTEND — Page + Client Component
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 11:40 | [ADD] | `app/(dashboard)/sesi/[id]/live/page.tsx` | Server Component. Auth gate `requireRole` + `canAccessCourse`. Fetch session detail JOIN courses + dosen + initial state via `fetchInitialLiveState()`. `notFound()` untuk session deleted, `redirect('/sesi?error=no-access')` untuk dosen non-owner. `generateMetadata` async title MK + Pertemuan |
+| 11:55 | [ADD] | `app/(dashboard)/sesi/[id]/live/live-monitor-client.tsx` | Client Component lengkap (~900 LOC). Sub-components private: `<MonitorTopbar>` (course info + status badge LIVE pulse + OTP mini + countdown + Refresh Kode + Akhiri Sesi), `<MonitorKpiBar>` (4 cards Hadir/Telat/Belum/Total dengan `useAnimatedCounter` count-up easeOutCubic 800ms), `<GeofenceRing>` (SVG 380px dengan 3 concentric circles + center marker + StudentDot positioned via Haversine bearing + tooltip on hover), `<ActivityFeed>` (20-event scrollable dengan empty state), `<StudentGrid>` + `<StudentCard>` + filter chip 5 status. Helper pure: `computeDotPosition` (polar coordinates dari Haversine), `haversineDistanceMeters`. Realtime via `useRealtimeAttendances` hook Phase C1. State management students Map (O(1) update by student_id) + reducer Algorithm 2 design.md. Reconnect handling: re-fetch /live-state setelah CHANNEL_ERROR → SUBSCRIBED. Pulse highlight 1s saat student card status change |
+
+### FRONTEND WIRING — Tombol Buka Live Monitor
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 12:10 | [MOD] | `app/(dashboard)/sesi/session-list.tsx` | Tambah import `Activity` dari `lucide-react` + `Link` dari `next/link`. Tombol `<Link href="/sesi/${id}/live">` di action button row active session card (after tombol "Tampilkan Fullscreen" Phase B1). Style outline secondary `border-primary/30 bg-primary/5 text-primary` |
+
+### Verifikasi Phase B2
+
+| Item | Hasil |
+|------|-------|
+| `npm run type-check` (web) | ✅ Exit 0 |
+| `npm run lint` (web) | ✅ 0 errors 0 warnings |
+| `npm run build` (web) | ✅ Exit 0, route `/sesi/[id]/live` registered (8.31 kB), endpoint `/live-state` registered |
+
+### Catatan
+- **Spec referensi**: `.kiro/specs/live-monitor-dosen/{requirements,design,tasks}.md` (22 task, 16 EARS requirements, 2 algoritma formal, 16 keputusan arsitektur)
+- **Prerequisite consumed**: Phase B1 QR Display (route group pattern, endpoint pattern), Phase C1 Realtime (hook `useRealtimeAttendances`)
+- **Out of scope**: chat dosen-mahasiswa, real map (Leaflet/Mapbox — pakai SVG stylized per user decision), upgrade QR Display dari polling ke Realtime
+- **Pending user**: Manual smoke test 2-window — Window A dosen di Live Monitor, Window B mahasiswa scan QR via mobile, verify dot muncul di geofence ring + activity prepend + KPI counter naik dalam <2 detik tanpa refresh
+- **Library lock dipatuhi**: Tidak ada dependency baru. Reuse `lucide-react`, `qrcode.react`, `@/lib/swal`, `useRealtimeAttendances`, `cn()` utility
+- **Effort actual**: ~2.5 jam (lebih cepat dari estimasi 5-7 jam karena prerequisite Phase B1+C1 sudah siap)
+
+---
+
+## [2026-05-18] — Sesi: Phase C1 — Supabase Realtime Attendances Channel
+
+### Target Sesi: Setup Supabase Realtime channel untuk tabel `attendances` agar dashboard web bisa subscribe perubahan kehadiran tanpa polling. Prerequisite untuk Live Monitor (Phase B2) dan upgrade path untuk QR Display Fullscreen (Phase B1, sekarang masih polling 5s). Spec: `.kiro/specs/realtime-attendances-channel/`. Verifikasi: migration apply via MCP, advisor security 0 issue baru, `npm run type-check` exit 0, `npm run lint` clean, `npm run build` success.
+
+### BACKEND — Migration Realtime Publication
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 10:05 | [ADD] | `supabase/migrations/021_enable_realtime_attendances.sql` | Migration baru: idempotent ADD `public.attendances` ke publication `supabase_realtime` (DO block check `pg_publication_tables`) + explicit `REPLICA IDENTITY FULL` agar payload event include full row. Catatan: migration 016 sebelumnya sudah `ADD TABLE` tapi belum eksplisit REPLICA IDENTITY — 021 = polish + safety net |
+| 10:07 | [CFG] | Supabase migration history | Apply via `mcp_apply_migration` → `20260518100730_enable_realtime_attendances`. Verified via `pg_publication_tables` (attendances ✓) |
+
+### FRONTEND — Type Definitions + Hook
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 10:10 | [ADD] | `app/types/realtime.ts` | Type definitions Realtime: `RealtimeAttendanceRow` (16 field match schema attendances) + `RealtimeAttendancePayload` (re-export `RealtimePostgresChangesPayload<RealtimeAttendanceRow>`) + `RealtimeChannelStatus` union + `UseRealtimeAttendancesOptions` interface. JSDoc warning Tier 2 PII di payload (device_os, ip_address, GPS coords) |
+| 10:15 | [ADD] | `app/lib/realtime/use-realtime-attendances.ts` | Hook reusable React `useRealtimeAttendances(opts)`. Subscribe channel `attendances:session=${sessionId}` dengan filter `session_id=eq.${sessionId}` server-side (Postgres Changes). Listen INSERT only. `useRef` untuk callback (anti stale closure). Cleanup `channel.unsubscribe() + supabase.removeChannel(channel)` di useEffect return. Status surfaced via `onStatusChange` callback. RLS policy migration 012 di-evaluate per event delivery (mahasiswa lain ditolak server-side) |
+
+### Verifikasi Phase C1
+
+| Item | Hasil |
+|------|-------|
+| `mcp_apply_migration` | ✅ Success, idempotent guard kerja (016 + 021 tanpa konflik) |
+| `mcp_get_advisors security` | ✅ 1 pre-existing (HIBP), 0 issue baru terkait migration ini |
+| `mcp_get_advisors performance` | ✅ 10 pre-existing unused index, 0 baru |
+| `npm run type-check` (web) | ✅ Exit 0 |
+| `npm run lint` (web) | ✅ 0 errors 0 warnings |
+| `npm run build` (web) | ✅ Exit 0, 40/40 pages, hook chunk ter-bundle |
+
+### Catatan
+- **Spec referensi**: `.kiro/specs/realtime-attendances-channel/{requirements,design,tasks}.md` (15 task total, 14 EARS requirements, 2 algoritma formal, 16 keputusan arsitektur)
+- **Out of scope**: UI Live Monitor (Phase B2), upgrade QR Display dari polling (separate spec), Realtime untuk tabel selain attendances, Presence/Broadcast (hanya Postgres Changes)
+- **Pending user**: Manual smoke test 2-window interaction — buka dosen + mahasiswa secara bersamaan, scan QR di mahasiswa, verify event muncul di dosen <2 detik tanpa refresh. Belum ada UI Live Monitor jadi smoke test bisa via test page minimal atau tunggu Phase B2
+- **Library lock dipatuhi**: Tidak ada dependency baru. Reuse `@supabase/ssr` browser client + `@supabase/supabase-js` types
+- **Backward compat**: Polling endpoint Phase B1 `/api/admin/sessions/[id]/live-stats` TETAP berfungsi (tidak deprecated)
+- **Effort actual**: ~1.5 jam (lebih cepat dari estimasi spec 4-6 jam karena migration 016 sudah ada sebagai foundation)
+
+---
+
+## [2026-05-18] — Sesi: QR Display Fullscreen Web (Phase B1) — Projector Mode
+
+### Target Sesi: Implementasi mode presentasi fullscreen QR sesi presensi untuk projector kelas. Route baru `/sesi/[id]/qr` terbuka di window terpisah, dark gradient background, QR 360px, OTP 88pt monospace dengan separator gold, countdown bar gold, stats hadir/total live polling 5 detik. Spec: `.kiro/specs/qr-display-fullscreen/`. Verifikasi: `npm run type-check` exit 0, `npm run lint` clean, `npm run build` success (40/40 static pages, route baru terdaftar).
+
+### BACKEND — Endpoint Live Stats
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 04:30 | [ADD] | `app/api/admin/sessions/[id]/live-stats/route.ts` | Endpoint baru `GET /api/admin/sessions/[id]/live-stats`. Auth via `requireRole(['admin','dosen'])` + ownership check via `canAccessCourse`. Rate limit 60 req / 60 detik per (userId, sessionId). Return `{ hadir, total }` dari parallel `Promise.all` count attendances `status IN ('hadir','terlambat')` + count enrollments. Read-only, tidak ada audit log. Tidak expose Tier 1 fields |
+
+### FRONTEND — Layout + Page + Client
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 04:35 | [ADD] | `app/(qr-projector)/layout.tsx` | Layout terisolasi route group `(qr-projector)`. Dark theme base styling (`bg-[#050d1c]`). Metadata `robots: noindex,nofollow`. TIDAK render sidebar/topbar — projector mode butuh viewport penuh |
+| 04:40 | [ADD] | `app/(qr-projector)/sesi/[id]/qr/page.tsx` | Server Component. Auth gate `requireRole(['admin','dosen'])` + ownership gate `canAccessCourse` (defense in depth). Fetch session detail via single JOIN query (courses + dosen profile). Initial stats fetch parallel via `Promise.all`. `notFound()` saat session deleted, `redirect('/sesi?error=no-access')` saat dosen bukan owner. `generateMetadata` async untuk title window per MK + Pertemuan |
+| 04:50 | [ADD] | `app/(qr-projector)/sesi/[id]/qr/qr-display-client.tsx` | Client Component interactive. Komponen baru: `<PresTopbar>` (brand + status pulse + tombol Tutup), `<QrCard>` (QR 332-360px dengan gold glow shadow + dashed bottom info), `<MkHeader>` (course tag + h1 42pt + meta dosen/jam/mode), `<OtpBlock>` (88pt mono + separator gold + countdown bar gradient), `<InstructionList>` (1-2-3 cara scan), `<PresProgress>` (bottom strip 3-col: hadir count + progress bar shimmer + poll state indicator), `<ExpiredOverlay>` (overlay penuh + tombol Refresh Kode). Helper: `computeCountdown` pure function. Polling lifecycle dengan `AbortController` cleanup + exponential backoff (3 fail → 30s). Handle 401 → redirect login, 403/404 → banner + auto-close 3s |
+
+### FRONTEND WIRING — Tombol Tampilkan Fullscreen
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 05:00 | [MOD] | `app/(dashboard)/sesi/session-list.tsx` | Tambah import `Maximize2` dari `lucide-react`. Tambah `<a target="_blank" rel="noopener noreferrer" href="/sesi/${id}/qr">` di action button row active session card. Style outline secondary `border-primary/30 bg-primary/5 text-primary` agar tidak dominan dari tombol primary existing |
+| 05:05 | [MOD] | `app/(dashboard)/matakuliah/sessions-modal.tsx` | Tambah import `Maximize2` + tombol `<a>` identical di action button row active session card |
+
+### Verifikasi Phase B1
+
+| Item | Hasil |
+|------|-------|
+| `npm run type-check` (web) | ✅ Exit 0 |
+| `npm run lint` (web) | ✅ 0 errors 0 warnings |
+| `npm run build` (web) | ✅ Exit 0, 40/40 static pages, route `/sesi/[id]/qr` registered (9.14 kB JS), endpoint `/api/admin/sessions/[id]/live-stats` registered |
+| `mcp0_get_advisors security` | (no migration di sesi ini, skip) |
+
+### Catatan
+- **Spec referensi**: `.kiro/specs/qr-display-fullscreen/{requirements,design,tasks}.md` (18 task, 19 EARS requirements, 3 algoritma formal, 16 keputusan arsitektur)
+- **Out of scope** (separate spec): QR Rolling 5 detik dinamis (Phase 3), Supabase Realtime (Phase C1, polling 5s sebagai placeholder yang bisa di-upgrade), Activity feed (Phase B2 Live Monitor), Geofence ring (Phase B2)
+- **Pending user**: Manual smoke test 10 alur (login dosen → buka /sesi → klik tombol → verify QR 360px, OTP, countdown, polling, demo scan, expired overlay, refresh, close cleanup, mahasiswa direct access blocked, dosen lain ownership blocked)
+- **Library lock dipatuhi**: Tidak ada dependency baru. Reuse `qrcode.react`, `lucide-react`, `clsx + tailwind-merge`, `@/lib/swal`
+- **Effort actual**: ~2.5 jam (sesuai estimasi spec 2-3 jam)
+
+---
+
+## [2026-05-18] — Sesi: Phase 5 Mobile UI Rebuild — Endpoint `eligible-for-leave` + 3 Screen Refactor
+
+### Target Sesi: Selesaikan rangkaian rebuild UI mahasiswa di mobile (Flutter) supaya match mockup Solar/Iconsax-style yang sudah final di `docs/ui-research/mockups/`. Spec: `.kiro/specs/phase-5-mobile-ui-rebuild/`. Scope: 3 screen mahasiswa terakhir (Home, History, Submit Leave Wizard) + 1 endpoint backend baru + 1 migration index. Verifikasi: `flutter analyze` 0 issues, `npm run type-check` exit 0, advisor security 0 baru.
+
+### BACKEND — Endpoint Eligible Sessions for Leave
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 01:18 | [ADD] | `mypresensi-web/supabase/migrations/020_sessions_started_at_index.sql` | Migration baru: `CREATE INDEX IF NOT EXISTS idx_sessions_started_at ON sessions(started_at DESC)` untuk akselerasi filter `started_at >= NOW() - 7 days` di endpoint baru |
+| 01:25 | [CFG] | Supabase migration history | Apply via `mcp0_apply_migration` → `20260518011816_sessions_started_at_index`. Verified: advisor security 0 issue baru, performance 1 unused-index warning (akan resolve setelah endpoint live) |
+| 01:35 | [ADD] | `mypresensi-web/app/api/mobile/sessions/eligible-for-leave/route.ts` | Endpoint baru `GET /api/mobile/sessions/eligible-for-leave`. Auth Bearer JWT + role mahasiswa + rate limit 30 req/5min per (user+device). Return 2 array: `active_sessions` (is_active=true, belum hadir, belum izin) + `recent_sessions` (sudah lewat ≤7 hari, belum hadir, belum izin). Pakai `Promise.all` untuk parallel exclusion fetch (attendances hadir + leave_requests pending/approved). Read-only, tidak ada audit log. JOIN courses + dosen profile. Sort started_at DESC |
+| 01:40 | [MOD] | `mypresensi-mobile/lib/core/network/api_endpoints.dart` | Tambah `static const String sessionsEligibleForLeave = '/api/mobile/sessions/eligible-for-leave'` |
+| 01:42 | [MOD] | `mypresensi-mobile/lib/features/attendance/data/attendance_models.dart` | Tambah class `EligibleSessionsResponse` (wrapper 2 list + helper `isEmpty`/`all`). Tambah optional field `dosenName: String?` ke `ActiveSession` (nullable, defaultnya null untuk endpoint lama) |
+| 01:45 | [MOD] | `mypresensi-mobile/lib/features/attendance/data/attendance_repository.dart` | Tambah method `getEligibleSessionsForLeave()` mengikuti pattern `getActiveSessions()` |
+| 01:47 | [MOD] | `mypresensi-mobile/lib/features/attendance/providers/attendance_provider.dart` | Tambah `eligibleSessionsForLeaveProvider: FutureProvider.autoDispose<EligibleSessionsResponse>` |
+
+### MOBILE — Rebuild Screen 1: History (mockup `mobile-riwayat.html`)
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 02:00 | [MOD] | `mypresensi-mobile/lib/features/history/screens/history_screen.dart` | Full rebuild screen riwayat. Komponen baru: `_HistoryHero` (gradient + persentase + progress bar gradient hijau→gold + 5-stat row), `_HistoryFilterChips` (6 chip horizontal scroll: Semua/Hadir/Telat/Izin/Sakit/Alpa dengan count per chip), `_DateGroupHeader` (smart-date grouping: Hari Ini/Kemarin/Minggu Ini/Bulan Ini/Lebih Lama), `_HistoryItemCard` (KpiIconBox 44x44 leading + meta jam+jarak + status pill duotone), `_HistoryDetailSheet` (read-only bottom sheet, 5 detail rows + status banner), `_FaceMatchThumb` (placeholder gradient avatar + threshold info). Helpers: `_groupHistoryBySmartDate` (Algorithm 3) + `_filterByStatus` (Algorithm 5) + 8 status mapping helpers. `_historyFilterProvider` screen-scoped Riverpod NotifierProvider |
+
+### MOBILE — Rebuild Screen 2: Home (mockup `mobile-home.html`)
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 02:30 | [MOD] | `mypresensi-mobile/lib/features/home/screens/home_screen.dart` | Full rebuild. Komponen baru: `_HomeAppBar` (brand + notif icon button + avatar gradient), `_GreetingHeader` (sapa berbasis jam + cuaca icon dari `IconsaxPlusBold` + tanggal Indonesia), `_HeroSessionActive` (HeroCard + `_PulseBadge` "SESI AKTIF SEKARANG" + meta dosen/lokasi/jam + pill putih "Scan QR Sekarang"), `_HeroSessionEmpty` (dashed border via `_DashedBorderPainter` custom + icon kalender + copy ramah), `_HeroSkeleton` (animated opacity 1.4s loop), `_TodaySummaryRow` (3 stat: Hadir/Sisa Sesi/Alpa), `_QuickActionGrid` (4 grid: Scan QR featured gold + Riwayat success + Izin warning + Profil info), `_AiChatFab` (bulat 56x56 gradient gold di bottom-right → `/ai-chat`). Helpers: `_resolveDateLabel` + `_resolveWeatherIcon` + `_computeTodaySummary` (Algorithm 4) |
+
+### MOBILE — Rebuild Screen 3: Submit Leave Wizard (mockup `mobile-leave-request.html`)
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 03:10 | [MOD] | `mypresensi-mobile/lib/features/leave_requests/screens/submit_leave_request_screen.dart` | Full refactor dari single-form jadi **wizard 4-step**: pickSession → typeAndReason → evidence → review. State machine immutable `WizardState` dengan `copyWith` + `canAdvance` getter. Methods `_advanceWizardStep` (Algorithm 1, async untuk handle upload) + `_goBackWizardStep` (Algorithm 2, block back saat upload). Komponen baru: `_StepBar` (4 lingkaran + 3 connector), `_SessionPickItem` (date box gradient + radio + status badge dinamis "AKTIF"/"KEMARIN"/"N HARI LALU"), `_StepPickSession` (consume `eligibleSessionsForLeaveProvider`, dual group section auto-hide), `_SelectedSessionBadge` (read-only di Step 2), `_TypeTile` (Sakit/Izin), `_StepTypeAndReason` (sesi badge + 2-tile + textarea + char counter live), `_StepEvidence` (`_UploadZone` 1.5px solid border fallback dashed + `_EvidencePreview` 180px image dengan loading overlay), `_StepReview` (4 read-only rows), `_WizardFooter` (pill button sticky dengan `AppShadows.fab` + label dinamis per step). PopScope intercept system back: step >1 ke step sebelumnya, step 1 pop route. Reuse `image_picker` + `LeaveRepository.uploadEvidence` + `submitLeaveProvider.submit` |
+
+### Verifikasi Phase 5
+
+| Item | Hasil |
+|------|-------|
+| `npm run type-check` (web) | ✅ Exit 0 (after endpoint baru) |
+| `flutter analyze` (mobile) | ✅ "No issues found." (3x rebuild + final whole-project) |
+| Migration 020 applied via MCP | ✅ Tracked di history Supabase |
+| Advisor security pasca migration | ✅ 0 issue baru |
+| Advisor performance pasca migration | ✅ 1 INFO unused-index (akan resolve saat endpoint live, expected) |
+
+### Catatan
+- **Spec referensi**: `.kiro/specs/phase-5-mobile-ui-rebuild/{requirements,design,tasks}.md` (66 task, 30 EARS requirements, 5 algoritma formal, 16 keputusan arsitektur)
+- **Out of scope**: PBT untuk pure-logic helpers (7 task opsional, di-skip), web `globals.css` token sync (opsional, di-skip — bisa dilakukan terpisah)
+- **Pending user**: Manual smoke test 5 alur (login → home active+empty → history filter+sheet → wizard happy path no-evidence → wizard with-evidence → wizard backward navigation preserved)
+- **Library lock dipatuhi**: Tidak ada dependency baru di `pubspec.yaml`
+- **Decisions diff vs spec original**:
+  - D2 berubah: AI FAB **dipertahankan di home** (per request user) — bukan dihapus
+  - D9 berubah: Endpoint baru `/eligible-for-leave` ditambahkan (per request user) — bukan reuse `activeSessionsProvider`
+- **Deviation flutter analyze clean**: pulse-dot di home pakai hex `#4ADE80` (live indicator green) karena `AppColors.success #1A7F37` terlalu gelap untuk hero gradient navy. Acceptable, didokumentasikan inline
+
+---
+
+## [2026-05-17] — Sesi: Security Architecture v7 — Phase 2 Face WAJIB Kedua Mode
+
+### Target Sesi: Implementasi enforcement face verification di KEDUA mode (offline + online). Backend tambah Layer 6 gate di `submit/route.ts`. Mobile tambah pre-flight face check di `scan_qr_screen.dart` + dialog redirect face registration / mismatch. DB setting `face_verification_mode` di-set ke `required`.
+
+### BACKEND — Layer 6 Face Gate
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 22:00 | [MOD] | `app/api/mobile/_lib/auth.ts` | Extend `errorResponse(message, status, errorCode?)` — mobile butuh `error_code` di body JSON untuk distinguish kasus 403 face vs 403 lain |
+| 22:05 | [SEC] | `app/api/mobile/attendance/submit/route.ts` | Tambah **LAYER 6 Face Recognition Gate**: cek `face_verification_mode` setting → jika `required`: (a) `is_face_registered=false` → reject 403 `face_not_registered` + audit `face_not_registered_attempt`, (b) `is_face_matched!==true` → reject 403 `face_mismatch` + audit `face_mismatch_attempt`. Header comment update 5→6 layer |
+| 22:10 | [MOD] | `app/api/mobile/settings/face-config/route.ts` | Update `DEFAULT_MODE` dari `'optional'` → `'required'` (fallback jika DB gagal) |
+
+### MOBILE — Pre-flight Face Verify + Error Dialog
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 22:15 | [ADD] | `lib/features/attendance/data/attendance_models.dart` | Tambah class `AttendanceSubmitException` — carry `errorCode` + `statusCode` dari server response body |
+| 22:20 | [MOD] | `lib/features/attendance/data/attendance_repository.dart` | Update `_handleError()`: parse `error_code` dari response JSON, throw `AttendanceSubmitException` jika ada. Backward compat: tanpa `error_code` tetap throw String message |
+| 22:25 | [MOD] | `lib/features/attendance/providers/attendance_provider.dart` | Tambah field `errorCode: String?` di `AttendanceSubmitState`. Catch `AttendanceSubmitException` di `submitFromQr()`, propagate `errorCode` ke state untuk UI routing |
+| 22:30 | [SEC] | `lib/features/attendance/screens/scan_qr_screen.dart` | Pre-flight face check: cek `faceConfigProvider` → mode `required` → cek `isFaceRegistered` (false: dialog "Daftar Sekarang" → `/face-register`, true: push `/face-verify` → submit dengan `faceResult`). Handle server 403: `face_not_registered` → dialog redirect, `face_mismatch` → dialog retry. Defense in depth: pre-flight + server gate |
+
+### DATABASE — Setting Update
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 22:35 | [CFG] | Supabase `settings` table | INSERT `face_verification_mode = 'required'` (sebelumnya row tidak ada, sekarang eksplisit `required`) |
+
+### Verifikasi Phase 2
+
+| Item | Hasil |
+|------|-------|
+| `npm run type-check` (web) | ✅ Exit 0, 0 errors |
+| `flutter analyze` (mobile) | ✅ No issues found |
+| DB setting aktif | ✅ `face_verification_mode = 'required'` di tabel `settings` |
+| Backend gate logic | ✅ Layer 6 di `submit/route.ts` line 182-241 |
+| Mobile pre-flight | ✅ `scan_qr_screen.dart` line 72-148 |
+| Mobile dialogs | ✅ `_showFaceNotRegisteredDialog()` + `_showFaceMismatchDialog()` |
+| Audit log actions | ✅ `face_not_registered_attempt`, `face_mismatch_attempt` |
+| Error codes | ✅ `face_not_registered`, `face_mismatch` di response body |
+
+### Catatan Teknis
+
+- **Defense in depth**: Mobile pre-flight cek `isFaceRegistered` SEBELUM submit (fast feedback tanpa network round-trip). Server TETAP gate sebagai fallback (race condition, stale cache, bypass).
+- **Fallback graceful**: Jika `faceConfigProvider` gagal fetch (network error), mobile lanjut submit tanpa face data → server gate yang menolak (403). User lihat dialog retry.
+- **Backward compat**: Kalau admin set `face_verification_mode = 'optional'` kembali di DB, seluruh enforcement Layer 6 di-skip → behavior kembali ke pre-Phase 2.
+
+---
+
+## [2026-05-17] — Sesi: Security Architecture v7 — Phase 1 Document Honest Update
+
+### Target Sesi: Rewrite plan v6 → v7 sesuai keputusan audit security 17 Mei 2026 (Riki × Kiro). Hapus klaim 6-layer security yang over-promise (WiFi SSID, teleportation, cell tower, freeRASP, AES-256, cert pinning, liveness active challenge). Reduce ke 3-layer realistic (QR rolling 5s + GPS Haversine/mock + Face match wajib di offline). Cross-check setiap klaim ke kode aktual. Tidak sentuh kode di Phase 1 — hanya dokumentasi. Pending decisions yang dikunci: **QR = A1 rolling dinamis 5s**, **Edge case kamera rusak = B1 Dosen Manual Override via web**. Source of truth: `docs/decisions/security-architecture-final.md`.
+
+### DOKUMENTASI — Plan & Workflow Rewrite
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 20:30 | [MOD] | `docs/plans/implementation_plan.md` | Rewrite v6 → v7. Header status + reality check block. Bagian 3 Tech Stack: embedding 128-D → 192-D, hapus liveness active challenge, ganti Edge Functions → Next.js Route Handler. Bagian 4 ARSITEKTUR KEAMANAN total rewrite: 6-Layer Anti-Fake GPS → **3-Layer Defense in Depth** (QR + GPS + Face). Tambah tabel 4.2 "Klaim yang DIHAPUS" + 4.3 "Threat TER-COVER" + 4.4 "Threat TIDAK TER-COVER" + 4.5 Mode offline/online (face wajib offline only). Bagian 5: Dosen Mobile App → **Web only** (cross-ref `auth.ts:67-69`). Bagian 7.5 Bottom Nav: 4 item → **5 item AKTUAL** (Beranda, Riwayat, Asisten AI, Notifikasi, Profil) sesuai `app_shell.dart:35-41` — flag bahwa security-architecture-final.md menyebut tab "Izin" tapi aktualnya "Asisten". Bagian 9 DB schema: embedding 128D → 192D + komentar AES klaim v6 salah, status enum 4 → 5 (+ terlambat), threshold 0.75 → 0.65, settings tambah `face_verification_mode` + `late_threshold_minutes`, RLS pattern `(SELECT auth.uid())`. Bagian 10 Struktur: `src/` → `app/` (BUG-002), hapus `supabase/functions/` (Edge Functions tidak dipakai). Bagian 11 Dependencies: rewrite pubspec sesuai AKTUAL (Dio + Riverpod 3 + GoRouter 17 + flutter_secure_storage 10), tabel "Yang DIHAPUS" untuk supabase_flutter, network_info_plus, freeraspp, crypto, dll. Bagian 12 Timeline: hapus klaim Fase 4 Minggu 13 (cert pinning, freeRASP), ganti dengan Phase 1-4 v7 aktif. Bagian 13 Verifikasi: ganti checklist klaim ke checklist HONEST (yang AKAN di-test dalam Phase 2-4). Ringkasan Final v7: kunci A1 rolling 5s + B1 Manual Override. Tambah Lampiran A (cross-ref file lain) + Lampiran B (migration history 001-019 + 020-021 pending). |
+| 20:45 | [MOD] | `workflow_mypresensi.md` | Tambah header status v7 + cross-ref ke `implementation_plan.md` dan `security-architecture-final.md`. Fase 3 sequence diagram: 5-bullet validasi server → **8-bullet honest** (sesi aktif, kode rolling match, enrolled, mock GPS reject 403, GPS radius offline only, face wajib offline only, UNIQUE check, auto-classify terlambat). Security Flow diagram: clarify "rotating" → **"Rolling 5 detik (TOTP-like) tolerance ±2 = 15s effective"**, GPS layer tambah "isMocked=true → reject 403", Face layer tambah "MobileFaceNet 192-D cosine ≥0.65 WAJIB di mode offline". Tambah penjelasan threat coverage per-layer + "Yang TIDAK di-cover (acceptable risk)" honest. Tambah section baru **Manual Override Dosen (Phase 4)** dengan Mermaid flowchart + audit trail spec. |
+| 21:00 | [DOC] | `CHANGELOG.md` | Tambah jenis `[DOC]` di header (sebelumnya hanya ada [ADD]/[MOD]/[FIX]/[DEL]/[CFG]/[SEC]). Tambah entry sesi ini. |
+
+### Verifikasi
+
+| Item | Hasil |
+|------|-------|
+| Tidak sentuh kode source (Phase 1 = dokumentasi only) | ✓ Tidak ada edit di `mypresensi-web/app/` atau `mypresensi-mobile/lib/` |
+| Cross-check klaim dengan code aktual sebelum tulis | ✓ Verified: `face_embedding_service.dart:23` = 192-D, `app_shell.dart:35-41` = 5 tab AKTUAL "Asisten", `auth.ts:67-69` = role mahasiswa only, migrations 001-019 list akurat (013 = late_status, BUKAN 014 seperti tertulis di recap) |
+| Hapus klaim yang TIDAK ter-implement | ✓ WiFi SSID, teleportation, cell tower, freeRASP, AES-256, cert pinning, liveness active challenge, embedding 128D, supabase_flutter, Edge Functions — semua dihapus dari plan |
+| Pending decisions dikunci | ✓ A1 Rolling 5s + B1 Manual Override Dosen |
+| `npm run type-check` / `flutter analyze` | ⚠️ Tidak diperlukan untuk Phase 1 (dokumentasi only, tidak ada perubahan code) |
+
+### Catatan untuk Review User
+
+- **Flag UX**: Bottom nav AKTUAL slot tab-3 = "Asisten" (AI Chat), BUKAN "Izin" seperti placeholder di `security-architecture-final.md`. Plan v7 sudah dokumentasi AKTUAL. **User konfirmasi tab Asisten tetap dipertahankan** \u2014 tidak ada displacement.
+- **Migration history Lampiran B**: list 001-019 sudah aktual + 020 (Phase 3 rolling QR seed) pending. ~~Migration 021 manual override~~ DIHAPUS sesuai adjustment Phase 1.5 (lihat block di bawah).
+- **Phase 2 next**: eksekusi Phase 2 = face wajib di **kedua mode** (`submit/route.ts` + mobile UX 403 handling), 3-4 jam.
+
+### DOKUMENTASI — Phase 1.5 Adjustment (Sesi Yang Sama)
+
+> User feedback setelah Phase 1: 2 keputusan major \u2014 (1) Face WAJIB di kedua mode (offline + online), bukan hanya offline. (2) Skip Phase 4 Manual Override Dosen \u2014 edge case kamera rusak HP diselesaikan via prosedur informal "pinjam HP teman sebelum sesi". Push-back saya: dosen-accountable audit hilang kalau B2 dipakai + face mismatch akan auto-reject di Phase 2. User clarify: mahasiswa absen via HP smartphone (bukan laptop, asumsi saya keliru) + skenario "datang ke tempat teman sebelum kuliah online" valid secara teknis. Saya terima keputusan setelah analisis ulang dengan asumsi yang benar.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 21:30 | [MOD] | `docs/plans/implementation_plan.md` | Header v7 \u2014 tambah block "Adjustment Phase 1.5" dengan 3 bullet. Bagian 4.1 Layer 3 \u2014 dari "WAJIB di mode offline" \u2192 "WAJIB di KEDUA MODE". Bagian 4.3 threat row "Mahasiswa kamera rusak / tidak punya kamera depan" \u2192 dihapus mitigasi Phase 4, diganti dengan "Mahasiswa kamera HP rusak permanen + Prosedur informal pinjam HP teman" dan tambah row "Titip absen online" (covered HIGH). Tambah row "Mahasiswa benar-benar tidak bisa hadir + tidak bisa pinjam HP \u2192 izin/sakit". Bagian 4.4 \u2014 row "Mahasiswa bolos online lecture" disesuaikan (face wajib cover sebagian), tambah row "Credential sharing saat pinjam HP teman" sebagai inherent risk. Bagian 4.5 \u2014 kolom Face Online: `Optional` \u2192 **`WAJIB`**. Bagian 5 Mahasiswa \u2014 "Absen Online" dari `Face match (optional)` \u2192 `Face match WAJIB`. Bagian 5 Dosen \u2014 hapus row "Manual Override Kehadiran (Phase 4 B1)". Bagian 9 schema \u2014 hapus 3 baris commented Phase 4 manual override columns, ganti dengan note "DI-SKIP". Settings `face_verification_mode` dari `optional` \u2192 `required`. Bagian 12 Timeline Fase 4 \u2014 tambah row Phase 1.5 (\u2705 Selesai), row Phase 4 strikethrough (\u274c Skip). Bagian 13 Verifikasi Functional Testing \u2014 hapus checklist manual override, ganti dengan "Edge case kamera rusak HP: simulasi prosedur pinjam HP teman". Ringkasan Final v7 \u2014 Anti-Fraud "face wajib di offline" \u2192 "face wajib kedua mode", row "Edge Case Kamera Rusak" diganti "Prosedur informal pinjam HP teman + ganti password". Lampiran B \u2014 row migration 021 strikethrough. |
+| 21:45 | [MOD] | `workflow_mypresensi.md` | Header v7 \u2014 list "yang sedang dieksekusi" hapus Phase 4, tambah penjelasan adjustment "Face WAJIB di kedua mode". Tambah block "Yang DI-SKIP dari v7" untuk transparansi. Fase 3 sequence diagram Note over S \u2014 bullet 6 dari "Face match WAJIB (mode offline)" \u2192 "Face match WAJIB (KEDUA mode)". Security Flow diagram Layer 2 dari "radius 150m" \u2192 "radius 150m (mode offline saja)" + "reject 403 (kedua mode)". Layer 3 dari "WAJIB di mode offline" \u2192 "WAJIB di KEDUA mode (Phase 2)". Tambah bullet baru "QR + Face (mode online, GPS skip)" untuk threat coverage. **Hapus** section Mermaid "Manual Override Dosen (Phase 4)". **Tambah** section baru "Prosedur Kamera Rusak HP (Informal)" dengan flowchart simpel: jalur izin/sakit untuk mahasiswa sakit + jalur pinjam HP teman untuk mahasiswa bisa hadir fisik, plus konsekuensi yang diterima (no UI dosen, device anomaly only, credential risk, freq <1%). |
+| 22:00 | [DOC] | `CHANGELOG.md` | Tambah block Phase 1.5 adjustment di entry sesi yang sama. |
+
+### Verifikasi Phase 1.5
+
+| Item | Hasil |
+|------|-------|
+| Tidak sentuh kode source | \u2713 Tetap dokumentasi only |
+| Konsistensi 3 file | \u2713 implementation_plan + workflow + CHANGELOG semua align ke "face wajib kedua mode + skip Phase 4" |
+| Trade-off didokumentasi eksplisit | \u2713 Konsekuensi (no dosen accountability untuk kamera rusak, credential risk informal, freq expectation) tertulis transparan di 4.4 + workflow |
+| Migration list disesuaikan | \u2713 Lampiran B migration 021 strikethrough, schema comment "DI-SKIP" |
+
+### Catatan Keputusan untuk Future Reference
+
+1. **Kenapa face wajib kedua mode**: konsistensi rule + cover threat titip absen online (gap GPS-skip). User argument valid. Backend logic justru jadi lebih simpel (no branch per session.mode).
+2. **Kenapa skip Phase 4**: edge case kamera rusak HP sangat rare untuk HP smartphone modern. Solusi informal "pinjam HP teman sebelum sesi" work secara teknis (face A capture di HP B, akun A login). Mahasiswa benar-benar tidak hadir = pakai fitur izin/sakit yang sudah ada.
+3. **Trade-off yang diterima**: credential sharing risk + no dosen accountability untuk kasus kamera rusak. Acceptable karena (a) damage potential rendah di MyPresensi (mahasiswa tidak punya akses sensitif), (b) frekuensi expected <1%, (c) ada backup via fitur izin.
+4. **Evaluasi ulang trigger**: kalau setelah deploy frekuensi kamera rusak >5% mahasiswa per semester, pertimbangkan tambah Phase 4 di iterasi v8.
+
+### Compliance
+
+- \u2705 `01-agent-persona.md` anti-yes-man: 2 kali push back di sesi ini (B2 login HP teman keberatan awal, lalu accept setelah user clarify konteks HP smartphone). Tidak setuju buta.
+- \u2705 `02-quality-debugging-verification.md`: cross-check setiap perubahan ke kode aktual + migration list
+- \u2705 `04-security-and-privacy.md`: threat model dokumentasi inherent risk credential sharing secara eksplisit (transparency over security theater)
+
+---
+
+## [2026-05-16] — Sesi: Upload Avatar Mobile (P3-#3)
+
+### Target Sesi: Mahasiswa bisa ganti foto profil sendiri dari mobile, sebelumnya hanya admin yang bisa via web. Reuse `image_picker` package + `storage-utils` helper yang sudah ada dari P3-#1. Tidak butuh migration baru — bucket `avatars` (public) sudah ada sejak awal proyek dengan RLS authenticated insert. Spec: `.kiro/specs/avatar-upload-mobile/spec.md`.
+
+### SERVER — Endpoint Upload Avatar
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 19:40 | [ADD] | `mypresensi-web/app/api/mobile/profile/avatar/route.ts` | POST endpoint — auth + rate limit 5/10min + multipart parse + magic bytes (reuse storage-utils dari P3-#1) + upload ke bucket avatars path `<user.id>.jpg` upsert + update profiles.avatar_url + cache buster `?t=<timestamp>` + audit `mobile_avatar_upload`. Path locked ke user.id (mahasiswa A tidak bisa replace avatar B). |
+
+### MOBILE — Repository + Provider + UI
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 19:45 | [ADD] | `mypresensi-mobile/lib/features/profile/data/profile_repository.dart` | `ProfileRepository.uploadAvatar(File)` multipart POST, content-type detect dari ext. |
+| 19:48 | [ADD] | `mypresensi-mobile/lib/features/profile/providers/profile_provider.dart` | `AvatarUploadNotifier` state machine (idle/uploading/success/error) + auto-call `authProvider.markAvatarUpdated(newUrl)` setelah sukses. |
+| 19:50 | [MOD] | `mypresensi-mobile/lib/features/auth/providers/auth_provider.dart` | Method baru `markAvatarUpdated(newUrl)` — update UserModel lokal tanpa flash loading. |
+| 19:52 | [MOD] | `mypresensi-mobile/lib/core/network/api_endpoints.dart` | Tambah `profileAvatar = '/api/mobile/profile/avatar'`. |
+| 19:55 | [MOD] | `mypresensi-mobile/lib/features/profile/screens/profile_screen.dart` | Convert ke `ConsumerStatefulWidget`. Avatar tappable dengan GestureDetector → bottom sheet (galeri/kamera). Render `Image.network(user.avatarUrl)` dengan fallback `_buildInitialsAvatar`. Camera badge overlay (icon kamera atau spinner saat uploading). Tombol text "Ganti Foto Profil" sebagai entry alternatif. |
+
+### DOC
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 20:00 | [ADD] | `.kiro/specs/avatar-upload-mobile/spec.md` | Spec dengan threat model, keputusan arsitektur, verifikasi. |
+
+### Verifikasi
+
+| Item | Hasil |
+|------|-------|
+| `npm run type-check` (web) | exit 0 ✓ |
+| `flutter analyze` (mobile) | No issues found ✓ |
+| Tidak butuh migration baru (reuse bucket avatars) | ✓ |
+
+### User Smoke Test (pending)
+
+- A1: Mahasiswa login → tab Profil → tap avatar → bottom sheet pilihan
+- A2: Pilih galeri/kamera → upload → camera badge spinner → success → avatar refresh
+- A3: Hot restart → avatar persistent (Supabase URL)
+- A4: Upload non-image rename → reject 400 magic bytes
+- A5: Upload 6 kali dalam 10 menit → 429 rate limit
+
+### Compliance
+
+- ✅ `04-security-and-privacy.md`: Tier 2 PII, magic bytes defense, audit log
+- ✅ `14-web-supabase-patterns.md`: defense-in-depth (auth → endpoint → RLS → magic bytes)
+- ✅ `03-design-and-libraries.md`: image_picker reuse dari P3-#1 (sudah ter-lock)
+- ✅ `02-quality-debugging-verification.md`: gate verifikasi sebelum claim selesai
+
+---
+
+## [2026-05-16] — Sesi: Upload Bukti Izin/Sakit (P3-#1)
+
+### Target Sesi: Implementasi end-to-end fitur upload bukti pendukung untuk pengajuan izin/sakit. Mahasiswa pilih foto via image_picker, upload ke bucket private `leave-evidence`, dapat path → kirim di body submit. Web admin/dosen klik "Lihat Bukti" → server action generate signed URL TTL 5 menit. Spec: `.kiro/specs/leave-evidence-upload/spec.md`.
+
+### DATABASE — Storage Bucket Private + RLS
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 18:30 | [SEC] | (Supabase migration history) `20260516xxxxxx_leave_evidence_bucket` | Apply via MCP. Bucket private 5MB, image-only (jpeg/png/webp). 3 RLS policies: INSERT owner-only by path prefix, SELECT 3-path (owner / admin / dosen MK terkait via JOIN), UPDATE/DELETE deny-all (immutable). |
+| 18:32 | [ADD] | `mypresensi-web/supabase/migrations/019_leave_evidence_bucket.sql` | Mirror lokal sequential 019. |
+
+### SERVER — Endpoint Upload + Refactor Submit
+
+Endpoint baru `POST /api/mobile/leave-requests/upload-evidence` validasi mime + magic bytes + size, place ke bucket via service_role, return path. Submit endpoint refactor: ganti field `evidence_url` → `evidence_path` (Zod regex strict format `<uuid>/<32hex>.<ext>`) + defense in depth check prefix === `user.id`.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 18:35 | [ADD] | `mypresensi-web/app/api/mobile/_lib/storage-utils.ts` | Helper: `isAllowedImageMime`, `validateMagicBytes` (3-format jpeg/png/webp), `generateEvidencePath`, `EVIDENCE_PATH_REGEX`, `isPathOwnedByUser`, `MAX_IMAGE_SIZE_BYTES`. |
+| 18:38 | [ADD] | `mypresensi-web/app/api/mobile/leave-requests/upload-evidence/route.ts` | POST endpoint — auth + rate limit 10/15min/(user+device) + multipart parse + magic bytes + audit `mobile_leave_evidence_upload`. |
+| 18:42 | [MOD] | `mypresensi-web/app/api/mobile/leave-requests/submit/route.ts` | Zod ganti `evidence_url` URL → `evidence_path` regex. Defense: prefix === user.id. Audit `has_evidence` flag. |
+
+### WEB ADMIN/DOSEN — Signed URL on-demand
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 18:50 | [ADD] | `mypresensi-web/app/lib/actions/leave-requests.ts` | Server action `getLeaveEvidenceSignedUrl(requestId)` — auth + role check + dosen ownership + `createSignedUrl(path, 300)`. Return URL atau error generik. |
+| 18:55 | [MOD] | `mypresensi-web/app/(dashboard)/izin/leave-table.tsx` | Tombol "Lihat Bukti" sekarang button (bukan anchor langsung). Klik → call server action → buka tab baru dengan signed URL. State `evidenceLoading` per row dengan spinner. |
+
+### MOBILE — UI Image Picker + Upload Flow
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 19:00 | [ADD] | `mypresensi-mobile/pubspec.yaml` | Tambah `image_picker: ^1.1.0` (sesuai diskusi rule 03-design-and-libraries). |
+| 19:02 | [ADD] | `mypresensi-mobile/lib/features/leave_requests/data/leave_models.dart` | Model `UploadEvidenceResponse`. Field `evidenceUrl` di `SubmitLeaveRequest` rename → `evidencePath`. JSON key ganti ke `evidence_path`. |
+| 19:05 | [MOD] | `mypresensi-mobile/lib/features/leave_requests/data/leave_repository.dart` | Method `uploadEvidence(File)` — Dio multipart POST, content-type detect dari ext. |
+| 19:07 | [MOD] | `mypresensi-mobile/lib/features/leave_requests/providers/leave_provider.dart` | Param submit rename `evidenceUrl` → `evidencePath`. |
+| 19:10 | [MOD] | `mypresensi-mobile/lib/core/network/api_endpoints.dart` | Tambah `leaveRequestUpload`. |
+| 19:15 | [MOD] | `mypresensi-mobile/lib/features/leave_requests/screens/submit_leave_request_screen.dart` | Section "Bukti Pendukung" — tombol pilih foto via bottom sheet (galeri/kamera), preview thumbnail 180px dengan tombol close, error inline. Button submit handle uploading state dengan label "Mengunggah bukti..." → "Mengirim..." → success. |
+
+### DOC
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 19:20 | [ADD] | `.kiro/specs/leave-evidence-upload/spec.md` | Spec dengan threat model, requirements, design, tasks A-F. |
+| 19:22 | [MOD] | `.kiro/steering/00-mypresensi-overview.md` | Tabel mobile library: tambah `image_picker ^1.1.0`. |
+
+### Verifikasi
+
+| Item | Hasil |
+|------|-------|
+| `npm run type-check` (web) | exit 0 ✓ |
+| `flutter analyze` (mobile) | No issues found ✓ |
+| Supabase advisor security setelah migration | tetap 1 (HIBP saja, deferred) ✓ |
+| `flutter pub get` | 12 deps changed, image_picker installed ✓ |
+
+### User Smoke Test (belum dijalankan — pending)
+
+- F1: Mahasiswa pick foto → submit izin → success, file tersimpan di bucket
+- F2: Web admin login → halaman izin → klik "Lihat Bukti" → image muncul di tab baru
+- F3: Mahasiswa A coba akses path mahasiswa B via direct URL → 403
+- F4: Upload non-image (.txt rename .jpg) → reject 400 (magic bytes mismatch)
+
+### Compliance
+
+- Rule `04-security-and-privacy.md` Section A (Tier 2 PII strict per-row) → bucket private, RLS 3-path SELECT
+- Rule `04-security-and-privacy.md` Section E anti-pattern → no public URL, no anon access, audit log lengkap
+- Rule `14-web-supabase-patterns.md` Section B (defense-in-depth) → middleware/auth → endpoint role check → RLS gate via path prefix → magic bytes validation
+- UU PDP Pasal 4 → bukti = data kesehatan/personal, akses minimum (owner + dosen MK + admin)
+- Rule `03-design-and-libraries.md` library lock → `image_picker` ditambah dengan diskusi user dulu, tercatat di overview
+
+---
+
+## [2026-05-16] — Sesi: Revoke `get_at_risk_students` dari anon + authenticated (T0 Security Fix)
+
+### Target Sesi: Tutup 2 Supabase advisor `*_security_definer_function_executable` untuk RPC `get_at_risk_students`. Function ini SECURITY DEFINER dengan akses lintas tabel sensitif (profiles, attendances Tier 2 PII), tapi grants `anon=EXECUTE` + `authenticated=EXECUTE` membuat siapapun bisa hit `/rest/v1/rpc/get_at_risk_students` dan dapat list mahasiswa berisiko. Spec: `.kiro/specs/at-risk-rpc-revoke-public/spec.md`.
+
+### Verifikasi sebelum fix
+
+Audit caller di kode — semua via `service_role` (`createAdminClient()`) setelah `requireRole`:
+- `app/lib/actions/at-risk.ts` → `getAtRiskSummary`, `getAtRiskStudents` (admin-only)
+- `app/lib/ai/tools.ts` → `listAtRiskStudents` (web AI), `checkMyAtRiskStatus` (mobile AI)
+
+Revoke `authenticated`+`anon` aman — tidak ada caller via cookie auth atau anon key.
+
+### SECURITY FIX — Revoke RPC public exposure
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 17:08 | [SEC] | (Supabase migration history) `20260516170810_revoke_at_risk_function_public` | Apply via MCP `apply_migration`. REVOKE ALL FROM PUBLIC, anon, authenticated; re-affirm GRANT EXECUTE TO service_role. |
+| 17:10 | [ADD] | `mypresensi-web/supabase/migrations/018_revoke_at_risk_function_public.sql` | Mirror lokal migration untuk readability di repo (sequential numbering). |
+| 17:12 | [ADD] | `.kiro/specs/at-risk-rpc-revoke-public/spec.md` | Spec dengan threat analysis, caller audit, requirements, tasks. |
+
+### Verifikasi setelah fix
+
+| Item | Hasil |
+|------|-------|
+| `pg_proc.proacl` grants | `postgres=EXECUTE, service_role=EXECUTE` saja ✓ |
+| Supabase advisors security | 2 issue `*_security_definer_function_executable` GONE ✓ |
+| `npm run type-check` web | exit 0 ✓ |
+| Sisa advisor | hanya `auth_leaked_password_protection` (HIBP, Pro-only — di-defer) |
+
+### Compliance
+
+- Rule `04-security-and-privacy.md` Section A (Tier 2 PII RLS strict per-row) → enforced
+- Rule `14-web-supabase-patterns.md` Section B (defense-in-depth 3 layer, function SD harus gated) → enforced
+- Server Action layer (`requireRole`) tetap jadi gate utama — DB layer sekarang juga deny via grant restriction
+
+---
+
+## [2026-05-16] — Sesi: Server-Side Face Verification (T0 Security Fix)
+
+### Target Sesi: Pindahkan keputusan match/no-match face recognition dari client ke server. Sebelumnya mobile GET /api/mobile/face/embedding → download stored embedding mentah → hitung cosine similarity di mobile. Pendekatan ini melanggar rule 04-security-and-privacy Section B.2 (comparison harus server-side) dan rentan reverse-engineering APK (set threshold=0 → semua match). Spec: `.kiro/specs/face-verification-server-side/spec.md`.
+
+### SECURITY FIX — Face Verification Endpoint
+
+Endpoint baru `POST /api/mobile/face/verify` server-side comparison + hapus `GET /api/mobile/face/embedding` (yang expose Tier 1 sensitive data). Mobile sekarang kirim live embedding, server fetch stored + hitung cosine + return `{match, similarity, threshold}`.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 15:00 | [ADD] | `mypresensi-web/app/api/mobile/_lib/face-utils.ts` | Helper `cosineSimilarity()` + `decodeStoredEmbedding()` reusable, server-side. |
+| 15:05 | [ADD] | `mypresensi-web/app/api/mobile/face/verify/route.ts` | Endpoint POST verify — auth + rate limit 10/menit/(user+device) + Zod 192-d strict + fetch stored + cosine + audit `mobile_face_verify`. |
+| 15:10 | [DEL] | `mypresensi-web/app/api/mobile/face/embedding/route.ts` | Hapus endpoint GET embedding — embedding tidak boleh keluar server (Tier 1 sensitive, UU PDP Pasal 4). |
+| 15:12 | [SEC] | `mypresensi-web/app/api/mobile/face/register/route.ts` | Strict Zod `.length(192)` (sebelumnya `.min(100).max(2000)`) — cegah accidental wrong-size embedding. |
+| 15:15 | [ADD] | `mypresensi-mobile/lib/features/face/data/face_models.dart` | Model baru `FaceVerifyResponse` (match/similarity/threshold). |
+| 15:18 | [MOD] | `mypresensi-mobile/lib/features/face/data/face_repository.dart` | Tambah `verifyEmbedding()`, hapus `getStoredEmbedding()`. |
+| 15:20 | [MOD] | `mypresensi-mobile/lib/core/network/api_endpoints.dart` | Tambah `faceVerify`. |
+| 15:22 | [MOD] | `mypresensi-mobile/lib/features/face/providers/face_provider.dart` | Refactor `FaceVerificationNotifier.onFrame()`: hilangkan param `storedEmbedding`+`threshold`, panggil `repo.verifyEmbedding()`. Hapus `storedEmbeddingProvider`. Hapus unused import `face_models.dart`. |
+| 15:25 | [MOD] | `mypresensi-mobile/lib/features/face/screens/face_verification_screen.dart` | Hilangkan fetch embedding di init — gate via `authState.user.isFaceRegistered`. Hilangkan param `widget.threshold` (server yang putuskan). |
+| 15:27 | [MOD] | `mypresensi-mobile/lib/core/router/app_router.dart` | `/face-verify` route tidak terima override threshold lagi. |
+
+### DOC
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 15:30 | [ADD] | `.kiro/specs/face-verification-server-side/spec.md` | Spec lengkap: konteks security violation, requirements, design, tasks, threat model verification. |
+| 15:32 | [MOD] | `docs/TODO.md` | Move T0 face verification ke "Completed". |
+
+### Verifikasi
+
+- ✅ `npm run type-check` di `mypresensi-web/`: 0 errors
+- ✅ `flutter analyze` di `mypresensi-mobile/`: No issues found
+- ⚠️ Smoke test E2E (verify wajah valid match, wajah lain reject, belum register → 404, old endpoint 404) — perlu dilakukan user di emulator/HP
+
+### Compliance
+
+- Rule `04-security-and-privacy.md` Section B.2 sekarang ENFORCED — face comparison server-side.
+- UU PDP Pasal 4 (data spesifik biometrik) — embedding tidak pernah keluar server.
+- Audit log lengkap: `mobile_face_verify` action dengan `matched/similarity/threshold/device_id`. Stored embedding tidak ikut di-log.
+
+---
+
+## [2026-05-16] — Sesi: Login Page Polish + Animation System Expansion
+
+### Target Sesi: Polish halaman login dengan animasi entrance + capslock detector + Variant A loading button (spinner + teks "Masuk" TETAP, tidak berubah jadi "Memproses..."). Trust badge "Data terenkripsi" dihapus karena terlalu teknis. Bahasa fitur tetap formal sesuai konteks akademik kampus.
+
+### DESIGN SYSTEM — Animation Tokens
+
+Tambah keyframes & utility class reusable di `globals.css`: slide-in horizontal (split-screen entrance), drift blur (decorative background depth), progress-top-bar (action-level loading di card form).
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 14:50 | [ADD] | `mypresensi-web/app/globals.css` | `@keyframes slide-in-left/right` + `.animate-slide-in-left/right` (400ms cubic-bezier) untuk split-screen entrance. `@keyframes drift-blur-1/2` + `.animate-drift-blur-1/2` (18-22s loop) untuk decorative depth. `@keyframes progress-indeterminate` + `.progress-top-bar` reusable utility untuk loading state Variant C (action-level di card form). |
+
+### LOGIN PAGE — UI Polish
+
+Implementasi 8 perubahan: hapus "Data terenkripsi", animasi entrance kiri+kanan dengan stagger fitur, autofocus email, tabIndex show/hide button, CapsLock detector pattern Stripe/GitHub, Variant A loading spinner+teks tetap, placeholder kontekstual admin/dosen Politani, drift blur background.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 15:00 | [MOD] | `mypresensi-web/app/(auth)/login/page.tsx` | Trust badge: `"Data terenkripsi · UU PDP compliant"` → `"Data kamu kami jaga, sesuai aturan privasi"`. Aside: `animate-slide-in-left` + blur circles `animate-drift-blur-1/2`. Section form: `animate-slide-in-right` + delay 150ms. 3 feature highlights pakai `animate-stagger-in` dengan delay 280/360/440ms. Teks tagline+fitur tetap formal (sesuai konteks akademik). |
+| 15:35 | [MOD] | `mypresensi-web/app/(auth)/login/page.tsx` | **Trust badge dihapus sama sekali** (revisi atas feedback user — terlalu noise di footer). Sisa di footer panel kiri hanya copyright. Hapus juga import `ShieldCheck` dari `lucide-react`. Trust signal sudah tersirat dari brand logo Politani + 3 fitur keamanan di atas. |
+| 15:38 | [MOD] | `docs/ui-research/mockups/login-mockup.html` | Sinkronkan mockup AFTER dengan source: hapus `<div class="trust-pill">`. Update summary card jadi "Hapus trust badge sama sekali" + update header description. |
+| 15:10 | [MOD] | `mypresensi-web/app/(auth)/login/login-form.tsx` | `SubmitButton` Variant A: spinner Lucide `Loader2` di kiri + teks `"Masuk"` TETAP (tidak ganti `"Memproses..."`) + `aria-busy`. Field email `autoFocus` + placeholder `"nama@politanisamarinda.ac.id"`. Field password: `onKeyDown/Up` handler `getModifierState('CapsLock')` → `<AlertTriangle>` warning kuning saat aktif. Tombol show/hide password `tabIndex={-1}` (keyboard user tab dari password langsung ke "Masuk"). |
+| 15:20 | [ADD] | `docs/ui-research/mockups/login-mockup.html` | Mockup interaktif before/after side-by-side untuk preview polish login. 3 state toolbar: idle / capslock / loading-a/b/c. Sebagai reference design saat implement. |
+| 15:25 | [MOD] | `docs/ui-research/mockups/index.html` | Card "Login" dari coming-soon (SOON) → link aktif (READY) ke `login-mockup.html`. |
+
+### MOCKUP ADMIN — 6 Halaman Baru (Penutup Backlog UI/UX Research)
+
+Hasil cross-check 6 conversation sebelumnya menemukan 6 mockup admin masih `coming-soon`. Eksekusi batch dalam 1 sesi: Dashboard Dosen, Sesi Calendar Week, Live Monitor (geofence ring + realtime feed), Rekap (Recharts SVG), Dosen List, Mata Kuliah Card Grid. Semua reuse `_tokens.css` shared design system + Iconify Lucide. Total 14 mockup admin web siap (12/12 ready) + 1 mobile showcase grid.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 16:10 | [ADD] | `docs/ui-research/mockups/dosen-dashboard.html` | Hero greeting card (gradient + gold glow) · live session card (progress bar + Refresh OTP/Pantau) · 4 KPI MK · sesi mendatang dengan badge "HARI INI"/hari · mahasiswa berisiko (kehadiran < 75%) · MK saya 3-card grid (icon variant per MK + stats kehadiran). |
+| 16:20 | [ADD] | `docs/ui-research/mockups/dosen-list.html` | Filter bar prodi/aktif + bulk action 3-mahasiswa selected · stats bar 5 metric · tabel 7 dosen dengan NIDN, keahlian tags (algo/RPL/data sci/dll), MK count badge, status aktif/non-aktif · demo dropdown menu (lihat/edit/kelola MK/reset password/nonaktifkan). |
+| 16:30 | [ADD] | `docs/ui-research/mockups/matkul-list.html` | View toggle Card/Tabel · 4 KPI mini (total MK/SKS/rata-mhs/belum-ada-dosen) · 6 MK card dengan icon variant per kategori, deskripsi 2-line clamp, dosen pengampu strip, 3 stat (mhs/sesi/hadir) · 1 card UNASSIGNED dengan dashed warning border untuk MK belum ada dosen. |
+| 16:40 | [ADD] | `docs/ui-research/mockups/sesi-list.html` | Calendar week view 7-kolom (Sen-Min) × time slot 07:00-17:00 · event blocks color-coded (live/scheduled/finished/warning/danger) · now indicator merah horizontal · "HARI INI" highlighted via gold dot · 4 summary card · filter MK chip · view toggle Minggu/Bulan/Daftar. |
+| 16:55 | [ADD] | `docs/ui-research/mockups/live-monitor.html` | Live banner gradient navy + green pulse pill · OTP card glassmorphic dengan 3 tombol (Refresh/Tampil QR/Akhiri) · 4 KPI (hadir/belum/persen/mock-ditolak) · **geofence ring visualization** SVG: 3 concentric ring dashed + center pin Lab Komputer + 16 student dots berwarna (12 success di dalam, 2 warning di luar radius, 2 danger mock GPS) · activity feed sidebar realtime dengan animation `feed-arrive` · grid mahasiswa 30 tile dengan status icon. |
+| 17:10 | [ADD] | `docs/ui-research/mockups/rekap.html` | KPI strip 4-card · **3 chart SVG inline** (placeholder Recharts): bar chart 7-MK dengan reference line ambang 75% + tooltip floating + gradient fill, donut pie 4-slice status (hadir/izin/sakit/alpa) dengan center number + legend, line chart 12-week trend dengan area gradient + animated pulse di data point terakhir + tooltip "Tertinggi semester ini" · ranking grid 2-kolom: Top 5 (gold/silver/bronze) + Risk 5 (red percent). |
+| 17:18 | [MOD] | `docs/ui-research/mockups/index.html` | 6 card admin dari coming-soon → READY dengan link href aktif. Update section count `5/12 → 12/12`. Update meta hub `11 → 14 halaman ready` + last updated `2026-05-16`. |
+
+### MOCKUP MOBILE — 6 Halaman Baru (Penutup Backlog Mobile UI/UX Research)
+
+Batch eksekusi 6 mockup mobile individual yang sebelumnya `coming-soon`. Semua reuse `_mobile.css` + `_tokens.css` shared design system + Iconify Lucide. Total 19 mockup siap: 12 admin web + 7 mobile (1 showcase grid + 6 individual).
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 21:00 | [ADD] | `docs/ui-research/mockups/mobile-splash-onboarding.html` | 4 frame: splash screen (logo MP + TRPL) · welcome greeting · role select (mahasiswa only) · multi-select MK enrolled. Animasi float + staggered entrance. |
+| 21:10 | [ADD] | `docs/ui-research/mockups/mobile-login.html` | 3 frame: default login (NIM/email + password + biometric tile) · bottom sheet biometric prompt (fingerprint ring animation + privacy reminder) · capslock detector + error banner (sisa percobaan 2/5) + Variant A loading spinner. |
+| 21:20 | [ADD] | `docs/ui-research/mockups/mobile-riwayat.html` | 2 frame: smart-date list (Hari Ini/Kemarin/Minggu Ini) + hero progress 92% · filter chip (Semua/Hadir/Izin/Alpa) · bottom sheet detail (status banner + 5 detail row: MK, waktu, lokasi valid, face match 94% thumb, perangkat anti-fraud). |
+| 21:30 | [ADD] | `docs/ui-research/mockups/mobile-notifications.html` | 3 frame: inbox group by date (Hari Ini/Kemarin/Minggu Lalu) + 4 notif type color-coded + CTA inline · swipe action reveal (kiri=tandai dibaca, kanan=hapus) + helper toast first-time · empty state (bell illustration + confetti + CTA "Atur Notifikasi"). |
+| 21:40 | [ADD] | `docs/ui-research/mockups/mobile-leave-request.html` | 4 frame multi-step wizard: Step 1 Pilih MK (4 card enrolled + radio select) · Step 2 Tipe+Tanggal (Sakit/Izin tile + date range picker + keterangan counter) · Step 3 Lampiran (upload zone + file preview + privacy note) · Step 4 Submitted Timeline (success banner + review summary + 3-step status: Diajukan→Direview→Disetujui/Ditolak). |
+| 21:50 | [ADD] | `docs/ui-research/mockups/mobile-profile.html` | 2 frame: Profile Hero (avatar gold glow + badge verified + 4 KPI: 92%/46/2/2) + 3 group settings (Akun/Keamanan & Privasi/Aplikasi) + toggle switch + logout danger row · Privacy Detail (UU PDP hero + data inventory 6 row + "Unduh Semua Data" + "Hapus Data Wajah" double-confirm + warning konsekuensi). |
+| 22:00 | [MOD] | `docs/ui-research/mockups/index.html` | 6 card mobile dari coming-soon → READY dengan link href aktif. Update section count `6/12 → 12/12`. Update meta hub `14 → 19 halaman ready`. |
+
+### Verifikasi
+
+- `npm run type-check` → exit 0, 0 errors
+- `npm run lint` → exit 0, 0 warnings
+- 6 mockup admin baru: HTML valid, semua link `_tokens.css` + Iconify CDN benar
+- 6 mockup mobile baru: HTML valid, semua link `_tokens.css` + `_mobile.css` + Iconify CDN benar
+- `index.html` catalog: 12/12 admin web ready · 7/7 mobile ready (1 showcase + 6 individual)
+
+### Catatan untuk Sesi Berikutnya
+
+User feedback awal: "bahasa kebanyakan masih terlalu teknis untuk website dan aplikasi saya". Rewrite awal saya terlalu kasual (mis. `"nggak bisa dititip teman"`, `"tanpa ribet"`) — user reject, kembalikan ke versi formal. **Pelajaran**: untuk konteks akademik kampus, target style adalah **formal-pendek-natural** (bukan kasual, bukan teknis penuh jargon). Halaman LAIN (dashboard, error message, dialog konfirmasi, snackbar) masih perlu audit terpisah dengan approach yang tepat — bukan login.
+
+**Status backlog mockup pasca sesi**:
+- ✅ **Admin web**: 12/12 ready (semua done)
+- ✅ **Mobile**: 7/7 ready (showcase grid 6-screen + 6 individual). Semua mockup mobile selesai.
+- ⏳ **Implementasi screen mobile real**: belum mulai. Premium look + design token + 3-state widget sudah siap di mobile codebase, tinggal apply ke 6 screen.
+
+**Klarifikasi user request "fitur dark mode"**: Cross-check seluruh codebase + 6 conversation + CHANGELOG/dev-log → **0 hit**. Tidak pernah ada janji dark mode di MyPresensi. User confirmed skip dark mode (bukan prioritas, fokus ke mockup mobile + implementasi screen).
+
+---
+
+## [2026-05-15] — Sesi: AI Chatbot Integration + Chat UI Redesign
+
+### Target Sesi: Integrasi Gemini 2.5 Flash sebagai Asisten AI web admin/dosen + mobile mahasiswa, lalu redesign UI chat agar sesuai design rules MyPresensi (corporate clean, palette Politani only).
+
+### AI BACKEND & API ENDPOINTS
+
+Bangun infrastruktur AI chatbot dengan Vercel AI SDK + Gemini 2.5 Flash. Pisah endpoint admin (cookie auth) dan mobile (Bearer auth). Tambah rate limit 10/menit per user + audit logging.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 09:10 | [ADD] | `mypresensi-web/app/lib/ai/tools.ts` | Server-side AI tools — query presensi/izin/trend/courses dengan role guard (admin/dosen/mahasiswa). Function calling untuk akses data terstruktur. |
+| 09:25 | [ADD] | `mypresensi-web/app/api/admin/ai/chat/route.ts` | Endpoint web admin/dosen — cookie auth + role guard + Gemini system prompt Indonesia + rate limit + `logAudit('ai_chat')`. |
+| 09:40 | [ADD] | `mypresensi-web/app/api/mobile/ai/chat/route.ts` | Endpoint mobile mahasiswa — Bearer auth + `authenticateRequest()` + scope data ke `student_id` only. |
+| 09:55 | [MOD] | `mypresensi-web/app/lib/actions/recent-activity.ts` | Tambah mapping `ai_chat` ke human-readable label untuk audit log timeline. |
+
+### MOBILE AI CHAT
+
+Repository, provider Riverpod, dan screen UI untuk mahasiswa di mobile app.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 10:05 | [MOD] | `mypresensi-mobile/lib/core/network/api_endpoints.dart` | Tambah konstanta `aiChat = '/api/mobile/ai/chat'`. |
+| 10:08 | [ADD] | `mypresensi-mobile/lib/features/ai/data/ai_chat_repository.dart` | Dio client untuk endpoint AI chat + error handling. |
+| 10:15 | [ADD] | `mypresensi-mobile/lib/features/ai/providers/ai_chat_provider.dart` | Riverpod state notifier — message list, loading, error state immutable. |
+| 10:25 | [ADD] | `mypresensi-mobile/lib/features/ai/screens/ai_chat_screen.dart` | Chat screen Material — bubble message, input field, suggestion chips, typing indicator. |
+| 10:30 | [MOD] | `mypresensi-mobile/lib/shared/widgets/app_shell.dart` | Tambah tab "Asisten" di bottom nav. Pindah Scan dari tab ke push route. |
+
+### CHAT UI REDESIGN — VARIANT A "CORPORATE CLEAN"
+
+User feedback: UI awal melanggar design rules — pakai 4 shade biru berbeda (`#3B82F6`, `#3478F6`, `#4C86FF`, primary), gradient header dengan blur decoration, bubble user gradient, radial background body. Terlihat AI-generated, bukan corporate.
+
+Solusi: buat **3 variant mockup HTML statis** (`ai-chat-mockup.html`) untuk user pilih sebelum implement. User pilih **Variant A — Corporate Clean** (header putih + icon box, tanpa gradient, palette Politani only). Rewrite total `ai-chat-widget.tsx` mengikuti mockup A + tambah parser markdown inline untuk `**bold**`, `*italic*`, ordered/unordered list (tanpa dependency baru).
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 10:35 | [ADD] | `docs/ui-research/mockups/ai-chat-mockup.html` | 3 variant chat panel side-by-side (Corporate Clean / Modern Elevated / Hero Branded) untuk decision making. Pakai `_tokens.css` shared. Pros/cons box per variant. |
+| 10:45 | [MOD] | `mypresensi-web/app/components/ai/ai-chat-widget.tsx` | **Rewrite total** — header putih + icon box, palette TRPL only, bubble user solid primary, body flat, FAB responsive (circle di mobile, pill di desktop), input flat tanpa border ganda. Tambah `FormattedContent` + `parseBlocks` + `renderInline` untuk markdown ringan tanpa library baru. |
+| 10:50 | [MOD] | `mypresensi-web/app/globals.css` | Tambah animasi `ai-panel-in` (scale+slide), `ai-message-in` (fade), `ai-dot` (typing bounce). |
+| 10:58 | [FIX] | `mypresensi-web/app/components/ai/ai-chat-widget.tsx` | **Input "garis biru tebal" tidak serasi dengan box** — root cause: border 1px + focus-within ring-4 + corner radius mismatch (wrapper rounded-xl vs form parent rounded-2xl) bikin efek "kotak biru floating". Fix: hapus border permanen + ring di wrapper input, pakai bg-background flat (gaya modern messaging app — WhatsApp/Linear/Slack). Tombol Send jadi indikator aksi. |
+| 10:55 | [FIX] | `mypresensi-web/app/components/ai/ai-chat-widget.tsx` | **FAB mobile terlalu lebar** — full-pill dengan label di mobile makan ruang & overlap konten. Fix: responsive — circle 56px icon-only `Bot` di mobile (< 640px), pill + label di desktop. Konsistensi icon FAB ↔ header pakai `Bot` saja (sebelumnya FAB pakai Sparkles, header Bot — tidak match). |
+
+### KONFIGURASI ENV
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 10:25 | [CFG] | `mypresensi-web/.env.local` | Tambah `GOOGLE_GENERATIVE_AI_API_KEY` (Gemini free tier, ~1500 req/hari). Dev server perlu restart agar env terbaca Next.js process. |
+
+### CHAT UI POLISH ROUND 2 — Parity, Persist, Dynamic, Streaming
+
+User minta semua 4 saran lanjutan dieksekusi sekaligus. Hasil:
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 11:05 | [MOD] | `mypresensi-mobile/lib/features/ai/screens/ai_chat_screen.dart` | **Mobile UI parity** dengan Variant A — rewrite total. Header putih AppBar + icon box (hapus gradient header lama), suggestion chip dengan icon kategori (`pie_chart_outline`, `warning_amber`, `school_outlined`, `help_outline`), typing 3-dot bounce animation (`AnimationController` + sine curve, ganti `CircularProgressIndicator`), inline markdown parser (`_MarkdownBlock` + `_parseBlocks` + `_parseInline` — support paragraf, **bold**, *italic*, ordered/unordered list). Pakai `AppColors` token TRPL `#5483AD` (mobile palette, beda dari web Politani `#2D86FF`). 0 dependency baru. |
+| 11:20 | [ADD] | `mypresensi-web/app/components/ai/ai-chat-widget.tsx` | **Persist chat history** via `sessionStorage` (key `mypresensi:ai-chat`). Lazy hydrate saat mount dengan `hasHydrated` ref guard untuk hindari race. Auto-save setiap `messages` berubah. Tombol Trash di header (muncul saat ada history) untuk clear riwayat manual. State hidup selama browser tab aktif, hilang saat tab ditutup (sessionStorage scope). |
+| 11:25 | [ADD] | `mypresensi-web/app/components/ai/ai-chat-widget.tsx` | **Dynamic suggestion context-aware** — `usePathname()` + `getContextualSuggestions()` map pathname ke 3 suggestion relevan: `/mahasiswa` → mahasiswa berisiko/baru/statistik, `/rekap` → trend/MK terendah/at-risk, `/izin` → pending/distribusi/sering izin, default → dashboard. Badge "Konteks: {nama}" di empty state untuk UX clarity. |
+| 11:35 | [MOD] | `mypresensi-web/app/api/admin/ai/chat/route.ts` | **Streaming response** — swap `generateText()` → `streamText()` + `result.toTextStreamResponse()` untuk SSE plain text. Audit log dipindah ke `onFinish` callback agar `response_length` pakai panjang final (bukan ekspetasi awal). Tambah field `streamed: true` di details. Error path 4xx/5xx tetap JSON. |
+| 11:38 | [MOD] | `mypresensi-web/app/components/ai/ai-chat-widget.tsx` | **Client SSE consumer** — `body.getReader()` + `TextDecoder` loop, append chunk ke assistant bubble realtime via state update. Bubble assistant kosong di-skip render sampai chunk pertama (typing bubble jadi indikator), lalu typing bubble di-hide saat last message punya content (UX natural: typing → streaming → final). Error mid-stream → hapus placeholder assistant. |
+
+### VERIFIKASI ROUND 2
+
+- `npm run type-check` — pass (0 error)
+- `npx next lint --quiet` — No ESLint warnings or errors
+- `dart analyze .\lib\features\ai\` — No issues found
+- Smoke test manual dashboard admin: streaming chunk visible, tombol clear berfungsi, navigasi antar halaman ganti suggestion otomatis, sessionStorage restore setelah reload tab.
+
+### SECURITY NOTES (untuk fitur AI baru)
+
+- Streaming HTTP body tidak punya secret leak risk karena hanya teks output Gemini (sudah dibatasi via system prompt + scope role di `tools.ts`).
+- `sessionStorage` simpan hanya `{id, role, content}` — tidak ada user_id, token, atau metadata sensitif. Scope tab → otomatis hilang saat browser close.
+- Dynamic suggestion **tidak** bocorin path private; pathname yang dipakai sudah lewat middleware role guard (admin/dosen only).
+- Audit log `streamed: true` jadi diferensiasi forensik kalau ada anomali rate.
+
+### FAVICON SWAP — TRPL Logo
+
+User minta tab title bar pakai logo TRPL, bukan favicon Next.js default. Saya generate 3 ukuran via PowerShell + `System.Drawing` (HighQualityBicubic resampling).
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 11:00 | [ADD] | `mypresensi-web/app/icon.png` | 256x256 PNG dari `gambar/Prodi/TRPL.jpg` — Next.js auto-emit `<link rel="icon">` untuk modern browsers. |
+| 11:00 | [ADD] | `mypresensi-web/app/apple-icon.png` | 180x180 PNG untuk iOS Safari + Add to Home Screen. |
+| 11:00 | [MOD] | `mypresensi-web/app/favicon.ico` | Replace default Next.js (triangle 25.9 KB) dengan TRPL 48x48 PNG-in-ICO container (3.6 KB). Modern browsers accept PNG bytes via `.ico` ext. |
+
+### ANIMATION POLISH — Tier 1 + Tier 2 (CSS-only, 0 dependency)
+
+User minta animasi untuk layout & elemen. Saya tantang ide "animasi semua" karena akan terlihat AI-generated + lambatkan workflow admin. Tawarkan **Tier 1 + 2 strategis**: page enter, KPI stagger, number count-up, skeleton shimmer, tab underline glide, sidebar nav slide. Semua CSS-only + respect `prefers-reduced-motion`.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 11:10 | [MOD] | `mypresensi-web/app/globals.css` | **Animation kit** — keyframes `page-in` (220ms fade+up), `stagger-in` (240ms ease-out), skeleton `shimmer` linear gradient (1.4s loop). Sidebar `.sidebar-nav-item::before` pakai pseudo bar grow `scaleY 0 → 1` (200ms ease-out) menggantikan static `box-shadow inset`. Plus global `@media (prefers-reduced-motion: reduce)` guard. |
+| 11:12 | [ADD] | `mypresensi-web/app/components/layout/page-transition.tsx` | Wrapper `key={pathname}` agar `animate-page-in` replay setiap navigate. Client Component. |
+| 11:13 | [MOD] | `mypresensi-web/app/(dashboard)/layout.tsx` | Wrap `{children}` dengan `<PageTransition>` — animasi page-in pada setiap halaman dashboard. |
+| 11:15 | [ADD] | `mypresensi-web/app/components/dashboard/animated-number.tsx` | **Count-up tween component** — `requestAnimationFrame` + ease-out cubic, 600ms default, locale `id-ID`. Respects `prefers-reduced-motion` (set instan). Reusable, 0 dependency. |
+| 11:18 | [MOD] | `mypresensi-web/app/(dashboard)/dashboard/admin-dashboard.tsx` | Tambah `animate-stagger-in` + `style={{ animationDelay: '${i*60}ms' }}` pada 6 KPI card. Wrap angka dengan `<AnimatedNumber value={...} />` di 6 tempat. |
+| 11:19 | [MOD] | `mypresensi-web/app/(dashboard)/dashboard/dosen-dashboard.tsx` | Sama pola, 4 KPI card. |
+| 11:20 | [MOD] | `mypresensi-web/app/(dashboard)/rekap/page.tsx` | Sama pola, 4 KPI card (Total Sesi/Hadir/Alpa/Izin). |
+| 11:25 | [MOD] | `mypresensi-web/app/(dashboard)/profil/profile-form.tsx` | **Tab underline glide** — refactor 2 tab (Informasi Profil / Ubah Password) jadi pakai absolute `<span>` indicator yang animate `left + width` via `transition-all duration-300 ease-out`. `useLayoutEffect` + `tabRefs` ukur `offsetLeft`/`offsetWidth` tab aktif sebelum paint (no flicker). Hilangkan `border-b-2` per button. |
+
+### AI CHAT INPUT FOCUS FIX — Final Round
+
+User report: "wrapping warna biru masih ga sesuai dengan kotak chat". Root cause akhirnya ditemukan: **`*:focus-visible` global** di `globals.css` punya `outline-offset: 2px` + `border-radius: 4px` — tidak match `rounded-xl` (12px) wrapper input chat, makanya kotak biru terlihat lebih kecil + sudut beda + mengambang 2px di luar.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 11:30 | [FIX] | `mypresensi-web/app/components/ai/ai-chat-widget.tsx` | Override global `:focus-visible` outline pada input chat dengan `focus:outline-none focus-visible:outline-none`. Pindahkan focus indicator ke wrapper via `focus-within:bg-surface focus-within:ring-1 focus-within:ring-primary/40` — ring tipis 1px yang ikut `rounded-xl` wrapper persis. Tetap accessible untuk keyboard user (bg change + ring tipis sebagai indikator visual). |
+
+### VERIFIKASI FINAL
+
+- `npm run type-check` — pass (0 error)
+- `npx next lint --quiet` — No ESLint warnings or errors
+- `dart analyze .\lib\features\ai\` — No issues found
+- Smoke test manual: navigasi halaman dashboard → animasi page-in halus, KPI cards stagger 0-300ms, angka count up dari 0 ke target, sidebar active indicator bar grow, profile tab underline glide smooth.
+
+### PERFORMANCE & ACCESSIBILITY NOTES
+
+- Semua animasi pakai **`transform` + `opacity` only** — GPU-accelerated, no layout reflow.
+- Durasi 200-300ms (di dalam batas yang tidak mengganggu workflow).
+- `prefers-reduced-motion: reduce` global guard di `globals.css` mematikan semua animasi durasi >0.01ms untuk user dengan vestibular sensitivity.
+- `AnimatedNumber` check `window.matchMedia('(prefers-reduced-motion: reduce)')` saat mount → set instan tanpa tween.
+- Bundle size impact: **0 KB** (semua CSS-only kecuali `AnimatedNumber` yang ~600 bytes raw, ~250 bytes gzipped).
 
 ---
 
@@ -865,3 +1591,52 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 ---
 
 *Log ini diperbarui otomatis setiap ada perubahan signifikan oleh AI assistant.*
+
+
+## 2026-05-17 — Phase 5 Sub 1: Mobile Theme Migration v7 (Foundation)
+
+| HH:MM | [TYPE] | path | Penjelasan |
+|-------|--------|------|------------|
+| Now | [MOD] | `mypresensi-mobile/lib/core/theme/app_colors.dart` | Migrasi token v7 — primary `#5483AD` → `#2D86FF` (sinkron mockup). Tambah `primaryHover #1E70E0`, `primaryDeep #082040`, `accent #F4B400`, `accentSoft 30% alpha`, `bg`, `surfaceSunken`, `borderStrong`. Field lama (`background`, `surfaceVariant`, `borderLight`, `divider`, `successLight`, dll) dipertahankan sebagai alias non-breaking. textTertiary `#9CA3AF` → `#757B82` (WCAG AA). |
+| Now | [ADD] | `mypresensi-mobile/lib/core/theme/app_shadows.dart` | File baru — layered shadow tokens (rule 22 §D): `card`, `cardHover`, `cardElevated`, `hero` (navy tint dramatis), `fab`, `button`, `bottomNav`. Anti-flat principle. |
+| Now | [CHORE] | `mypresensi-mobile/pubspec.yaml` | Tambah dependency `iconsax_plus: ^1.0.0` (rule 22 §C — fintech ID vibe icon). Note: package v1.0.0 export `Bold/Broken/Linear`, belum punya `Bulk` — pakai Bold sebagai standar. |
+| Now | [MOD] | `mypresensi-mobile/lib/shared/widgets/app_shell.dart` | Refactor bottom nav 5-tab v7: Beranda · Riwayat · **Izin** · Notifikasi · Profil. **Tab AI Chat dihapus** (soft-deprecate, pindah ke menu Profil). Tab Izin point ke `MyLeaveRequestsScreen` (gateway pengajuan). Pakai `IconsaxPlusBold.home_2/task_square/note_2/notification/user`. Pakai `AppShadows.bottomNav`. Refactor `_buildNavItem` jadi `_NavItem` ConsumerWidget terpisah (cleaner). |
+
+**Verifikasi**: `flutter analyze` exit 0, `No issues found!` (16 file referensi token tetap hidup karena alias).
+
+**Yang BELUM dikerjakan di sesi ini** (tergantung sesi lanjut):
+- Helper widgets (`hero_card.dart`, `kpi_icon_box.dart`, `app_card.dart`, `trend_pill.dart`, `hero_badge.dart`, `semantic_icon.dart`) — perlu dibuat sebelum refactor screen
+- Profile screen rebuild sesuai `mobile-profile.html` (camera badge edit + 3 group settings + AI Chat link di Profil)
+- My Leave Requests screen rebuild sesuai `mobile-my-leave-requests.html` (filter chip + group status + FAB Ajukan Izin)
+- History/Notifications/Home screen rebuild sesuai mockup
+- Web `globals.css` token sync ke `#2D86FF` (cross-platform consistency)
+- Cleanup AI Chat: pindah dari tab utama ke entry point di Profile screen
+
+
+## 2026-05-17 — Phase 5 Sub 2: Helper Widgets + Profile Screen Rebuild
+
+| HH:MM | [TYPE] | path | Penjelasan |
+|-------|--------|------|------------|
+| Now | [ADD] | `mypresensi-mobile/lib/shared/widgets/semantic_icon.dart` | Helper widget Semantic System (rule 22 §C.5) — 6 variants enum: action/featured/success/warning/danger/neutral. |
+| Now | [ADD] | `mypresensi-mobile/lib/shared/widgets/hero_card.dart` | Statement surface — gradient primary→navy + gold radial glow + white highlight + AppShadows.hero. 1 hero per screen MAX (rule 22 §E.1). |
+| Now | [ADD] | `mypresensi-mobile/lib/shared/widgets/app_card.dart` | Card default — white surface + radius 16 + layered shadow + padding 16 (rule 22 §E.3). Pakai AppShadows.card / cardElevated. |
+| Now | [ADD] | `mypresensi-mobile/lib/shared/widgets/kpi_icon_box.dart` | Duotone icon box — 7 variants (primary/success/warning/danger/info/accent/featured). Pattern WAJIB untuk quick action, list leading icon (rule 22 §E.2). |
+| Now | [MOD] | `mypresensi-mobile/lib/features/profile/screens/profile_screen.dart` | **Full rebuild** sesuai mockup mobile-profile.html. Layout baru: hero avatar dengan gold glow + camera badge tap-able → 3 group settings (Akun / Keamanan & Privasi / Aplikasi) → Logout danger row. Preserve flow existing: avatar upload, delete face 2-step (UU PDP), navigasi ke /face-register, /change-password, /leave-requests. Tambah entry "Asisten AI" + "Tentang" + "Email Kampus" (read-only modal info). Pakai IconsaxPlusBold icons + AppShadows.card. |
+| Now | [MOD] | `mypresensi-mobile/lib/core/router/app_router.dart` | Tambah route `/ai-chat` dengan slide transition — dipakai dari Profile setelah AI dipindah dari tab utama. |
+
+**Verifikasi**: `flutter analyze` exit 0, `No issues found!` ✅ (Checkpoint 1 + 2 passed)
+
+**Yang BELUM dikerjakan** (sesi lanjut):
+- MyLeaveRequests rebuild (filter chip 4-status + group by Menunggu/Selesai + FAB "Ajukan Izin" copy refresh + empty state ramah)
+- History screen rebuild (filter chip 6 status + bottom sheet detail + status pill TELAT)
+- Notifications screen rebuild (2 tab + swipe action + empty state ramah)
+- Home screen rebuild (3 frame state: aktif/empty/loading + Hero card sesi aktif)
+- Web `globals.css` token sync ke `#2D86FF`
+- Manual smoke test di emulator/device
+
+**Yang HARUS user verify saat test**:
+- Avatar upload tap (camera badge + initials fallback)
+- Delete face 2-step dialog (UU PDP)
+- Logout confirm dialog
+- Navigation Profile → /face-register, /change-password, /leave-requests, /ai-chat
+- Visual color `#2D86FF` di seluruh screen yang affected (login, hero, button)

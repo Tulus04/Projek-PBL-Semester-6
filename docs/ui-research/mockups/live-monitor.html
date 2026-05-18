@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Monitor — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* Live header banner */
+    .live-banner {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #0d2c5e 0%, #1a3a73 50%, #2D86FF 100%);
+      color: white;
+      border-radius: var(--r-card);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      box-shadow: var(--sh-hero);
+      isolation: isolate;
+    }
+    .live-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 90% 50%, rgba(74, 222, 128, 0.20) 0%, transparent 50%);
+      z-index: 0;
+    }
+    .live-banner > * { position: relative; z-index: 1; }
+    .live-banner-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .live-banner-left { flex: 1; min-width: 0; }
+    .live-pill-big {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      background: rgba(74, 222, 128, 0.20);
+      border: 1px solid rgba(74, 222, 128, 0.45);
+      backdrop-filter: blur(10px);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.4px;
+      margin-bottom: 14px;
+      color: #4ade80;
+    }
+    .live-pill-big .pulse {
+      width: 8px; height: 8px;
+      background: #4ade80;
+      border-radius: 999px;
+      animation: pulse-dot 1.4s infinite;
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.30);
+    }
+    .live-banner h1 {
+      font-family: var(--ff-heading);
+      font-weight: 800; font-size: 30px;
+      margin: 0 0 6px;
+      letter-spacing: -0.5px;
+    }
+    .live-banner-meta {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      font-size: 13px; opacity: 0.9;
+    }
+    .live-banner-meta span { display: inline-flex; align-items: center; gap: 6px; }
+    .live-banner-meta iconify-icon { font-size: 15px; }
+
+    /* OTP card di kanan */
+    .otp-card {
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
+      padding: 16px 22px;
+      flex-shrink: 0;
+      min-width: 260px;
+    }
+    .otp-label {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+    .otp-code {
+      font-family: var(--ff-mono);
+      font-weight: 700; font-size: 32px;
+      letter-spacing: 8px;
+      margin-bottom: 6px;
+    }
+    .otp-meta {
+      display: flex; gap: 12px;
+      font-size: 11px; opacity: 0.85;
+    }
+    .otp-meta strong { font-family: var(--ff-mono); }
+    .otp-actions {
+      display: flex; gap: 6px;
+      margin-top: 10px;
+    }
+    .otp-btn {
+      flex: 1;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+      color: white;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .otp-btn:hover { background: rgba(255, 255, 255, 0.20); }
+
+    /* KPI strip */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* Layout main: ring + activity + grid */
+    .monitor-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Geofence ring visualization */
+    .geofence-card {
+      background: var(--color-surface);
+      border-radius: var(--r-card);
+      padding: 24px;
+      box-shadow: var(--sh-card);
+      position: relative;
+      overflow: hidden;
+    }
+    .geofence-stage {
+      position: relative;
+      width: 100%;
+      height: 360px;
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(45, 134, 255, 0.06) 0%, transparent 60%),
+        linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      overflow: hidden;
+    }
+    /* Subtle grid */
+    .geofence-stage::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(15,23,42,0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15,23,42,0.04) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    /* Center marker (Lab Komputer 1) */
+    .geo-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      text-align: center;
+    }
+    .geo-center-pin {
+      width: 44px; height: 44px;
+      background: var(--color-primary);
+      border: 3px solid white;
+      border-radius: 999px 999px 999px 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 4px 14px rgba(45, 134, 255, 0.40);
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 26px;
+    }
+    .geo-center-pin iconify-icon {
+      transform: rotate(45deg);
+      color: white;
+      font-size: 20px;
+    }
+    .geo-center-label {
+      position: absolute;
+      top: 50px; left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      padding: 4px 10px;
+      background: white;
+      border-radius: 999px;
+      box-shadow: var(--sh-card);
+      font-size: 11px; font-weight: 700;
+      color: var(--color-text-primary);
+    }
+    /* Concentric rings */
+    .geo-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      border: 1.5px dashed rgba(45, 134, 255, 0.30);
+      pointer-events: none;
+    }
+    .geo-ring.r-150 {
+      width: 280px; height: 280px;
+      animation: ring-pulse 3s infinite;
+      background: radial-gradient(circle, transparent 60%, rgba(45, 134, 255, 0.04) 100%);
+    }
+    .geo-ring.r-100 {
+      width: 200px; height: 200px;
+    }
+    .geo-ring.r-50 {
+      width: 100px; height: 100px;
+      border-style: solid;
+      border-color: rgba(45, 134, 255, 0.18);
+    }
+    @keyframes ring-pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    /* Radius label */
+    .geo-radius-label {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, calc(-50% - 140px));
+      font-family: var(--ff-mono);
+      font-size: 10px; font-weight: 600;
+      color: var(--color-primary);
+      background: white;
+      padding: 2px 8px;
+      border-radius: 999px;
+      box-shadow: var(--sh-card);
+    }
+
+    /* Student dots inside ring */
+    .geo-student {
+      position: absolute;
+      width: 28px; height: 28px;
+      border-radius: 999px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+      color: white;
+      font-family: var(--ff-heading);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 2px white;
+      transition: all 0.15s ease;
+    }
+    .geo-student:hover {
+      transform: scale(1.18);
+      z-index: 10;
+    }
+    .geo-student.success {
+      background: linear-gradient(135deg, #22c55e, #15803d);
+    }
+    .geo-student.warning {
+      background: linear-gradient(135deg, #fbbf24, #b45309);
+    }
+    .geo-student.danger {
+      background: linear-gradient(135deg, #f87171, #be123c);
+      box-shadow: 0 2px 8px rgba(207, 34, 46, 0.30), 0 0 0 2px white;
+    }
+    .geo-student.live {
+      animation: dot-arrive 0.5s ease;
+    }
+    @keyframes dot-arrive {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.3); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Stage legend */
+    .stage-legend {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--color-border);
+    }
+    .stage-legend-item {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+    .stage-legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .stage-legend-dot.success { background: linear-gradient(135deg, #22c55e, #15803d); }
+    .stage-legend-dot.warning { background: linear-gradient(135deg, #fbbf24, #b45309); }
+    .stage-legend-dot.danger { background: linear-gradient(135deg, #f87171, #be123c); }
+
+    /* Activity feed sidebar */
+    .activity-sidebar {
+      background: var(--color-surface);
+      border-radius: var(--r-card);
+      box-shadow: var(--sh-card);
+      display: flex; flex-direction: column;
+      max-height: 700px;
+    }
+    .activity-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .activity-title {
+      font-family: var(--ff-heading);
+      font-weight: 700; font-size: 15px;
+      color: var(--color-text-primary);
+      display: flex; align-items: center; gap: 8px;
+      margin: 0 0 4px;
+    }
+    .activity-title iconify-icon { color: var(--color-primary); font-size: 18px; }
+    .activity-subtitle {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .activity-subtitle .pulse {
+      width: 6px; height: 6px;
+      background: var(--color-success);
+      border-radius: 999px;
+      animation: pulse-dot 1.6s infinite;
+    }
+
+    .activity-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px 16px;
+    }
+    .feed-item {
+      display: flex; gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-item.fresh {
+      background: linear-gradient(90deg, var(--color-success-tint), transparent);
+      border-radius: 8px;
+      padding-left: 8px; padding-right: 8px;
+      margin: 0 -8px;
+      animation: feed-arrive 0.5s ease;
+    }
+    @keyframes feed-arrive {
+      from { transform: translateX(-12px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .feed-avatar {
+      width: 32px; height: 32px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #94a3b8, #475569);
+      color: white;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      font-family: var(--ff-heading);
+      flex-shrink: 0;
+    }
+    .feed-avatar.alt-1 { background: linear-gradient(135deg, #fb7185, #be123c); }
+    .feed-avatar.alt-2 { background: linear-gradient(135deg, #34d399, #047857); }
+    .feed-avatar.alt-3 { background: linear-gradient(135deg, #fbbf24, #b45309); }
+    .feed-avatar.alt-4 { background: linear-gradient(135deg, #a78bfa, #6d28d9); }
+    .feed-content { flex: 1; min-width: 0; }
+    .feed-text {
+      font-size: 12.5px;
+      color: var(--color-text-primary);
+      line-height: 1.4;
+      margin: 0 0 4px;
+    }
+    .feed-text strong { font-weight: 700; }
+    .feed-meta {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      font-size: 10.5px;
+      color: var(--color-text-tertiary);
+    }
+    .feed-meta span { display: inline-flex; align-items: center; gap: 3px; }
+    .feed-meta iconify-icon { font-size: 11px; }
+    .feed-status {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 10px; font-weight: 700;
+    }
+    .feed-status.success { background: var(--color-success-tint); color: var(--color-success); }
+    .feed-status.danger { background: var(--color-danger-tint); color: var(--color-danger); }
+
+    /* Mahasiswa grid (semua mhs di kelas) */
+    .mhs-grid-section {
+      background: var(--color-surface);
+      border-radius: var(--r-card);
+      padding: 20px;
+      box-shadow: var(--sh-card);
+    }
+    .grid-toolbar {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .grid-toolbar h3 {
+      font-family: var(--ff-heading);
+      font-weight: 700; font-size: 15px;
+      color: var(--color-text-primary);
+      margin: 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .grid-toolbar h3 iconify-icon { color: var(--color-primary); }
+
+    .mhs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .mhs-tile {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      background: var(--color-surface-hover);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+    .mhs-tile:hover { border-color: var(--color-primary); }
+    .mhs-tile.success {
+      background: linear-gradient(90deg, var(--color-success-tint) 0%, var(--color-surface-hover) 100%);
+      border-color: var(--color-success);
+    }
+    .mhs-tile.warning {
+      background: linear-gradient(90deg, var(--color-warning-tint) 0%, var(--color-surface-hover) 100%);
+      border-color: var(--color-warning);
+    }
+    .mhs-tile.danger {
+      background: var(--color-danger-tint);
+      border-color: var(--color-danger);
+    }
+    .mhs-tile-avatar {
+      width: 28px; height: 28px;
+      border-radius: 999px;
+      flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: white;
+      font-size: 10px; font-weight: 700;
+      font-family: var(--ff-heading);
+    }
+    .mhs-tile-info { flex: 1; min-width: 0; }
+    .mhs-tile-name {
+      font-size: 12px; font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mhs-tile-meta {
+      font-size: 10px;
+      color: var(--color-text-tertiary);
+      font-family: var(--ff-mono);
+    }
+    .mhs-tile-icon {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      border-radius: 999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px;
+    }
+    .mhs-tile-icon.success { background: var(--color-success); color: white; }
+    .mhs-tile-icon.warning { background: var(--color-warning); color: white; }
+    .mhs-tile-icon.danger { background: var(--color-danger); color: white; }
+    .mhs-tile-icon.idle { background: var(--color-surface-sunken); color: var(--color-text-tertiary); }
+  </style>
+</head>
+<body>
+
+  <!-- Showcase Header -->
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="lucide:arrow-left" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Live Monitor — Realtime Presensi</h1>
+    <p>Live banner · OTP refresh · KPI · geofence ring + dots · activity feed · grid mahasiswa</p>
+    <div class="legend">
+      <strong>Reference:</strong> Stripe Atlas Live · Linear Insights · Supabase Realtime Dashboard
+    </div>
+  </div>
+
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="browser-lights">
+        <div class="light red"></div><div class="light yellow"></div><div class="light green"></div>
+      </div>
+      <div class="browser-url">
+        <iconify-icon icon="lucide:lock"></iconify-icon>
+        mypresensi.politani.ac.id/dosen/sesi/3/live
+      </div>
+    </div>
+
+    <div class="admin-shell">
+
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-logo">MP</div>
+          <div class="sidebar-brand-name">MyPresensi <small>Politani Samarinda</small></div>
+        </div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:layout-dashboard"></iconify-icon> Dashboard
+        </a>
+        <div class="sidebar-section-header">Mengajar</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:book-open"></iconify-icon> Mata Kuliah Saya
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:calendar-check-2"></iconify-icon> Sesi
+          <span class="badge" style="background: var(--color-success);">2</span>
+        </a>
+        <a class="sidebar-nav-item active">
+          <iconify-icon icon="lucide:radio"></iconify-icon> Live Monitor
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:file-text"></iconify-icon> Pengajuan Izin
+          <span class="badge">3</span>
+        </a>
+        <div class="sidebar-section-header">Laporan</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:bar-chart-3"></iconify-icon> Rekap Kehadiran
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:graduation-cap"></iconify-icon> Mahasiswa
+        </a>
+        <div class="sidebar-section-header">Akun</div>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:user-circle"></iconify-icon> Profil
+        </a>
+        <a class="sidebar-nav-item">
+          <iconify-icon icon="lucide:settings-2"></iconify-icon> Preferensi
+        </a>
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" style="background: linear-gradient(135deg, #a78bfa, #6d28d9);">BH</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">Dr. Budi Hartono</div>
+            <div class="sidebar-user-role">Dosen TRPL</div>
+          </div>
+          <iconify-icon icon="lucide:chevrons-up-down" style="color: var(--color-text-tertiary);"></iconify-icon>
+        </div>
+      </aside>
+
+      <div class="admin-content">
+        <header class="topbar">
+          <div class="topbar-breadcrumb">
+            <iconify-icon icon="lucide:home" style="font-size: 14px;"></iconify-icon>
+            <span>Beranda</span>
+            <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+            <span>Sesi</span>
+            <iconify-icon icon="lucide:chevron-right" style="font-size: 14px;"></iconify-icon>
+            <span class="current">Live Monitor — RPL TI-3A</span>
+          </div>
+          <div class="topbar-search">
+            <iconify-icon icon="lucide:search"></iconify-icon>
+            <span>Cari mahasiswa...</span>
+            <kbd>Ctrl K</kbd>
+          </div>
+          <button class="topbar-icon-btn"><iconify-icon icon="lucide:help-circle"></iconify-icon></button>
+          <button class="topbar-icon-btn"><iconify-icon icon="lucide:bell"></iconify-icon><span class="dot"></span></button>
+        </header>
+
+        <div class="page-body">
+
+          <!-- LIVE BANNER -->
+          <div class="live-banner">
+            <div class="live-banner-row">
+              <div class="live-banner-left">
+                <span class="live-pill-big">
+                  <span class="pulse"></span>
+                  SESI BERLANGSUNG
+                </span>
+                <h1>Rekayasa Perangkat Lunak</h1>
+                <div class="live-banner-meta">
+                  <span><iconify-icon icon="lucide:users"></iconify-icon> TI-3A · 30 mahasiswa</span>
+                  <span><iconify-icon icon="lucide:map-pin"></iconify-icon> Lab Komputer 2</span>
+                  <span><iconify-icon icon="lucide:clock"></iconify-icon> 13:00 – 15:00 WIB</span>
+                  <span><iconify-icon icon="lucide:radio"></iconify-icon> Mulai 1j 28m yang lalu</span>
+                </div>
+              </div>
+
+              <!-- OTP card -->
+              <div class="otp-card">
+                <div class="otp-label">OTP Mahasiswa</div>
+                <div class="otp-code">847 392</div>
+                <div class="otp-meta">
+                  <span><iconify-icon icon="lucide:clock" style="font-size: 11px; vertical-align: -1px;"></iconify-icon> Expired dalam <strong>2:34</strong></span>
+                </div>
+                <div class="otp-actions">
+                  <button class="otp-btn">
+                    <iconify-icon icon="lucide:refresh-ccw"></iconify-icon> Refresh
+                  </button>
+                  <button class="otp-btn">
+                    <iconify-icon icon="lucide:qr-code"></iconify-icon> Tampil QR
+                  </button>
+                  <button class="otp-btn" style="background: rgba(248, 113, 113, 0.20); border-color: rgba(248, 113, 113, 0.45); color: #fca5a5;">
+                    <iconify-icon icon="lucide:square"></iconify-icon> Akhiri
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Sudah Hadir</span>
+                <div class="kpi-icon-box success">
+                  <iconify-icon icon="lucide:check-circle-2"></iconify-icon>
+                </div>
+              </div>
+              <div class="kpi-number">22</div>
+              <div class="kpi-trend up">
+                <iconify-icon icon="lucide:trending-up"></iconify-icon>
+                <span>+5 dalam 10 menit terakhir</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Belum Hadir</span>
+                <div class="kpi-icon-box warning">
+                  <iconify-icon icon="lucide:user-x"></iconify-icon>
+                </div>
+              </div>
+              <div class="kpi-number">8</div>
+              <div class="kpi-trend flat">
+                <iconify-icon icon="lucide:hourglass"></iconify-icon>
+                <span>Sesi tersisa 32 menit</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Persentase Hadir</span>
+                <div class="kpi-icon-box">
+                  <iconify-icon icon="lucide:percent"></iconify-icon>
+                </div>
+              </div>
+              <div class="kpi-number">73%</div>
+              <div class="kpi-trend up">
+                <iconify-icon icon="lucide:check"></iconify-icon>
+                <span>Sesuai estimasi</span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="border: 1.5px solid var(--color-danger);">
+              <div class="kpi-header">
+                <span class="kpi-label">Mock GPS Ditolak</span>
+                <div class="kpi-icon-box danger">
+                  <iconify-icon icon="lucide:shield-alert"></iconify-icon>
+                </div>
+              </div>
+              <div class="kpi-number" style="color: var(--color-danger);">2</div>
+              <div class="kpi-trend down">
+                <iconify-icon icon="lucide:alert-circle"></iconify-icon>
+                <span>Cek audit log</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Geofence + Activity sidebar -->
+          <div class="monitor-grid">
+
+            <!-- Geofence ring -->
+            <div class="geofence-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <div>
+                  <h3 style="font-family: var(--ff-heading); font-weight: 700; font-size: 15px; margin: 0 0 4px; display: flex; align-items: center; gap: 8px;">
+                    <iconify-icon icon="lucide:map-pin" style="color: var(--color-primary);"></iconify-icon>
+                    Peta Geofence
+                  </h3>
+                  <p style="margin: 0; font-size: 12px; color: var(--color-text-tertiary);">
+                    Lab Komputer 2 · radius 150m · 22 mahasiswa terdeteksi di dalam zona
+                  </p>
+                </div>
+                <button class="filter-chip">
+                  <iconify-icon icon="lucide:settings-2"></iconify-icon>
+                  Atur radius
+                </button>
+              </div>
+
+              <div class="geofence-stage">
+                <!-- Concentric rings -->
+                <div class="geo-ring r-150"></div>
+                <div class="geo-ring r-100"></div>
+                <div class="geo-ring r-50"></div>
+                <div class="geo-radius-label">Radius 150m</div>
+
+                <!-- Center pin -->
+                <div class="geo-center">
+                  <div class="geo-center-pin">
+                    <iconify-icon icon="lucide:building-2"></iconify-icon>
+                  </div>
+                  <div class="geo-center-label">Lab Komputer 2</div>
+                </div>
+
+                <!-- Student dots inside (success - hadir) -->
+                <div class="geo-student success" style="top: 42%; left: 38%;" title="Riki Mahbubillah · 12m">RM</div>
+                <div class="geo-student success" style="top: 48%; left: 56%;" title="Sari Wulandari · 8m">SW</div>
+                <div class="geo-student success" style="top: 54%; left: 44%;" title="Andi Pratama · 18m">AP</div>
+                <div class="geo-student success" style="top: 38%; left: 52%;" title="Dewi Anggraini · 22m">DA</div>
+                <div class="geo-student success" style="top: 44%; left: 48%;" title="Galih Saputra · 6m">GS</div>
+                <div class="geo-student success" style="top: 50%; left: 60%;" title="Maya Aditya · 28m">MA</div>
+                <div class="geo-student success" style="top: 56%; left: 52%;" title="Joko Susilo · 14m">JS</div>
+                <div class="geo-student success" style="top: 36%; left: 46%;" title="Indah Permata · 32m">IP</div>
+                <div class="geo-student success live" style="top: 46%; left: 42%;" title="Yusuf Saputra · BARU saja - 9m">YS</div>
+                <div class="geo-student success" style="top: 42%; left: 60%;" title="Fitri Anwari · 36m">FA</div>
+                <div class="geo-student success" style="top: 56%; left: 38%;" title="Rini Wulandari · 19m">RW</div>
+                <div class="geo-student success" style="top: 60%; left: 50%;" title="Bayu Saputra · 42m">BS</div>
+
+                <!-- Warning (di luar radius tapi masih submit - alert) -->
+                <div class="geo-student warning" style="top: 26%; left: 30%;" title="Ahmad Subekti · 162m (di luar)">AS</div>
+                <div class="geo-student warning" style="top: 70%; left: 68%;" title="Nita Lestari · 178m (di luar)">NL</div>
+
+                <!-- Danger (mock GPS) di pinggir luar -->
+                <div class="geo-student danger" style="top: 14%; left: 12%;" title="Yono Pratama · MOCK GPS DETECTED">YP</div>
+                <div class="geo-student danger" style="top: 86%; left: 88%;" title="Anonim · MOCK GPS DETECTED">??</div>
+              </div>
+
+              <div class="stage-legend">
+                <span class="stage-legend-item">
+                  <span class="stage-legend-dot success"></span>
+                  Hadir &amp; di dalam radius (12)
+                </span>
+                <span class="stage-legend-item">
+                  <span class="stage-legend-dot warning"></span>
+                  Di luar radius (2)
+                </span>
+                <span class="stage-legend-item">
+                  <span class="stage-legend-dot danger"></span>
+                  Mock GPS — ditolak (2)
+                </span>
+                <span class="stage-legend-item" style="margin-left: auto;">
+                  <iconify-icon icon="lucide:zap" style="color: var(--color-success); font-size: 13px;"></iconify-icon>
+                  Update otomatis tiap 3 detik
+                </span>
+              </div>
+            </div>
+
+            <!-- Activity sidebar -->
+            <div class="activity-sidebar">
+              <div class="activity-header">
+                <h3 class="activity-title">
+                  <iconify-icon icon="lucide:activity"></iconify-icon>
+                  Aktivitas Realtime
+                </h3>
+                <div class="activity-subtitle">
+                  <span class="pulse"></span>
+                  Terhubung · Update otomatis
+                </div>
+              </div>
+
+              <div class="activity-list">
+
+                <div class="feed-item fresh">
+                  <div class="feed-avatar alt-2">YS</div>
+                  <div class="feed-content">
+                    <p class="feed-text">
+                      <strong>Yusuf Saputra</strong> berhasil presensi
+                      <span class="feed-status success">
+                        <iconify-icon icon="lucide:check"></iconify-icon> Hadir
+                      </span>
+                    </p>
+                    <div class="feed-meta">
+                      <span><iconify-icon icon="lucide:clock"></iconify-icon> Baru saja</span>
+                      <span><iconify-icon icon="lucide:map-pin"></iconify-icon> 9m dari lab</span>
+                      <span><iconify-icon icon="lucide:shield-check"></iconify-icon> Wajah cocok</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="feed-item">
+                  <div class="feed-avatar alt-1">YP</div>
+                  <div class="feed-content">
+                    <p class="feed-text">
+                      <strong>Yono Pratama</strong> ditolak
+                      <span class="feed-status danger">
+                        <iconify-icon icon="lucide:shield-alert"></iconify-icon> Mock GPS
+                      </span>
+                    </p>
+                    <div class="feed-meta">
+                      <span><iconify-icon icon="lucide:clock"></iconify-icon> 32 detik lalu</span>
+                      <span><iconify-icon icon="lucide:smartphone"></iconify-icon> Xiaomi 13T</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="feed-item">
+                  <div class="feed-avatar">FA</div>
+                  <div class="feed-content">
+                    <p class="feed-text">
+                      <strong>Fitri Anwari</strong> berhasil presensi
+                      <span class="feed-status success">
+                        <iconify-icon icon="lucide:check"></iconify-icon> Hadir
+                      </span>
+                    </p>
+                    <div class="feed-meta">
+                      <span><iconify-icon icon="lucide:clock"></iconify-icon> 1m 12s lalu</span>
+                      <span><iconify-icon icon="lucide:map-pin"></iconify-icon> 36m dari lab</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="feed-item">
+                  <div class="feed-avatar alt-3">NL</div>
+                  <div class="feed-content">
+                    <p class="feed-text">
+                      <strong>Nita Lestari</strong> di luar radius
+                      <span class="feed-status" style="background: var(--color-warning-tint); color: var(--color-warning);">
+                        <iconify-icon icon="lucide:alert-triangle"></iconify-icon> 178m
+                      </span>
+                    </p>
+                    <div class="feed-meta">
+                      <span><iconify-icon icon="lucide:clock"></iconify-icon> 2m 5s lalu</span>
+                      <span style="color: var(--color-warning);">Perlu konfirmasi dosen</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="feed-item">
+                  <div class="feed-avatar alt-4">DA</div>
+                  <div class="feed-content">
+                    <p class="feed-text">
+                      <strong>Dewi Anggraini</strong> berhasil presensi
+                      <span class="feed-status success">
+                        <iconify-icon icon="lucide:check"></iconify-icon> Hadir
+                      </span>
+                    </p>
+                    <div class="feed-meta">
+                      <span><iconify-icon icon="lucide:clock"></iconify-icon> 3m 22s lalu</span>
+                      <span><iconify-icon icon="lucide:map-pin"></iconify-icon> 22m</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="feed-item">
+                  <div class="feed-avatar alt-2">GS</div>
+                  <div class="feed-content">
+                    <p class="feed-text">
+                      <strong>Galih Saputra</strong> berhasil presensi
+                      <span class="feed-status success">
+                        <iconify-icon icon="lucide:check"></iconify-icon> Hadir
+                      </span>
+                    </p>
+                    <div class="feed-meta">
+                      <span><iconify-icon icon="lucide:clock"></iconify-icon> 5m 41s lalu</span>
+                      <span><iconify-icon icon="lucide:map-pin"></iconify-icon> 6m</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="feed-item">
+                  <div class="feed-avatar alt-1">RM</div>
+                  <div class="feed-content">
+                    <p class="feed-text">
+                      <strong>Riki Mahbubillah</strong> berhasil presensi
+                      <span class="feed-status success">
+                        <iconify-icon icon="lucide:check"></iconify-icon> Hadir
+                      </span>
+                    </p>
+                    <div class="feed-meta">
+                      <span><iconify-icon icon="lucide:clock"></iconify-icon> 8m 14s lalu</span>
+                      <span><iconify-icon icon="lucide:map-pin"></iconify-icon> 12m</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Mahasiswa grid -->
+          <div class="mhs-grid-section">
+            <div class="grid-toolbar">
+              <h3>
+                <iconify-icon icon="lucide:users"></iconify-icon>
+                Daftar Mahasiswa Kelas
+              </h3>
+              <div style="display: flex; gap: 6px;">
+                <button class="filter-chip active">Semua (30)</button>
+                <button class="filter-chip">Hadir (22)</button>
+                <button class="filter-chip">Belum (8)</button>
+                <button class="filter-chip">Ditolak (2)</button>
+              </div>
+              <div style="margin-left: auto; display: flex; gap: 6px;">
+                <button class="btn btn-ghost btn-sm">
+                  <iconify-icon icon="lucide:download"></iconify-icon> Export CSV
+                </button>
+                <button class="btn btn-secondary btn-sm">
+                  <iconify-icon icon="lucide:bell-ring"></iconify-icon> Ping yang belum
+                </button>
+              </div>
+            </div>
+
+            <div class="mhs-grid">
+              <!-- Sukses -->
+              <div class="mhs-tile success">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #fb7185, #be123c);">RM</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Riki Mahbubillah</div>
+                  <div class="mhs-tile-meta">13:08 · 12m</div>
+                </div>
+                <div class="mhs-tile-icon success"><iconify-icon icon="lucide:check"></iconify-icon></div>
+              </div>
+
+              <div class="mhs-tile success">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #34d399, #047857);">SW</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Sari Wulandari</div>
+                  <div class="mhs-tile-meta">13:12 · 8m</div>
+                </div>
+                <div class="mhs-tile-icon success"><iconify-icon icon="lucide:check"></iconify-icon></div>
+              </div>
+
+              <div class="mhs-tile success">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #94a3b8, #475569);">AP</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Andi Pratama</div>
+                  <div class="mhs-tile-meta">13:15 · 18m</div>
+                </div>
+                <div class="mhs-tile-icon success"><iconify-icon icon="lucide:check"></iconify-icon></div>
+              </div>
+
+              <div class="mhs-tile success">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #a78bfa, #6d28d9);">DA</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Dewi Anggraini</div>
+                  <div class="mhs-tile-meta">13:21 · 22m</div>
+                </div>
+                <div class="mhs-tile-icon success"><iconify-icon icon="lucide:check"></iconify-icon></div>
+              </div>
+
+              <div class="mhs-tile success">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #fbbf24, #b45309);">GS</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Galih Saputra</div>
+                  <div class="mhs-tile-meta">13:25 · 6m</div>
+                </div>
+                <div class="mhs-tile-icon success"><iconify-icon icon="lucide:check"></iconify-icon></div>
+              </div>
+
+              <div class="mhs-tile success">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #34d399, #047857);">YS</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Yusuf Saputra</div>
+                  <div class="mhs-tile-meta">14:28 · 9m · BARU</div>
+                </div>
+                <div class="mhs-tile-icon success"><iconify-icon icon="lucide:check"></iconify-icon></div>
+              </div>
+
+              <!-- Warning -->
+              <div class="mhs-tile warning">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #fb7185, #be123c);">NL</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Nita Lestari</div>
+                  <div class="mhs-tile-meta">14:25 · 178m ⚠</div>
+                </div>
+                <div class="mhs-tile-icon warning"><iconify-icon icon="lucide:alert-triangle"></iconify-icon></div>
+              </div>
+
+              <!-- Danger -->
+              <div class="mhs-tile danger">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #f87171, #be123c);">YP</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Yono Pratama</div>
+                  <div class="mhs-tile-meta">DITOLAK · Mock GPS</div>
+                </div>
+                <div class="mhs-tile-icon danger"><iconify-icon icon="lucide:shield-alert"></iconify-icon></div>
+              </div>
+
+              <!-- Belum hadir -->
+              <div class="mhs-tile">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #94a3b8, #475569);">JS</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Joko Susilo</div>
+                  <div class="mhs-tile-meta">Belum hadir</div>
+                </div>
+                <div class="mhs-tile-icon idle"><iconify-icon icon="lucide:hourglass"></iconify-icon></div>
+              </div>
+
+              <div class="mhs-tile">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #94a3b8, #475569);">RA</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Rina Astari</div>
+                  <div class="mhs-tile-meta">Belum hadir</div>
+                </div>
+                <div class="mhs-tile-icon idle"><iconify-icon icon="lucide:hourglass"></iconify-icon></div>
+              </div>
+
+              <div class="mhs-tile">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #94a3b8, #475569);">AB</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Andi Budiman</div>
+                  <div class="mhs-tile-meta">Belum hadir</div>
+                </div>
+                <div class="mhs-tile-icon idle"><iconify-icon icon="lucide:hourglass"></iconify-icon></div>
+              </div>
+
+              <div class="mhs-tile">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #94a3b8, #475569);">CK</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Cita Kamila</div>
+                  <div class="mhs-tile-meta">Belum hadir</div>
+                </div>
+                <div class="mhs-tile-icon idle"><iconify-icon icon="lucide:hourglass"></iconify-icon></div>
+              </div>
+
+              <div class="mhs-tile">
+                <div class="mhs-tile-avatar" style="background: linear-gradient(135deg, #94a3b8, #475569);">EW</div>
+                <div class="mhs-tile-info">
+                  <div class="mhs-tile-name">Eko Widodo</div>
+                  <div class="mhs-tile-meta">Belum hadir</div>
+                </div>
+                <div class="mhs-tile-icon idle"><iconify-icon icon="lucide:hourglass"></iconify-icon></div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

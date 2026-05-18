@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile · Riwayat Izin — MyPresensi Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_tokens.css" />
+  <link rel="stylesheet" href="_mobile.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* Filter chip row (mirror dari riwayat) */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex-shrink: 0;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 14px;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .chip iconify-icon { font-size: 13px; }
+    .chip.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    /* Section header */
+    .leave-section-header {
+      padding: 14px 16px 6px;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    /* Leave request item */
+    .leave-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: var(--sh-card);
+      margin: 0 16px 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .leave-item:hover { transform: translateY(-1px); box-shadow: var(--sh-card-hover); }
+
+    .leave-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .leave-icon iconify-icon { font-size: 21px; }
+    .leave-icon.sakit { background: var(--color-warning-tint); color: var(--color-warning); }
+    .leave-icon.izin { background: var(--color-info-tint); color: var(--color-info); }
+
+    .leave-content { flex: 1; min-width: 0; }
+    .leave-mk {
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .leave-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin-bottom: 6px;
+    }
+    .leave-meta iconify-icon { font-size: 11px; flex-shrink: 0; }
+    .leave-reason {
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+      line-height: 1.45;
+      margin: 0 0 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .leave-status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .leave-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-family: var(--ff-heading);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .leave-pill iconify-icon { font-size: 11px; }
+    .leave-pill.pending { background: var(--color-warning-tint); color: var(--color-warning); }
+    .leave-pill.approved { background: var(--color-success-tint); color: var(--color-success); }
+    .leave-pill.rejected { background: var(--color-danger-tint); color: var(--color-danger); }
+    .leave-evidence-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10.5px;
+      color: var(--color-text-tertiary);
+    }
+    .leave-evidence-tag iconify-icon { font-size: 12px; }
+
+    /* FAB Ajukan Izin */
+    .fab-create {
+      position: absolute;
+      bottom: 78px;
+      right: 18px;
+      height: 48px;
+      padding: 0 18px 0 14px;
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--ff-heading);
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(45, 134, 255, 0.35), 0 4px 8px rgba(0, 0, 0, 0.10);
+      cursor: pointer;
+      z-index: 50;
+    }
+    .fab-create iconify-icon { font-size: 18px; }
+    .fab-create:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(45, 134, 255, 0.40), 0 6px 12px rgba(0, 0, 0, 0.12); }
+
+    /* Empty state */
+    .empty-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 32px;
+      text-align: center;
+    }
+    .empty-circle {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 24px;
+      background: var(--color-primary-surface);
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .empty-circle iconify-icon {
+      font-size: 56px;
+      color: var(--color-primary);
+    }
+    .empty-title {
+      font-family: var(--ff-heading);
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--color-text-primary);
+      letter-spacing: -0.3px;
+      margin: 0 0 8px;
+    }
+    .empty-desc {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      line-height: 1.55;
+      margin: 0 0 18px;
+    }
+
+    /* Annotation */
+    .annotation {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px 14px;
+      max-width: 320px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #c0c8d2;
+    }
+    .annotation strong { color: #fff; font-weight: 700; }
+    .annotation .anno-label {
+      display: block;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      color: #4ade80;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase-header">
+    <a href="index.html" class="nav-back">
+      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
+      Kembali ke Katalog
+    </a>
+    <h1>Mobile · Riwayat Izin</h1>
+    <p>Gateway screen sebelum wizard pengajuan · 2 frame: list aktif &amp; empty state</p>
+    <div class="legend">
+      <strong>Reference:</strong> Notion task list · Linear inbox · Material You FAB extended
+    </div>
+  </div>
+
+  <div class="mockup-grid">
+
+    <!-- ========== FRAME 1: LIST WITH DATA ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <div>
+              <h2 class="appbar-title">Riwayat Izin</h2>
+              <p class="appbar-subtitle">3 pengajuan · 1 menunggu</p>
+            </div>
+          </div>
+
+          <!-- Filter chips: label clean tanpa count agar muat 4 chip
+               tanpa scroll horizontal. Count dipindah ke subtitle appbar. -->
+          <div class="filter-row">
+            <button class="chip active">
+              <iconify-icon icon="solar:list-bold-duotone"></iconify-icon> Semua
+            </button>
+            <button class="chip">
+              <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> Menunggu
+            </button>
+            <button class="chip">
+              <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon> Disetujui
+            </button>
+            <button class="chip">
+              <iconify-icon icon="solar:close-circle-bold-duotone"></iconify-icon> Ditolak
+            </button>
+          </div>
+
+          <div class="content" style="padding: 0 0 130px;">
+
+            <!-- Section: Menunggu -->
+            <div class="leave-section-header">Menunggu Review</div>
+
+            <!-- Item 1: Pending -->
+            <div class="leave-item">
+              <div class="leave-icon sakit">
+                <iconify-icon icon="solar:pills-bold-duotone"></iconify-icon>
+              </div>
+              <div class="leave-content">
+                <h4 class="leave-mk">Pemrograman Web Lanjut</h4>
+                <div class="leave-meta">
+                  <iconify-icon icon="solar:calendar-bold-duotone"></iconify-icon>
+                  Selasa, 14 Mei · 10:00
+                  <span>·</span>
+                  <span>Bu Dewi</span>
+                </div>
+                <p class="leave-reason">
+                  Demam tinggi sejak kemarin malam, sudah cek ke klinik kampus dan diberi obat. Surat dokter sudah saya dapat.
+                </p>
+                <div class="leave-status-row">
+                  <span class="leave-pill pending">
+                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
+                    MENUNGGU
+                  </span>
+                  <span class="leave-evidence-tag">
+                    <iconify-icon icon="solar:document-check-bold-duotone" style="color: var(--color-success);"></iconify-icon>
+                    Lampiran ada
+                  </span>
+                  <span class="leave-evidence-tag">·</span>
+                  <span class="leave-evidence-tag">Diajukan 4 jam lalu</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section: Selesai -->
+            <div class="leave-section-header">Selesai</div>
+
+            <!-- Item 2: Approved -->
+            <div class="leave-item">
+              <div class="leave-icon sakit">
+                <iconify-icon icon="solar:pills-bold-duotone"></iconify-icon>
+              </div>
+              <div class="leave-content">
+                <h4 class="leave-mk">Mobile Programming</h4>
+                <div class="leave-meta">
+                  <iconify-icon icon="solar:calendar-bold-duotone"></iconify-icon>
+                  Senin, 6 Mei · 15:00
+                  <span>·</span>
+                  <span>Bu Rini</span>
+                </div>
+                <p class="leave-reason">
+                  Sakit migrain sejak pagi, tidak bisa fokus. Sudah istirahat di rumah.
+                </p>
+                <div class="leave-status-row">
+                  <span class="leave-pill approved">
+                    <iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon>
+                    DISETUJUI
+                  </span>
+                  <span class="leave-evidence-tag">·</span>
+                  <span class="leave-evidence-tag">8 hari lalu</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 3: Rejected -->
+            <div class="leave-item">
+              <div class="leave-icon izin">
+                <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+              </div>
+              <div class="leave-content">
+                <h4 class="leave-mk">Algoritma Pemrograman</h4>
+                <div class="leave-meta">
+                  <iconify-icon icon="solar:calendar-bold-duotone"></iconify-icon>
+                  Rabu, 30 April · 08:00
+                  <span>·</span>
+                  <span>Pak Budi</span>
+                </div>
+                <p class="leave-reason">
+                  Ada acara keluarga di luar kota.
+                </p>
+                <div class="leave-status-row">
+                  <span class="leave-pill rejected">
+                    <iconify-icon icon="solar:close-circle-bold-duotone"></iconify-icon>
+                    DITOLAK
+                  </span>
+                  <span class="leave-evidence-tag">·</span>
+                  <span class="leave-evidence-tag">2 minggu lalu</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- FAB Ajukan Izin -->
+          <button class="fab-create">
+            <iconify-icon icon="solar:add-circle-bold-duotone"></iconify-icon>
+            Ajukan Izin
+          </button>
+
+          <!-- Bottom nav 5-tab -->
+          <div class="bottom-nav">
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon>
+              <span>Beranda</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+              <span>Riwayat</span>
+            </a>
+            <a class="bottom-nav-item active">
+              <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+              <span>Izin</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+              <span>Notifikasi</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
+              <span>Profil</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 1 · Riwayat Izin
+        <small>Filter chip · group by status · FAB ajukan izin</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Gateway screen untuk tab Izin di bottom nav. Tap item → buka <strong>Step 4 timeline</strong> di mockup pengajuan-izin (read-only mode dengan status terkini). FAB "Ajukan Izin" → mulai wizard 4-step. Filter chip horizontal — clean tanpa count, count total ada di subtitle appbar. Section "Menunggu Review" di atas (paling prioritas), "Selesai" di bawah (history). Reason dipotong 2 baris dengan ellipsis.
+      </div>
+    </div>
+
+    <!-- ========== FRAME 2: EMPTY STATE ========== -->
+    <div class="mockup-item">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="status-bar">
+            <span>09:41</span>
+            <div class="right">
+              <iconify-icon icon="solar:signal-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-router-bold-duotone"></iconify-icon>
+              <iconify-icon icon="solar:battery-full-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="appbar">
+            <div>
+              <h2 class="appbar-title">Riwayat Izin</h2>
+              <p class="appbar-subtitle">Belum ada pengajuan</p>
+            </div>
+          </div>
+
+          <div class="empty-screen">
+            <div class="empty-circle">
+              <iconify-icon icon="solar:document-add-bold-duotone"></iconify-icon>
+            </div>
+            <h2 class="empty-title">Belum ada pengajuan izin</h2>
+            <p class="empty-desc">
+              Kalau kamu berhalangan hadir karena sakit atau ada urusan penting, ajukan izin di sini supaya tercatat dan bisa direview dosen.
+            </p>
+            <button class="btn-mobile-primary" style="max-width: 240px;">
+              <iconify-icon icon="solar:add-circle-bold-duotone"></iconify-icon>
+              Ajukan Izin
+            </button>
+          </div>
+
+          <!-- Bottom nav 5-tab -->
+          <div class="bottom-nav">
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon>
+              <span>Beranda</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+              <span>Riwayat</span>
+            </a>
+            <a class="bottom-nav-item active">
+              <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+              <span>Izin</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:bell-bold-duotone"></iconify-icon>
+              <span>Notifikasi</span>
+            </a>
+            <a class="bottom-nav-item">
+              <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
+              <span>Profil</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-label">
+        Frame 2 · Empty State
+        <small>First-time use · CTA primary "Ajukan Izin"</small>
+      </div>
+      <div class="annotation">
+        <span class="anno-label">Detail UX</span>
+        Empty state untuk mahasiswa yang belum pernah submit izin. CTA primary mengarah langsung ke wizard 4-step. Copy ramah: jelaskan use case (sakit / acara penting) tanpa terlalu teknis. Tidak ada FAB karena tombol primary di tengah sudah cukup actionable.
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
