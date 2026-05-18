@@ -8,6 +8,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
@@ -204,9 +206,36 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // Step 4: Fade-out + tandai splash selesai (3.2s)
     _exitTimer = Timer(const Duration(milliseconds: 3200), () {
       if (!mounted) return;
-      _exitController.forward().then((_) {
+      _exitController.forward().then((_) async {
         if (!mounted) return;
-        ref.read(authProvider.notifier).markSplashCompleted();
+        // Cek onboarding flag SEBELUM lanjut ke auth flow.
+        // Kalau user belum pernah lihat onboarding → tampilkan onboarding dulu.
+        final prefs = await SharedPreferences.getInstance();
+        final hasSeenOnboarding =
+            prefs.getBool('hasSeenOnboarding') ?? false;
+        if (!mounted) return;
+
+        if (!hasSeenOnboarding) {
+          // Bypass auth redirect — langsung ke onboarding screen.
+          // Setelah onboarding selesai, user akan di-route ke /login (lihat
+          // OnboardingScreen._handleFinish).
+          ref.read(authProvider.notifier).markSplashCompleted();
+          if (mounted) {
+            // Pakai go() bukan replace karena route stack dari splash kosong.
+            // Sequence: splash → onboarding → login → home.
+            // (router redirect tetap akan re-evaluate — tapi karena auth status
+            // unauthenticated, ia akan coba route ke /login. Onboarding
+            // di-protect dengan flag, jadi user-controlled flow lewat go().)
+            // Note: redirect logic perlu disesuaikan agar /onboarding tidak
+            // di-bounce ke /login saat unauthenticated.
+            // ignore: use_build_context_synchronously
+            Future.microtask(() {
+              if (mounted) GoRouter.of(context).go('/onboarding');
+            });
+          }
+        } else {
+          ref.read(authProvider.notifier).markSplashCompleted();
+        }
       });
     });
   }

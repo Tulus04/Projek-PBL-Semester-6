@@ -12,6 +12,7 @@ import '../data/attendance_repository.dart';
 import '../services/location_service.dart';
 import '../../face/data/face_models.dart';
 import '../../../shared/utils/error_mapper.dart';
+import '../../../shared/utils/error_mapper.dart' show friendlyErrorMessage;
 
 // === Repository & Service providers ===
 final attendanceRepositoryProvider = Provider<AttendanceRepository>((ref) {
@@ -28,6 +29,17 @@ final activeSessionsProvider = FutureProvider.autoDispose<List<ActiveSession>>((
   return repo.getActiveSessions();
 });
 
+/// Provider daftar sesi yang eligible untuk diajukan izin/sakit oleh mahasiswa.
+///
+/// Dipakai oleh wizard "Ajukan Izin" step 1 (Pilih Sesi) — return dua group
+/// (active + recent ≤ 7 hari) yang sudah difilter backend (belum hadir, belum
+/// punya leave_request pending/approved). UI tidak perlu re-filter.
+final eligibleSessionsForLeaveProvider =
+    FutureProvider.autoDispose<EligibleSessionsResponse>((ref) async {
+  final repo = ref.watch(attendanceRepositoryProvider);
+  return repo.getEligibleSessionsForLeave();
+});
+
 // === Attendance Submit State ===
 enum SubmitStatus {
   idle,
@@ -42,6 +54,9 @@ class AttendanceSubmitState {
   final SubmitStatus status;
   final AttendanceSubmitResponse? response;
   final String? errorMessage;
+  /// Error code dari server saat 4xx (mis. 'face_not_registered', 'face_mismatch').
+  /// UI layer (scan_qr_screen) cek field ini untuk routing dialog yang sesuai.
+  final String? errorCode;
   final String? sessionName;
   final FaceVerificationResult? faceResult;
 
@@ -49,6 +64,7 @@ class AttendanceSubmitState {
     this.status = SubmitStatus.idle,
     this.response,
     this.errorMessage,
+    this.errorCode,
     this.sessionName,
     this.faceResult,
   });
@@ -57,6 +73,7 @@ class AttendanceSubmitState {
     SubmitStatus? status,
     AttendanceSubmitResponse? response,
     String? errorMessage,
+    String? errorCode,
     String? sessionName,
     FaceVerificationResult? faceResult,
   }) {
@@ -64,6 +81,7 @@ class AttendanceSubmitState {
       status: status ?? this.status,
       response: response ?? this.response,
       errorMessage: errorMessage,
+      errorCode: errorCode,
       sessionName: sessionName ?? this.sessionName,
       faceResult: faceResult ?? this.faceResult,
     );
@@ -162,6 +180,16 @@ class AttendanceSubmitNotifier extends Notifier<AttendanceSubmitState> {
       state = state.copyWith(
         status: SubmitStatus.error,
         errorMessage: e.message,
+      );
+      return false;
+    } on AttendanceSubmitException catch (e) {
+      // Server kirim error_code (mis. face_not_registered, face_mismatch).
+      // UI scan_qr_screen cek state.errorCode untuk dialog redirect.
+      debugPrint('[ATTENDANCE] Submit error: ${e.errorCode} — ${e.message}');
+      state = state.copyWith(
+        status: SubmitStatus.error,
+        errorMessage: e.message,
+        errorCode: e.errorCode,
       );
       return false;
     } catch (e) {

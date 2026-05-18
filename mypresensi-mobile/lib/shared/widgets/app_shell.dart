@@ -1,16 +1,24 @@
 // lib/shared/widgets/app_shell.dart
-// Shell widget dengan bottom navigation bar — wrapper untuk semua tab
+// Shell widget dengan bottom navigation 5-tab v7 (17 Mei 2026):
+// Beranda · Riwayat · Izin · Notifikasi · Profil.
+// Catatan migrasi: tab AI Chat dihapus (di-soft-deprecate), dipindah ke menu
+// Profil sebagai opsional. Tab Izin = gateway list pengajuan + FAB ajukan baru.
+// Konsisten dengan mockup HTML mobile-* dan rule 22-mobile-design-system §C.8.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_shadows.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/history/screens/history_screen.dart';
-import '../../features/ai/screens/ai_chat_screen.dart';
+import '../../features/leave_requests/screens/my_leave_requests_screen.dart';
 import '../../features/notifications/screens/notification_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 
-// Tab index provider — menggunakan Notifier pattern (Riverpod v3)
+// Tab index provider — Notifier pattern (Riverpod v3).
+// Index mapping:
+//   0 = Beranda · 1 = Riwayat · 2 = Izin · 3 = Notifikasi · 4 = Profil
 final currentTabProvider = NotifierProvider<CurrentTabNotifier, int>(CurrentTabNotifier.new);
 
 class CurrentTabNotifier extends Notifier<int> {
@@ -32,10 +40,11 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   DateTime? _lastBackPress;
 
+  // Order WAJIB match dengan _buildNavItem indeks di bottom nav.
   static const _screens = [
     HomeScreen(),
     HistoryScreen(),
-    AiChatScreen(),
+    MyLeaveRequestsScreen(),
     NotificationScreen(),
     ProfileScreen(),
   ];
@@ -84,66 +93,70 @@ class _AppShellState extends ConsumerState<AppShell> {
         );
       },
       child: Scaffold(
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        switchInCurve: Curves.easeOut,
-        switchOutCurve: Curves.easeIn,
-        transitionBuilder: (child, animation) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        child: KeyedSubtree(
-          key: ValueKey<int>(currentTab),
-          child: _screens[currentTab],
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: KeyedSubtree(
+            key: ValueKey<int>(currentTab),
+            child: _screens[currentTab],
+          ),
         ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(context, ref, 0, Icons.home_outlined, Icons.home_rounded, 'Beranda'),
-                _buildNavItem(context, ref, 1, Icons.history_outlined, Icons.history_rounded, 'Riwayat'),
-                _buildNavItem(context, ref, 2, Icons.auto_awesome_outlined, Icons.auto_awesome, 'Asisten'),
-                _buildNavItem(context, ref, 3, Icons.notifications_outlined, Icons.notifications_rounded, 'Notifikasi'),
-                _buildNavItem(context, ref, 4, Icons.person_outline, Icons.person_rounded, 'Profil'),
-              ],
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            boxShadow: AppShadows.bottomNav,
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: const [
+                  // Iconsax Bold — solid duotone-ish fintech vibe.
+                  // (Note: package v1.0.0 belum punya Bulk; Bold adalah variant
+                  //  paling solid yang tersedia. Visual masih jauh lebih premium
+                  //  dari Material flat.)
+                  // Active state monochrome primary, inactive monochrome neutral.
+                  // Eksepsi semantic system per rule 22 §C.8.
+                  _NavItem(index: 0, icon: IconsaxPlusBold.home_2, label: 'Beranda'),
+                  _NavItem(index: 1, icon: IconsaxPlusBold.task_square, label: 'Riwayat'),
+                  _NavItem(index: 2, icon: IconsaxPlusBold.note_2, label: 'Izin'),
+                  _NavItem(index: 3, icon: IconsaxPlusBold.notification, label: 'Notifikasi'),
+                  _NavItem(index: 4, icon: IconsaxPlusBold.user, label: 'Profil'),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
+}
 
-  Widget _buildNavItem(
-    BuildContext context,
-    WidgetRef ref,
-    int index,
-    IconData icon,
-    IconData activeIcon,
-    String label,
-  ) {
+class _NavItem extends ConsumerWidget {
+  const _NavItem({
+    required this.index,
+    required this.icon,
+    required this.label,
+  });
+
+  final int index;
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final isActive = ref.watch(currentTabProvider) == index;
 
     return Expanded(
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            ref.read(currentTabProvider.notifier).setTab(index);
-          },
+          onTap: () => ref.read(currentTabProvider.notifier).setTab(index),
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
@@ -155,12 +168,12 @@ class _AppShellState extends ConsumerState<AppShell> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   decoration: BoxDecoration(
                     color: isActive
-                        ? AppColors.primary.withValues(alpha: 0.1)
+                        ? AppColors.primary.withValues(alpha: 0.10)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    isActive ? activeIcon : icon,
+                    icon,
                     color: isActive ? AppColors.primary : AppColors.textTertiary,
                     size: 22,
                   ),
@@ -182,4 +195,3 @@ class _AppShellState extends ConsumerState<AppShell> {
     );
   }
 }
-

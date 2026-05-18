@@ -1,284 +1,319 @@
 // lib/features/profile/screens/profile_screen.dart
-// Halaman profil mahasiswa — info akun + logout + hak hapus data wajah (UU PDP).
+// Halaman profil mahasiswa v7 — sesuai mockup mobile-profile.html (17 Mei 2026).
+// Layout: avatar tap-able dengan camera badge → 3 group settings (Akun /
+// Keamanan & Privasi / Aplikasi) → Logout danger row.
+// Preserve flow existing: avatar upload, delete face data (UU PDP), navigasi
+// ke /face-register, /change-password, /leave-requests, /ai-chat.
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_shadows.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../face/providers/face_provider.dart';
-import 'package:go_router/go_router.dart';
+import '../providers/profile_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  final _imagePicker = ImagePicker();
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
+    final uploadState = ref.watch(avatarUploadProvider);
+    final isUploading = uploadState.status == AvatarUploadStatus.uploading;
+    final isFaceRegistered = user?.isFaceRegistered == true;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
+      backgroundColor: AppColors.bg,
+      appBar: AppBar(
+        backgroundColor: AppColors.bg,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: const Text(
+          'Profil',
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(0, 4, 0, 24),
         children: [
-          // Avatar + Nama
-          Center(
+          // ===== Hero: avatar + nama + meta =====
+          _ProfileHero(
+            user: user,
+            isUploading: isUploading,
+            onTapAvatar: isUploading ? null : _showAvatarSourceSheet,
+          ),
+          const SizedBox(height: 16),
+
+          // ===== Group: Akun =====
+          _SettingsGroup(
+            label: 'Akun',
+            children: [
+              _SettingsItem(
+                icon: IconsaxPlusBold.sms,
+                iconColor: AppColors.primary,
+                iconBg: AppColors.primarySurface,
+                title: 'Email Kampus',
+                subtitle: user?.nimNip != null
+                    ? '${user!.nimNip}@politanisamarinda.ac.id'
+                    : '-',
+                onTap: () => _showInfoModal(
+                  context,
+                  title: 'Email Kampus',
+                  message:
+                      'Email institusi tidak bisa diubah sendiri. Hubungi BAAK Politani jika perlu update.',
+                ),
+              ),
+              _SettingsItem(
+                icon: IconsaxPlusBold.lock_1,
+                iconColor: AppColors.info,
+                iconBg: AppColors.infoTint,
+                title: 'Ubah Kata Sandi',
+                subtitle: 'Ganti password akun secara berkala',
+                onTap: () => context.push('/change-password'),
+              ),
+            ],
+          ),
+
+          // ===== Group: Keamanan & Privasi =====
+          _SettingsGroup(
+            label: 'Keamanan & Privasi',
+            children: [
+              _SettingsItem(
+                icon: IconsaxPlusBold.user_octagon,
+                iconColor: isFaceRegistered ? AppColors.success : AppColors.warning,
+                iconBg: isFaceRegistered ? AppColors.successTint : AppColors.warningTint,
+                title: 'Wajah Terdaftar',
+                subtitle: isFaceRegistered
+                    ? 'Wajahmu sudah aktif untuk verifikasi'
+                    : 'Daftarkan wajah dulu untuk presensi',
+                onTap: () async {
+                  final result = await context.push<bool>('/face-register');
+                  if (result == true) {
+                    ref.read(authProvider.notifier).markFaceRegistered();
+                  }
+                },
+              ),
+              _SettingsItem(
+                icon: IconsaxPlusBold.location,
+                iconColor: AppColors.warning,
+                iconBg: AppColors.accentSoft,
+                title: 'Izin Lokasi',
+                subtitle: 'Selalu aktif saat presensi',
+                trailing: const _ToggleSwitch(value: true),
+                onTap: null, // toggle dikelola sistem (placeholder)
+              ),
+              if (isFaceRegistered)
+                _SettingsItem(
+                  icon: IconsaxPlusBold.shield_tick,
+                  iconColor: AppColors.warning,
+                  iconBg: AppColors.warningTint,
+                  title: 'Hapus Data Wajah',
+                  subtitle: 'Hak hapus data biometrik (UU PDP)',
+                  onTap: () => _confirmDeleteFaceData(context, ref),
+                ),
+            ],
+          ),
+
+          // ===== Group: Aplikasi =====
+          _SettingsGroup(
+            label: 'Aplikasi',
+            children: [
+              _SettingsItem(
+                icon: IconsaxPlusBold.message_question,
+                iconColor: AppColors.primary,
+                iconBg: AppColors.primarySurface,
+                title: 'Asisten AI',
+                subtitle: 'Tanya kehadiran, izin, atau cara pakai aplikasi',
+                onTap: () => context.push('/ai-chat'),
+              ),
+              _SettingsItem(
+                icon: IconsaxPlusBold.note_2,
+                iconColor: AppColors.warning,
+                iconBg: AppColors.warningTint,
+                title: 'Pengajuan Izin / Sakit',
+                subtitle: 'Lihat riwayat & ajukan izin baru',
+                onTap: () => context.push('/leave-requests'),
+              ),
+              _SettingsItem(
+                icon: IconsaxPlusBold.info_circle,
+                iconColor: AppColors.info,
+                iconBg: AppColors.infoTint,
+                title: 'Tentang',
+                subtitle: 'MyPresensi v1.0.0 · Build 1',
+                onTap: () => _showInfoModal(
+                  context,
+                  title: 'Tentang MyPresensi',
+                  message:
+                      'Versi 1.0.0 (Build 1)\n\nSistem absensi mahasiswa Prodi TRPL — Politeknik Pertanian Negeri Samarinda.',
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // ===== Logout danger row =====
+          _SettingsGroup(
+            label: null,
+            children: [
+              _SettingsItem(
+                icon: IconsaxPlusBold.logout,
+                iconColor: AppColors.danger,
+                iconBg: AppColors.dangerTint,
+                title: 'Keluar dari Akun',
+                titleColor: AppColors.danger,
+                subtitle: 'Kembali ke halaman login',
+                onTap: () => _confirmLogout(context, ref),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===== Modal helpers =====
+
+  void _showInfoModal(BuildContext context, {required String title, required String message}) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Center(
-                    child: Text(
-                      user?.initials ?? '?',
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.borderStrong,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  user?.fullName ?? '-',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  user?.nimNip ?? '-',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                if (user != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    user.semesterKelasLabel,
-                    style: Theme.of(context).textTheme.bodySmall,
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    color: AppColors.textPrimary,
                   ),
-                ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  message,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(sheetCtx).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    child: const Text(
+                      'Mengerti',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 32),
-
-          // Info cards
-          _buildSection(context, 'Informasi Akun', [
-            _buildTile(context, Icons.badge_outlined, 'NIM', user?.nimNip ?? '-'),
-            _buildTile(context, Icons.school_outlined, 'Semester', user?.semester?.toString() ?? '-'),
-            _buildTile(context, Icons.class_outlined, 'Kelas', user?.kelas ?? '-'),
-            _buildTile(
-              context,
-              Icons.face_outlined,
-              'Verifikasi Wajah',
-              user?.isFaceRegistered == true ? 'Terdaftar' : 'Belum terdaftar',
-              valueColor: user?.isFaceRegistered == true
-                  ? AppColors.success
-                  : AppColors.warning,
-            ),
-          ]),
-
-          const SizedBox(height: 12),
-
-          // Face registration button
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                final result = await context.push<bool>('/face-register');
-                if (result == true) {
-                  // Update flag lokal — JANGAN invalidate authProvider
-                  // karena akan menyebabkan flash loading/splash
-                  ref.read(authProvider.notifier).markFaceRegistered();
-                }
-              },
-              icon: Icon(
-                user?.isFaceRegistered == true
-                    ? Icons.face_retouching_natural
-                    : Icons.face_outlined,
-                size: 20,
-              ),
-              label: Text(
-                user?.isFaceRegistered == true
-                    ? 'Perbarui Data Wajah'
-                    : 'Daftarkan Wajah',
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: user?.isFaceRegistered == true
-                    ? AppColors.surface
-                    : AppColors.primary,
-                foregroundColor: user?.isFaceRegistered == true
-                    ? AppColors.textPrimary
-                    : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: user?.isFaceRegistered == true
-                      ? const BorderSide(color: AppColors.border)
-                      : BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-
-          // Tombol hapus data wajah — hanya muncul kalau sudah register
-          // (UU PDP Pasal 5-15: hak hapus data pribadi sensitif)
-          if (user?.isFaceRegistered == true) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: OutlinedButton.icon(
-                onPressed: () => _confirmDeleteFaceData(context, ref),
-                icon: const Icon(Icons.delete_outline, size: 20),
-                label: const Text('Hapus Data Wajah'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.danger,
-                  side: const BorderSide(color: AppColors.danger),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 16),
-
-          // Pengajuan Izin/Sakit
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: OutlinedButton.icon(
-              onPressed: () => context.push('/leave-requests'),
-              icon: const Icon(Icons.event_note_outlined, size: 20),
-              label: const Text('Pengajuan Izin / Sakit'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.border),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // App info
-          _buildSection(context, 'Aplikasi', [
-            _buildTile(context, Icons.info_outline, 'Versi', 'v1.0.0'),
-          ]),
-
-          const SizedBox(height: 24),
-
-          // Logout button
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: OutlinedButton.icon(
-              onPressed: () async {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Keluar'),
-                    content: const Text('Yakin ingin keluar dari akun?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Batal'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.danger,
-                        ),
-                        child: const Text('Keluar'),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirm == true) {
-                  await ref.read(authProvider.notifier).logout();
-                }
-              },
-              icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
-              label: const Text(
-                'Keluar dari Akun',
-                style: TextStyle(color: AppColors.danger),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.danger),
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, List<Widget> children) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 0.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Keluar dari Akun?'),
+        content: const Text(
+          'Kamu akan diarahkan ke halaman login. Yakin?',
+          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
           ),
-          ...children,
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTile(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value, {
-    Color? valueColor,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: AppColors.textTertiary),
-          const SizedBox(width: 12),
-          Text(label, style: Theme.of(context).textTheme.bodyMedium),
-          const Spacer(),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: valueColor,
-                  fontWeight: FontWeight.w600,
-                ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            child: const Text('Keluar'),
           ),
         ],
       ),
     );
+    if (confirm == true) {
+      await ref.read(authProvider.notifier).logout();
+    }
   }
 
   /// Dialog konfirmasi 2-step untuk hapus data wajah (UU PDP Pasal 5-15).
   /// Step 1: Penjelasan konsekuensi.
-  /// Step 2: Konfirmasi final dengan tombol destruktif.
+  /// Step 2: Konfirmasi final destruktif.
   Future<void> _confirmDeleteFaceData(BuildContext context, WidgetRef ref) async {
     // Step 1 — Edukasi konsekuensi
     final step1 = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: AppColors.warning),
+            Icon(IconsaxPlusBold.warning_2, color: AppColors.warning),
             SizedBox(width: 8),
             Text('Hapus Data Wajah?'),
           ],
@@ -288,8 +323,8 @@ class ProfileScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Anda akan menghapus data wajah biometrik yang tersimpan.',
-              style: TextStyle(fontSize: 14),
+              'Kamu akan menghapus data wajah biometrik yang tersimpan.',
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
             SizedBox(height: 12),
             Text(
@@ -297,9 +332,9 @@ class ProfileScreen extends ConsumerWidget {
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 6),
-            Text('• Anda tidak bisa presensi di sesi yang membutuhkan verifikasi wajah.', style: TextStyle(fontSize: 13)),
+            Text('• Tidak bisa presensi di sesi yang membutuhkan verifikasi wajah.', style: TextStyle(fontSize: 13)),
             SizedBox(height: 4),
-            Text('• Anda harus daftar ulang jika ingin pakai verifikasi wajah lagi.', style: TextStyle(fontSize: 13)),
+            Text('• Harus daftar ulang jika ingin pakai verifikasi wajah lagi.', style: TextStyle(fontSize: 13)),
             SizedBox(height: 4),
             Text('• Tindakan ini tidak bisa dibatalkan.', style: TextStyle(fontSize: 13)),
           ],
@@ -324,10 +359,11 @@ class ProfileScreen extends ConsumerWidget {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Yakin hapus permanen?'),
         content: const Text(
-          'Data wajah Anda akan dihapus dari server. Aksi ini tidak dapat dibatalkan.',
-          style: TextStyle(fontSize: 14),
+          'Data wajah kamu akan dihapus dari server. Aksi ini tidak bisa dibatalkan.',
+          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -336,11 +372,14 @@ class ProfileScreen extends ConsumerWidget {
           ),
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(ctx, true),
-            icon: const Icon(Icons.delete_forever, size: 18),
+            icon: const Icon(IconsaxPlusBold.trash, size: 18),
             label: const Text('Hapus Sekarang'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
             ),
           ),
         ],
@@ -356,7 +395,6 @@ class ProfileScreen extends ConsumerWidget {
     if (!context.mounted) return;
 
     if (success) {
-      // Update auth flag lokal supaya UI Profile refresh tanpa full reload
       ref.read(authProvider.notifier).markFaceUnregistered();
       ref.read(faceDeletionProvider.notifier).reset();
 
@@ -377,5 +415,469 @@ class ProfileScreen extends ConsumerWidget {
         ),
       );
     }
+  }
+
+  // ===== Avatar upload handlers =====
+
+  void _showAvatarSourceSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.borderStrong,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: const Icon(IconsaxPlusBold.gallery, color: AppColors.primary),
+                title: const Text('Pilih dari Galeri'),
+                onTap: () {
+                  Navigator.of(sheetCtx).pop();
+                  _pickAndUploadAvatar(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(IconsaxPlusBold.camera, color: AppColors.primary),
+                title: const Text('Ambil Foto'),
+                onTap: () {
+                  Navigator.of(sheetCtx).pop();
+                  _pickAndUploadAvatar(ImageSource.camera);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickAndUploadAvatar(ImageSource source) async {
+    final XFile? picked;
+    try {
+      picked = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal membuka galeri: ${e.toString()}'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    if (picked == null) return;
+    if (!mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final notifier = ref.read(avatarUploadProvider.notifier);
+
+    final success = await notifier.upload(File(picked.path));
+
+    if (!mounted) return;
+
+    if (success) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Foto profil berhasil diperbarui.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+      notifier.reset();
+    } else {
+      final err = ref.read(avatarUploadProvider).errorMessage ?? 'Gagal mengunggah foto.';
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(err),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      notifier.reset();
+    }
+  }
+}
+
+// ============================================================================
+// Sub-widgets
+// ============================================================================
+
+/// Hero profile — avatar 88×88 + gold glow + camera badge tap-able + meta info.
+class _ProfileHero extends StatelessWidget {
+  const _ProfileHero({
+    required this.user,
+    required this.isUploading,
+    required this.onTapAvatar,
+  });
+
+  final dynamic user; // UserModel
+  final bool isUploading;
+  final VoidCallback? onTapAvatar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: Column(
+        children: [
+          // Avatar wrap dengan gold glow + camera badge
+          SizedBox(
+            width: 96,
+            height: 96,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Gold radial glow (signature)
+                Positioned(
+                  top: -6,
+                  left: -6,
+                  child: IgnorePointer(
+                    child: Container(
+                      width: 108,
+                      height: 108,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [AppColors.accentSoft, Color(0x00F4B400)],
+                          stops: [0.0, 0.65],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Avatar
+                Positioned(
+                  top: 4,
+                  left: 4,
+                  child: GestureDetector(
+                    onTap: onTapAvatar,
+                    child: Container(
+                      width: 88,
+                      height: 88,
+                      decoration: BoxDecoration(
+                        gradient: user?.avatarUrl == null
+                            ? AppColors.primaryGradient
+                            : null,
+                        color: user?.avatarUrl != null ? AppColors.surface : null,
+                        shape: BoxShape.circle,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x402D86FF),
+                            blurRadius: 24,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: user?.avatarUrl != null
+                          ? Image.network(
+                              user!.avatarUrl!,
+                              fit: BoxFit.cover,
+                              width: 88,
+                              height: 88,
+                              errorBuilder: (_, _, _) => _buildInitialsAvatar(user),
+                              loadingBuilder: (ctx, child, progress) {
+                                if (progress == null) return child;
+                                return _buildInitialsAvatar(user);
+                              },
+                            )
+                          : _buildInitialsAvatar(user),
+                    ),
+                  ),
+                ),
+                // Camera badge (tap-able edit)
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: GestureDetector(
+                    onTap: onTapAvatar,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x592D86FF),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: isUploading
+                          ? const Padding(
+                              padding: EdgeInsets.all(7),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(
+                              IconsaxPlusBold.camera,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Nama
+          Text(
+            user?.fullName ?? '-',
+            style: const TextStyle(
+              fontFamily: 'Plus Jakarta Sans',
+              fontWeight: FontWeight.w800,
+              fontSize: 20,
+              color: AppColors.textPrimary,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            user?.nimNip ?? '-',
+            style: const TextStyle(
+              fontFamily: 'JetBrains Mono',
+              fontSize: 13,
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          if (user != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              user.semesterKelasLabel ?? '-',
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textTertiary,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInitialsAvatar(dynamic user) {
+    return Container(
+      width: 88,
+      height: 88,
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          user?.initials ?? '?',
+          style: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+            fontFamily: 'Plus Jakarta Sans',
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Group container untuk settings items — label uppercase + list items.
+class _SettingsGroup extends StatelessWidget {
+  const _SettingsGroup({
+    required this.label,
+    required this.children,
+  });
+
+  /// Null = no label (dipakai untuk Logout standalone).
+  final String? label;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (label != null) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+              child: Text(
+                label!.toUpperCase(),
+                style: const TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                  color: AppColors.textTertiary,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ],
+          ...children.map((child) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: child,
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+/// Settings item — duotone icon + title + subtitle + trailing (chevron/toggle).
+class _SettingsItem extends StatelessWidget {
+  const _SettingsItem({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBg,
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+    this.onTap,
+    this.titleColor,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBg;
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final Color? titleColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: AppShadows.card,
+          ),
+          child: Row(
+            children: [
+              // Duotone icon box
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: iconColor, size: 18),
+              ),
+              const SizedBox(width: 12),
+              // Title + subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13.5,
+                        color: titleColor ?? AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: AppColors.textSecondary,
+                        height: 1.35,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              // Trailing
+              const SizedBox(width: 8),
+              trailing ??
+                  const Icon(
+                    IconsaxPlusBold.arrow_right_3,
+                    size: 16,
+                    color: AppColors.textTertiary,
+                  ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Toggle switch sederhana — visual only (state dikelola caller).
+class _ToggleSwitch extends StatelessWidget {
+  const _ToggleSwitch({required this.value});
+  final bool value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 48,
+      height: 28,
+      decoration: BoxDecoration(
+        color: value ? AppColors.primary : AppColors.borderStrong,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            top: 3,
+            left: value ? 23 : 3,
+            child: Container(
+              width: 22,
+              height: 22,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x26000000),
+                    blurRadius: 3,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

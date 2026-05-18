@@ -58,13 +58,17 @@ class SubmitLeaveRequest {
   final String sessionId;
   final LeaveType type;
   final String reason;
-  final String? evidenceUrl;
+
+  /// Path file bukti di Storage bucket `leave-evidence` (BUKAN full URL).
+  /// Format: `<userId>/<random>.<jpg|png|webp>`.
+  /// Hasil dari [LeaveRepository.uploadEvidence].
+  final String? evidencePath;
 
   const SubmitLeaveRequest({
     required this.sessionId,
     required this.type,
     required this.reason,
-    this.evidenceUrl,
+    this.evidencePath,
   });
 
   Map<String, dynamic> toJson() {
@@ -72,9 +76,24 @@ class SubmitLeaveRequest {
       'session_id': sessionId,
       'type': type.apiValue,
       'reason': reason,
-      if (evidenceUrl != null && evidenceUrl!.isNotEmpty)
-        'evidence_url': evidenceUrl,
+      if (evidencePath != null && evidencePath!.isNotEmpty)
+        'evidence_path': evidencePath,
     };
+  }
+}
+
+/// Response dari POST /api/mobile/leave-requests/upload-evidence.
+/// Mobile dapat path saja (bukan full URL) — path nanti dikirim ke endpoint
+/// submit. Web admin/dosen yang generate signed URL on-demand saat view.
+class UploadEvidenceResponse {
+  final String path;
+
+  const UploadEvidenceResponse({required this.path});
+
+  factory UploadEvidenceResponse.fromJson(Map<String, dynamic> json) {
+    return UploadEvidenceResponse(
+      path: json['path'] as String? ?? '',
+    );
   }
 }
 

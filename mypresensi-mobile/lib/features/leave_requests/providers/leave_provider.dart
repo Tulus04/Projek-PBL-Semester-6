@@ -65,7 +65,7 @@ class SubmitLeaveNotifier extends Notifier<SubmitLeaveState> {
     required String sessionId,
     required LeaveType type,
     required String reason,
-    String? evidenceUrl,
+    String? evidencePath,
   }) async {
     state = state.copyWith(
       status: SubmitLeaveStatus.submitting,
@@ -78,7 +78,7 @@ class SubmitLeaveNotifier extends Notifier<SubmitLeaveState> {
         sessionId: sessionId,
         type: type,
         reason: reason,
-        evidenceUrl: evidenceUrl,
+        evidencePath: evidencePath,
       ));
 
       state = state.copyWith(

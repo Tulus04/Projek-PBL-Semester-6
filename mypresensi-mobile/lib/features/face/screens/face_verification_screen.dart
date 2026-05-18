@@ -1,9 +1,11 @@
 // lib/features/face/screens/face_verification_screen.dart
 // Screen verifikasi wajah saat submit presensi.
-// Flow: Kamera → Compare live face vs stored embedding → Return result.
+// Flow: Kamera → Extract live embedding (TFLite) → POST ke server → Server compare → Result.
 // Auto-close setelah match atau timeout 15 detik.
 //
-// Embedding extraction via FaceEmbeddingService (TFLite MobileFaceNet 192-d).
+// SECURITY: Comparison server-side (POST /api/mobile/face/verify) sesuai rule
+// 04-security-and-privacy Section B.2. Mobile TIDAK menerima stored embedding.
+// Status registrasi user di-cek via auth profile flag `is_face_registered`.
 
 import 'dart:async';
 
@@ -12,21 +14,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../data/face_models.dart';
 import '../providers/face_provider.dart';
-import '../services/face_embedding_service.dart';
 
 class FaceVerificationScreen extends ConsumerStatefulWidget {
-  /// Override threshold (opsional) — kalau null, baca dari [faceConfigProvider]
-  /// (server settings) dengan fallback ke [FaceEmbeddingService.defaultThreshold].
-  ///
-  /// Pass nilai eksplisit hanya untuk testing / debug.
-  final double? threshold;
-
-  const FaceVerificationScreen({
-    super.key,
-    this.threshold,
-  });
+  const FaceVerificationScreen({super.key});
 
   @override
   ConsumerState<FaceVerificationScreen> createState() =>
@@ -40,33 +33,35 @@ class _FaceVerificationScreenState
   List<CameraDescription> _cameras = [];
   Timer? _timeoutTimer;
   int _remainingSeconds = 15;
-  FaceEmbedding? _storedEmbedding;
 
   @override
   void initState() {
     super.initState();
-    _loadEmbeddingAndInitCamera();
+    _initialize();
   }
 
-  Future<void> _loadEmbeddingAndInitCamera() async {
+  Future<void> _initialize() async {
     try {
-      // 1. Trigger fetch face config in parallel (cached, non-blocking).
-      // Threshold diresolve nanti di _onCameraFrame.
-      ref.read(faceConfigProvider);
+      // 1. Gate: pastikan user sudah register wajah.
+      // Cek dari auth profile (flag `is_face_registered`) — TIDAK fetch
+      // embedding karena sekarang server-side comparison.
+      final authState = ref.read(authProvider);
+      final isFaceRegistered = authState.user?.isFaceRegistered ?? false;
 
-      // 2. Load stored embedding
-      final repo = ref.read(faceRepositoryProvider);
-      _storedEmbedding = await repo.getStoredEmbedding();
-
-      if (_storedEmbedding == null || _storedEmbedding!.embedding.isEmpty) {
+      if (!isFaceRegistered) {
         if (mounted) {
-          // Belum registrasi wajah — return null result
+          // User belum register → kembali ke caller dengan null
           context.pop(null);
         }
         return;
       }
 
-      // 2. Initialize camera
+      // 2. Trigger fetch face config in parallel (cached, non-blocking).
+      // Sekarang config hanya untuk display info (threshold) — server yang
+      // putuskan match/no-match berdasarkan settings yang sama.
+      ref.read(faceConfigProvider);
+
+      // 3. Initialize camera
       _cameras = await availableCameras();
       final frontCamera = _cameras.firstWhere(
         (cam) => cam.lensDirection == CameraLensDirection.front,
@@ -87,15 +82,15 @@ class _FaceVerificationScreenState
       if (!mounted) return;
       setState(() => _isCameraInitialized = true);
 
-      // 3. Initialize face detection service
+      // 4. Initialize face detection service + reset verification state
       final service = ref.read(faceDetectionServiceProvider);
       service.initialize();
       ref.read(faceVerificationProvider.notifier).reset();
 
-      // 4. Start camera stream
+      // 5. Start camera stream
       _cameraController!.startImageStream(_onCameraFrame);
 
-      // 5. Start timeout timer
+      // 6. Start timeout timer
       _startTimeout();
     } catch (e) {
       debugPrint('[FACE VERIFY] Init error: $e');
@@ -123,7 +118,7 @@ class _FaceVerificationScreenState
   }
 
   void _onCameraFrame(CameraImage image) {
-    if (_cameras.isEmpty || _storedEmbedding == null) return;
+    if (_cameras.isEmpty) return;
 
     final frontCamera = _cameras.firstWhere(
       (cam) => cam.lensDirection == CameraLensDirection.front,
@@ -135,20 +130,13 @@ class _FaceVerificationScreenState
     detector.processFrame(image, frontCamera).then((result) {
       if (!mounted) return;
 
-      // Resolve threshold: explicit override → server config → static default.
-      // Riverpod 3: pakai .asData?.value untuk null-safe access ke AsyncValue.
-      final serverConfig = ref.read(faceConfigProvider).asData?.value;
-      final actualThreshold = widget.threshold
-          ?? serverConfig?.confidenceThreshold
-          ?? FaceEmbeddingService.defaultThreshold;
-
-      // Provider akan extract embedding via TFLite + cosine similarity vs stored.
+      // Provider akan extract embedding via TFLite, lalu POST ke server.
+      // Server compare dengan stored embedding milik user (tidak pernah
+      // ke client) dan return match/similarity/threshold.
       ref.read(faceVerificationProvider.notifier).onFrame(
             result: result,
             cameraImage: image,
             camera: frontCamera,
-            storedEmbedding: _storedEmbedding!.embedding,
-            threshold: actualThreshold,
           );
     });
   }

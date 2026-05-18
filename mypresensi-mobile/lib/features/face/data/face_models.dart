@@ -51,6 +51,39 @@ class FaceRegistrationResponse {
   }
 }
 
+/// Response dari POST /api/mobile/face/verify — hasil verifikasi server-side.
+///
+/// Server membandingkan live embedding (yang dikirim mobile) dengan stored
+/// embedding milik user. Mobile TIDAK pernah menerima stored embedding.
+class FaceVerifyResponse {
+  /// True jika similarity >= threshold (sesuai settings server).
+  final bool match;
+
+  /// Cosine similarity hasil komputasi server, clamped [0, 1].
+  /// Nilai mendekati 1 = sangat mirip, mendekati 0 = berbeda.
+  final double similarity;
+
+  /// Threshold yang dipakai server saat decision (untuk diagnostic UI).
+  /// Default 0.65 sesuai LFW benchmark MobileFaceNet 192-d.
+  final double threshold;
+
+  const FaceVerifyResponse({
+    required this.match,
+    required this.similarity,
+    required this.threshold,
+  });
+
+  factory FaceVerifyResponse.fromJson(Map<String, dynamic> json) {
+    final simRaw = json['similarity'];
+    final thrRaw = json['threshold'];
+    return FaceVerifyResponse(
+      match: json['match'] as bool? ?? false,
+      similarity: simRaw is num ? simRaw.toDouble() : 0.0,
+      threshold: thrRaw is num ? thrRaw.toDouble() : 0.65,
+    );
+  }
+}
+
 /// Hasil verifikasi wajah (on-device comparison)
 class FaceVerificationResult {
   final double confidence; // 0.0 - 1.0
