@@ -95,8 +95,8 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           # Pin minor agar konsisten antar lokal & CI. Dart SDK ^3.11.4 (lihat pubspec.yaml)
-          # ada di Flutter 3.35.x. Update versi ini saat upgrade Flutter di lokal.
-          flutter-version: '3.35.x'
+          # tersedia di Flutter 3.41.x. Update versi ini saat upgrade Flutter di lokal.
+          flutter-version: '3.41.x'
           channel: 'stable'
           cache: true
 
