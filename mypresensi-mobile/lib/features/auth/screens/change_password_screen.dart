@@ -51,11 +51,14 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
     super.dispose();
   }
 
-  // Password strength checks
+  // Password strength checks — match dengan Supabase Auth project policy
+  // (settings → Authentication → Password requirements: lower + upper + digit).
   bool get _hasMinLength => _newPasswordController.text.length >= 8;
   bool get _hasUppercase => RegExp(r'[A-Z]').hasMatch(_newPasswordController.text);
+  bool get _hasLowercase => RegExp(r'[a-z]').hasMatch(_newPasswordController.text);
   bool get _hasNumber => RegExp(r'[0-9]').hasMatch(_newPasswordController.text);
-  bool get _allValid => _hasMinLength && _hasUppercase && _hasNumber;
+  bool get _allValid =>
+      _hasMinLength && _hasUppercase && _hasLowercase && _hasNumber;
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -265,6 +268,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                                 _hasUppercase, 'Mengandung huruf kapital (A-Z)'),
                             const SizedBox(height: 4),
                             _buildStrengthItem(
+                                _hasLowercase, 'Mengandung huruf kecil (a-z)'),
+                            const SizedBox(height: 4),
+                            _buildStrengthItem(
                                 _hasNumber, 'Mengandung angka (0-9)'),
                           ],
                           const SizedBox(height: 18),
@@ -346,13 +352,19 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
 
                   const SizedBox(height: 20),
 
-                  // Logout link
-                  TextButton(
+                  // Logout link — eksplisit konsekuensi (bukan sekadar kembali).
+                  // User keluar dari force-change-password flow = logout + hapus token.
+                  TextButton.icon(
                     onPressed: _isSubmitting
                         ? null
                         : () => ref.read(authProvider.notifier).logout(),
-                    child: Text(
-                      'Kembali ke halaman login',
+                    icon: const Icon(
+                      Icons.logout_outlined,
+                      size: 14,
+                      color: AppColors.textTertiary,
+                    ),
+                    label: const Text(
+                      'Logout & kembali ke login',
                       style: TextStyle(
                         color: AppColors.textTertiary,
                         fontSize: 13,

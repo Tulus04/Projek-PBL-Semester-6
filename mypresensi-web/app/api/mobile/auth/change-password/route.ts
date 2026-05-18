@@ -15,8 +15,9 @@ const changePasswordSchema = z
     newPassword: z
       .string()
       .min(8, 'Password baru minimal 8 karakter')
-      .regex(/[A-Z]/, 'Harus mengandung minimal 1 huruf kapital')
-      .regex(/[0-9]/, 'Harus mengandung minimal 1 angka'),
+      .regex(/[A-Z]/, 'Harus mengandung minimal 1 huruf kapital (A-Z)')
+      .regex(/[a-z]/, 'Harus mengandung minimal 1 huruf kecil (a-z)')
+      .regex(/[0-9]/, 'Harus mengandung minimal 1 angka (0-9)'),
     confirmPassword: z.string().min(1, 'Konfirmasi password wajib diisi'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
