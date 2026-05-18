@@ -7,7 +7,7 @@
 import { Metadata } from 'next'
 import LoginForm from './login-form'
 import Image from 'next/image'
-import { Fingerprint, MapPin, ScanFace, ShieldCheck } from 'lucide-react'
+import { Fingerprint, MapPin, ScanFace } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Masuk — MyPresensi TRPL',
@@ -18,10 +18,10 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex flex-col lg:flex-row bg-background">
       {/* LEFT PANEL — Brand showcase (hidden mobile, visible lg+) */}
-      <aside className="relative hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-between p-10 xl:p-14 text-white overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-dark">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-72 h-72 bg-amber-300/20 rounded-full blur-3xl translate-x-24 -translate-y-24" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-32 translate-y-32" />
+      <aside className="relative hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-between p-10 xl:p-14 text-white overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-dark animate-slide-in-left">
+        {/* Decorative elements — dengan drift animation sub-perceptual */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-amber-300/20 rounded-full blur-3xl translate-x-24 -translate-y-24 animate-drift-blur-1" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-32 translate-y-32 animate-drift-blur-2" />
 
         {/* Top: logo + brand */}
         <div className="relative z-10">
@@ -58,9 +58,9 @@ export default function LoginPage() {
             Sistem absensi mahasiswa Prodi TRPL Politani Samarinda dengan tiga lapisan verifikasi: kode sesi, geofence GPS, dan pengenalan wajah.
           </p>
 
-          {/* Feature highlights */}
+          {/* Feature highlights — stagger fade-up untuk premium feel */}
           <ul className="space-y-3 max-w-md">
-            <li className="flex items-start gap-3">
+            <li className="flex items-start gap-3 animate-stagger-in" style={{ animationDelay: '280ms' }}>
               <div className="w-8 h-8 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
                 <Fingerprint size={16} className="text-amber-300" />
               </div>
@@ -69,7 +69,7 @@ export default function LoginPage() {
                 <p className="text-xs text-white/70">Refresh otomatis setiap 3 menit untuk cegah duplikasi.</p>
               </div>
             </li>
-            <li className="flex items-start gap-3">
+            <li className="flex items-start gap-3 animate-stagger-in" style={{ animationDelay: '360ms' }}>
               <div className="w-8 h-8 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
                 <MapPin size={16} className="text-amber-300" />
               </div>
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 <p className="text-xs text-white/70">Validasi lokasi 150m dari kampus + deteksi mock GPS.</p>
               </div>
             </li>
-            <li className="flex items-start gap-3">
+            <li className="flex items-start gap-3 animate-stagger-in" style={{ animationDelay: '440ms' }}>
               <div className="w-8 h-8 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
                 <ScanFace size={16} className="text-amber-300" />
               </div>
@@ -90,12 +90,8 @@ export default function LoginPage() {
           </ul>
         </div>
 
-        {/* Bottom: trust badge + copyright */}
+        {/* Bottom: copyright only — trust badge dihapus sesuai feedback user (terlalu noise di footer panel kiri). */}
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 mb-4">
-            <ShieldCheck size={14} className="text-amber-300" />
-            <span className="text-xs font-semibold text-white">Data terenkripsi · UU PDP compliant</span>
-          </div>
           <p className="text-xs text-white/70">
             © {new Date().getFullYear()} TRPL Politani Samarinda · v1.0.0
           </p>
@@ -103,7 +99,7 @@ export default function LoginPage() {
       </aside>
 
       {/* RIGHT PANEL — Login form */}
-      <section className="flex-1 flex items-center justify-center p-6 lg:p-10">
+      <section className="flex-1 flex items-center justify-center p-6 lg:p-10 animate-slide-in-right" style={{ animationDelay: '150ms' }}>
         <div className="w-full max-w-md">
           {/* Mobile-only branding (hidden lg+) */}
           <div className="flex flex-col items-center mb-8 lg:hidden">

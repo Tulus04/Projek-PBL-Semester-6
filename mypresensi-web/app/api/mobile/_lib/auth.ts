@@ -81,10 +81,14 @@ export async function authenticateRequest(req: NextRequest): Promise<AuthResult>
 }
 
 /**
- * Helper: JSON response standar untuk error
+ * Helper: JSON response standar untuk error.
+ * errorCode opsional — dipakai mobile untuk distinguish kasus tertentu (mis. face_not_registered)
+ * agar bisa tampilkan dialog redirect yang sesuai.
  */
-export function errorResponse(message: string, status: number) {
-  return Response.json({ error: message }, { status })
+export function errorResponse(message: string, status: number, errorCode?: string) {
+  const body: Record<string, unknown> = { error: message }
+  if (errorCode) body.error_code = errorCode
+  return Response.json(body, { status })
 }
 
 /**

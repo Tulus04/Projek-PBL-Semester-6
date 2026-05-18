@@ -22,8 +22,7 @@ import crypto from 'crypto'
 const registerSchema = z.object({
   embedding: z
     .array(z.number().min(-1).max(1))
-    .min(100, 'Embedding terlalu pendek')
-    .max(2000, 'Embedding terlalu panjang'),
+    .length(192, 'Format embedding tidak valid'),
 })
 
 // ===========================

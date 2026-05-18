@@ -1,6 +1,7 @@
 // app/api/mobile/attendance/submit/route.ts
 // Endpoint PALING KRITIS — submit presensi mahasiswa dari mobile app.
-// Validasi 5 layer: session valid, code check, enrollment, duplicate, GPS.
+// Validasi 6 layer: session valid, code check, enrollment, duplicate, GPS, face recognition.
+// Phase 2 v7 (17 Mei 2026): Layer 6 face WAJIB di KEDUA mode (offline + online).
 // Rate limited: max 10 request per menit per (user + device) — composite key
 // agar 1 device bermasalah tidak block device lain dari user yang sama.
 
@@ -179,7 +180,68 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 9. Auto-classify status — 'hadir' atau 'terlambat'
+    // 9. LAYER 6: Face Recognition Gate (Phase 2 v7, 17 Mei 2026)
+    // Cek setting face_verification_mode dari DB.
+    // Mode 'required' → face WAJIB di KEDUA mode (offline + online).
+    // Mode 'optional' → backward compat: skip gate (legacy behavior).
+    // Setting di-set ke 'required' sejak Phase 2 v7 — defense in depth Layer 3.
+    const { data: faceModeRow } = await adminClient
+      .from('settings')
+      .select('value')
+      .eq('key', 'face_verification_mode')
+      .maybeSingle()
+
+    const faceMode = faceModeRow?.value === 'required' ? 'required' : 'optional'
+
+    if (faceMode === 'required') {
+      // 9a. Wajah belum terdaftar — redirect ke face registration screen
+      if (!user.is_face_registered) {
+        await logAudit({
+          action: 'face_not_registered_attempt',
+          userId: user.id,
+          ipAddress,
+          details: {
+            student_id: user.id,
+            student_nim: user.nim_nip,
+            session_id: input.session_id,
+            session_mode: session.mode,
+            device_id: deviceId,
+            user_agent: userAgent,
+          },
+        })
+        return errorResponse(
+          'Anda belum mendaftarkan wajah. Silakan daftar wajah dulu di menu Profil sebelum melakukan presensi.',
+          403,
+          'face_not_registered',
+        )
+      }
+
+      // 9b. Face match gagal / tidak dilakukan — minta verify ulang
+      // input.is_face_matched harus eksplisit true (bukan null/undefined/false)
+      if (input.is_face_matched !== true) {
+        await logAudit({
+          action: 'face_mismatch_attempt',
+          userId: user.id,
+          ipAddress,
+          details: {
+            student_id: user.id,
+            student_nim: user.nim_nip,
+            session_id: input.session_id,
+            session_mode: session.mode,
+            face_confidence: input.face_confidence ?? null,
+            device_id: deviceId,
+            user_agent: userAgent,
+          },
+        })
+        return errorResponse(
+          'Verifikasi wajah belum berhasil. Coba ulangi dengan pencahayaan yang lebih baik dan pastikan hanya wajah Anda yang terlihat.',
+          403,
+          'face_mismatch',
+        )
+      }
+    }
+
+    // 10. Auto-classify status — 'hadir' atau 'terlambat'
     // Berdasarkan selisih waktu submit vs sessions.started_at.
     // Threshold dari setting `late_threshold_minutes` (default 15).
     const now = new Date()

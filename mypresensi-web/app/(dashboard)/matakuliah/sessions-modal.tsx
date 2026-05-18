@@ -6,7 +6,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import {
   X, Plus, Trash2, PlayCircle, StopCircle, Calendar,
-  RefreshCw, ClipboardList, Copy, Check, QrCode
+  RefreshCw, ClipboardList, Copy, Check, QrCode, Maximize2
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import {
@@ -298,6 +298,14 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
 
                     {/* Action Buttons */}
                     <div className="flex items-center justify-center gap-2">
+                      <a
+                        href={`/sesi/${activeSession.id}/qr`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
+                      >
+                        <Maximize2 size={13} /> Tampilkan Fullscreen
+                      </a>
                       <button
                         onClick={() => handleCopyCode(activeSession.session_code!)}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-white hover:bg-gray-50 transition-colors"

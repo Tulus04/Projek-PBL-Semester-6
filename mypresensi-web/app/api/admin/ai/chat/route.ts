@@ -3,7 +3,7 @@
 // SECURITY: prompt user tidak disimpan mentah di audit log.
 
 import { NextRequest } from 'next/server'
-import { generateText } from 'ai'
+import { streamText } from 'ai'
 import { google } from '@ai-sdk/google'
 import { z } from 'zod'
 import { requireRole } from '@/lib/auth-guard'
@@ -43,28 +43,33 @@ export async function POST(req: NextRequest) {
     const context = await buildWebAiContext({ userId: currentUser.id, role })
     const ipAddress = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? null
 
-    const result = await generateText({
+    const userAgent = req.headers.get('user-agent') ?? null
+
+    const result = streamText({
       model: google('gemini-2.5-flash'),
       system: `${ADMIN_SYSTEM_PROMPT}\n\n${context}`,
       prompt: parsed.data.message,
       temperature: 0.2,
       maxOutputTokens: 700,
-    })
-
-    await logAudit({
-      action: 'ai_chat',
-      userId: currentUser.id,
-      ipAddress,
-      details: {
-        surface: 'web',
-        role,
-        prompt_length: parsed.data.message.length,
-        response_length: result.text.length,
-        user_agent: req.headers.get('user-agent') ?? null,
+      onFinish: async ({ text }) => {
+        // Audit hanya saat stream selesai — response_length pakai panjang final.
+        await logAudit({
+          action: 'ai_chat',
+          userId: currentUser.id,
+          ipAddress,
+          details: {
+            surface: 'web',
+            role,
+            prompt_length: parsed.data.message.length,
+            response_length: text.length,
+            streamed: true,
+            user_agent: userAgent,
+          },
+        })
       },
     })
 
-    return Response.json({ reply: result.text })
+    return result.toTextStreamResponse()
   } catch (error) {
     console.error('[AI_CHAT_WEB]', error)
     return Response.json(

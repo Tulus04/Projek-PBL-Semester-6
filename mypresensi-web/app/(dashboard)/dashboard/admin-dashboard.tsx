@@ -13,6 +13,7 @@ import AtRiskWidget from '@/components/dashboard/at-risk-widget'
 import TrendPill from '@/components/dashboard/trend-pill'
 import RecentActivityFeed from '@/components/dashboard/recent-activity-feed'
 import QuickActions from '@/components/dashboard/quick-actions'
+import AnimatedNumber from '@/components/dashboard/animated-number'
 import type { AdminDashboardData } from '@/lib/actions/dashboard'
 import type { AtRiskSummary } from '@/lib/actions/at-risk'
 import type { ActivityItem } from '@/lib/actions/recent-activity'
@@ -109,37 +110,41 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
       {/* 1c. Quick Actions Panel — 4 tombol cepat untuk action paling sering */}
       <QuickActions pendingLeaveCount={data.pendingLeaveRequests} />
 
-      {/* 2. KPI Cards — 6 cards dengan icon box duotone + lift hover */}
+      {/* 2. KPI Cards — 6 cards dengan icon box duotone + lift hover + stagger entrance */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '0ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Total Mahasiswa</span>
             <span className="kpi-icon-box">
               <GraduationCap size={18} />
             </span>
           </div>
-          <span className="summary-card-value">{data.totalMahasiswa}</span>
+          <span className="summary-card-value">
+            <AnimatedNumber value={data.totalMahasiswa} />
+          </span>
           <div className="flex items-center justify-between gap-2 mt-1">
             <span className="summary-card-sublabel">Aktif terdaftar</span>
             <TrendPill trend={data.trends.totalMahasiswa} hidePeriod />
           </div>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '60ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Total Dosen</span>
             <span className="kpi-icon-box">
               <Users size={18} />
             </span>
           </div>
-          <span className="summary-card-value">{data.totalDosen}</span>
+          <span className="summary-card-value">
+            <AnimatedNumber value={data.totalDosen} />
+          </span>
           <div className="flex items-center justify-between gap-2 mt-1">
             <span className="summary-card-sublabel">Pengajar aktif</span>
             <TrendPill trend={data.trends.totalDosen} hidePeriod />
           </div>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '120ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Hadir Hari Ini</span>
             <span className="kpi-icon-box success">
@@ -147,7 +152,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
             </span>
           </div>
           <span className="summary-card-value text-success">
-            {data.totalHadir}
+            <AnimatedNumber value={data.totalHadir} />
           </span>
           <div className="flex items-center justify-between gap-2 mt-1">
             <span className="summary-card-sublabel">Absensi tercatat</span>
@@ -155,7 +160,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
           </div>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '180ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Alpa Hari Ini</span>
             <span className="kpi-icon-box danger">
@@ -163,7 +168,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
             </span>
           </div>
           <span className="summary-card-value text-danger">
-            {data.totalAlpa}
+            <AnimatedNumber value={data.totalAlpa} />
           </span>
           <div className="flex items-center justify-between gap-2 mt-1">
             <span className="summary-card-sublabel">Tidak hadir</span>
@@ -171,7 +176,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
           </div>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '240ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Izin / Sakit</span>
             <span className="kpi-icon-box warning">
@@ -179,7 +184,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
             </span>
           </div>
           <span className="summary-card-value text-warning">
-            {data.totalIzin}
+            <AnimatedNumber value={data.totalIzin} />
           </span>
           <div className="flex items-center justify-between gap-2 mt-1">
             <span className="summary-card-sublabel">Hari ini</span>
@@ -187,7 +192,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
           </div>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '300ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Menunggu Review</span>
             <span className="kpi-icon-box accent">
@@ -195,7 +200,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
             </span>
           </div>
           <span className="summary-card-value text-warning">
-            {data.pendingLeaveRequests}
+            <AnimatedNumber value={data.pendingLeaveRequests} />
           </span>
           <div className="flex items-center justify-between gap-2 mt-1">
             <span className="summary-card-sublabel">Pengajuan izin</span>

@@ -3,8 +3,12 @@
 // Tabel persetujuan izin/sakit mahasiswa dengan aksi approve/reject.
 
 import { useState } from 'react'
-import { Check, X, Eye, MessageSquare, FileText } from 'lucide-react'
-import { approveLeaveRequest, rejectLeaveRequest } from '@/lib/actions/leave-requests'
+import { Check, X, Eye, MessageSquare, FileText, Loader2 } from 'lucide-react'
+import {
+  approveLeaveRequest,
+  rejectLeaveRequest,
+  getLeaveEvidenceSignedUrl,
+} from '@/lib/actions/leave-requests'
 import { swal, toast } from '@/lib/swal'
 import EmptyState from '@/components/ui/empty-state'
 
@@ -39,6 +43,26 @@ const typeBadge: Record<string, { label: string; className: string }> = {
 
 export default function LeaveTable({ requests, isReadOnly = false }: { requests: LeaveRequest[]; isReadOnly?: boolean }) {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  // Track tombol "Lihat Bukti" yang sedang generate signed URL — per request id.
+  const [evidenceLoading, setEvidenceLoading] = useState<string | null>(null)
+
+  const handleViewEvidence = async (requestId: string) => {
+    if (evidenceLoading) return
+    setEvidenceLoading(requestId)
+    try {
+      const result = await getLeaveEvidenceSignedUrl(requestId)
+      if (result.error || !result.url) {
+        toast.fire({ icon: 'error', title: result.error ?? 'Gagal membuka bukti' })
+        return
+      }
+      // Buka di tab baru — link ini valid selama 5 menit lalu expired.
+      window.open(result.url, '_blank', 'noopener,noreferrer')
+    } catch {
+      toast.fire({ icon: 'error', title: 'Terjadi kesalahan saat membuka bukti.' })
+    } finally {
+      setEvidenceLoading(null)
+    }
+  }
 
   const handleApprove = async (req: LeaveRequest) => {
     const { value: note } = await swal.fire({
@@ -199,16 +223,20 @@ export default function LeaveTable({ requests, isReadOnly = false }: { requests:
                         </span>
                       )}
                       {req.evidence_url && (
-                        <a
-                          href={req.evidence_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors"
+                        <button
+                          type="button"
+                          onClick={() => handleViewEvidence(req.id)}
+                          disabled={evidenceLoading === req.id}
+                          className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-50"
                           title="Lihat bukti"
                           aria-label="Lihat bukti pendukung"
                         >
-                          <Eye size={16} className="text-primary" />
-                        </a>
+                          {evidenceLoading === req.id ? (
+                            <Loader2 size={16} className="text-primary animate-spin" />
+                          ) : (
+                            <Eye size={16} className="text-primary" />
+                          )}
+                        </button>
                       )}
                     </div>
                   ) : (
@@ -224,16 +252,20 @@ export default function LeaveTable({ requests, isReadOnly = false }: { requests:
                         </button>
                       )}
                       {req.evidence_url && (
-                        <a
-                          href={req.evidence_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors"
+                        <button
+                          type="button"
+                          onClick={() => handleViewEvidence(req.id)}
+                          disabled={evidenceLoading === req.id}
+                          className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-50"
                           title="Lihat bukti"
                           aria-label="Lihat bukti pendukung"
                         >
-                          <Eye size={14} className="text-primary" />
-                        </a>
+                          {evidenceLoading === req.id ? (
+                            <Loader2 size={14} className="text-primary animate-spin" />
+                          ) : (
+                            <Eye size={14} className="text-primary" />
+                          )}
+                        </button>
                       )}
                     </div>
                   )}

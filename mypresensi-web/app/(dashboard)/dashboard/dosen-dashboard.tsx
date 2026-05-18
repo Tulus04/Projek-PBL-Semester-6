@@ -8,6 +8,7 @@ import { BookOpen, CalendarDays, CheckCircle, Clock, ArrowRight, Users, LayoutDa
 import { formatDateId } from '@/lib/utils'
 import EmptyState from '@/components/ui/empty-state'
 import LiveSessionMonitor from '@/components/dashboard/live-session-monitor'
+import AnimatedNumber from '@/components/dashboard/animated-number'
 import type {
   DashboardSummary,
   CourseCardData,
@@ -97,31 +98,35 @@ export default function DosenDashboard({
       {/* 1b. Live Session Monitor — hanya tampil saat ada sesi aktif */}
       {activeSession && <LiveSessionMonitor data={activeSession} />}
 
-      {/* 2. KPI Cards — 4 cards dengan icon box duotone + lift hover */}
+      {/* 2. KPI Cards — 4 cards dengan icon box duotone + lift hover + stagger entrance */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '0ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Mata Kuliah Aktif</span>
             <span className="kpi-icon-box">
               <BookOpen size={18} />
             </span>
           </div>
-          <span className="summary-card-value">{summary.totalMataKuliah}</span>
+          <span className="summary-card-value">
+            <AnimatedNumber value={summary.totalMataKuliah} />
+          </span>
           <span className="summary-card-sublabel">Diampu semester ini</span>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '60ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Total Pertemuan</span>
             <span className="kpi-icon-box">
               <CalendarDays size={18} />
             </span>
           </div>
-          <span className="summary-card-value">{summary.totalSesi}</span>
+          <span className="summary-card-value">
+            <AnimatedNumber value={summary.totalSesi} />
+          </span>
           <span className="summary-card-sublabel">Sesi terlaksana</span>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '120ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Total Kehadiran</span>
             <span className="kpi-icon-box success">
@@ -129,12 +134,12 @@ export default function DosenDashboard({
             </span>
           </div>
           <span className="summary-card-value text-success">
-            {summary.totalHadir}
+            <AnimatedNumber value={summary.totalHadir} />
           </span>
           <span className="summary-card-sublabel">Mahasiswa hadir</span>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '180ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Menunggu Persetujuan</span>
             <span className="kpi-icon-box warning">
@@ -142,7 +147,7 @@ export default function DosenDashboard({
             </span>
           </div>
           <span className="summary-card-value text-warning">
-            {summary.pendingLeaveRequests}
+            <AnimatedNumber value={summary.pendingLeaveRequests} />
           </span>
           <span className="summary-card-sublabel">Pengajuan izin/sakit</span>
         </div>

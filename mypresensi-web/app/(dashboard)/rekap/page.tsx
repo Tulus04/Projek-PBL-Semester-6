@@ -9,6 +9,7 @@ import { getCurrentUserProfile } from '@/lib/auth-guard'
 import { BarChart3, CalendarDays, CheckCircle, XCircle, Clock } from 'lucide-react'
 import RekapTable from './rekap-table'
 import RekapFilters from './rekap-filters'
+import AnimatedNumber from '@/components/dashboard/animated-number'
 import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
@@ -135,46 +136,54 @@ export default async function RekapAbsensiPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* KPI cards — duotone icon box + lift hover */}
+      {/* KPI cards — duotone icon box + lift hover + stagger entrance */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '0ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Total Sesi</span>
             <span className="kpi-icon-box">
               <CalendarDays size={18} />
             </span>
           </div>
-          <span className="summary-card-value">{totalSesi}</span>
+          <span className="summary-card-value">
+            <AnimatedNumber value={totalSesi} />
+          </span>
           <span className="summary-card-sublabel">Pertemuan terlaksana</span>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '60ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Total Hadir</span>
             <span className="kpi-icon-box success">
               <CheckCircle size={18} />
             </span>
           </div>
-          <span className="summary-card-value text-success">{totalHadir}</span>
+          <span className="summary-card-value text-success">
+            <AnimatedNumber value={totalHadir} />
+          </span>
           <span className="summary-card-sublabel">Kehadiran tercatat</span>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '120ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Total Alpa</span>
             <span className="kpi-icon-box danger">
               <XCircle size={18} />
             </span>
           </div>
-          <span className="summary-card-value text-danger">{totalAlpa}</span>
+          <span className="summary-card-value text-danger">
+            <AnimatedNumber value={totalAlpa} />
+          </span>
           <span className="summary-card-sublabel">Tidak hadir</span>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card animate-stagger-in" style={{ animationDelay: '180ms' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="summary-card-label">Izin / Sakit</span>
             <span className="kpi-icon-box warning">
               <Clock size={18} />
             </span>
           </div>
-          <span className="summary-card-value text-warning">{totalIzin}</span>
+          <span className="summary-card-value text-warning">
+            <AnimatedNumber value={totalIzin} />
+          </span>
           <span className="summary-card-sublabel">Dispensasi</span>
         </div>
       </div>
