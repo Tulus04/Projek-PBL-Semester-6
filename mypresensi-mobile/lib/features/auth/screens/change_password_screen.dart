@@ -106,13 +106,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
     final userName = authState.user?.fullName ?? 'Mahasiswa';
 
     return Scaffold(
-      // Tap area kosong → dismiss keyboard + clear text selection (Issue #2).
-      // GestureDetector dengan behavior:opaque hanya respond di area tidak-tertutup
-      // child interactive (TextField, Button) → tidak ganggu single-tap pada field.
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: SafeArea(
+      body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -242,6 +236,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             enableSuggestions: false,
                             // OS-level password manager autofill hint.
                             autofillHints: const [AutofillHints.newPassword],
+                            // Tap di luar field → dismiss keyboard (Flutter built-in,
+                            // tidak race dengan tap di dalam field).
+                            onTapOutside: (_) =>
+                                FocusScope.of(context).unfocus(),
                             onChanged: (_) => setState(() {}),
                             decoration: InputDecoration(
                               hintText: 'Masukkan password baru',
@@ -299,6 +297,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             enableSuggestions: false,
                             // OS-level — same new-password context.
                             autofillHints: const [AutofillHints.newPassword],
+                            onTapOutside: (_) =>
+                                FocusScope.of(context).unfocus(),
                             onFieldSubmitted: (_) => _handleSubmit(),
                             decoration: InputDecoration(
                               hintText: 'Ketik ulang password baru',
@@ -393,7 +393,6 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
             ),
           ),
         ),
-      ),
       ),
     );
   }

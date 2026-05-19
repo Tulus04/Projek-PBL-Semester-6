@@ -134,13 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      // Tap area kosong → dismiss keyboard + clear text selection.
-      // GestureDetector dengan behavior:opaque hanya respond di area tidak-tertutup
-      // child interactive (TextField, Button) → tidak ganggu single-tap pada field.
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: SafeArea(
+      body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -206,6 +200,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 AutofillHints.email,
                                 AutofillHints.username,
                               ],
+                              // Tap di luar field → dismiss keyboard. Built-in
+                              // Flutter API, hanya trigger saat tap di luar
+                              // field's hit-test region (TIDAK race dengan
+                              // tap di dalam field/padding).
+                              onTapOutside: (_) =>
+                                  FocusScope.of(context).unfocus(),
                               decoration: const InputDecoration(
                                 hintText: 'nama@politani.ac.id',
                                 prefixIcon:
@@ -236,6 +236,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               // Smart Lock / password manager, bisa offer fill.
                               // App TIDAK simpan password sendiri (rule 04-security).
                               autofillHints: const [AutofillHints.password],
+                              onTapOutside: (_) =>
+                                  FocusScope.of(context).unfocus(),
                               decoration: InputDecoration(
                                 hintText: 'Masukkan password',
                                 prefixIcon: const Icon(Icons.lock_outline,
@@ -311,7 +313,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
           ),
         ),
-      ),
       ),
     );
   }
