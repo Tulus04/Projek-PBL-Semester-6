@@ -13,6 +13,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../data/face_models.dart';
@@ -61,7 +62,35 @@ class _FaceVerificationScreenState
       // putuskan match/no-match berdasarkan settings yang sama.
       ref.read(faceConfigProvider);
 
-      // 3. Initialize camera
+      // 3. Runtime permission kamera (Android 6+ wajib).
+      // Tidak perlu consent UU PDP di sini — user sudah consent saat register
+      // wajah pertama kali (di FaceRegistrationScreen).
+      final permissionStatus = await Permission.camera.request();
+      if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                permissionStatus.isPermanentlyDenied
+                    ? 'Izin kamera ditolak. Buka Pengaturan untuk mengaktifkan.'
+                    : 'Izin kamera diperlukan untuk verifikasi wajah.',
+              ),
+              backgroundColor: AppColors.danger,
+              action: permissionStatus.isPermanentlyDenied
+                  ? SnackBarAction(
+                      label: 'Pengaturan',
+                      textColor: Colors.white,
+                      onPressed: openAppSettings,
+                    )
+                  : null,
+            ),
+          );
+          context.pop(null);
+        }
+        return;
+      }
+
+      // 4. Initialize camera
       _cameras = await availableCameras();
       final frontCamera = _cameras.firstWhere(
         (cam) => cam.lensDirection == CameraLensDirection.front,
@@ -82,15 +111,15 @@ class _FaceVerificationScreenState
       if (!mounted) return;
       setState(() => _isCameraInitialized = true);
 
-      // 4. Initialize face detection service + reset verification state
+      // 5. Initialize face detection service + reset verification state
       final service = ref.read(faceDetectionServiceProvider);
       service.initialize();
       ref.read(faceVerificationProvider.notifier).reset();
 
-      // 5. Start camera stream
+      // 6. Start camera stream
       _cameraController!.startImageStream(_onCameraFrame);
 
-      // 6. Start timeout timer
+      // 7. Start timeout timer
       _startTimeout();
     } catch (e) {
       debugPrint('[FACE VERIFY] Init error: $e');

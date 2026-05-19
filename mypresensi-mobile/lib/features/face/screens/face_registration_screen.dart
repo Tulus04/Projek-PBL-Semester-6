@@ -1,12 +1,15 @@
 // lib/features/face/screens/face_registration_screen.dart
 // Screen registrasi wajah mahasiswa — one-time setup.
-// Flow: Kamera → Liveness check (4 step) → Capture embedding → Upload ke server.
-// Menggunakan camera package untuk preview + ML Kit untuk deteksi.
+// Flow: Consent UU PDP → Permission kamera → Liveness check (4 step) →
+//       Capture embedding (7-frame averaging) → Upload ke server.
+// Compliance: rule 04-security B.5 (consent biometrik), rule 21-android-platform
+//             (runtime permission Android 6+).
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/face_provider.dart';
 
@@ -27,7 +30,200 @@ class _FaceRegistrationScreenState
   @override
   void initState() {
     super.initState();
-    _initCamera();
+    // Tunda flow registrasi sampai widget siap dirender — kalau langsung di
+    // initState, dialog showDialog tidak bisa muncul karena widget tree belum
+    // mount. Pakai postFrameCallback supaya context ready.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startFlow());
+  }
+
+  /// Flow: consent UU PDP → permission kamera → init kamera.
+  /// Tolak di salah satu step → pop screen kembali ke halaman sebelumnya.
+  Future<void> _startFlow() async {
+    if (!mounted) return;
+
+    // 1. Consent UU PDP biometrik (rule 04-security B.5)
+    final consentGiven = await _showBiometricConsentDialog();
+    if (!mounted || consentGiven != true) {
+      if (mounted) context.pop();
+      return;
+    }
+
+    // 2. Runtime permission kamera (Android 6+)
+    final permissionOk = await _requestCameraPermission();
+    if (!mounted || !permissionOk) return;
+
+    // 3. Init kamera + start face detection
+    await _initCamera();
+  }
+
+  /// Dialog persetujuan UU PDP — biometrik = data spesifik (UU 27/2022 Pasal 4).
+  /// Wording sesuai rule 04-security B.5. JANGAN ubah tanpa diskusi compliance.
+  Future<bool?> _showBiometricConsentDialog() {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        title: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.face_outlined,
+                color: AppColors.primary,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Persetujuan Data Biometrik',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Wajah Anda akan disimpan sebagai data biometrik untuk verifikasi presensi. '
+          'Data ini hanya digunakan internal kampus dan dapat dihapus kapan saja '
+          'melalui menu Profil. Lanjutkan?',
+          style: TextStyle(
+            fontSize: 14,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: BorderSide(color: AppColors.border),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  child: const Text(
+                    'Tolak',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  child: const Text(
+                    'Setuju',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Request runtime permission kamera (Android 6+ wajib).
+  /// Return true = granted, false = denied/permanentlyDenied (sudah handle UI).
+  Future<bool> _requestCameraPermission() async {
+    final status = await Permission.camera.request();
+
+    if (status.isGranted) return true;
+
+    if (!mounted) return false;
+
+    if (status.isPermanentlyDenied) {
+      // User pernah pilih "Don't ask again" — request().request() tidak
+      // akan munculkan dialog OS lagi. Harus arahkan ke Settings manual.
+      await _showPermissionDeniedDialog(permanent: true);
+    } else {
+      // Denied biasa — tampilkan info ramah, biarkan user back.
+      await _showPermissionDeniedDialog(permanent: false);
+    }
+
+    if (mounted) context.pop();
+    return false;
+  }
+
+  /// Dialog ramah saat permission ditolak. permanent=true → tombol Buka
+  /// Pengaturan untuk grant manual. permanent=false → cuma OK kembali.
+  Future<void> _showPermissionDeniedDialog({required bool permanent}) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Izin Kamera Diperlukan',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+        ),
+        content: Text(
+          permanent
+              ? 'Izin kamera ditolak permanen. Buka Pengaturan aplikasi dan '
+                  'aktifkan izin kamera untuk dapat mendaftarkan wajah.'
+              : 'Aplikasi membutuhkan akses kamera untuk mendaftarkan wajah '
+                  'Anda. Coba lagi dan pilih "Izinkan" pada dialog izin.',
+          style: const TextStyle(
+            fontSize: 14,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Kembali'),
+          ),
+          if (permanent)
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await openAppSettings();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              child: const Text('Buka Pengaturan'),
+            ),
+        ],
+      ),
+    );
   }
 
   Future<void> _initCamera() async {
