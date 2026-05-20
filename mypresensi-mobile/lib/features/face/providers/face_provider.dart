@@ -114,7 +114,31 @@ class FaceRegistrationState {
   }
 
   /// Label instruksi yang ditampilkan di UI.
+  ///
+  /// SAFETY NET: kalau sudah lewat fase capture (livenessStep != lookStraight)
+  /// dan belum sampai finalize, **PRIORITASKAN instruksi step liveness** —
+  /// jangan tampilkan "Posisikan wajah" lagi meski status sempat `detecting`
+  /// karena ML Kit miss face beberapa frame. User tidak boleh dibikin bingung
+  /// soal step yang sebenarnya. Pesan glitch dipindah ke `livenessHint`.
   String get livenessInstruction {
+    final inLivenessPhase = livenessStep != LivenessStep.lookStraight &&
+        livenessStep != LivenessStep.completed;
+    final isTransientStatus = status == RegistrationStatus.detecting ||
+        status == RegistrationStatus.livenessCheck;
+
+    if (inLivenessPhase && isTransientStatus) {
+      switch (livenessStep) {
+        case LivenessStep.blinkEyes:
+          return 'Kedipkan kedua mata';
+        case LivenessStep.turnLeft:
+          return 'Tolehkan kepala ke kiri';
+        case LivenessStep.turnRight:
+          return 'Tolehkan kepala ke kanan';
+        default:
+          break;
+      }
+    }
+
     switch (status) {
       case RegistrationStatus.capturingPose:
         return 'Tetap hadap lurus — menyimpan data wajah ($embeddingsCollected/$_targetEmbeddings)';
@@ -142,6 +166,19 @@ class FaceRegistrationState {
       default:
         return 'Menyiapkan...';
     }
+  }
+
+  /// Hint kecil di bawah instruksi utama — untuk glitch sementara
+  /// (wajah hilang frame, terlalu kecil) tanpa ganti instruksi step utama.
+  /// Null = tidak tampilkan.
+  String? get livenessHint {
+    final inLivenessPhase = livenessStep != LivenessStep.lookStraight &&
+        livenessStep != LivenessStep.completed;
+    if (!inLivenessPhase) return null;
+    if (errorMessage == null || errorMessage!.isEmpty) return null;
+    // Hanya tampilkan untuk error transien — bukan error final state.
+    if (status == RegistrationStatus.error) return null;
+    return errorMessage;
   }
 }
 
@@ -224,33 +261,76 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
     // === Kasus 1: Wajah hilang ===
     if (!result.faceDetected) {
       _noFaceFrameCount++;
-      _confirmFrameCount = 0;
-      if (_noFaceFrameCount >= _noFaceThreshold &&
-          state.status != RegistrationStatus.detecting) {
-        state = state.copyWith(
-          status: RegistrationStatus.detecting,
-          errorMessage: null,
-        );
+      // Soft-decay confirm counter, jangan reset hard.
+      if (_confirmFrameCount > 0) _confirmFrameCount--;
+      if (_noFaceFrameCount >= _noFaceThreshold) {
+        // PENTING: kalau sudah di fase liveness (blink/turnLeft/turnRight),
+        // JANGAN regress status ke detecting — itu bikin UI menampilkan
+        // "Posisikan wajah, hadap lurus" padahal user diminta noleh.
+        // Cukup set errorMessage sebagai hint kecil — UI tetap tampilkan
+        // instruksi step yang benar (lihat livenessInstruction safety net).
+        final inLivenessPhase =
+            state.livenessStep != LivenessStep.lookStraight &&
+            state.livenessStep != LivenessStep.completed;
+        if (inLivenessPhase) {
+          if (state.errorMessage == null) {
+            state = state.copyWith(
+              errorMessage: 'Wajah keluar dari frame',
+            );
+          }
+        } else if (state.status != RegistrationStatus.detecting) {
+          state = state.copyWith(
+            status: RegistrationStatus.detecting,
+            errorMessage: null,
+          );
+        }
       }
       return;
     }
     _noFaceFrameCount = 0;
+    // Wajah kembali — clear hint kalau ada.
+    if (state.errorMessage != null) {
+      state = state.copyWith(errorMessage: null);
+    }
 
     // === Kasus 2: Multiple faces ===
     if (result.multipleFaces) {
       _confirmFrameCount = 0;
-      state = state.copyWith(
-        status: RegistrationStatus.detecting,
-        errorMessage: 'Harap hanya 1 wajah di depan kamera',
-      );
+      final inLivenessPhase =
+          state.livenessStep != LivenessStep.lookStraight &&
+          state.livenessStep != LivenessStep.completed;
+      if (inLivenessPhase) {
+        // Jangan regress status di fase liveness — cukup set hint.
+        if (state.errorMessage != 'Harap hanya 1 wajah di depan kamera') {
+          state = state.copyWith(
+            errorMessage: 'Harap hanya 1 wajah di depan kamera',
+          );
+        }
+      } else {
+        state = state.copyWith(
+          status: RegistrationStatus.detecting,
+          errorMessage: 'Harap hanya 1 wajah di depan kamera',
+        );
+      }
       return;
     }
 
     // === Kasus 3: Wajah terlalu kecil ===
     final faceRatio = result.faceWidthRatio ?? 0;
     if (faceRatio < 0.25) {
-      _confirmFrameCount = 0;
-      if (state.status == RegistrationStatus.detecting ||
+      // Soft-decay supaya turnLeft/turnRight (samping wajah → ratio turun
+      // sementara) tidak langsung kehilangan progress confirm counter.
+      if (_confirmFrameCount > 0) _confirmFrameCount--;
+      final inLivenessPhase =
+          state.livenessStep != LivenessStep.lookStraight &&
+          state.livenessStep != LivenessStep.completed;
+      if (inLivenessPhase) {
+        if (state.errorMessage != 'Dekatkan wajah ke dalam oval') {
+          state = state.copyWith(
+            errorMessage: 'Dekatkan wajah ke dalam oval',
+          );
+        }
+      } else if (state.status == RegistrationStatus.detecting ||
           state.status == RegistrationStatus.capturingPose) {
         state = state.copyWith(
           status: RegistrationStatus.detecting,
