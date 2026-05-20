@@ -109,6 +109,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
+            // Drag scroll → keyboard dismiss (Material standard pattern).
+            keyboardDismissBehavior:
+                ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: FadeTransition(
               opacity: _fadeAnim,
@@ -230,16 +233,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             obscureText: _obscureNew,
                             enabled: !_isSubmitting,
                             textInputAction: TextInputAction.next,
-                            // Match UX login_screen — disable suggestion/autocorrect
-                            // untuk hindari interference dengan tap gesture di Realme.
+                            // Password field — autocorrect off standar.
                             autocorrect: false,
-                            enableSuggestions: false,
                             // OS-level password manager autofill hint.
                             autofillHints: const [AutofillHints.newPassword],
-                            // Tap di luar field → dismiss keyboard (Flutter built-in,
-                            // tidak race dengan tap di dalam field).
-                            onTapOutside: (_) =>
-                                FocusScope.of(context).unfocus(),
                             onChanged: (_) => setState(() {}),
                             decoration: InputDecoration(
                               hintText: 'Masukkan password baru',
@@ -292,13 +289,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             obscureText: _obscureConfirm,
                             enabled: !_isSubmitting,
                             textInputAction: TextInputAction.done,
-                            // Match UX login_screen — disable suggestion/autocorrect.
+                            // Password field — autocorrect off standar.
                             autocorrect: false,
-                            enableSuggestions: false,
                             // OS-level — same new-password context.
                             autofillHints: const [AutofillHints.newPassword],
-                            onTapOutside: (_) =>
-                                FocusScope.of(context).unfocus(),
                             onFieldSubmitted: (_) => _handleSubmit(),
                             decoration: InputDecoration(
                               hintText: 'Ketik ulang password baru',

@@ -137,6 +137,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
+            // Drag scroll → keyboard dismiss (Material standard pattern,
+            // lebih intuitive dari tap-outside).
+            keyboardDismissBehavior:
+                ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: FadeTransition(
               opacity: _fadeAnim,
@@ -193,19 +197,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
                               enabled: !authState.isLoading,
+                              // Email field — autocorrect off standar (jangan
+                              // ubah email user), tapi suggestion ON supaya
+                              // bar suggestion email muncul (UX umumnya Android).
                               autocorrect: false,
-                              enableSuggestions: false,
                               // OS-level autofill (Android Smart Lock / Samsung Pass).
                               autofillHints: const [
                                 AutofillHints.email,
                                 AutofillHints.username,
                               ],
-                              // Tap di luar field → dismiss keyboard. Built-in
-                              // Flutter API, hanya trigger saat tap di luar
-                              // field's hit-test region (TIDAK race dengan
-                              // tap di dalam field/padding).
-                              onTapOutside: (_) =>
-                                  FocusScope.of(context).unfocus(),
                               decoration: const InputDecoration(
                                 hintText: 'nama@politani.ac.id',
                                 prefixIcon:
@@ -236,8 +236,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               // Smart Lock / password manager, bisa offer fill.
                               // App TIDAK simpan password sendiri (rule 04-security).
                               autofillHints: const [AutofillHints.password],
-                              onTapOutside: (_) =>
-                                  FocusScope.of(context).unfocus(),
                               decoration: InputDecoration(
                                 hintText: 'Masukkan password',
                                 prefixIcon: const Icon(Icons.lock_outline,
