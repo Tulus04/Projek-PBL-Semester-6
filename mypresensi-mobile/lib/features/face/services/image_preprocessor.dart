@@ -120,34 +120,76 @@ class ImagePreprocessor {
     return out;
   }
 
-  /// NV21 (Y plane + interleaved VU plane) → RGB
+  /// NV21 (Y plane + VU interleaved) → RGB.
+  ///
+  /// Realita di Android: format NV21 bisa datang sebagai:
+  /// (a) **2 plane**: planes[0]=Y, planes[1]=VU interleaved (kebanyakan device)
+  /// (b) **1 plane**: full buffer [Y...Y, V0,U0,V1,U1,...] (mis. Realme RMX5000
+  ///     MediaTek + ColorOS saat pakai ImageFormatGroup.nv21 di Flutter camera)
+  ///
+  /// Code di bawah handle keduanya — fallback ke layout (b) kalau planes.length == 1.
   static img.Image _nv21ToRgb(CameraImage image) {
     final width = image.width;
     final height = image.height;
 
-    // NV21: byte order = Y plane (full), then VU interleaved (half size)
-    // Pada CameraImage Android, planes[0]=Y, planes[1]=VU interleaved (di Android NV21)
-    final yPlane = image.planes[0];
-    final uvPlane = image.planes[1];
+    if (image.planes.isEmpty) {
+      throw Exception('NV21 image tidak punya plane sama sekali.');
+    }
 
+    // Detect 1-plane vs 2-plane layout
+    final isSinglePlane = image.planes.length == 1;
+
+    final yPlane = image.planes[0];
     final yRowStride = yPlane.bytesPerRow;
-    final uvRowStride = uvPlane.bytesPerRow;
-    final uvPixelStride = uvPlane.bytesPerPixel ?? 2;
+
+    // Untuk single-plane: VU section dimulai setelah Y section di buffer yang sama
+    // Y section size = height * yRowStride (kalau row-aligned).
+    // Tapi width != yRowStride di sebagian device, jadi kita pakai width*height
+    // sebagai fallback aman untuk Y size jika rowStride sama dengan width.
+    final int ySize;
+    final List<int> uvBuffer;
+    final int uvRowStride;
+    final int uvPixelStride;
+
+    if (isSinglePlane) {
+      // Layout: full buffer = [Y...Y][VU interleaved...]
+      // Y section: height * yRowStride bytes (atau height * width kalau rowStride==width)
+      ySize = height * yRowStride;
+      uvBuffer = yPlane.bytes;
+      // VU interleaved → row stride = width (tightly packed) atau yRowStride
+      uvRowStride = yRowStride;
+      uvPixelStride = 2;
+    } else {
+      // Layout 2-plane: planes[0]=Y, planes[1]=VU interleaved
+      final uvPlane = image.planes[1];
+      ySize = 0; // tidak dipakai
+      uvBuffer = uvPlane.bytes;
+      uvRowStride = uvPlane.bytesPerRow;
+      uvPixelStride = uvPlane.bytesPerPixel ?? 2;
+    }
 
     final out = img.Image(width: width, height: height);
 
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         final yIndex = y * yRowStride + x;
-        // NV21: V dulu lalu U → tapi Android ImageFormat.NV21 di CameraImage
-        // sudah di-split: planes[1] = interleaved VU (V di offset 0, U di offset 1)
-        // Jika system pakai NV12 (UV order), beberapa device tetap bekerja karena
-        // diff cukup kecil di noise grayscale wajah.
-        final uvBaseIndex = (y >> 1) * uvRowStride + (x >> 1) * uvPixelStride;
+        // VU index — tergantung layout
+        final uvBaseIndex = isSinglePlane
+            ? ySize + (y >> 1) * uvRowStride + (x >> 1) * uvPixelStride
+            : (y >> 1) * uvRowStride + (x >> 1) * uvPixelStride;
+
+        // Defensive bounds check — kalau out-of-range, fallback grayscale
+        if (yIndex >= yPlane.bytes.length ||
+            uvBaseIndex + 1 >= uvBuffer.length) {
+          final yp = yIndex < yPlane.bytes.length ? yPlane.bytes[yIndex] : 128;
+          out.setPixelRgb(x, y, yp, yp, yp);
+          continue;
+        }
 
         final yp = yPlane.bytes[yIndex];
-        final vp = uvPlane.bytes[uvBaseIndex];
-        final up = uvPlane.bytes[uvBaseIndex + 1];
+        // NV21: V dulu, lalu U
+        final vp = uvBuffer[uvBaseIndex];
+        final up = uvBuffer[uvBaseIndex + 1];
 
         int r = (yp + 1.402 * (vp - 128)).round();
         int g = (yp - 0.344136 * (up - 128) - 0.714136 * (vp - 128)).round();
