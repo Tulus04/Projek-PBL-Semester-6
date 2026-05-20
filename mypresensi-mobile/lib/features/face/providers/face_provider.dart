@@ -171,9 +171,14 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
 
   /// Threshold confirm per-step:
   /// - Blink = 1 frame (aksi transien, kedipan ~200ms)
-  /// - Pose = 2 frame (sustained)
+  /// - Pose = 3 frame (sustained, dengan toleransi soft-decay)
+  ///
+  /// Kombinasi dengan soft-decay (lihat `_handleLivenessFrame`): 1 frame fail
+  /// di antara good frame TIDAK reset hard ke 0, hanya `-=1`. Jadi user bisa
+  /// "hold pose" sambil ML Kit kadang miss 1 frame karena motion blur / GC,
+  /// asalkan good frame > fail frame.
   int _getConfirmThreshold(LivenessStep step) {
-    return step == LivenessStep.blinkEyes ? 1 : 2;
+    return step == LivenessStep.blinkEyes ? 1 : 3;
   }
 
   /// Mulai proses registrasi.
@@ -364,7 +369,13 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
         _advanceLivenessStep();
       }
     } else {
-      _confirmFrameCount = 0;
+      // Soft-decay: turunkan 1, jangan reset hard.
+      // Tujuan: 1 frame glitch (motion blur, GC pause, ML Kit miss) di antara
+      // good frame TIDAK menghapus progress. User cuma perlu "hold pose"
+      // konsisten — kalau good frame > fail frame, counter naik bersih.
+      // Reset hard tetap dipakai di onFrame() saat noFace/multipleFaces/tooSmall
+      // (kondisi error eksplisit, bukan glitch detection).
+      if (_confirmFrameCount > 0) _confirmFrameCount--;
     }
   }
 
