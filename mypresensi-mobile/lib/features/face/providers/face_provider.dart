@@ -214,20 +214,22 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
   static const _cooldownDuration = Duration(milliseconds: 500);
 
   /// Threshold confirm per-step (TIME-BASED, ms):
-  /// - Blink = 80 ms (kedipan transien, ~1 frame cukup)
-  /// - Pose = 400 ms (user "hold" pose noleh selama setengah detik)
+  /// - Blink = 0 ms (event transien — kedipan natural ~100-200ms = 1 frame
+  ///   ML Kit di Realme RMX5000 yang frame interval 200-350ms karena GC pause.
+  ///   Threshold > 0 mustahil terpenuhi karena user buka mata lagi sebelum
+  ///   frame ML Kit berikut datang. Treat blink sebagai EVENT detection,
+  ///   bukan hold duration.)
+  /// - Pose = 400 ms (user "hold" pose noleh setengah detik — multi-frame).
   ///
-  /// Pendekatan time-based dipilih karena counter-based (N frame net good)
-  /// terbukti gagal di Realme RMX5000 (MediaTek + ColorOS): ML Kit miss
-  /// banyak frame saat motion blur, GC pause sampai 350ms, hingga net rate
-  /// terlalu rendah untuk pernah reach threshold N. Time-based hanya peduli
-  /// "user tahan pose minimal X ms" — terlepas berapa frame ML Kit miss
-  /// di antaranya, asalkan ada minimal 1 frame passed di awal & akhir window.
+  /// Pendekatan ini sesuai realita ML Kit di MediaTek + ColorOS:
+  /// - Blink alami: 100-200ms transient → cocok dengan event detection
+  /// - Pose: bisa di-tahan user → cocok dengan time-based hold
   ///
-  /// Pattern ini dipakai aplikasi face recognition profesional (BCA, OVO,
-  /// Privy) untuk handle device entry-level dengan throttling tinggi.
+  /// Logcat user (2026-05-19): blink 5+ kali, holdMs cuma sekali sempat 179ms
+  /// (kebetulan ada 2 frame passed=true berturut-turut), sisanya semua 0.
+  /// Threshold 80ms gagal karena rata-rata frame interval > durasi blink.
   int _getHoldDurationMs(LivenessStep step) {
-    return step == LivenessStep.blinkEyes ? 80 : 400;
+    return step == LivenessStep.blinkEyes ? 0 : 400;
   }
 
   /// Gap maksimal (ms) antar frame `passed=true` sebelum window reset.
