@@ -198,7 +198,14 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
   // === Internal state (tidak di-expose ke UI) ===
   final List<List<double>> _capturedEmbeddings = [];
   int _noFaceFrameCount = 0;
-  int _confirmFrameCount = 0;
+  // Time-based liveness confirmation (replaces frame counter):
+  // - _passedSinceMs: timestamp saat user MULAI hold pose valid (null = idle)
+  // - _lastPassedAtMs: timestamp frame `passed=true` terakhir
+  // Step lolos kalau `_lastPassedAtMs - _passedSinceMs >= holdDurationMs`.
+  // Window di-reset kalau gap antara frame passed > _passedGapResetMs (user
+  // balik pose awal, bukan tahan).
+  int? _passedSinceMs;
+  int? _lastPassedAtMs;
   bool _isInCooldown = false;
   bool _isExtractingEmbedding = false; // Hindari overlap inference
   int _debugFrameCounter = 0;
@@ -206,17 +213,26 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
   static const _noFaceThreshold = 5;
   static const _cooldownDuration = Duration(milliseconds: 500);
 
-  /// Threshold confirm per-step:
-  /// - Blink = 1 frame (aksi transien, kedipan ~200ms)
-  /// - Pose = 3 frame (sustained, dengan toleransi soft-decay)
+  /// Threshold confirm per-step (TIME-BASED, ms):
+  /// - Blink = 80 ms (kedipan transien, ~1 frame cukup)
+  /// - Pose = 400 ms (user "hold" pose noleh selama setengah detik)
   ///
-  /// Kombinasi dengan soft-decay (lihat `_handleLivenessFrame`): 1 frame fail
-  /// di antara good frame TIDAK reset hard ke 0, hanya `-=1`. Jadi user bisa
-  /// "hold pose" sambil ML Kit kadang miss 1 frame karena motion blur / GC,
-  /// asalkan good frame > fail frame.
-  int _getConfirmThreshold(LivenessStep step) {
-    return step == LivenessStep.blinkEyes ? 1 : 3;
+  /// Pendekatan time-based dipilih karena counter-based (N frame net good)
+  /// terbukti gagal di Realme RMX5000 (MediaTek + ColorOS): ML Kit miss
+  /// banyak frame saat motion blur, GC pause sampai 350ms, hingga net rate
+  /// terlalu rendah untuk pernah reach threshold N. Time-based hanya peduli
+  /// "user tahan pose minimal X ms" — terlepas berapa frame ML Kit miss
+  /// di antaranya, asalkan ada minimal 1 frame passed di awal & akhir window.
+  ///
+  /// Pattern ini dipakai aplikasi face recognition profesional (BCA, OVO,
+  /// Privy) untuk handle device entry-level dengan throttling tinggi.
+  int _getHoldDurationMs(LivenessStep step) {
+    return step == LivenessStep.blinkEyes ? 80 : 400;
   }
+
+  /// Gap maksimal (ms) antar frame `passed=true` sebelum window reset.
+  /// Kalau user balik ke posisi awal (gap > ini), window dimulai dari awal lagi.
+  static const _passedGapResetMs = 500;
 
   /// Mulai proses registrasi.
   /// Caller harus pastikan kamera sudah ready & embedding service sudah init.
@@ -226,7 +242,8 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
 
     _capturedEmbeddings.clear();
     _noFaceFrameCount = 0;
-    _confirmFrameCount = 0;
+    _passedSinceMs = null;
+    _lastPassedAtMs = null;
     _isInCooldown = false;
     _isExtractingEmbedding = false;
     _debugFrameCounter = 0;
@@ -261,8 +278,9 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
     // === Kasus 1: Wajah hilang ===
     if (!result.faceDetected) {
       _noFaceFrameCount++;
-      // Soft-decay confirm counter, jangan reset hard.
-      if (_confirmFrameCount > 0) _confirmFrameCount--;
+      // Reset hold window — wajah hilang = pose break.
+      _passedSinceMs = null;
+      _lastPassedAtMs = null;
       if (_noFaceFrameCount >= _noFaceThreshold) {
         // PENTING: kalau sudah di fase liveness (blink/turnLeft/turnRight),
         // JANGAN regress status ke detecting — itu bikin UI menampilkan
@@ -295,7 +313,9 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
 
     // === Kasus 2: Multiple faces ===
     if (result.multipleFaces) {
-      _confirmFrameCount = 0;
+      // Reset hold window.
+      _passedSinceMs = null;
+      _lastPassedAtMs = null;
       final inLivenessPhase =
           state.livenessStep != LivenessStep.lookStraight &&
           state.livenessStep != LivenessStep.completed;
@@ -318,9 +338,12 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
     // === Kasus 3: Wajah terlalu kecil ===
     final faceRatio = result.faceWidthRatio ?? 0;
     if (faceRatio < 0.25) {
-      // Soft-decay supaya turnLeft/turnRight (samping wajah → ratio turun
-      // sementara) tidak langsung kehilangan progress confirm counter.
-      if (_confirmFrameCount > 0) _confirmFrameCount--;
+      // CATATAN: untuk turnLeft/turnRight, samping wajah memang membuat ratio
+      // turun. Tapi 0.25 itu sangat kecil — wajah seharusnya tetap > 0.30
+      // bahkan saat noleh. Jadi kalau hit case ini, memang wajah benar-benar
+      // jauh dari oval, bukan glitch noleh. Reset hold window.
+      _passedSinceMs = null;
+      _lastPassedAtMs = null;
       final inLivenessPhase =
           state.livenessStep != LivenessStep.lookStraight &&
           state.livenessStep != LivenessStep.completed;
@@ -426,9 +449,30 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
 
   /// Handle frame saat liveness check (blink/turnLeft/turnRight).
   /// HANYA validasi gerakan — TIDAK extract embedding (sudah selesai di fase 1).
+  ///
+  /// TIME-BASED CONFIRMATION (refactor dari counter-based):
+  /// - User dianggap lolos kalau **tahan pose minimal `holdDurationMs`**.
+  /// - ML Kit miss frame di tengah window TIDAK reset progress, asalkan ada
+  ///   minimal 1 `passed=true` setiap window `_passedGapResetMs`.
+  /// - Kalau gap antar `passed=true` > `_passedGapResetMs`, anggap user balik
+  ///   ke pose awal — reset window dan mulai hitung lagi.
   Future<void> _handleLivenessFrame(FaceDetectionResult result) async {
     final detector = ref.read(faceDetectionServiceProvider);
     final passed = detector.checkLivenessStep(state.livenessStep, result);
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    if (passed) {
+      // Cek apakah window expired (gap terlalu lama dari frame passed terakhir).
+      if (_lastPassedAtMs != null &&
+          now - _lastPassedAtMs! > _passedGapResetMs) {
+        // Gap terlalu lama → restart window.
+        _passedSinceMs = now;
+      }
+      _passedSinceMs ??= now;
+      _lastPassedAtMs = now;
+    }
+
+    final holdMs = _passedSinceMs == null ? 0 : now - _passedSinceMs!;
 
     _debugFrameCounter++;
     if (_debugFrameCounter % 5 == 0) {
@@ -437,25 +481,16 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
         'yaw=${result.headAngleY?.toStringAsFixed(1)} '
         'leftEye=${result.leftEyeOpenProb?.toStringAsFixed(2)} '
         'rightEye=${result.rightEyeOpenProb?.toStringAsFixed(2)} '
-        'passed=$passed confirm=$_confirmFrameCount',
+        'passed=$passed holdMs=$holdMs',
       );
     }
 
-    if (passed) {
-      _confirmFrameCount++;
-      if (_confirmFrameCount >= _getConfirmThreshold(state.livenessStep)) {
-        debugPrint('[FACE LIVE] ✅ Step ${state.livenessStep.name} PASSED');
-        _confirmFrameCount = 0;
-        _advanceLivenessStep();
-      }
-    } else {
-      // Soft-decay: turunkan 1, jangan reset hard.
-      // Tujuan: 1 frame glitch (motion blur, GC pause, ML Kit miss) di antara
-      // good frame TIDAK menghapus progress. User cuma perlu "hold pose"
-      // konsisten — kalau good frame > fail frame, counter naik bersih.
-      // Reset hard tetap dipakai di onFrame() saat noFace/multipleFaces/tooSmall
-      // (kondisi error eksplisit, bukan glitch detection).
-      if (_confirmFrameCount > 0) _confirmFrameCount--;
+    if (passed && holdMs >= _getHoldDurationMs(state.livenessStep)) {
+      debugPrint('[FACE LIVE] ✅ Step ${state.livenessStep.name} PASSED '
+          '(held ${holdMs}ms)');
+      _passedSinceMs = null;
+      _lastPassedAtMs = null;
+      _advanceLivenessStep();
     }
   }
 
@@ -538,7 +573,8 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
   void reset() {
     _capturedEmbeddings.clear();
     _noFaceFrameCount = 0;
-    _confirmFrameCount = 0;
+    _passedSinceMs = null;
+    _lastPassedAtMs = null;
     _isInCooldown = false;
     _isExtractingEmbedding = false;
     _debugFrameCounter = 0;
