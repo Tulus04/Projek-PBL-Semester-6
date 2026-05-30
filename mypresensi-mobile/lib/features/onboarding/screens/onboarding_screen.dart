@@ -283,17 +283,11 @@ class _OnboardingStep1 extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Illustration card primary gradient
-          _IllustrationCard(
-            icon: IconsaxPlusBold.like_1,
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.primary, AppColors.primaryDark],
-            ),
-            iconColor: Colors.white,
-            shadowColor: AppColors.primary.withValues(alpha: 0.45),
-          ),
+          // Hero illustration: logo TRPL dengan animasi float (3 cycle, lalu pause)
+          // Mockup ref: docs/ui-research/mockups/onboarding-improvements-preview.html
+          // Perubahan #3: hilang gold glow blob, ganti icon thumbs-up jadi logo TRPL,
+          // tambah animasi float naik-turun + drop shadow ground sinkron.
+          const _TrplWelcomeIllustration(),
           const SizedBox(height: 24),
 
           // Title
@@ -539,6 +533,159 @@ class _IllustrationCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// Sub-component: TRPL Welcome Illustration (Step 1 dengan animasi float)
+// ============================================================================
+
+/// Hero illustration khusus Step 1: logo TRPL di hero box putih dengan
+/// animasi float naik-turun (3 cycle, lalu pause). Plus drop shadow
+/// tanah yang scale sinkron dengan posisi untuk depth illusion.
+///
+/// Berbeda dengan `_IllustrationCard` umum yang dipakai Step 2 dan 3:
+/// - Tidak ada gold glow blob (perubahan #3)
+/// - Background putih solid (bukan gradient)
+/// - Pakai logo PNG asset, bukan icon font
+/// - Animasi float (Step 2/3 statis)
+class _TrplWelcomeIllustration extends StatefulWidget {
+  const _TrplWelcomeIllustration();
+
+  @override
+  State<_TrplWelcomeIllustration> createState() =>
+      _TrplWelcomeIllustrationState();
+}
+
+class _TrplWelcomeIllustrationState extends State<_TrplWelcomeIllustration>
+    with SingleTickerProviderStateMixin {
+  static const _cycleDuration = Duration(milliseconds: 2400);
+  static const _maxCycles = 3;
+  static const _floatAmplitude = 12.0; // px naik-turun
+
+  late final AnimationController _controller;
+  late final Animation<double> _floatAnimation;
+  int _completedCycles = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: _cycleDuration,
+    );
+    _floatAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _completedCycles++;
+        if (_completedCycles < _maxCycles) {
+          _controller.reverse();
+        }
+        // Setelah 3 cycle (forward+reverse), pause di posisi awal
+      } else if (status == AnimationStatus.dismissed) {
+        if (_completedCycles < _maxCycles) {
+          _controller.forward();
+        }
+      }
+    });
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 200,
+      height: 220, // ekstra tinggi untuk akomodasi shadow di bawah
+      child: AnimatedBuilder(
+        animation: _floatAnimation,
+        builder: (context, child) {
+          // Triangle wave: 0 → 1 → 0 lewat sin curve untuk smooth bouncing
+          // _floatAnimation.value mapping linear easeInOut, jadi pakai sinus untuk arc
+          final t = _floatAnimation.value; // 0..1 forward, sebaliknya saat reverse
+          final yOffset = -_floatAmplitude * t; // negative = naik
+          final shadowScale = 1.0 - (t * 0.15); // shadow mengecil saat naik
+          final shadowOpacity = 0.45 - (t * 0.25); // shadow memudar saat naik
+
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // Drop shadow tanah — fixed position, scale + opacity sinkron
+              Positioned(
+                bottom: 6,
+                child: Transform.scale(
+                  scale: shadowScale,
+                  child: Container(
+                    width: 90,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(999),
+                      gradient: RadialGradient(
+                        colors: [
+                          AppColors.primary.withValues(alpha: shadowOpacity),
+                          Colors.transparent,
+                        ],
+                        stops: const [0.0, 0.7],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Logo box dengan transform translate naik-turun
+              Transform.translate(
+                offset: Offset(0, yOffset),
+                child: child,
+              ),
+            ],
+          );
+        },
+        // Static child di-cache (tidak rebuild per frame). Hanya transform yang berubah.
+        child: Container(
+          width: 200,
+          height: 200,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: const Color(0x0F0F172A), // very subtle border
+              width: 1,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x140F172A), // 8% black
+                blurRadius: 24,
+                offset: Offset(0, 8),
+                spreadRadius: -4,
+              ),
+              BoxShadow(
+                color: Color(0x080F172A), // 3% black ring
+                blurRadius: 0,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Image.asset(
+            'assets/images/trpl_logo.png',
+            fit: BoxFit.contain,
+            // Fallback kalau PNG belum di-copy (dev sebelum apply asset)
+            errorBuilder: (_, _, _) => Image.asset(
+              'assets/images/trpl_logo.jpg',
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
       ),
     );
   }

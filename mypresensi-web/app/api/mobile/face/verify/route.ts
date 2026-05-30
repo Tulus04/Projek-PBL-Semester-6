@@ -36,7 +36,7 @@ import { logAudit } from '@/lib/audit-logger'
 const verifySchema = z.object({
   embedding: z
     .array(z.number().min(-1).max(1))
-    .length(192, 'Format embedding tidak valid'),
+    .length(192, 'Wajah tidak valid'),
 })
 
 // ===========================
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     // 4. Cek user sudah register wajah (early gate sebelum query embedding)
     if (!user.is_face_registered) {
-      return errorResponse('Wajah belum didaftarkan.', 404)
+      return errorResponse('Wajah belum didaftarkan', 404)
     }
 
     // 5. Fetch stored embedding
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
 
     if (fetchError || !storedRow) {
       console.error('[FACE VERIFY] Fetch stored error:', fetchError)
-      return errorResponse('Data wajah tidak ditemukan.', 404)
+      return errorResponse('Data wajah tidak ditemukan', 404)
     }
 
     // 6. Decode stored embedding (base64 BYTEA → number[])
@@ -174,6 +174,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     console.error('[FACE VERIFY] Unexpected error:', err)
-    return errorResponse('Terjadi kesalahan server.', 500)
+    return errorResponse('Terjadi kesalahan server', 500)
   }
 }

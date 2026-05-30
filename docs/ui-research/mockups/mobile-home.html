@@ -1,14 +1,28 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mobile · Beranda — MyPresensi Mockup</title>
+  <title>Mobile � Beranda � MyPresensi Mockup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="_tokens.css" />
   <link rel="stylesheet" href="_mobile.css" />
+  <script>
+    // Embed-mode: pas iframe load, hanya tampilkan phone-frame pertama, center vertikal+horizontal.
+    // Konten dokumentasi (showcase-header, annotation, mockup-label) sudah di-strip permanen dari HTML source.
+    if (window.top !== window.self) {
+      document.write('<style>' +
+        'html,body{margin:0;padding:0;background:#0a0e1a;height:100vh;overflow:hidden}' +
+        'body{display:flex;align-items:center;justify-content:center}' +
+        '.mockup-grid,main.mockup-grid{display:block;padding:0;margin:0;max-width:none;gap:0}' +
+        '.mockup-item{margin:0;padding:0;gap:0}' +
+        '.mockup-item:not(:first-of-type),.mockup-label{display:none!important}' +
+        '.phone-frame{transform:scale(0.86);transform-origin:center center}' +
+      '</style>');
+    }
+  </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     /* ============ HOME SCREEN ============ */
@@ -357,7 +371,7 @@
     .quick-action-icon.success { background: var(--color-success); }
     .quick-action-icon.warning { background: var(--color-warning); }
     .quick-action-icon.info { background: var(--color-info); }
-    /* Featured: signature CTA (Scan QR) — gold accent.
+    /* Featured: signature CTA (Scan QR) � gold accent.
        Sesuai semantic system di icon-lab. */
     .quick-action-icon.featured { background: var(--color-accent); }
     .quick-action-label {
@@ -495,7 +509,7 @@
     .skel-text-sm { height: 14px; width: 120px; border-radius: 6px; margin-bottom: 6px; }
     .skel-text-lg { height: 22px; width: 180px; border-radius: 6px; margin-bottom: 14px; }
 
-    /* AI FAB — Floating Action Button */
+    /* AI FAB � Floating Action Button */
     .ai-fab {
       position: absolute;
       bottom: 72px;
@@ -537,7 +551,7 @@
       100% { opacity: 0; transform: scale(1.3); }
     }
 
-    /* FAB peeked state — half-hidden at right edge */
+    /* FAB peeked state � half-hidden at right edge */
     .ai-fab.peeked {
       right: -28px;
       border-radius: 16px 0 0 16px;
@@ -604,21 +618,11 @@
 </head>
 <body>
 
-  <div class="showcase-header">
-    <a href="index.html" class="nav-back">
-      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
-      Kembali ke Katalog
-    </a>
-    <h1>Mobile · Beranda</h1>
-    <p>3 state + AI FAB: Sesi aktif (hero CTA + FAB normal) · Tidak ada sesi (FAB peeked/hidden) · Loading skeleton</p>
-    <div class="legend">
-      <strong>Reference:</strong> Mekari Talenta home · Linear mobile dashboard · Material You NavigationBar
-    </div>
-  </div>
+  
 
   <div class="mockup-grid">
 
-    <!-- ========== FRAME 1: HOME — SESI AKTIF ========== -->
+    <!-- ========== FRAME 1: HOME � SESI AKTIF ========== -->
     <div class="mockup-item">
       <div class="phone-frame">
         <div class="phone-screen home-screen">
@@ -648,7 +652,7 @@
               <h2>Halo, Riki</h2>
               <p>
                 <iconify-icon icon="solar:sun-2-bold-duotone"></iconify-icon>
-                Selamat siang — Rabu, 15 Mei 2026
+                Selamat siang � Rabu, 15 Mei 2026
               </p>
             </div>
 
@@ -662,7 +666,7 @@
               <p class="hero-session-meta">
                 <iconify-icon icon="solar:user-bold-duotone"></iconify-icon> Pak Andi Setiawan, M.Kom<br/>
                 <iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon> Lab Komputer 2<br/>
-                <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 10:00 – 12:00 (dimulai 30 menit lalu)
+                <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 10:00 � 12:00 (dimulai 30 menit lalu)
               </p>
               <button class="hero-cta">
                 <iconify-icon icon="solar:qr-code-bold-duotone"></iconify-icon>
@@ -733,7 +737,7 @@
                 <div class="activity-body">
                   <p class="activity-title">Presensi Algoritma berhasil</p>
                   <p class="activity-meta">
-                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 10:30 · Lokasi tepat di Lab
+                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 10:30 � Lokasi tepat di Lab
                   </p>
                 </div>
               </div>
@@ -744,7 +748,7 @@
                 <div class="activity-body">
                   <p class="activity-title">Pengajuan izin disetujui</p>
                   <p class="activity-meta">
-                    <iconify-icon icon="solar:user-check-rounded-bold-duotone"></iconify-icon> Kemarin · Pak Andi
+                    <iconify-icon icon="solar:user-check-rounded-bold-duotone"></iconify-icon> Kemarin � Pak Andi
                   </p>
                 </div>
               </div>
@@ -755,14 +759,14 @@
                 <div class="activity-body">
                   <p class="activity-title">Telat presensi Basis Data</p>
                   <p class="activity-meta">
-                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 2 hari lalu · 8 menit setelah mulai
+                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> 2 hari lalu � 8 menit setelah mulai
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- AI FAB — Normal State -->
+          <!-- AI FAB � Normal State -->
           <div class="ai-fab">
             <iconify-icon icon="solar:chat-square-2-bold-duotone"></iconify-icon>
           </div>
@@ -793,16 +797,12 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 1 · Sesi Aktif + FAB Normal
-        <small>Hero gradient · CTA "Scan QR" · AI FAB mengapung kanan bawah</small>
+        Frame 1 � Sesi Aktif + FAB Normal
+        <small>Hero gradient � CTA "Scan QR" � AI FAB mengapung kanan bawah</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        <strong>AI FAB</strong> mengapung di kanan bawah di atas bottom nav. Pulse ring muncul <strong>2× saat pertama buka app</strong> (onboarding hint), lalu hilang. Tap → buka <code>AiChatScreen</code>. User bisa <strong>drag ke tepi layar</strong> untuk hide — lihat Frame 2 (peeked state). Posisi terakhir FAB disimpan di <code>SharedPreferences</code> (bukan secure storage, karena bukan secret).
       </div>
-    </div>
 
-    <!-- ========== FRAME 2: HOME — TIDAK ADA SESI AKTIF ========== -->
+    <!-- ========== FRAME 2: HOME � TIDAK ADA SESI AKTIF ========== -->
     <div class="mockup-item">
       <div class="phone-frame">
         <div class="phone-screen home-screen">
@@ -829,7 +829,7 @@
               <h2>Halo, Riki</h2>
               <p>
                 <iconify-icon icon="solar:cloud-sun-bold-duotone"></iconify-icon>
-                Selamat pagi — Kamis, 16 Mei 2026
+                Selamat pagi � Kamis, 16 Mei 2026
               </p>
             </div>
 
@@ -844,7 +844,7 @@
                 <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
                 <div class="hero-next-session-info">
                   <h4>Sesi berikutnya: Basis Data</h4>
-                  <p>Pak Budi, S.Kom · 13:00 – 15:00 · Lab 1</p>
+                  <p>Pak Budi, S.Kom � 13:00 � 15:00 � Lab 1</p>
                 </div>
               </div>
             </div>
@@ -912,7 +912,7 @@
                 <div class="activity-body">
                   <p class="activity-title">Presensi Algoritma berhasil</p>
                   <p class="activity-meta">
-                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> Kemarin · 10:30
+                    <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon> Kemarin � 10:30
                   </p>
                 </div>
               </div>
@@ -930,7 +930,7 @@
             </div>
           </div>
 
-          <!-- AI FAB — Peeked State (slid to edge) -->
+          <!-- AI FAB � Peeked State (slid to edge) -->
           <div class="ai-fab peeked">
             <span class="fab-arrow-hint">
               <iconify-icon icon="solar:alt-arrow-left-bold-duotone"></iconify-icon>
@@ -964,16 +964,12 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 2 · Tidak Ada Sesi + FAB Peeked
-        <small>Empty hero · FAB setengah tersembunyi di tepi kanan</small>
+        Frame 2 � Tidak Ada Sesi + FAB Peeked
+        <small>Empty hero � FAB setengah tersembunyi di tepi kanan</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        User bisa <strong>drag FAB ke tepi layar</strong> (kiri/kanan) → FAB jadi <strong>peeked</strong>: setengah tersembunyi, opacity 75%, rounded hanya sisi dalam. Hover/sentuh → sedikit muncul kembali (feedback). Tap → tetap buka AI Chat. <strong>Drag balik ke tengah</strong> → kembali ke posisi normal. Posisi (normal/peeked + koordinat) di-persist supaya tidak reset tiap buka app. Pattern mirip <strong>iOS AssistiveTouch</strong> / Samsung floating button.
       </div>
-    </div>
 
-    <!-- ========== FRAME 3: HOME — LOADING SKELETON ========== -->
+    <!-- ========== FRAME 3: HOME � LOADING SKELETON ========== -->
     <div class="mockup-item">
       <div class="phone-frame">
         <div class="phone-screen home-screen">
@@ -1052,14 +1048,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 3 · Loading Skeleton
-        <small>Shimmer placeholder · bottom nav tetap visible</small>
+        Frame 3 � Loading Skeleton
+        <small>Shimmer placeholder � bottom nav tetap visible</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Skeleton loading muncul saat <strong>pertama kali buka app</strong> atau pull-to-refresh. Bottom nav <strong>selalu visible</strong> (tidak ikut skeleton) supaya user bisa navigasi meski data belum load. Shimmer animasi ~1.4s loop linear. Skeleton shape match bentuk komponen asli (hero rounded 18px, stat rounded 14px, dst) — supaya transisi ke konten halus tanpa layout shift.
       </div>
-    </div>
 
   </div>
 

@@ -1,8 +1,8 @@
 // lib/features/home/screens/home_screen.dart
 // Beranda mahasiswa v7 — sesuai mockup mobile-home.html (Phase 5 rebuild).
 // Layout: appbar (brand+notif+avatar) → greeting → hero sesi (active/empty/loading)
-// → ringkasan hari ini 3-stat → quick action 4-grid → AI chat FAB bottom-right.
-// Tidak ada activity feed (per design D5 — endpoint dashboard belum tersedia).
+// → ringkasan hari ini 3-stat → quick action 4-grid → activity feed → AI chat FAB.
+// Activity feed ditambah 22 Mei 2026 (sesuai mockup section "Aktivitas Terakhir").
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +20,8 @@ import '../../../shared/widgets/kpi_icon_box.dart';
 import '../../attendance/data/attendance_models.dart';
 import '../../attendance/providers/attendance_provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../data/activity_models.dart';
+import '../providers/activity_provider.dart';
 
 // ============================================================================
 // Pure helpers — date label, weather icon, today summary.
@@ -152,8 +154,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   /// Reset flag — panggil saat logout agar toast muncul lagi setelah login ulang.
   static void resetWelcome() => _hasShownWelcome = false;
 
-  // Stagger animation per section (greeting, hero, summary, quickActions).
-  static const _sectionCount = 4;
+  // Stagger animation per section (greeting, hero, summary, quickActions, activityFeed).
+  static const _sectionCount = 5;
   static const _staggerDelay = Duration(milliseconds: 90);
   static const _animDuration = Duration(milliseconds: 420);
 
@@ -297,6 +299,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   _animated(2, _buildSummarySection(sessionsAsync)),
                   const SizedBox(height: 18),
                   _animated(3, _buildQuickActionsSection(context, ref)),
+                  const SizedBox(height: 18),
+                  _animated(4, _buildActivityFeedSection(context, ref)),
                 ],
               ),
             ),
@@ -363,6 +367,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       onHistoryTap: () => ref.read(currentTabProvider.notifier).setTab(1),
       onLeaveTap: () => ref.read(currentTabProvider.notifier).setTab(2),
       onProfileTap: () => ref.read(currentTabProvider.notifier).setTab(4),
+    );
+  }
+
+  // ===== Sub-builder: Activity Feed =====
+  // Menampilkan 3 activity terakhir (attendance + leave_requests gabungan).
+  // Sumber data: provider recentActivitiesProvider → endpoint /api/mobile/activity/recent.
+  Widget _buildActivityFeedSection(BuildContext context, WidgetRef ref) {
+    final activitiesAsync = ref.watch(recentActivitiesProvider);
+    return _ActivityFeedSection(
+      activitiesAsync: activitiesAsync,
+      onSeeAll: () => ref.read(currentTabProvider.notifier).setTab(1),
     );
   }
 }
@@ -1271,6 +1286,374 @@ class _AiChatFab extends StatelessWidget {
             size: 24,
           ),
         ),
+      ),
+    );
+  }
+}
+
+
+// ============================================================================
+// _ActivityFeedSection — section "Aktivitas Terakhir" di Beranda
+// 3 item terakhir (gabungan attendance + leave_requests) dari endpoint
+// /api/mobile/activity/recent. Sesuai mockup mobile-home.html line 728+.
+// ============================================================================
+
+class _ActivityFeedSection extends StatelessWidget {
+  const _ActivityFeedSection({
+    required this.activitiesAsync,
+    required this.onSeeAll,
+  });
+
+  final AsyncValue<List<ActivityItem>> activitiesAsync;
+  final VoidCallback onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header: title + "Lihat semua →"
+        Padding(
+          padding: const EdgeInsets.fromLTRB(2, 0, 2, 12),
+          child: Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Aktivitas Terakhir',
+                  style: TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: onSeeAll,
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Lihat semua',
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 3),
+                      const Icon(
+                        IconsaxPlusBold.arrow_right_3,
+                        size: 14,
+                        color: AppColors.primary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Body: loading skeleton / list / empty / error
+        activitiesAsync.when(
+          loading: () => const _ActivityListSkeleton(),
+          error: (err, _) => _ActivityErrorState(
+            message: friendlyErrorMessage(err),
+          ),
+          data: (activities) {
+            if (activities.isEmpty) {
+              return const _ActivityEmptyState();
+            }
+            // Tampilkan max 3 item di Beranda (sisanya bisa di-akses via "Lihat semua")
+            final visible = activities.take(3).toList(growable: false);
+            return Column(
+              children: [
+                for (int i = 0; i < visible.length; i++) ...[
+                  _ActivityItemCard(item: visible[i]),
+                  if (i < visible.length - 1) const SizedBox(height: 8),
+                ],
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _ActivityItemCard extends StatelessWidget {
+  const _ActivityItemCard({required this.item});
+
+  final ActivityItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final (color, bg, icon) = _resolveStatusVisuals(item.status);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: AppShadows.card,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Duotone icon box
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 12),
+          // Title + meta
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  style: const TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: AppColors.textPrimary,
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  children: [
+                    const Icon(
+                      IconsaxPlusBold.clock,
+                      size: 11,
+                      color: AppColors.textTertiary,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        _formatRelativeTime(item.occurredAt) +
+                            (item.subtitle.isNotEmpty ? ' · ${item.subtitle}' : ''),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                          height: 1.35,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Map ActivityStatus → (foreground, background, icon).
+  static (Color, Color, IconData) _resolveStatusVisuals(ActivityStatus s) {
+    switch (s) {
+      case ActivityStatus.success:
+        return (
+          AppColors.success,
+          AppColors.success.withValues(alpha: 0.10),
+          IconsaxPlusBold.tick_circle,
+        );
+      case ActivityStatus.warning:
+        return (
+          AppColors.warning,
+          AppColors.warningTint,
+          IconsaxPlusBold.danger,
+        );
+      case ActivityStatus.danger:
+        return (
+          AppColors.danger,
+          AppColors.dangerTint,
+          IconsaxPlusBold.close_circle,
+        );
+      case ActivityStatus.info:
+        return (
+          AppColors.info,
+          AppColors.infoTint,
+          IconsaxPlusBold.info_circle,
+        );
+    }
+  }
+}
+
+/// Format waktu relatif Bahasa Indonesia: "5 menit lalu", "Kemarin", "3 hari lalu".
+String _formatRelativeTime(DateTime t) {
+  final now = DateTime.now();
+  final diff = now.difference(t);
+
+  if (diff.inSeconds < 60) return 'Baru saja';
+  if (diff.inMinutes < 60) return '${diff.inMinutes} menit lalu';
+  if (diff.inHours < 24) return '${diff.inHours} jam lalu';
+  if (diff.inDays == 1) return 'Kemarin';
+  if (diff.inDays < 7) return '${diff.inDays} hari lalu';
+  if (diff.inDays < 30) return '${(diff.inDays / 7).floor()} minggu lalu';
+  if (diff.inDays < 365) return '${(diff.inDays / 30).floor()} bulan lalu';
+  return '${(diff.inDays / 365).floor()} tahun lalu';
+}
+
+class _ActivityListSkeleton extends StatelessWidget {
+  const _ActivityListSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    Widget bar({double w = double.infinity, double h = 12}) => Container(
+          width: w,
+          height: h,
+          decoration: BoxDecoration(
+            color: AppColors.borderStrong.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(6),
+          ),
+        );
+
+    return Column(
+      children: [
+        for (int i = 0; i < 3; i++) ...[
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: AppShadows.card,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.borderStrong.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      bar(w: 180),
+                      const SizedBox(height: 8),
+                      bar(w: 120, h: 10),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (i < 2) const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+}
+
+class _ActivityEmptyState extends StatelessWidget {
+  const _ActivityEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: AppShadows.card,
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.primarySurface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              IconsaxPlusBold.clock,
+              size: 24,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Belum ada aktivitas',
+            style: TextStyle(
+              fontFamily: 'Plus Jakarta Sans',
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Riwayat presensi & izin akan muncul di sini setelah kamu mulai aktif.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11.5,
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActivityErrorState extends StatelessWidget {
+  const _ActivityErrorState({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.dangerTint,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppColors.danger.withValues(alpha: 0.20),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            IconsaxPlusBold.danger,
+            size: 18,
+            color: AppColors.danger,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.danger,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

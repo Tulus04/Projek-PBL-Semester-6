@@ -11,7 +11,7 @@ import { getDeviceId } from '../../_lib/rate-limit'
 import { z } from 'zod'
 
 const loginSchema = z.object({
-  email: z.string().email('Format email tidak valid'),
+  email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
 })
 
@@ -100,6 +100,7 @@ export async function POST(req: NextRequest) {
         id: profile.id,
         full_name: profile.full_name,
         nim_nip: profile.nim_nip,
+        email: authData.user.email ?? null,
         role: profile.role,
         semester: profile.semester,
         kelas: profile.kelas,

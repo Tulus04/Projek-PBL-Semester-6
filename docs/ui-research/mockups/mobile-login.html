@@ -1,14 +1,28 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mobile Login â€” MyPresensi Mockup</title>
+  <title>Mobile Login — MyPresensi Mockup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="_tokens.css" />
   <link rel="stylesheet" href="_mobile.css" />
+  <script>
+    // Embed-mode: pas iframe load, hanya tampilkan phone-frame pertama, center vertikal+horizontal.
+    // Konten dokumentasi (showcase-header, annotation, mockup-label) sudah di-strip permanen dari HTML source.
+    if (window.top !== window.self) {
+      document.write('<style>' +
+        'html,body{margin:0;padding:0;background:#0a0e1a;height:100vh;overflow:hidden}' +
+        'body{display:flex;align-items:center;justify-content:center}' +
+        '.mockup-grid,main.mockup-grid{display:block;padding:0;margin:0;max-width:none;gap:0}' +
+        '.mockup-item{margin:0;padding:0;gap:0}' +
+        '.mockup-item:not(:first-of-type),.mockup-label{display:none!important}' +
+        '.phone-frame{transform:scale(0.86);transform-origin:center center}' +
+      '</style>');
+    }
+  </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     .login-screen {
@@ -238,17 +252,7 @@
 </head>
 <body>
 
-  <div class="showcase-header">
-    <a href="index.html" class="nav-back">
-      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
-      Kembali ke Katalog
-    </a>
-    <h1>Mobile Â· Login</h1>
-    <p>2 state: Default login (NIM + password) Â· Error feedback dengan retry counter</p>
-    <div class="legend">
-      <strong>Reference:</strong> Stripe mobile login Â· Material You sign-in
-    </div>
-  </div>
+  
 
   <div class="mockup-grid">
 
@@ -287,7 +291,7 @@
               <label class="form-label">Kata Sandi</label>
               <div class="form-input-wrap">
                 <iconify-icon icon="solar:lock-keyhole-bold-duotone" class="lead"></iconify-icon>
-                <input class="form-input" type="password" placeholder="Masukkan kata sandi" value="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" />
+                <input class="form-input" type="password" placeholder="Masukkan kata sandi" value="••••••••••" />
                 <button class="form-input-action" tabindex="-1">
                   <iconify-icon icon="solar:eye-bold-duotone" style="font-size: 18px;"></iconify-icon>
                 </button>
@@ -317,14 +321,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 1 Â· Default
-        <small>NIM/email + password Â· remember me Â· forgot password</small>
+        Frame 1 · Default
+        <small>NIM/email + password · remember me · forgot password</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Field input bisa terima <strong>NIM atau email kampus</strong> â€” server-side normalize ke email (<code>NIM@politanisamarinda.ac.id</code>). Toggle show/hide password punya <code>tabindex=-1</code> supaya keyboard focus skip langsung ke "Masuk". "Lupa kata sandi?" redirect ke flow reset via admin/BAAK (bukan self-service email reset). Checkbox "Ingat saya" persist session JWT di <code>SecureStorage</code>.
       </div>
-    </div>
 
     <!-- ========== FRAME 2: ERROR STATE ========== -->
     <div class="mockup-item">
@@ -375,7 +375,7 @@
               <label class="form-label">Kata Sandi</label>
               <div class="form-input-wrap error">
                 <iconify-icon icon="solar:lock-keyhole-bold-duotone" class="lead"></iconify-icon>
-                <input class="form-input" type="password" value="â€¢â€¢â€¢â€¢â€¢â€¢" />
+                <input class="form-input" type="password" value="••••••" />
                 <button class="form-input-action" tabindex="-1">
                   <iconify-icon icon="solar:eye-bold-duotone" style="font-size: 18px;"></iconify-icon>
                 </button>
@@ -404,14 +404,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 2 Â· Error State
-        <small>Banner error generik Â· sisa percobaan Â· loading spinner</small>
+        Frame 2 · Error State
+        <small>Banner error generik · sisa percobaan · loading spinner</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Pesan error <strong>generik</strong> ("NIM atau kata sandi salah") â€” JANGAN bocorkan apakah NIM exists vs password salah (anti user enumeration). Tampilkan <strong>sisa percobaan</strong> 2/5 supaya mahasiswa tahu sebelum lockout (30 menit). Input password pakai <code>.error</code> state (border merah). Tombol Masuk pakai spinner + teks "Masuk" TETAP (bukan "Memproses..."), <code>aria-busy</code>. Setelah lockout: banner berubah "Akun terkunci sementara. Coba lagi dalam X menit."
       </div>
-    </div>
 
   </div>
 

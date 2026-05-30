@@ -14,10 +14,10 @@ const changePasswordSchema = z
   .object({
     newPassword: z
       .string()
-      .min(8, 'Password baru minimal 8 karakter')
-      .regex(/[A-Z]/, 'Harus mengandung minimal 1 huruf kapital (A-Z)')
-      .regex(/[a-z]/, 'Harus mengandung minimal 1 huruf kecil (a-z)')
-      .regex(/[0-9]/, 'Harus mengandung minimal 1 angka (0-9)'),
+      .min(8, 'Password minimal 8 karakter')
+      .regex(/[A-Z]/, 'Wajib ada huruf kapital')
+      .regex(/[a-z]/, 'Wajib ada huruf kecil')
+      .regex(/[0-9]/, 'Wajib ada angka'),
     confirmPassword: z.string().min(1, 'Konfirmasi password wajib diisi'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -184,7 +184,7 @@ export async function POST(req: NextRequest) {
 
     return Response.json({
       success: true,
-      message: 'Password berhasil diubah.',
+      message: 'Password berhasil diubah',
       // Token baru — kalau ada, mobile auto-update tanpa logout.
       // Kalau null, client harus logout + redirect ke login.
       tokens: newTokens,

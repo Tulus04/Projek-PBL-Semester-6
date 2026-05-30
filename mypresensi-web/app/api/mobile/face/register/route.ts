@@ -22,7 +22,7 @@ import crypto from 'crypto'
 const registerSchema = z.object({
   embedding: z
     .array(z.number().min(-1).max(1))
-    .length(192, 'Format embedding tidak valid'),
+    .length(192, 'Wajah tidak valid'),
 })
 
 // ===========================
@@ -74,12 +74,24 @@ export async function POST(req: NextRequest) {
     // 5. Upsert ke face_embeddings table
     const adminClient = createAdminClient()
 
+    // Store sebagai BYTEA hex literal '\x...' — format Postgres native untuk
+    // BYTEA. Supabase JS pass string ini apa adanya ke PostgreSQL, dan PG
+    // parse `\xDEADBEEF` jadi raw bytes binary 4-byte langsung (bukan literal
+    // 8-char ASCII). Saat di-fetch, Supabase return string yang sama
+    // `\x4b65655a...` yang kemudian di `verify/route.ts` di-decode lewat
+    // `decodeStoredEmbedding(hex)` (lihat face-utils.ts).
+    //
+    // Bug history (BUG-014, 2026-05-23): sebelumnya pakai `.toString('base64')`
+    // — string base64 di-treat oleh PG sebagai literal ASCII string sehingga
+    // di-store sebagai N karakter ASCII (bukan N/8 floats). Saat verify decode
+    // base64 dari hex `\x4b65655a...` (yang berisi karakter base64 ASCII),
+    // dimensinya tidak match → 500 "Format wajah tersimpan tidak kompatibel".
     const { error: upsertError } = await adminClient
       .from('face_embeddings')
       .upsert(
         {
           user_id: user.id,
-          embedding: embeddingBuffer.toString('base64'), // Store as base64 encoded BYTEA
+          embedding: '\\x' + embeddingBuffer.toString('hex'),
           embedding_hash: embeddingHash,
           registered_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -89,7 +101,7 @@ export async function POST(req: NextRequest) {
 
     if (upsertError) {
       console.error('[FACE REGISTER] Upsert error:', upsertError)
-      return errorResponse('Gagal menyimpan data wajah. Coba lagi.', 500)
+      return errorResponse('Gagal menyimpan data wajah', 500)
     }
 
     // 6. Update profiles.is_face_registered = true
@@ -121,10 +133,10 @@ export async function POST(req: NextRequest) {
 
     // 8. Response
     return successResponse({
-      message: 'Wajah berhasil didaftarkan.',
+      message: 'Wajah berhasil didaftarkan',
       embedding_hash: embeddingHash,
     }, 201)
   } catch {
-    return errorResponse('Terjadi kesalahan server.', 500)
+    return errorResponse('Terjadi kesalahan server', 500)
   }
 }

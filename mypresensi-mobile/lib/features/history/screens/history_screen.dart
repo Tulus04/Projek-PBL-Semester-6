@@ -16,6 +16,7 @@ import '../../../shared/widgets/kpi_icon_box.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../data/history_models.dart';
 import '../providers/history_provider.dart';
+import 'history_calendar_view.dart';
 
 // ============================================================================
 // Local filter provider — Riverpod 3 NotifierProvider per-screen scoped.
@@ -33,6 +34,24 @@ class _HistoryFilterNotifier extends Notifier<_HistoryFilter> {
   _HistoryFilter build() => _HistoryFilter.semua;
 
   void set(_HistoryFilter v) => state = v;
+}
+
+// ============================================================================
+// Local view-mode provider — toggle List ↔ Calendar (rule 22 design system).
+// ============================================================================
+
+enum _HistoryViewMode { list, calendar }
+
+final _historyViewModeProvider =
+    NotifierProvider<_HistoryViewModeNotifier, _HistoryViewMode>(
+  _HistoryViewModeNotifier.new,
+);
+
+class _HistoryViewModeNotifier extends Notifier<_HistoryViewMode> {
+  @override
+  _HistoryViewMode build() => _HistoryViewMode.list;
+
+  void set(_HistoryViewMode v) => state = v;
 }
 
 // ============================================================================
@@ -360,6 +379,8 @@ class HistoryScreen extends ConsumerWidget {
     WidgetRef ref,
     HistoryResponse data,
   ) {
+    final viewMode = ref.watch(_historyViewModeProvider);
+
     return RefreshIndicator(
       color: AppColors.primary,
       onRefresh: () async {
@@ -372,27 +393,37 @@ class HistoryScreen extends ConsumerWidget {
           // Hero summary — 5-stat + progress bar.
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               child: _HistoryHero(summary: data.summary),
             ),
           ),
 
-          // Filter chips — horizontal scroll.
-          SliverToBoxAdapter(
-            child: _HistoryFilterChips(
-              counts: <_HistoryFilter, int>{
-                _HistoryFilter.semua: data.summary.totalSessions,
-                _HistoryFilter.hadir: data.summary.hadir,
-                _HistoryFilter.telat: data.summary.terlambat,
-                _HistoryFilter.izin: data.summary.izin,
-                _HistoryFilter.sakit: data.summary.sakit,
-                _HistoryFilter.alpa: data.summary.alpa,
-              },
-            ),
-          ),
+          // View toggle — List ↔ Calendar.
+          const SliverToBoxAdapter(child: _HistoryViewToggle()),
 
-          // Body — empty / filtered-empty / grouped list.
-          ..._buildListSlivers(context, ref, data),
+          if (viewMode == _HistoryViewMode.list) ...[
+            // Filter chips — horizontal scroll (hanya muncul di mode list).
+            SliverToBoxAdapter(
+              child: _HistoryFilterChips(
+                counts: <_HistoryFilter, int>{
+                  _HistoryFilter.semua: data.summary.totalSessions,
+                  _HistoryFilter.hadir: data.summary.hadir,
+                  _HistoryFilter.telat: data.summary.terlambat,
+                  _HistoryFilter.izin: data.summary.izin,
+                  _HistoryFilter.sakit: data.summary.sakit,
+                  _HistoryFilter.alpa: data.summary.alpa,
+                },
+              ),
+            ),
+
+            // Body — empty / filtered-empty / grouped list.
+            ..._buildListSlivers(context, ref, data),
+          ] else ...[
+            // Calendar heatmap view.
+            SliverToBoxAdapter(
+              child: HistoryCalendarView(records: data.history),
+            ),
+          ],
 
           // Bottom spacing.
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -767,6 +798,116 @@ class _HeroStat extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ============================================================================
+// _HistoryViewToggle — segmented toggle List ↔ Calendar
+// ============================================================================
+
+class _HistoryViewToggle extends ConsumerWidget {
+  const _HistoryViewToggle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(_historyViewModeProvider);
+    final notifier = ref.read(_historyViewModeProvider.notifier);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: Container(
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceSunken,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        padding: const EdgeInsets.all(3),
+        child: Row(
+          children: [
+            Expanded(
+              child: _ToggleSegment(
+                label: 'Daftar',
+                icon: IconsaxPlusBold.task_square,
+                active: mode == _HistoryViewMode.list,
+                onTap: () => notifier.set(_HistoryViewMode.list),
+              ),
+            ),
+            Expanded(
+              child: _ToggleSegment(
+                label: 'Kalender',
+                icon: IconsaxPlusBold.calendar_1,
+                active: mode == _HistoryViewMode.calendar,
+                onTap: () => notifier.set(_HistoryViewMode.calendar),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ToggleSegment extends StatelessWidget {
+  const _ToggleSegment({
+    required this.label,
+    required this.icon,
+    required this.active,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          decoration: BoxDecoration(
+            color: active ? AppColors.surface : Colors.transparent,
+            borderRadius: BorderRadius.circular(999),
+            boxShadow: active
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 15,
+                color: active ? AppColors.primary : AppColors.textTertiary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: active ? AppColors.primary : AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

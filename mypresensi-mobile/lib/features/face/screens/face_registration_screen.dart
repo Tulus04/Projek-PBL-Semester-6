@@ -292,9 +292,45 @@ class _FaceRegistrationScreenState
 
   @override
   void dispose() {
-    _cameraController?.stopImageStream();
-    _cameraController?.dispose();
+    // Guard: stopImageStream throw kalau dipanggil saat stream sudah
+    // berhenti (mis. sudah di-stop di listener finalizing). Tanpa guard
+    // ini, exception bubble up → dispose abort → CameraController tidak
+    // release native HAL → MobileScanner di parent screen freeze
+    // (BUG-019 root cause).
+    final controller = _cameraController;
+    if (controller != null) {
+      if (controller.value.isStreamingImages) {
+        controller.stopImageStream();
+      }
+      controller.dispose();
+    }
     super.dispose();
+  }
+
+  /// Tear down camera dengan await proper sebelum pop. Dipakai di tiap
+  /// path keluar (cancel button, success, consent declined) supaya
+  /// CameraX max-1-open invariant terpenuhi sebelum ScanQrScreen
+  /// (caller) re-init back camera.
+  Future<void> _disposeAndPop([Object? result]) async {
+    final controller = _cameraController;
+    _cameraController = null;
+    if (controller != null) {
+      try {
+        if (controller.value.isStreamingImages) {
+          await controller.stopImageStream();
+        }
+      } catch (e) {
+        debugPrint('[FACE REGISTER] stopImageStream error (ignored): $e');
+      }
+      try {
+        await controller.dispose();
+      } catch (e) {
+        debugPrint('[FACE REGISTER] dispose error (ignored): $e');
+      }
+    }
+    if (mounted) {
+      context.pop(result);
+    }
   }
 
   @override
@@ -305,8 +341,13 @@ class _FaceRegistrationScreenState
     ref.listen<FaceRegistrationState>(faceRegistrationProvider, (prev, next) {
       if (prev?.status != RegistrationStatus.finalizing &&
           next.status == RegistrationStatus.finalizing) {
-        // Stop camera stream dulu (tidak butuh frame lagi)
-        _cameraController?.stopImageStream();
+        // Stop camera stream dulu (tidak butuh frame lagi).
+        // Guard sama: cek isStreamingImages dulu — kalau race sudah
+        // berhenti di tempat lain, JANGAN call stop lagi.
+        final controller = _cameraController;
+        if (controller != null && controller.value.isStreamingImages) {
+          controller.stopImageStream();
+        }
         // Trigger upload — provider yang average + L2 normalize + POST
         ref.read(faceRegistrationProvider.notifier).uploadEmbedding();
       }
@@ -320,7 +361,7 @@ class _FaceRegistrationScreenState
         title: const Text('Registrasi Wajah'),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => context.pop(),
+          onPressed: () => _disposeAndPop(),
         ),
       ),
       body: Column(
@@ -511,7 +552,7 @@ class _FaceRegistrationScreenState
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => context.pop(true),
+                onPressed: () => _disposeAndPop(true),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.success,
                   foregroundColor: Colors.white,

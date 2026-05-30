@@ -119,32 +119,32 @@ class LeaveRepository {
       }
       switch (e.response?.statusCode) {
         case 400:
-          return 'Data yang dikirim tidak valid.';
+          return 'Data tidak valid';
         case 401:
-          return 'Sesi login habis. Silakan login ulang.';
+          return 'Sesi berakhir, login ulang';
         case 403:
-          return 'Anda tidak memiliki akses untuk operasi ini.';
+          return 'Akses ditolak';
         case 404:
-          return 'Sesi tidak ditemukan.';
+          return 'Sesi tidak ditemukan';
         case 409:
-          return 'Pengajuan untuk sesi ini sudah ada.';
+          return 'Pengajuan sudah ada';
         case 429:
-          return 'Terlalu banyak pengajuan. Coba lagi nanti.';
+          return 'Terlalu banyak pengajuan';
         case 500:
-          return 'Server bermasalah. Coba lagi nanti.';
+          return 'Server bermasalah';
         default:
-          return 'Terjadi kesalahan. (${e.response?.statusCode})';
+          return 'Gagal memuat data';
       }
     }
 
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return 'Koneksi timeout. Periksa jaringan Anda.';
+      return 'Koneksi timeout';
     }
     if (e.type == DioExceptionType.connectionError) {
-      return 'Tidak dapat terhubung ke server.';
+      return 'Tidak ada koneksi internet';
     }
 
-    return 'Terjadi kesalahan yang tidak diketahui.';
+    return 'Terjadi kesalahan';
   }
 }

@@ -7,6 +7,7 @@ class UserModel {
   final String id;
   final String fullName;
   final String nimNip;
+  final String? email;
   final String role;
   final int? semester;
   final String? kelas;
@@ -18,6 +19,7 @@ class UserModel {
     required this.id,
     required this.fullName,
     required this.nimNip,
+    this.email,
     required this.role,
     this.semester,
     this.kelas,
@@ -31,6 +33,7 @@ class UserModel {
       id: json['id'] as String,
       fullName: json['full_name'] as String,
       nimNip: json['nim_nip'] as String,
+      email: json['email'] as String?,
       role: json['role'] as String,
       semester: json['semester'] as int?,
       kelas: json['kelas'] as String?,
@@ -45,6 +48,7 @@ class UserModel {
       'id': id,
       'full_name': fullName,
       'nim_nip': nimNip,
+      'email': email,
       'role': role,
       'semester': semester,
       'kelas': kelas,

@@ -12,9 +12,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
+import '../../../shared/widgets/app_shell.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../face/providers/face_provider.dart';
 import '../providers/profile_provider.dart';
@@ -72,9 +75,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 iconColor: AppColors.primary,
                 iconBg: AppColors.primarySurface,
                 title: 'Email Kampus',
-                subtitle: user?.nimNip != null
-                    ? '${user!.nimNip}@politanisamarinda.ac.id'
-                    : '-',
+                subtitle: user?.email ?? '-',
                 onTap: () => _showInfoModal(
                   context,
                   title: 'Email Kampus',
@@ -117,9 +118,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 iconColor: AppColors.warning,
                 iconBg: AppColors.accentSoft,
                 title: 'Izin Lokasi',
-                subtitle: 'Selalu aktif saat presensi',
-                trailing: const _ToggleSwitch(value: true),
-                onTap: null, // toggle dikelola sistem (placeholder)
+                subtitle: 'Atur izin lokasi di pengaturan sistem',
+                onTap: _showLocationPermissionSheet,
               ),
               if (isFaceRegistered)
                 _SettingsItem(
@@ -151,20 +151,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 iconBg: AppColors.warningTint,
                 title: 'Pengajuan Izin / Sakit',
                 subtitle: 'Lihat riwayat & ajukan izin baru',
-                onTap: () => context.push('/leave-requests'),
+                // Switch ke tab Izin (index 2) di bottom nav, BUKAN push.
+                // Konsisten dengan Quick Actions di Beranda (setTab(2)).
+                onTap: () {
+                  ref.read(currentTabProvider.notifier).setTab(2);
+                },
               ),
               _SettingsItem(
                 icon: IconsaxPlusBold.info_circle,
                 iconColor: AppColors.info,
                 iconBg: AppColors.infoTint,
                 title: 'Tentang',
-                subtitle: 'MyPresensi v1.0.0 · Build 1',
-                onTap: () => _showInfoModal(
-                  context,
-                  title: 'Tentang MyPresensi',
-                  message:
-                      'Versi 1.0.0 (Build 1)\n\nSistem absensi mahasiswa Prodi TRPL — Politeknik Pertanian Negeri Samarinda.',
-                ),
+                subtitle: 'Versi aplikasi & info pengembang',
+                onTap: _showAboutSheet,
               ),
             ],
           ),
@@ -192,6 +191,181 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   // ===== Modal helpers =====
+
+  /// Bottom sheet untuk Izin Lokasi — display status real + action buka system settings.
+  /// Pakai permission_handler yang sudah ada di project (lihat face_registration_screen.dart).
+  Future<void> _showLocationPermissionSheet() async {
+    // Cek status izin lokasi saat ini
+    final status = await Permission.locationWhenInUse.status;
+    if (!mounted) return;
+
+    final (label, description, color, isGranted) = switch (status) {
+      PermissionStatus.granted ||
+      PermissionStatus.limited =>
+        ('Aktif', 'Aplikasi bisa baca lokasi saat presensi.', AppColors.success, true),
+      PermissionStatus.denied => (
+        'Belum Diizinkan',
+        'Aplikasi belum punya akses lokasi. Buka pengaturan untuk mengizinkan.',
+        AppColors.warning,
+        false,
+      ),
+      PermissionStatus.permanentlyDenied => (
+        'Ditolak Permanen',
+        'Izin lokasi ditolak secara permanen. Atur manual via pengaturan sistem.',
+        AppColors.danger,
+        false,
+      ),
+      PermissionStatus.restricted ||
+      PermissionStatus.provisional ||
+      _ => ('Tidak Diketahui', 'Status izin lokasi tidak terbaca.', AppColors.textSecondary, false),
+    };
+
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.borderStrong,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(IconsaxPlusBold.location, color: color, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Izin Lokasi',
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              color: color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (!isGranted) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        Navigator.of(sheetCtx).pop();
+                        await openAppSettings();
+                      },
+                      icon: const Icon(IconsaxPlusBold.setting_2, size: 18),
+                      label: const Text(
+                        'Buka Pengaturan',
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(sheetCtx).pop(),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.textPrimary,
+                        side: BorderSide(color: AppColors.border),
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                      child: const Text(
+                        'Tutup',
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// About sheet — versi aplikasi dynamic dari pubspec.yaml via package_info_plus.
+  Future<void> _showAboutSheet() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+
+    final versionLabel = 'v${info.version} · Build ${info.buildNumber}';
+    _showInfoModal(
+      context,
+      title: 'Tentang MyPresensi',
+      message:
+          '$versionLabel\n\nSistem absensi mahasiswa Prodi TRPL — Politeknik Pertanian Negeri Samarinda.\n\nVerifikasi 3-layer: QR Code · GPS · Face Recognition.',
+    );
+  }
 
   void _showInfoModal(BuildContext context, {required String title, required String message}) {
     showModalBottomSheet<void>(
@@ -801,6 +975,8 @@ class _SettingsGroup extends StatelessWidget {
 }
 
 /// Settings item — duotone icon + title + subtitle + trailing (chevron/toggle).
+/// `trailing` saat ini tidak dipakai (toggle dummy dihapus di v7+) tapi disimpan
+/// untuk forward compatibility — toggle/badge custom future-use.
 class _SettingsItem extends StatelessWidget {
   const _SettingsItem({
     required this.icon,
@@ -808,6 +984,7 @@ class _SettingsItem extends StatelessWidget {
     required this.iconBg,
     required this.title,
     required this.subtitle,
+    // ignore: unused_element_parameter
     this.trailing,
     this.onTap,
     this.titleColor,
@@ -894,6 +1071,11 @@ class _SettingsItem extends StatelessWidget {
 }
 
 /// Toggle switch sederhana — visual only (state dikelola caller).
+/// CATATAN: tidak dipakai di profile screen v7+ (toggle dummy "Izin Lokasi"
+/// diganti jadi action sheet real-status). Disimpan dulu untuk pemakaian
+/// future kalau ada toggle preference yang real (mis. dark mode, notif).
+@Deprecated('Reserved untuk future use case. Kalau ada toggle baru, pakai widget ini dengan parameter onChanged.')
+// ignore: unused_element
 class _ToggleSwitch extends StatelessWidget {
   const _ToggleSwitch({required this.value});
   final bool value;

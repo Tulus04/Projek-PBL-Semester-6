@@ -270,7 +270,6 @@ export default async function LiveMonitorPage({ params }: PageProps) {
   return (
     <LiveMonitorClient
       sessionId={session.id}
-      sessionCode={session.session_code}
       sessionCodeExpiresAt={session.session_code_expires_at}
       sessionNumber={session.session_number}
       topic={session.topic}

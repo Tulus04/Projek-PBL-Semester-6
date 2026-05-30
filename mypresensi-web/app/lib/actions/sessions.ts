@@ -10,6 +10,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { logAudit } from '@/lib/audit-logger'
 import { createBulkNotifications } from '@/lib/actions/notifications'
 import { getCurrentUserProfile, canAccessCourse } from '@/lib/auth-guard'
+import { generateCode, getCurrentWindow } from '@/lib/utils/totp'
 import crypto from 'crypto'
 
 // ===========================
@@ -27,29 +28,6 @@ const sessionSchema = z.object({
 export type SessionFormState = {
   error: string | null
   success: boolean
-}
-
-// ===========================
-// Helper: Generate OTP 6 digit (cryptographically secure)
-// ===========================
-function generateOTP(): string {
-  // Gunakan crypto.randomInt untuk angka yang aman (bukan Math.random)
-  const code = crypto.randomInt(100000, 999999)
-  return code.toString()
-}
-
-// ===========================
-// Helper: Ambil durasi expiry dari settings
-// ===========================
-async function getCodeExpiryMinutes(): Promise<number> {
-  const supabase = createAdminClient()
-  const { data } = await supabase
-    .from('settings')
-    .select('value')
-    .eq('key', 'session_code_expiry_minutes')
-    .single()
-
-  return data ? parseInt(data.value, 10) : 3 // Default 3 menit
 }
 
 // ===========================
@@ -248,16 +226,21 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
   }
 
   if (isActive) {
-    // MULAI SESI → Generate OTP + set expiry
-    const code = generateOTP()
-    const expiryMinutes = await getCodeExpiryMinutes()
-    const expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000).toISOString()
+    // MULAI SESI → Generate seed + initial TOTP code (Phase 3 v7 rolling QR)
+    // - seed: 32-byte random hex (64 char) — Tier 1 secret, server-only
+    // - initialCode: TOTP-derived dari (seed, current 30s window) — boleh tampil ke dosen
+    // - expiresAt: NOW() + 24h sebagai placeholder kompatibilitas UI/legacy.
+    //   Rolling mode TIDAK pakai expiry sebenarnya — code di-rotate per window via TOTP.
+    const seed = crypto.randomBytes(32).toString('hex')
+    const initialCode = generateCode(seed, getCurrentWindow())
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
     const { error } = await supabase
       .from('sessions')
       .update({
         is_active: true,
-        session_code: code,
+        session_code: initialCode,
+        session_code_seed: seed,
         session_code_expires_at: expiresAt,
         started_at: new Date().toISOString(),
         ended_at: null,
@@ -266,12 +249,16 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
 
     if (error) return { error: error.message, sessionCode: null }
 
-    // SECURITY: JANGAN log session_code mentah ke audit_logs.
-    // session_code adalah Tier 1 data (OTP aktif 3 menit) — bocor ke admin
-    // yang baca audit log = vektor insider threat.
+    // SECURITY (R6.4, R16.2): JANGAN log seed atau initialCode mentah ke audit_logs.
+    // Hanya metadata aman: length, boolean, mode.
     await logAudit({
       action: 'start_session',
-      details: { session_id: sessionId, expires_at: expiresAt, code_length: code.length },
+      details: {
+        session_id: sessionId,
+        code_length: initialCode.length,
+        has_seed: true,
+        qr_mode: 'rolling',
+      },
     })
 
     // Kirim notifikasi ke semua mahasiswa enrolled
@@ -306,7 +293,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
 
     revalidatePath('/matakuliah')
     revalidatePath('/sesi')
-    return { error: null, sessionCode: code, expiresAt }
+    return { error: null, sessionCode: initialCode, expiresAt }
   } else {
     // AKHIRI SESI → Hapus kode, set ended_at
     const { error } = await supabase
@@ -333,47 +320,72 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
 }
 
 // ===========================
-// Refresh Session Code — Generate kode baru
+// Refresh Session Code — Rotate seed total + compute kode baru (Phase 3 v7)
 // ===========================
+// Dipanggil saat dosen klik "Refresh Kode" karena curiga seed/code bocor.
+// Strategy: full seed rotation (BUKAN reuse seed lama dengan window pointer geser),
+// sehingga semua attempt dengan seed lama langsung di-reject di submit endpoint.
 export async function refreshSessionCode(sessionId: string) {
   const supabase = createAdminClient()
 
-  // SECURITY: Cek ownership
+  // SECURITY: Auth check — user harus login
   const currentUser = await getCurrentUserProfile()
   if (!currentUser) return { error: 'Unauthorized', sessionCode: null }
 
-  // Validasi: sesi harus aktif
+  // Ambil session untuk ownership + status check
   const { data: session } = await supabase
     .from('sessions')
-    .select('is_active')
+    .select('course_id, is_active')
     .eq('id', sessionId)
     .single()
 
-  if (!session?.is_active) {
-    return { error: 'Sesi tidak aktif. Tidak dapat me-refresh kode.', sessionCode: null }
+  if (!session) {
+    return { error: 'Sesi tidak ditemukan.', sessionCode: null }
   }
 
-  const code = generateOTP()
-  const expiryMinutes = await getCodeExpiryMinutes()
-  const expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000).toISOString()
+  // SECURITY: Ownership check — dosen hanya boleh refresh sesi MK-nya
+  const hasAccess = await canAccessCourse(currentUser.id, currentUser.role, session.course_id)
+  if (!hasAccess) {
+    return { error: 'Akses ditolak: Anda tidak mengampu mata kuliah ini.', sessionCode: null }
+  }
+
+  // R7.4: Sesi non-aktif TIDAK boleh refresh
+  if (!session.is_active) {
+    return { error: 'Sesi sudah berakhir, tidak dapat refresh kode.', sessionCode: null }
+  }
+
+  // R7.1-7.3: Rotate seed total + compute kode baru dari seed baru + current window
+  // expiresAt = NOW() + 24h sebagai placeholder (rolling mode tidak pakai expiry sebenarnya).
+  const newSeed = crypto.randomBytes(32).toString('hex')
+  const newCode = generateCode(newSeed, getCurrentWindow())
+  const newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
   const { error } = await supabase
     .from('sessions')
     .update({
-      session_code: code,
-      session_code_expires_at: expiresAt,
+      session_code: newCode,
+      session_code_seed: newSeed,
+      session_code_expires_at: newExpiresAt,
     })
     .eq('id', sessionId)
 
   if (error) return { error: error.message, sessionCode: null }
 
-  // SECURITY: JANGAN log new_code mentah ke audit_logs (Tier 1 data).
+  // SECURITY (R7.6, R16.2): JANGAN log seed atau code mentah ke audit_logs (Tier 1).
+  // Hanya metadata aman: length, boolean, flag rotated.
   await logAudit({
     action: 'refresh_session_code',
-    details: { session_id: sessionId, expires_at: expiresAt, code_length: code.length },
+    details: {
+      session_id: sessionId,
+      code_length: newCode.length,
+      has_seed: true,
+      rotated: true,
+    },
   })
 
-  return { error: null, sessionCode: code, expiresAt }
+  revalidatePath('/matakuliah')
+  revalidatePath('/sesi')
+  return { error: null, sessionCode: newCode, expiresAt: newExpiresAt }
 }
 
 // ===========================

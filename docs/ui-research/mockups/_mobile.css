@@ -430,3 +430,45 @@ body {
   font-weight: 600;
   cursor: pointer;
 }
+
+/* =========================================================
+   EMBED MODE — Aktif saat halaman di-load sebagai iframe
+   Diaktifkan via class "embed-mode" yang di-set oleh script:
+     <script>if(window.top!==window.self)document.documentElement.classList.add('embed-mode')</script>
+   Hide semua konten dokumentasi, tampilkan phone-frame pertama saja, center.
+   ========================================================= */
+.embed-mode body {
+  padding: 0;
+  background: #0a0e1a; /* Senada dengan PPT theme gelap */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.embed-mode .header,
+.embed-mode .legend,
+.embed-mode .annotation,
+.embed-mode .mockup-label,
+.embed-mode .footer {
+  display: none !important;
+}
+.embed-mode .mockup-grid {
+  display: block;
+  padding: 0;
+  margin: 0;
+  max-width: none;
+}
+/* Hanya tampilkan phone-frame pertama; sisanya disembunyikan supaya iframe ringan */
+.embed-mode .mockup-item:not(:first-child) {
+  display: none !important;
+}
+.embed-mode .mockup-item {
+  margin: 0;
+  padding: 0;
+}
+/* Phone-frame natural 340×720 — di iframe ~380×620, scale 0.86 supaya full-fit centered */
+.embed-mode .phone-frame {
+  transform: scale(0.86);
+  transform-origin: center center;
+}

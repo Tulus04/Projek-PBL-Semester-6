@@ -107,6 +107,6 @@ class FaceRepository {
     } catch (_) {
       // Fallback
     }
-    return 'Terjadi kesalahan. Coba lagi.';
+    return 'Terjadi kesalahan';
   }
 }

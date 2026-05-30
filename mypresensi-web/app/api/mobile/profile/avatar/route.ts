@@ -68,17 +68,17 @@ export async function POST(req: NextRequest) {
     try {
       formData = await req.formData()
     } catch {
-      return errorResponse('Format request tidak valid (harus multipart).', 400)
+      return errorResponse('Format request tidak valid', 400)
     }
 
     const fileEntry = formData.get('file')
     if (!(fileEntry instanceof Blob)) {
-      return errorResponse('File tidak ditemukan dalam request.', 400)
+      return errorResponse('File tidak ditemukan', 400)
     }
 
     // 4. VALIDATE size
     if (fileEntry.size === 0) {
-      return errorResponse('File kosong.', 400)
+      return errorResponse('File kosong', 400)
     }
     if (fileEntry.size > MAX_IMAGE_SIZE_BYTES) {
       return errorResponse(
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
 
     if (uploadError) {
       console.error('[AVATAR UPLOAD] Storage error:', uploadError)
-      return errorResponse('Gagal mengunggah foto. Coba lagi.', 500)
+      return errorResponse('Gagal mengunggah foto', 500)
     }
 
     // 8. Generate public URL + cache buster
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
       .getPublicUrl(path)
 
     if (!urlData?.publicUrl) {
-      return errorResponse('Gagal mendapatkan URL foto.', 500)
+      return errorResponse('Gagal mendapatkan URL foto', 500)
     }
 
     // Tambah cache-busting query agar mobile yang sudah cache URL lama dapat versi baru
@@ -167,12 +167,12 @@ export async function POST(req: NextRequest) {
     return successResponse(
       {
         avatar_url: publicUrlWithBuster,
-        message: 'Foto profil berhasil diperbarui.',
+        message: 'Foto profil berhasil diperbarui',
       },
       200,
     )
   } catch (err) {
     console.error('[AVATAR UPLOAD] Unexpected error:', err)
-    return errorResponse('Terjadi kesalahan server.', 500)
+    return errorResponse('Terjadi kesalahan server', 500)
   }
 }

@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
   const { data: requests, error } = await query
 
   if (error) {
-    return errorResponse('Gagal mengambil daftar pengajuan.', 500)
+    return errorResponse('Gagal mengambil daftar pengajuan', 500)
   }
 
   // Hitung ringkasan

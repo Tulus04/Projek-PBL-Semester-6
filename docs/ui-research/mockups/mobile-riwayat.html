@@ -9,6 +9,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="_tokens.css" />
   <link rel="stylesheet" href="_mobile.css" />
+  <script>
+    // Embed-mode: pas iframe load, hanya tampilkan phone-frame pertama, center vertikal+horizontal.
+    // Konten dokumentasi (showcase-header, annotation, mockup-label) sudah di-strip permanen dari HTML source.
+    if (window.top !== window.self) {
+      document.write('<style>' +
+        'html,body{margin:0;padding:0;background:#0a0e1a;height:100vh;overflow:hidden}' +
+        'body{display:flex;align-items:center;justify-content:center}' +
+        '.mockup-grid,main.mockup-grid{display:block;padding:0;margin:0;max-width:none;gap:0}' +
+        '.mockup-item{margin:0;padding:0;gap:0}' +
+        '.mockup-item:not(:first-of-type),.mockup-label{display:none!important}' +
+        '.phone-frame{transform:scale(0.86);transform-origin:center center}' +
+      '</style>');
+    }
+  </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     /* Summary hero strip */
@@ -395,17 +409,7 @@
 </head>
 <body>
 
-  <div class="showcase-header">
-    <a href="index.html" class="nav-back">
-      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
-      Kembali ke Katalog
-    </a>
-    <h1>Mobile · Riwayat Kehadiran</h1>
-    <p>Smart-date group · hero progress · filter chip · bottom sheet detail dengan face match thumb</p>
-    <div class="legend">
-      <strong>Reference:</strong> Notion mobile timeline · Stripe activity feed · iOS Settings detail sheet · Iconsax/Solar Bold Duotone (sesuai keputusan icon-style)
-    </div>
-  </div>
+  
 
   <div class="mockup-grid">
 
@@ -602,11 +606,7 @@
         Frame 1 · Smart-Date List
         <small>Hero progress · 6 chip filter · group by relative date</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Group by <strong>smart date</strong>: "Hari Ini · Jumat, 15 Mei" / "Kemarin · Kamis, 14 Mei" / "Minggu Ini" / "Bulan Ini" / "Lebih Lama" — bukan tanggal absolute. Hero strip pakai gradient primary + gold glow signature, menampilkan 5 status sesuai enum DB (<code>hadir/terlambat/izin/sakit/alpa</code>). Status <strong>TERLAMBAT</strong> pakai pill info biru — distinct dari HADIR — supaya konsisten dengan filter chip "Telat".
       </div>
-    </div>
 
     <!-- ========== FRAME 2: BOTTOM SHEET DETAIL ========== -->
     <div class="mockup-item">
@@ -735,11 +735,7 @@
         Frame 2 · Detail Sheet
         <small>Bottom sheet · status banner · 5 detail row · face match thumb</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Bottom sheet (88% height max) dengan handle drag bar. Detail rows progressive: MK → Waktu → Lokasi (success highlight) → Wajah (thumbnail + similarity %) → Perangkat (anti-fraud info). Sheet <strong>murni informatif</strong> — tutup via <strong>swipe-down handle</strong> atau tap area dim di luar sheet. Tidak ada tombol aksi: untuk kebutuhan sengketa, mahasiswa bisa screenshot sheet ini dan kirim ke dosen via WA — informasinya sudah lengkap (waktu, lokasi, similarity wajah, device).
       </div>
-    </div>
 
   </div>
 

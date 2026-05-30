@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   Clock,
   MapPin,
-  RefreshCw,
   StopCircle,
   Users,
   WifiOff,
@@ -28,9 +27,10 @@ import type {
   RealtimeAttendanceRow,
   RealtimeChannelStatus,
 } from '@/types/realtime'
-import { refreshSessionCode, toggleSessionAction } from '@/lib/actions/sessions'
+import { toggleSessionAction } from '@/lib/actions/sessions'
 import { swal, toast } from '@/lib/swal'
 import { cn } from '@/lib/utils'
+import BackButton from '@/components/ui/back-button'
 
 // ============================================================================
 // Types
@@ -60,7 +60,6 @@ export interface LiveStats {
 
 interface LiveMonitorClientProps {
   sessionId: string
-  sessionCode: string | null
   sessionCodeExpiresAt: string | null
   sessionNumber: number
   topic: string | null
@@ -311,7 +310,6 @@ export function LiveMonitorClient(props: LiveMonitorClientProps) {
     computeCountdown(props.sessionCodeExpiresAt),
   )
   const [isEnding, setIsEnding] = useState(false)
-  const [isRefreshingCode, setIsRefreshingCode] = useState(false)
 
   // Countdown timer
   useEffect(() => {
@@ -431,22 +429,6 @@ export function LiveMonitorClient(props: LiveMonitorClientProps) {
     }
   }, [props.sessionId, router])
 
-  const handleRefreshCode = useCallback(async () => {
-    setIsRefreshingCode(true)
-    try {
-      const res = await refreshSessionCode(props.sessionId)
-      if (res.error) {
-        toast.fire({ icon: 'error', title: res.error })
-      } else {
-        toast.fire({ icon: 'success', title: 'Kode sesi berhasil di-refresh' })
-        router.refresh()
-      }
-    } catch {
-      toast.fire({ icon: 'error', title: 'Gagal refresh kode' })
-    }
-    setTimeout(() => setIsRefreshingCode(false), 800)
-  }, [props.sessionId, router])
-
   // Derived
   const tooFarStudents = useMemo(() => {
     let count = 0
@@ -458,6 +440,9 @@ export function LiveMonitorClient(props: LiveMonitorClientProps) {
 
   return (
     <div className="space-y-6 pb-12">
+      {/* Back navigation — kembali ke daftar sesi */}
+      <BackButton href="/sesi" label="Kembali ke Daftar Sesi" />
+
       {/* Topbar */}
       <MonitorTopbar
         courseCode={props.courseCode}
@@ -466,13 +451,10 @@ export function LiveMonitorClient(props: LiveMonitorClientProps) {
         sessionNumber={props.sessionNumber}
         topic={props.topic}
         isActive={props.isActive}
-        sessionCode={props.sessionCode}
         countdownSec={countdownSec}
         syncStatus={syncStatus}
         isEnding={isEnding}
-        isRefreshingCode={isRefreshingCode}
         onEndSession={handleEndSession}
-        onRefreshCode={handleRefreshCode}
       />
 
       {/* KPI Bar */}
@@ -522,10 +504,6 @@ export function LiveMonitorClient(props: LiveMonitorClientProps) {
           pulseStudentId={pulseStudentId}
         />
       </div>
-
-      {props.sessionCode && (
-        <p className="sr-only">Kode sesi: {props.sessionCode}</p>
-      )}
     </div>
   )
 }
@@ -541,13 +519,10 @@ function MonitorTopbar({
   sessionNumber,
   topic,
   isActive,
-  sessionCode,
   countdownSec,
   syncStatus,
   isEnding,
-  isRefreshingCode,
   onEndSession,
-  onRefreshCode,
 }: {
   courseCode: string
   courseName: string
@@ -555,13 +530,10 @@ function MonitorTopbar({
   sessionNumber: number
   topic: string | null
   isActive: boolean
-  sessionCode: string | null
   countdownSec: number
   syncStatus: RealtimeChannelStatus
   isEnding: boolean
-  isRefreshingCode: boolean
   onEndSession: () => void
-  onRefreshCode: () => void
 }) {
   return (
     <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
@@ -602,30 +574,15 @@ function MonitorTopbar({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {sessionCode && isActive && (
+          {isActive && (
             <div className="flex items-center gap-2 rounded-xl border border-border bg-gray-50 px-4 py-2">
-              <div className="text-xs font-medium text-text-secondary">
-                Kode Sesi
-              </div>
-              <div className="font-mono text-lg font-bold tracking-wider text-text-primary">
-                {sessionCode.slice(0, 3)}
-                <span className="mx-0.5 text-amber-500">·</span>
-                {sessionCode.slice(3, 6)}
-              </div>
-              <div className="flex items-center gap-1 text-xs font-medium text-text-secondary">
-                <Clock className="h-3 w-3" />
-                <span className="font-mono">{formatCountdown(countdownSec)}</span>
-              </div>
-              <button
-                onClick={onRefreshCode}
-                disabled={isRefreshingCode}
-                className="rounded-md p-1 text-text-tertiary transition-colors hover:bg-white hover:text-primary disabled:opacity-50"
-                title="Refresh Kode"
-              >
-                <RefreshCw
-                  className={cn('h-4 w-4', isRefreshingCode && 'animate-spin')}
-                />
-              </button>
+              <Clock className="h-3.5 w-3.5 text-text-secondary" />
+              <span className="text-xs font-medium text-text-secondary">
+                QR berganti dalam
+              </span>
+              <span className="font-mono text-sm font-bold text-text-primary">
+                {formatCountdown(countdownSec)}
+              </span>
             </div>
           )}
           {isActive && (

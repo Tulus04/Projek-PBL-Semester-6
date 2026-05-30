@@ -1,14 +1,28 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mobile Leave Request â€” MyPresensi Mockup</title>
+  <title>Mobile Leave Request — MyPresensi Mockup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="_tokens.css" />
   <link rel="stylesheet" href="_mobile.css" />
+  <script>
+    // Embed-mode: pas iframe load, hanya tampilkan phone-frame pertama, center vertikal+horizontal.
+    // Konten dokumentasi (showcase-header, annotation, mockup-label) sudah di-strip permanen dari HTML source.
+    if (window.top !== window.self) {
+      document.write('<style>' +
+        'html,body{margin:0;padding:0;background:#0a0e1a;height:100vh;overflow:hidden}' +
+        'body{display:flex;align-items:center;justify-content:center}' +
+        '.mockup-grid,main.mockup-grid{display:block;padding:0;margin:0;max-width:none;gap:0}' +
+        '.mockup-item{margin:0;padding:0;gap:0}' +
+        '.mockup-item:not(:first-of-type),.mockup-label{display:none!important}' +
+        '.phone-frame{transform:scale(0.86);transform-origin:center center}' +
+      '</style>');
+    }
+  </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     /* Step indicator (top of multi-step form) */
@@ -132,7 +146,7 @@
     }
     .form-help iconify-icon { font-size: 12px; }
 
-    /* Session group header â€” MK name sebagai grouping */
+    /* Session group header — MK name sebagai grouping */
     .session-group-header {
       font-family: var(--ff-heading);
       font-weight: 700;
@@ -150,7 +164,7 @@
       color: var(--color-primary);
     }
 
-    /* Session pick item â€” pilih sesi spesifik (1 izin = 1 session_id) */
+    /* Session pick item — pilih sesi spesifik (1 izin = 1 session_id) */
     .session-pick-item {
       display: flex;
       align-items: center;
@@ -254,7 +268,7 @@
     .session-pick-status.upcoming { background: var(--color-info-tint); color: var(--color-info); }
     .session-pick-status.taken { background: var(--color-surface-sunken); color: var(--color-text-tertiary); }
 
-    /* Selected session card di Step 2 â€” read-only info */
+    /* Selected session card di Step 2 — read-only info */
     .selected-session-card {
       display: flex;
       align-items: center;
@@ -589,17 +603,7 @@
 </head>
 <body>
 
-  <div class="showcase-header">
-    <a href="index.html" class="nav-back">
-      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
-      Kembali ke Katalog
-    </a>
-    <h1>Mobile Â· Pengajuan Izin</h1>
-    <p>4 step: Pilih Sesi Â· Tipe + Alasan Â· Lampiran Â· Status Timeline tracking pasca submit</p>
-    <div class="legend">
-      <strong>Reference:</strong> Stripe Atlas wizard Â· Notion forms Â· Material You stepper
-    </div>
-  </div>
+  
 
   <div class="mockup-grid">
 
@@ -652,7 +656,7 @@
             <h3 class="section-h">Pilih Sesi</h3>
             <p class="section-desc">Sesi yang belum kamu hadiri. Pilih satu untuk diajukan izin.</p>
 
-            <!-- Section: Sedang Berlangsung â€” sesi is_active=true belum disubmit -->
+            <!-- Section: Sedang Berlangsung — sesi is_active=true belum disubmit -->
             <div class="session-group-header" style="color: var(--color-success);">
               <iconify-icon icon="solar:radar-bold-duotone" style="color: var(--color-success);"></iconify-icon>
               Sedang berlangsung
@@ -666,18 +670,18 @@
               <div class="session-pick-info">
                 <h4 class="session-pick-time">
                   <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
-                  10:00 â€“ 12:00
+                  10:00 – 12:00
                 </h4>
                 <div class="session-pick-meta">
                   <iconify-icon icon="solar:book-bookmark-bold-duotone"></iconify-icon>
-                  Pemrograman Web Lanjut Â· Bu Dewi
+                  Pemrograman Web Lanjut · Bu Dewi
                 </div>
               </div>
               <span class="session-pick-status upcoming" style="background: var(--color-success-tint); color: var(--color-success);">AKTIF</span>
               <div class="session-pick-radio"></div>
             </div>
 
-            <!-- Section: Sudah Lewat (max 7 hari ke belakang) â€” sesi is_active=false belum dihadiri -->
+            <!-- Section: Sudah Lewat (max 7 hari ke belakang) — sesi is_active=false belum dihadiri -->
             <div class="session-group-header">
               <iconify-icon icon="solar:rewind-back-bold-duotone"></iconify-icon>
               Belum sempat hadir
@@ -691,11 +695,11 @@
               <div class="session-pick-info">
                 <h4 class="session-pick-time">
                   <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
-                  08:00 â€“ 10:00
+                  08:00 – 10:00
                 </h4>
                 <div class="session-pick-meta">
                   <iconify-icon icon="solar:book-bookmark-bold-duotone"></iconify-icon>
-                  Algoritma Pemrograman Â· Pak Budi
+                  Algoritma Pemrograman · Pak Budi
                 </div>
               </div>
               <span class="session-pick-status taken">KEMARIN</span>
@@ -710,11 +714,11 @@
               <div class="session-pick-info">
                 <h4 class="session-pick-time">
                   <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
-                  13:00 â€“ 15:00
+                  13:00 – 15:00
                 </h4>
                 <div class="session-pick-meta">
                   <iconify-icon icon="solar:book-bookmark-bold-duotone"></iconify-icon>
-                  Basis Data Â· Bu Indah
+                  Basis Data · Bu Indah
                 </div>
               </div>
               <span class="session-pick-status taken">4 HARI LALU</span>
@@ -739,14 +743,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Step 1 Â· Pilih Sesi
+        Step 1 · Pilih Sesi
         <small>Sedang berlangsung + belum sempat hadir (max 7 hari)</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Backend butuh <code>session_id</code> (1 izin = 1 sesi yang sudah ada di tabel <code>sessions</code>). Sesi muncul di DB hanya saat dosen klik "Mulai Sesi" â€” jadi list di sini menampilkan: <strong>(1)</strong> sesi <code>is_active=true</code> yang belum disubmit attendance, dan <strong>(2)</strong> sesi <code>is_active=false</code> dalam window 7 hari ke belakang yang belum dihadiri / belum diizinkan. Tidak ada konsep "izin pre-emptive untuk sesi besok" karena sesi besok belum ada di DB.
       </div>
-    </div>
 
     <!-- ========== STEP 2: TIPE + ALASAN ========== -->
     <div class="mockup-item">
@@ -794,7 +794,7 @@
             <h3 class="section-h">Tipe &amp; Alasan</h3>
             <p class="section-desc">Pilih jenis izin dan jelaskan alasan kamu tidak hadir.</p>
 
-            <!-- Selected session info â€” read-only, dari Step 1 -->
+            <!-- Selected session info — read-only, dari Step 1 -->
             <div class="selected-session-card">
               <div class="session-pick-date">
                 <div class="session-pick-day">Sel</div>
@@ -804,7 +804,7 @@
                 <h4 class="badge-mk">Pemrograman Web Lanjut</h4>
                 <div class="badge-meta">
                   <iconify-icon icon="solar:clock-circle-bold-duotone"></iconify-icon>
-                  10:00 â€“ 12:00 Â· Bu Dewi
+                  10:00 – 12:00 · Bu Dewi
                 </div>
               </div>
             </div>
@@ -846,14 +846,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Step 2 Â· Tipe &amp; Alasan
-        <small>Selected session card Â· type tile Â· alasan dengan counter</small>
+        Step 2 · Tipe &amp; Alasan
+        <small>Selected session card · type tile · alasan dengan counter</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        2 tipe izin sesuai enum DB: <strong>Sakit</strong> dan <strong>Izin</strong>. Sesi yang dipilih di Step 1 ditampilkan sebagai read-only card di atas â€” tidak ada date picker manual, tanggal otomatis dari sesi. Counter karakter live: hijau saat &ge; 10, merah saat kurang. Backend validasi <code>reason.min(10).max(500)</code>.
       </div>
-    </div>
 
     <!-- ========== STEP 3: LAMPIRAN ========== -->
     <div class="mockup-item">
@@ -905,7 +901,7 @@
             <div class="upload-zone">
               <iconify-icon icon="solar:cloud-upload-bold-duotone"></iconify-icon>
               <h4 class="upload-zone-title">Tap untuk pilih file</h4>
-              <p class="upload-zone-sub">JPG, PNG, atau WebP Â· Max 5 MB</p>
+              <p class="upload-zone-sub">JPG, PNG, atau WebP · Max 5 MB</p>
             </div>
 
             <!-- Uploaded file (1 file saja sesuai backend) -->
@@ -921,7 +917,7 @@
                 <h4 class="file-preview-name">surat-dokter-klinik-politani.jpg</h4>
                 <div class="file-preview-meta">
                   <iconify-icon icon="solar:check-read-bold-duotone" style="color: var(--color-success); font-size: 11px; vertical-align: -1px;"></iconify-icon>
-                  Berhasil diunggah Â· 1.2 MB
+                  Berhasil diunggah · 1.2 MB
                 </div>
               </div>
               <button class="file-preview-action">
@@ -947,14 +943,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Step 3 Â· Lampiran
-        <small>Upload zone Â· 1 file (sesuai backend) Â· privacy note</small>
+        Step 3 · Lampiran
+        <small>Upload zone · 1 file (sesuai backend) · privacy note</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Pakai <code>image_picker</code> Flutter (sudah ada di stack mobile). Single file saja sesuai schema backend (<code>evidence_path</code> single string). Validasi client: extension whitelist (jpg/jpeg/png/webp) + size &le; 5 MB. Upload via endpoint terpisah <code>POST /upload-evidence</code> yang return <code>path</code> â€” path dikirim saat submit final di Step 4. Privacy note explicit karena ini bisa berupa data medis sensitif.
       </div>
-    </div>
 
     <!-- ========== STEP 4: SUBMITTED + TIMELINE ========== -->
     <div class="mockup-item">
@@ -985,7 +977,7 @@
               </div>
               <div>
                 <h4 class="tl-banner-title">Pengajuan terkirim</h4>
-                <p class="tl-banner-sub">14:32 WIB Â· 14 Mei 2026</p>
+                <p class="tl-banner-sub">14:32 WIB · 14 Mei 2026</p>
               </div>
             </div>
 
@@ -995,7 +987,7 @@
                 <span class="review-row-label">SESI</span>
                 <div>
                   <div class="review-row-value">Pemrograman Web Lanjut</div>
-                  <div class="review-row-sub">Selasa, 14 Mei Â· 10:00â€“12:00 Â· Bu Dewi</div>
+                  <div class="review-row-sub">Selasa, 14 Mei · 10:00–12:00 · Bu Dewi</div>
                 </div>
               </div>
               <div class="review-card-row">
@@ -1029,7 +1021,7 @@
                 <div class="tl-step-info">
                   <h4 class="tl-step-title">Diajukan</h4>
                   <p class="tl-step-desc">Pengajuanmu sudah masuk ke Bu Dewi.</p>
-                  <div class="tl-step-time">14 Mei Â· 14:32</div>
+                  <div class="tl-step-time">14 Mei · 14:32</div>
                 </div>
               </div>
 
@@ -1039,7 +1031,7 @@
                 </div>
                 <div class="tl-step-info">
                   <h4 class="tl-step-title">Menunggu review</h4>
-                  <p class="tl-step-desc">Bu Dewi belum membuka pengajuanmu. Sabar ya, biasanya 1Ã—24 jam.</p>
+                  <p class="tl-step-desc">Bu Dewi belum membuka pengajuanmu. Sabar ya, biasanya 1×24 jam.</p>
                   <div class="tl-step-time">Kami akan kirim notif kalau sudah ada hasil</div>
                 </div>
               </div>
@@ -1066,14 +1058,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Step 4 Â· Submitted Timeline
-        <small>Success banner Â· review summary Â· 3-step status timeline</small>
+        Step 4 · Submitted Timeline
+        <small>Success banner · review summary · 3-step status timeline</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Setelah submit, tampilkan <strong>tracking timeline</strong> langsung di tempat â€” bukan modal "Berhasil!" yang hilang setelah tap. Tombol "Selesai" â†’ kembali ke screen <strong>Riwayat Izin</strong> (lihat <code>mobile-my-leave-requests.html</code>) sehingga user bisa pantau status tanpa kehilangan konteks. Mapping status DB: <strong>Diajukan</strong> = auto-done saat <code>created_at</code> ada Â· <strong>Menunggu review</strong> = active (status=<code>pending</code>) dengan pulse animation Â· <strong>Hasil keputusan</strong> = pending placeholder, jadi green saat <code>status=approved</code> atau red saat <code>rejected</code>. User juga dapat notif push saat status berubah.
       </div>
-    </div>
 
   </div>
 

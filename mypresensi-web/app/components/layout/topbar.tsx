@@ -6,7 +6,7 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu } from 'lucide-react'
+import { Menu, ChevronRight } from 'lucide-react'
 import NotificationDropdown from './notification-dropdown'
 import { useSidebar } from './sidebar-provider'
 
@@ -29,25 +29,42 @@ const pageTitles: Record<string, string> = {
   '/sesi': 'Sesi Absensi',
   '/rekap': 'Rekap Absensi',
   '/izin': 'Izin / Sakit',
+  '/at-risk': 'Mahasiswa Berisiko',
   '/export': 'Export Data',
   '/audit': 'Audit Log',
   '/settings': 'Pengaturan Sistem',
   '/profil': 'Profil Saya',
 }
 
+// Sub-route segments → label untuk breadcrumb (mis. /sesi/abc/live → "Live Monitor")
+const subRouteTitles: Record<string, string> = {
+  live: 'Live Monitor',
+  qr: 'Tampilan QR',
+}
+
 export default function TopBar({ profile }: TopBarProps) {
   const pathname = usePathname()
   const { toggle } = useSidebar()
 
-  // Cari judul yang cocok (termasuk sub-route)
-  const title =
-    Object.entries(pageTitles).find(([key]) =>
-      pathname === key || pathname.startsWith(key + '/')
-    )?.[1] ?? 'Dashboard'
+  // Cari parent yang cocok (judul utama) — termasuk sub-route
+  const parentEntry = Object.entries(pageTitles).find(([key]) =>
+    pathname === key || pathname.startsWith(key + '/')
+  )
+  const parentTitle = parentEntry?.[1] ?? 'Dashboard'
+  const parentHref = parentEntry?.[0]
+
+  // Deteksi apakah sedang di sub-route (detail page) — segmen terakhir
+  // yang dikenal di subRouteTitles.
+  const lastSegment = pathname.split('/').filter(Boolean).pop() ?? ''
+  const isSubRoute =
+    parentHref !== undefined &&
+    pathname !== parentHref &&
+    subRouteTitles[lastSegment] !== undefined
+  const subTitle = isSubRoute ? subRouteTitles[lastSegment] : null
 
   return (
     <header className="h-16 bg-white border-b border-border flex items-center justify-between px-4 md:px-6 flex-shrink-0 gap-3">
-      {/* Hamburger + Judul halaman */}
+      {/* Hamburger + Judul halaman / breadcrumb */}
       <div className="flex items-center gap-3 min-w-0">
         <button
           type="button"
@@ -57,9 +74,25 @@ export default function TopBar({ profile }: TopBarProps) {
         >
           <Menu size={20} className="text-text-primary" />
         </button>
-        <h1 className="text-base md:text-lg font-bold font-heading text-text-primary truncate">
-          {title}
-        </h1>
+        {subTitle && parentHref ? (
+          // Breadcrumb untuk detail page — parent (link) › current
+          <nav className="flex items-center gap-1.5 min-w-0" aria-label="Breadcrumb">
+            <Link
+              href={parentHref}
+              className="text-sm font-medium text-text-secondary hover:text-primary transition-colors truncate"
+            >
+              {parentTitle}
+            </Link>
+            <ChevronRight size={15} className="text-text-tertiary flex-shrink-0" />
+            <span className="text-base md:text-lg font-bold font-heading text-text-primary truncate">
+              {subTitle}
+            </span>
+          </nav>
+        ) : (
+          <h1 className="text-base md:text-lg font-bold font-heading text-text-primary truncate">
+            {parentTitle}
+          </h1>
+        )}
       </div>
 
       {/* Kanan: Notifikasi + User info */}

@@ -19,6 +19,7 @@ import '../data/face_config_models.dart';
 import '../data/face_repository.dart';
 import '../services/face_detection_service.dart';
 import '../services/face_embedding_service.dart';
+import '../services/liveness_hold_tracker.dart';
 import '../../../shared/utils/error_mapper.dart';
 
 // ============================================================
@@ -131,9 +132,9 @@ class FaceRegistrationState {
         case LivenessStep.blinkEyes:
           return 'Kedipkan kedua mata';
         case LivenessStep.turnLeft:
-          return 'Tolehkan kepala ke kiri';
+          return 'Miringkan sedikit kepala ke kiri';
         case LivenessStep.turnRight:
-          return 'Tolehkan kepala ke kanan';
+          return 'Miringkan sedikit kepala ke kanan';
         default:
           break;
       }
@@ -149,9 +150,9 @@ class FaceRegistrationState {
           case LivenessStep.blinkEyes:
             return 'Kedipkan kedua mata';
           case LivenessStep.turnLeft:
-            return 'Tolehkan kepala ke kiri';
+            return 'Miringkan sedikit kepala ke kiri';
           case LivenessStep.turnRight:
-            return 'Tolehkan kepala ke kanan';
+            return 'Miringkan sedikit kepala ke kanan';
           default:
             return 'Verifikasi keaslian wajah...';
         }
@@ -198,43 +199,17 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
   // === Internal state (tidak di-expose ke UI) ===
   final List<List<double>> _capturedEmbeddings = [];
   int _noFaceFrameCount = 0;
-  // Time-based liveness confirmation (replaces frame counter):
-  // - _passedSinceMs: timestamp saat user MULAI hold pose valid (null = idle)
-  // - _lastPassedAtMs: timestamp frame `passed=true` terakhir
-  // Step lolos kalau `_lastPassedAtMs - _passedSinceMs >= holdDurationMs`.
-  // Window di-reset kalau gap antara frame passed > _passedGapResetMs (user
-  // balik pose awal, bukan tahan).
-  int? _passedSinceMs;
-  int? _lastPassedAtMs;
+  // Akumulasi bukti hold pose liveness di-delegate ke `LivenessHoldTracker`
+  // (pure, testable). Caller tanggung-jawab panggil `_holdTracker.reset()`
+  // saat memulai step baru, kehilangan wajah, multiple faces, wajah terlalu
+  // kecil, atau saat advance ke step berikutnya.
+  final LivenessHoldTracker _holdTracker = LivenessHoldTracker();
   bool _isInCooldown = false;
   bool _isExtractingEmbedding = false; // Hindari overlap inference
   int _debugFrameCounter = 0;
 
   static const _noFaceThreshold = 5;
   static const _cooldownDuration = Duration(milliseconds: 500);
-
-  /// Threshold confirm per-step (TIME-BASED, ms):
-  /// - Blink = 0 ms (event transien — kedipan natural ~100-200ms = 1 frame
-  ///   ML Kit di Realme RMX5000 yang frame interval 200-350ms karena GC pause.
-  ///   Threshold > 0 mustahil terpenuhi karena user buka mata lagi sebelum
-  ///   frame ML Kit berikut datang. Treat blink sebagai EVENT detection,
-  ///   bukan hold duration.)
-  /// - Pose = 400 ms (user "hold" pose noleh setengah detik — multi-frame).
-  ///
-  /// Pendekatan ini sesuai realita ML Kit di MediaTek + ColorOS:
-  /// - Blink alami: 100-200ms transient → cocok dengan event detection
-  /// - Pose: bisa di-tahan user → cocok dengan time-based hold
-  ///
-  /// Logcat user (2026-05-19): blink 5+ kali, holdMs cuma sekali sempat 179ms
-  /// (kebetulan ada 2 frame passed=true berturut-turut), sisanya semua 0.
-  /// Threshold 80ms gagal karena rata-rata frame interval > durasi blink.
-  int _getHoldDurationMs(LivenessStep step) {
-    return step == LivenessStep.blinkEyes ? 0 : 400;
-  }
-
-  /// Gap maksimal (ms) antar frame `passed=true` sebelum window reset.
-  /// Kalau user balik ke posisi awal (gap > ini), window dimulai dari awal lagi.
-  static const _passedGapResetMs = 500;
 
   /// Mulai proses registrasi.
   /// Caller harus pastikan kamera sudah ready & embedding service sudah init.
@@ -244,8 +219,7 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
 
     _capturedEmbeddings.clear();
     _noFaceFrameCount = 0;
-    _passedSinceMs = null;
-    _lastPassedAtMs = null;
+    _holdTracker.reset();
     _isInCooldown = false;
     _isExtractingEmbedding = false;
     _debugFrameCounter = 0;
@@ -280,10 +254,17 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
     // === Kasus 1: Wajah hilang ===
     if (!result.faceDetected) {
       _noFaceFrameCount++;
-      // Reset hold window — wajah hilang = pose break.
-      _passedSinceMs = null;
-      _lastPassedAtMs = null;
       if (_noFaceFrameCount >= _noFaceThreshold) {
+        // BUG-013 Iterasi 3 (RMX5000): reset hold window dipindah KE DALAM
+        // guard threshold ini supaya tracker hanya di-reset kalau wajah
+        // benar-benar hilang persistent (>=5 frame consecutive). Sebelumnya
+        // reset terjadi di SETIAP frame transien, override toleransi internal
+        // tracker (`_maxFailStreakAllowed=5`) dan menyebabkan `passedCount`
+        // oscillate (1→3→2→1→7) di logcat user saat noleh ~40-45° (samping
+        // wajah bikin ML Kit miss-detect 1-2 frame). Dengan guard ini, jitter
+        // transien biarkan tracker pakai toleransi internalnya; baru kalau
+        // wajah persistent hilang, reset eksternal eksekusi.
+        _holdTracker.reset();
         // PENTING: kalau sudah di fase liveness (blink/turnLeft/turnRight),
         // JANGAN regress status ke detecting — itu bikin UI menampilkan
         // "Posisikan wajah, hadap lurus" padahal user diminta noleh.
@@ -316,8 +297,7 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
     // === Kasus 2: Multiple faces ===
     if (result.multipleFaces) {
       // Reset hold window.
-      _passedSinceMs = null;
-      _lastPassedAtMs = null;
+      _holdTracker.reset();
       final inLivenessPhase =
           state.livenessStep != LivenessStep.lookStraight &&
           state.livenessStep != LivenessStep.completed;
@@ -341,14 +321,21 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
     final faceRatio = result.faceWidthRatio ?? 0;
     if (faceRatio < 0.25) {
       // CATATAN: untuk turnLeft/turnRight, samping wajah memang membuat ratio
-      // turun. Tapi 0.25 itu sangat kecil — wajah seharusnya tetap > 0.30
-      // bahkan saat noleh. Jadi kalau hit case ini, memang wajah benar-benar
-      // jauh dari oval, bukan glitch noleh. Reset hold window.
-      _passedSinceMs = null;
-      _lastPassedAtMs = null;
+      // turun. Threshold 0.25 sangat kecil, tapi pose samping ekstrem (yaw
+      // 36-45°) di Realme RMX5000 kadang trigger transien karena perspektif
+      // wajah dari samping. BUG-013 Iterasi 3: di fase liveness, JANGAN reset
+      // tracker — toleransi internal tracker (`_maxFailStreakAllowed=5`)
+      // sudah handle jitter transien per-frame. Reset eksternal di sini
+      // override toleransi itu dan bikin `passedCount` oscillate aneh saat
+      // user sudah stabil noleh. Reset hanya di fase capture lookStraight
+      // (di mana user diminta hadap lurus, jadi ratio<0.25 berarti memang
+      // jauh dari oval, bukan glitch noleh).
       final inLivenessPhase =
           state.livenessStep != LivenessStep.lookStraight &&
           state.livenessStep != LivenessStep.completed;
+      if (!inLivenessPhase) {
+        _holdTracker.reset();
+      }
       if (inLivenessPhase) {
         if (state.errorMessage != 'Dekatkan wajah ke dalam oval') {
           state = state.copyWith(
@@ -452,29 +439,20 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
   /// Handle frame saat liveness check (blink/turnLeft/turnRight).
   /// HANYA validasi gerakan — TIDAK extract embedding (sudah selesai di fase 1).
   ///
-  /// TIME-BASED CONFIRMATION (refactor dari counter-based):
-  /// - User dianggap lolos kalau **tahan pose minimal `holdDurationMs`**.
-  /// - ML Kit miss frame di tengah window TIDAK reset progress, asalkan ada
-  ///   minimal 1 `passed=true` setiap window `_passedGapResetMs`.
-  /// - Kalau gap antar `passed=true` > `_passedGapResetMs`, anggap user balik
-  ///   ke pose awal — reset window dan mulai hitung lagi.
+  /// Akumulasi bukti hold di-delegate ke `LivenessHoldTracker` (pure, testable).
+  /// Behavior runtime di Task 1 identik dengan logic LAMA continuity wall-clock
+  /// (lihat catatan di `liveness_hold_tracker.dart`). Fix algoritma hybrid baru
+  /// dilakukan di Task 3.
   Future<void> _handleLivenessFrame(FaceDetectionResult result) async {
     final detector = ref.read(faceDetectionServiceProvider);
     final passed = detector.checkLivenessStep(state.livenessStep, result);
     final now = DateTime.now().millisecondsSinceEpoch;
 
-    if (passed) {
-      // Cek apakah window expired (gap terlalu lama dari frame passed terakhir).
-      if (_lastPassedAtMs != null &&
-          now - _lastPassedAtMs! > _passedGapResetMs) {
-        // Gap terlalu lama → restart window.
-        _passedSinceMs = now;
-      }
-      _passedSinceMs ??= now;
-      _lastPassedAtMs = now;
-    }
-
-    final holdMs = _passedSinceMs == null ? 0 : now - _passedSinceMs!;
+    final tick = _holdTracker.tick(
+      passed: passed,
+      step: state.livenessStep,
+      nowMs: now,
+    );
 
     _debugFrameCounter++;
     if (_debugFrameCounter % 5 == 0) {
@@ -483,15 +461,15 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
         'yaw=${result.headAngleY?.toStringAsFixed(1)} '
         'leftEye=${result.leftEyeOpenProb?.toStringAsFixed(2)} '
         'rightEye=${result.rightEyeOpenProb?.toStringAsFixed(2)} '
-        'passed=$passed holdMs=$holdMs',
+        'passed=$passed holdMs=${tick.holdMs} '
+        'passedCount=${tick.passedFrameCount} failStreak=${tick.failStreak}',
       );
     }
 
-    if (passed && holdMs >= _getHoldDurationMs(state.livenessStep)) {
+    if (tick.stepCompleted) {
       debugPrint('[FACE LIVE] ✅ Step ${state.livenessStep.name} PASSED '
-          '(held ${holdMs}ms)');
-      _passedSinceMs = null;
-      _lastPassedAtMs = null;
+          '(passedCount=${tick.passedFrameCount} held ${tick.holdMs}ms)');
+      _holdTracker.reset();
       _advanceLivenessStep();
     }
   }
@@ -575,8 +553,7 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
   void reset() {
     _capturedEmbeddings.clear();
     _noFaceFrameCount = 0;
-    _passedSinceMs = null;
-    _lastPassedAtMs = null;
+    _holdTracker.reset();
     _isInCooldown = false;
     _isExtractingEmbedding = false;
     _debugFrameCounter = 0;
@@ -709,6 +686,14 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
 
   bool _isExtracting = false;
 
+  /// Throttle POST verify ke server. Frame rate kamera 5-7 fps di RMX5000
+  /// = 5-7 POST/s tanpa throttle, langsung kena rate limit server (429).
+  /// 1500ms cooldown = ≤1 POST/1.5s = ~40 POST/menit, di bawah default
+  /// rate limit server. Cukup untuk dapat 5-10 sample konsisten dalam
+  /// 15 detik timeout window untuk decide match.
+  static const _verifyThrottleMs = 1500;
+  int? _lastVerifyAtMs;
+
   /// Process frame saat verify.
   /// Live embedding di-extract di mobile (TFLite), kirim ke server,
   /// server compare dengan stored embedding milik user.
@@ -748,6 +733,17 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
 
     // Hindari overlap inference + overlap network call
     if (_isExtracting) return;
+
+    // Throttle POST ke server. Frame rate 5-7 fps di entry-level device
+    // tanpa throttle = 429 rate limit. Skip frame kalau jarak < 1500ms
+    // dari POST terakhir (state tetap jalan di frame berikutnya).
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    if (_lastVerifyAtMs != null &&
+        nowMs - _lastVerifyAtMs! < _verifyThrottleMs) {
+      return;
+    }
+    _lastVerifyAtMs = nowMs;
+
     _isExtracting = true;
 
     try {
@@ -799,5 +795,6 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
 
   void reset() {
     state = const FaceVerificationState();
+    _lastVerifyAtMs = null;
   }
 }

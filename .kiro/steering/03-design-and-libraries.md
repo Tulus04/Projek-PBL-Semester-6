@@ -19,6 +19,74 @@ description: Prinsip desain UI MyPresensi (formal Corporate/SaaS, 3-state wajib,
 - **Nama variabel, function, komentar teknis** → Inggris.
 - Pesan ramah, bukan teknis: `"Sesi berakhir, silakan login ulang"` BUKAN `"401 Unauthorized"`.
 
+### UX Copy Guidelines (Pesan User-Facing)
+
+Pesan validasi & error harus **ringkas dan match dengan UI capability**. Pelajaran dari sesi 2026-05-23 — banyak pesan validasi terlalu verbose dan menyebut konsep teknis yang user tidak kenal.
+
+#### Iron Laws
+
+1. **Ringkas — 2-5 kata** untuk inline error / snackbar. Real apps Indonesia (Tokopedia, GoJek, BCA Mobile) pakai pola ini. JANGAN tulis kalimat panjang dengan "silakan...", "pastikan...", "mohon...".
+
+   ```
+   ❌ 'QR tidak valid. Pastikan Anda memindai QR presensi yang ditampilkan dosen.'
+   ✅ 'QR tidak valid'
+
+   ❌ 'Verifikasi wajah dibatalkan. Coba lagi dengan pencahayaan yang lebih baik.'
+   ✅ 'Wajah tidak terdeteksi'  (atau hapus kalau user yang cancel)
+
+   ❌ 'Kode sesi sudah kedaluwarsa. Minta dosen untuk refresh kode.'
+   ✅ 'QR sudah kedaluwarsa'
+   ```
+
+2. **JANGAN sebut konsep internal** yang user tidak kenal. Mahasiswa MyPresensi cuma tahu **scan QR** + **verify wajah** + **submit presensi** — itu saja yang boleh disebut di pesan UI.
+
+   | JANGAN sebut (internal) | Pakai ini (user-facing) |
+   |-------------------------|------------------------|
+   | "OTP", "kode 6 digit", "kode sesi" | **"QR"** |
+   | "session_id", "session_code", "UUID" | **"QR"** atau **"sesi"** |
+   | "embedding", "cosine similarity", "192-d" | **"wajah"** |
+   | "Bearer token", "JWT", "401 Unauthorized" | **"Sesi login berakhir"** |
+   | "RLS", "mock GPS detected", "is_mock_location" | **"Lokasi tidak valid"** |
+   | "format embedding tidak valid" | **"Wajah tidak terdeteksi"** |
+
+   Alasan: di MyPresensi mobile, user **TIDAK PERNAH** input kode 6 digit secara manual (tidak ada UI input). Mereka hanya scan QR. Maka pesan tidak boleh sebut "kode" — itu menyesatkan dan bikin bingung.
+
+3. **Pesan harus match dengan recovery action yang TERSEDIA di UI**. Jangan sarankan user lakukan sesuatu yang UI tidak support.
+
+   ```
+   ❌ 'Kode tidak valid, silakan minta kode baru ke dosen'
+      → User tidak bisa "memasukkan kode" karena tidak ada input field
+   ✅ 'QR tidak valid'  (user tinggal scan ulang)
+   ```
+
+4. **Cancel ≠ Error**. Kalau user yang cancel/batal sendiri (mis. tap "Tutup" di face-verify), JANGAN tampilkan snackbar merah — itu bikin user merasa "salah" padahal niat mereka memang cancel. Silent recovery saja.
+
+5. **Pattern Subject + State** untuk validation field:
+   - `'Email salah'` ✅
+   - `'Password tidak cocok'` ✅
+   - `'NIM minimal 5 karakter'` ✅
+   - `'QR tidak valid'` ✅
+
+6. **Kalau perlu CTA**, taruh di **tombol terpisah**, bukan dalam pesan teks.
+   ```
+   ❌ Snackbar: 'Sesi habis, silakan login ulang dengan menekan tombol di bawah'
+   ✅ Snackbar: 'Sesi berakhir' + tombol "Login Ulang" terpisah
+   ```
+
+#### Sources of Truth — Konsep User-Facing MyPresensi
+
+Saat menulis pesan baru, gunakan kosa kata berikut sebagai **kamus user**. Konsep di luar daftar ini = internal, jangan masuk pesan UI.
+
+| Konsep | Istilah Mobile (mahasiswa) | Istilah Web (admin/dosen) |
+|--------|---------------------------|---------------------------|
+| QR untuk presensi | "QR" | "QR" |
+| Verifikasi wajah | "wajah", "verifikasi wajah" | "verifikasi wajah" |
+| Sesi presensi yang sedang berjalan | "sesi", "kelas" | "sesi" |
+| GPS / lokasi | "lokasi" | "lokasi" |
+| Akun login | "akun" | "akun" |
+| Submit presensi | "presensi" | "presensi" / "absensi" |
+| Permintaan izin/sakit | "izin", "sakit" | "izin", "sakit" |
+
 ### Warna — Pakai Design Token
 Pakai variabel CSS dari `app/globals.css`. JANGAN warna hardcode acak.
 

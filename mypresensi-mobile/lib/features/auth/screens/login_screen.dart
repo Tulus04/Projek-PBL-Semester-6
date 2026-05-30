@@ -3,6 +3,7 @@
 // Terintegrasi dengan API /api/mobile/auth/login via Riverpod.
 // Handle: loading, error, force change password.
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/storage/secure_storage.dart';
@@ -102,6 +103,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     await Future.delayed(const Duration(milliseconds: 100));
     if (!mounted) return;
     ref.read(authProvider.notifier).clearError();
+  }
+
+  /// DEV ONLY — auto-fill kredensial test + langsung submit.
+  /// HANYA aktif saat `kDebugMode == true`. Di release build, panel quick login
+  /// di-strip dari widget tree → method ini tidak pernah dipanggil.
+  /// Tujuan: hilangkan friction "ketik email + password" saat dev/testing.
+  Future<void> _quickLogin(String email, String password) async {
+    _emailController.text = email;
+    _passwordController.text = password;
+    await _handleLogin();
   }
 
   void _showErrorSnackbar(String message) {
@@ -286,6 +297,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     : const Text('Masuk'),
                               ),
                             ),
+
+                            // DEV ONLY — Quick login panel (auto-strip di release build).
+                            if (kDebugMode) ...[
+                              const SizedBox(height: 20),
+                              _DevQuickLoginPanel(
+                                disabled: authState.isLoading,
+                                onPick: _quickLogin,
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -365,6 +385,177 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       style: Theme.of(context).textTheme.labelLarge?.copyWith(
             color: AppColors.textPrimary,
           ),
+    );
+  }
+}
+
+
+// ============================================================================
+// DEV ONLY — Quick Login Panel
+// ============================================================================
+//
+// Panel ini HANYA muncul saat `kDebugMode == true` (debug build).
+// Di release build, Flutter compiler men-strip dead code di balik
+// `if (kDebugMode)` → seluruh widget tree ini hilang dari binary.
+//
+// Tujuan: hilangkan friction "ketik email + password" saat dev/testing.
+// Tap salah satu chip → kredensial auto-fill + langsung submit.
+//
+// Akun yang dipakai = sama dengan `mypresensi-web/.dev-accounts.md`.
+// JANGAN tambah akun di sini yang TIDAK ada di .dev-accounts.md.
+
+class _DevQuickLoginAccount {
+  const _DevQuickLoginAccount({
+    required this.label,
+    required this.subtitle,
+    required this.email,
+    required this.password,
+  });
+
+  final String label;
+  final String subtitle;
+  final String email;
+  final String password;
+}
+
+const _devAccounts = <_DevQuickLoginAccount>[
+  _DevQuickLoginAccount(
+    label: 'Mhs. Ahmad',
+    subtitle: 'NIM H233600430',
+    email: 'ahmad@student.ac.id',
+    password: 'H233600430@politani',
+  ),
+  _DevQuickLoginAccount(
+    label: 'Mhs. Siti',
+    subtitle: 'NIM P2100002',
+    email: 'siti.nurhaliza@student.ac.id',
+    password: 'P2100002@politani',
+  ),
+  _DevQuickLoginAccount(
+    label: 'Mhs. Budi',
+    subtitle: 'NIM P2100003',
+    email: 'budi.santoso@student.ac.id',
+    password: 'P2100003@politani',
+  ),
+];
+
+class _DevQuickLoginPanel extends StatelessWidget {
+  const _DevQuickLoginPanel({
+    required this.disabled,
+    required this.onPick,
+  });
+
+  final bool disabled;
+  final Future<void> Function(String email, String password) onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.warning.withValues(alpha: 0.20),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.bug_report_outlined,
+                  size: 16, color: AppColors.warning),
+              const SizedBox(width: 6),
+              Text(
+                'DEV ONLY · QUICK LOGIN',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.warning,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.6,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Hilang otomatis di release build.',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: AppColors.textTertiary,
+                ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _devAccounts.map((acc) {
+              return _DevAccountChip(
+                account: acc,
+                disabled: disabled,
+                onTap: () => onPick(acc.email, acc.password),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DevAccountChip extends StatelessWidget {
+  const _DevAccountChip({
+    required this.account,
+    required this.disabled,
+    required this.onTap,
+  });
+
+  final _DevQuickLoginAccount account;
+  final bool disabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: disabled ? null : onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: AppColors.border,
+              width: 1,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                account.label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: disabled
+                          ? AppColors.textTertiary
+                          : AppColors.textPrimary,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                account.subtitle,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.textTertiary,
+                      fontFamily: 'JetBrains Mono',
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

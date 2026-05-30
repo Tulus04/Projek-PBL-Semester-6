@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     .eq('is_active', true)
 
   if (error) {
-    return errorResponse('Gagal mengambil data sesi.', 500)
+    return errorResponse('Gagal mengambil data sesi', 500)
   }
 
   // 3. Cek mana yang sudah di-submit

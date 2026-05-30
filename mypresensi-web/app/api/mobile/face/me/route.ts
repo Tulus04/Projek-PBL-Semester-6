@@ -60,7 +60,7 @@ export async function DELETE(req: NextRequest) {
       .maybeSingle()
 
     if (!existing) {
-      return errorResponse('Tidak ada data wajah terdaftar untuk dihapus.', 404)
+      return errorResponse('Wajah belum didaftarkan', 404)
     }
 
     // 4. Hapus row di face_embeddings (HARD DELETE — UU PDP hak hapus)
@@ -71,7 +71,7 @@ export async function DELETE(req: NextRequest) {
 
     if (deleteError) {
       console.error('[FACE DELETE] Delete error:', deleteError)
-      return errorResponse('Gagal menghapus data wajah. Coba lagi.', 500)
+      return errorResponse('Gagal menghapus data wajah', 500)
     }
 
     // 5. Update flag profiles.is_face_registered = false
@@ -105,10 +105,10 @@ export async function DELETE(req: NextRequest) {
     // 7. Response
     return successResponse({
       success: true,
-      message: 'Data wajah Anda telah dihapus.',
+      message: 'Data wajah berhasil dihapus',
     }, 200)
   } catch (err) {
     console.error('[FACE DELETE] Unexpected error:', err)
-    return errorResponse('Terjadi kesalahan server.', 500)
+    return errorResponse('Terjadi kesalahan server', 500)
   }
 }

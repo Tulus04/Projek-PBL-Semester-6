@@ -11,6 +11,7 @@ export interface AuthenticatedUser {
   id: string
   full_name: string
   nim_nip: string
+  email: string | null
   role: string
   semester: number | null
   kelas: string | null
@@ -73,8 +74,9 @@ export async function authenticateRequest(req: NextRequest): Promise<AuthResult>
     return { user: null, error: 'Akun Anda dinonaktifkan. Hubungi admin.', status: 403 }
   }
 
+  // 6. Attach email dari Supabase Auth (tidak disimpan di profiles, source of truth = auth.users)
   return {
-    user: profile as AuthenticatedUser,
+    user: { ...profile, email: authUser.email ?? null } as AuthenticatedUser,
     error: null,
     status: 200,
   }

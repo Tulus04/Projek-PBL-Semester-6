@@ -1,14 +1,28 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mobile Profile â€” MyPresensi Mockup</title>
+  <title>Mobile Profile — MyPresensi Mockup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="_tokens.css" />
   <link rel="stylesheet" href="_mobile.css" />
+  <script>
+    // Embed-mode: pas iframe load, hanya tampilkan phone-frame pertama, center vertikal+horizontal.
+    // Konten dokumentasi (showcase-header, annotation, mockup-label) sudah di-strip permanen dari HTML source.
+    if (window.top !== window.self) {
+      document.write('<style>' +
+        'html,body{margin:0;padding:0;background:#0a0e1a;height:100vh;overflow:hidden}' +
+        'body{display:flex;align-items:center;justify-content:center}' +
+        '.mockup-grid,main.mockup-grid{display:block;padding:0;margin:0;max-width:none;gap:0}' +
+        '.mockup-item{margin:0;padding:0;gap:0}' +
+        '.mockup-item:not(:first-of-type),.mockup-label{display:none!important}' +
+        '.phone-frame{transform:scale(0.86);transform-origin:center center}' +
+      '</style>');
+    }
+  </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     .profile-hero { padding: 20px 20px 24px; text-align: center; }
@@ -86,12 +100,7 @@
   </style>
 </head>
 <body>
-  <div class="showcase-header">
-    <a href="index.html" class="nav-back"><iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon> Kembali ke Katalog</a>
-    <h1>Mobile Â· Profil &amp; Privasi</h1>
-    <p>2 frame: Hero kehadiran + settings list Â· Privacy detail + hapus data biometrik (UU PDP)</p>
-    <div class="legend"><strong>Reference:</strong> iOS Settings Â· Stripe dashboard profile Â· Material You account</div>
-  </div>
+  
 
   <div class="mockup-grid">
     <!-- FRAME 1: PROFILE HERO -->
@@ -115,7 +124,7 @@
               </div>
               <h2 class="profile-name">Riki Setiawan</h2>
               <p class="profile-nim">2110078</p>
-              <p class="profile-prodi">TRPL Â· Semester 6 Â· Angkatan 2021</p>
+              <p class="profile-prodi">TRPL · Semester 6 · Angkatan 2021</p>
             </div>
             <div class="settings-group">
               <div class="settings-group-label">Akun</div>
@@ -169,7 +178,7 @@
                 <div class="settings-icon info"><iconify-icon icon="solar:info-circle-bold-duotone"></iconify-icon></div>
                 <div class="settings-content">
                   <h4 class="settings-title">Tentang</h4>
-                  <p class="settings-sub">MyPresensi v1.0.0 Â· Build 42</p>
+                  <p class="settings-sub">MyPresensi v1.0.0 · Build 42</p>
                 </div>
                 <div class="settings-trail"><iconify-icon icon="solar:alt-arrow-right-bold-duotone"></iconify-icon></div>
               </div>
@@ -193,9 +202,8 @@
           </div>
         </div>
       </div>
-      <div class="mockup-label">Frame 1 Â· Profile Hero<small>Avatar tap-able + camera badge Â· 3 group settings Â· logout</small></div>
-      <div class="annotation"><span class="anno-label">Detail UX</span>Avatar dengan gold glow + <strong>camera badge</strong> di pojok bawah-kanan untuk ganti foto profil (P3-#3 sudah impl via <code>image_picker</code>). Settings grouped: <strong>Akun</strong> (Email + Password) Â· <strong>Keamanan &amp; Privasi</strong> (Wajah Terdaftar / Izin Lokasi / Kelola Data) Â· <strong>Aplikasi</strong> (Tentang + Logout). Tap Email Kampus â†’ modal info "Untuk ubah email, hubungi BAAK". Toggle Izin Lokasi dengan caution gold supaya user aware data sensitif. Logout pakai row danger â€” klik trigger SweetAlert2 konfirmasi.</div>
-    </div>
+      <div class="mockup-label">Frame 1 · Profile Hero<small>Avatar tap-able + camera badge · 3 group settings · logout</small></div>
+      </div>
 
     <!-- FRAME 2: PRIVACY DETAIL -->
     <div class="mockup-item">
@@ -219,9 +227,9 @@
               <div class="privacy-data-row"><span class="privacy-data-label">Nama &amp; NIM</span><span class="privacy-data-value success"><iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon> Aktif</span></div>
               <div class="privacy-data-row"><span class="privacy-data-label">Email Kampus</span><span class="privacy-data-value">riki@politanisamarinda.ac.id</span></div>
               <div class="privacy-data-row"><span class="privacy-data-label">Wajah (Biometrik)</span><span class="privacy-data-value success"><iconify-icon icon="solar:check-circle-bold-duotone"></iconify-icon> Tersimpan aman</span></div>
-              <div class="privacy-data-row"><span class="privacy-data-label">Riwayat Presensi</span><span class="privacy-data-value">50 record Â· 2 semester</span></div>
+              <div class="privacy-data-row"><span class="privacy-data-label">Riwayat Presensi</span><span class="privacy-data-value">50 record · 2 semester</span></div>
               <div class="privacy-data-row"><span class="privacy-data-label">Riwayat Izin</span><span class="privacy-data-value">3 pengajuan</span></div>
-              <div class="privacy-data-row"><span class="privacy-data-label">Lampiran Surat Dokter</span><span class="privacy-data-value">1 file Â· 1.2 MB</span></div>
+              <div class="privacy-data-row"><span class="privacy-data-label">Lampiran Surat Dokter</span><span class="privacy-data-value">1 file · 1.2 MB</span></div>
             </div>
             <div style="padding:0 16px;">
               <button class="privacy-action-btn"><iconify-icon icon="solar:trash-bin-trash-bold-duotone"></iconify-icon> Hapus Data Wajah Saya</button>
@@ -234,9 +242,8 @@
           </div>
         </div>
       </div>
-      <div class="mockup-label">Frame 2 Â· Privacy Detail<small>Data inventory Â· hapus biometrik Â· UU PDP notice</small></div>
-      <div class="annotation"><span class="anno-label">Detail UX</span>Halaman ini implementasi <strong>hak subjek data</strong> UU PDP: akses (data inventory) dan hapus (data wajah). Tombol "Hapus Data Wajah" pakai 2-step confirm: penjelasan konsekuensi â†’ konfirmasi final dengan tombol destruktif (sudah impl di <code>profile_screen.dart</code>). Setelah hapus: <code>DELETE /api/mobile/face/me</code> â†’ cascade DELETE row di <code>face_embeddings</code> + audit log. Warning kuning jelaskan konsekuensi (tetap bisa presensi tanpa face).</div>
-    </div>
+      <div class="mockup-label">Frame 2 · Privacy Detail<small>Data inventory · hapus biometrik · UU PDP notice</small></div>
+      </div>
 
   </div>
 </body>

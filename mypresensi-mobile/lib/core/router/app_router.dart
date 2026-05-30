@@ -154,9 +154,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         return isOnChangePassword ? null : '/change-password';
       }
 
-      // 4. Authenticated → arahkan ke home jika masih di splash/login
+      // 4. Authenticated → arahkan ke home jika masih di splash/login.
+      //    CATATAN: /change-password TIDAK lagi di-redirect ke '/' karena user
+      //    boleh push voluntarily dari menu Profile (BUG fix 22 Mei 2026).
+      //    Kalau user perlu force-change, kondisi di line 153 yang handle.
       if (authState.isAuthenticated) {
-        if (isOnSplash || isOnLogin || isOnChangePassword) {
+        if (isOnSplash || isOnLogin) {
           return '/';
         }
         return null;

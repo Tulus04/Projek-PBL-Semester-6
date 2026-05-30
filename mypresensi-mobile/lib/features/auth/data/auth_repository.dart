@@ -165,31 +165,31 @@ class AuthRepository {
       // Fallback berdasarkan HTTP status code
       switch (e.response?.statusCode) {
         case 400:
-          return 'Data yang dikirim tidak valid.';
+          return 'Data tidak valid';
         case 401:
-          return 'Email atau password salah.';
+          return 'Email atau password salah';
         case 403:
-          return 'Akses ditolak.';
+          return 'Akses ditolak';
         case 404:
-          return 'Profil tidak ditemukan.';
+          return 'Profil tidak ditemukan';
         case 429:
-          return 'Terlalu banyak percobaan. Tunggu beberapa saat.';
+          return 'Terlalu banyak percobaan';
         case 500:
-          return 'Server sedang bermasalah. Coba lagi nanti.';
+          return 'Server bermasalah';
         default:
-          return 'Terjadi kesalahan. (${e.response?.statusCode})';
+          return 'Gagal masuk';
       }
     }
 
     // Network error
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return 'Koneksi timeout. Periksa jaringan Anda.';
+      return 'Koneksi timeout';
     }
     if (e.type == DioExceptionType.connectionError) {
-      return 'Tidak dapat terhubung ke server. Pastikan server web sudah berjalan dan Anda terhubung ke jaringan yang sama.';
+      return 'Tidak ada koneksi internet';
     }
 
-    return 'Terjadi kesalahan yang tidak diketahui.';
+    return 'Terjadi kesalahan';
   }
 }

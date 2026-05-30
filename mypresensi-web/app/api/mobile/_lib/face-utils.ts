@@ -6,15 +6,30 @@
 // Tidak boleh log embedding mentah ke console / audit_logs (Tier 1 sensitive).
 
 /**
- * Decode stored embedding dari format base64 (BYTEA di Postgres) ke number[].
+ * Decode stored embedding dari format Postgres BYTEA ke number[].
  *
- * Format penyimpanan: Float64Array → Buffer → base64 string.
- * Reverse: base64 → Buffer → Float64Array → number[].
+ * Format penyimpanan (sejak BUG-014 fix, 2026-05-23): hex literal `\x...`
+ * yang Supabase JS auto-return saat fetch BYTEA. Format lama (base64) ada
+ * di row legacy dari sebelum BUG-014 fix — di-detect via prefix `\x`.
  *
- * Throws jika decode gagal (corrupt data, dipanggil ulang dengan format lama).
+ * Pipeline: hex string `\x4b65...` → strip prefix → Buffer.from(hex, 'hex')
+ *   → 1536 bytes binary → Float64Array → 192 float values → number[].
+ *
+ * Throws jika decode gagal (corrupt data, format tidak dikenal, atau
+ * byte length bukan kelipatan 8).
  */
-export function decodeStoredEmbedding(base64: string): number[] {
-  const buffer = Buffer.from(base64, 'base64')
+export function decodeStoredEmbedding(stored: string): number[] {
+  let buffer: Buffer
+  if (stored.startsWith('\\x')) {
+    // Format Postgres bytea hex literal (default Supabase JS untuk kolom BYTEA).
+    buffer = Buffer.from(stored.slice(2), 'hex')
+  } else {
+    // Format legacy: base64 string (row pre-BUG-014). User akan di-prompt
+    // registrasi ulang via error message di verify endpoint kalau dimensinya
+    // mismatch karena double-encoding lama.
+    buffer = Buffer.from(stored, 'base64')
+  }
+
   // Float64Array butuh ArrayBuffer slice yang aligned ke 8 byte.
   // Buffer.from → Node Buffer; .buffer / .byteOffset / .byteLength tetap valid.
   if (buffer.byteLength % 8 !== 0) {

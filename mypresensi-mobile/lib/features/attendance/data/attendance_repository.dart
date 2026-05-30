@@ -97,7 +97,7 @@ class AttendanceRepository {
         // Server kirim error_code → throw structured exception
         if (errorCode != null && errorCode.isNotEmpty) {
           return AttendanceSubmitException(
-            serverError ?? 'Terjadi kesalahan.',
+            serverError ?? 'Terjadi kesalahan',
             errorCode: errorCode,
             statusCode: statusCode,
           );
@@ -109,32 +109,32 @@ class AttendanceRepository {
       }
       switch (statusCode) {
         case 400:
-          return 'Data tidak valid. Pastikan QR code benar.';
+          return 'QR tidak valid';
         case 401:
-          return 'Sesi login habis. Silakan login ulang.';
+          return 'Sesi berakhir, login ulang';
         case 403:
-          return 'Anda tidak memiliki akses.';
+          return 'Akses ditolak';
         case 404:
-          return 'Sesi tidak ditemukan.';
+          return 'Sesi tidak ditemukan';
         case 409:
-          return 'Anda sudah melakukan presensi untuk sesi ini.';
+          return 'Anda sudah presensi di sesi ini';
         case 429:
-          return 'Terlalu banyak percobaan. Tunggu beberapa saat.';
+          return 'Terlalu banyak percobaan';
         case 500:
-          return 'Server sedang bermasalah. Coba lagi nanti.';
+          return 'Server bermasalah';
         default:
-          return 'Terjadi kesalahan. ($statusCode)';
+          return 'Gagal presensi';
       }
     }
 
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return 'Koneksi timeout. Periksa jaringan Anda.';
+      return 'Koneksi timeout';
     }
     if (e.type == DioExceptionType.connectionError) {
-      return 'Tidak dapat terhubung ke server.';
+      return 'Tidak ada koneksi internet';
     }
 
-    return 'Terjadi kesalahan yang tidak diketahui.';
+    return 'Terjadi kesalahan';
   }
 }

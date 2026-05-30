@@ -56,7 +56,7 @@ const dosenSchema = z.object({
     .string()
     .min(5, 'NIP minimal 5 karakter')
     .max(30, 'NIP maksimal 30 karakter'),
-  email: z.string().email('Format email tidak valid'),
+  email: z.string().email('Email tidak valid'),
   phone: z.string().max(20).optional(),
 })
 

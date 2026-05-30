@@ -1,14 +1,28 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mobile Â· Asisten AI â€” MyPresensi Mockup</title>
+  <title>Mobile · Asisten AI — MyPresensi Mockup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="_tokens.css" />
   <link rel="stylesheet" href="_mobile.css" />
+  <script>
+    // Embed-mode: pas iframe load, hanya tampilkan phone-frame pertama, center vertikal+horizontal.
+    // Konten dokumentasi (showcase-header, annotation, mockup-label) sudah di-strip permanen dari HTML source.
+    if (window.top !== window.self) {
+      document.write('<style>' +
+        'html,body{margin:0;padding:0;background:#0a0e1a;height:100vh;overflow:hidden}' +
+        'body{display:flex;align-items:center;justify-content:center}' +
+        '.mockup-grid,main.mockup-grid{display:block;padding:0;margin:0;max-width:none;gap:0}' +
+        '.mockup-item{margin:0;padding:0;gap:0}' +
+        '.mockup-item:not(:first-of-type),.mockup-label{display:none!important}' +
+        '.phone-frame{transform:scale(0.86);transform-origin:center center}' +
+      '</style>');
+    }
+  </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     /* ============ AI CHAT SCREEN ============ */
@@ -84,7 +98,7 @@
       padding: 16px;
     }
 
-    /* Empty state â€” intro card */
+    /* Empty state — intro card */
     .chat-intro-card {
       background: var(--color-surface);
       border: 1px solid var(--color-border);
@@ -217,7 +231,7 @@
       line-height: 1.45;
     }
     .bubble-ai .bubble-list-items li::before {
-      content: 'â€¢';
+      content: '•';
       margin-right: 8px;
       color: var(--color-text-secondary);
     }
@@ -345,17 +359,7 @@
 </head>
 <body>
 
-  <div class="showcase-header">
-    <a href="index.html" class="nav-back">
-      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
-      Kembali ke Katalog
-    </a>
-    <h1>Mobile Â· Asisten AI</h1>
-    <p>2 state: Empty (intro + suggestion chips) Â· Percakapan aktif (bubbles + typing indicator)</p>
-    <div class="legend">
-      <strong>Reference:</strong> ChatGPT mobile Â· Notion AI Â· WhatsApp chat bubble pattern
-    </div>
-  </div>
+  
 
   <div class="mockup-grid">
 
@@ -385,7 +389,7 @@
               <h3 class="chat-appbar-title">Asisten AI</h3>
               <div class="chat-appbar-status">
                 <span class="online-dot"></span>
-                <span>Online Â· Gemini 2.5 Flash</span>
+                <span>Online · Gemini 2.5 Flash</span>
               </div>
             </div>
           </div>
@@ -458,14 +462,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 1 Â· Empty State
-        <small>Intro card Â· 4 suggestion chip dengan icon kategori</small>
+        Frame 1 · Empty State
+        <small>Intro card · 4 suggestion chip dengan icon kategori</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Empty state menampilkan <strong>intro card</strong> yang menjelaskan kemampuan AI + batasan akses data. 4 <strong>suggestion chip</strong> sebagai shortcut pertanyaan umum â€” tap langsung kirim prompt. Tombol send <strong>disabled</strong> (abu) sampai user ketik teks. Model pakai <strong>Gemini 2.5 Flash</strong> via <code>/api/mobile/ai/chat</code>. Data mahasiswa di-inject ke system prompt (server-side), client hanya kirim teks pertanyaan.
       </div>
-    </div>
 
     <!-- ========== FRAME 2: ACTIVE CONVERSATION ========== -->
     <div class="mockup-item">
@@ -492,7 +492,7 @@
               <h3 class="chat-appbar-title">Asisten AI</h3>
               <div class="chat-appbar-status">
                 <span class="online-dot"></span>
-                <span>Online Â· Gemini 2.5 Flash</span>
+                <span>Online · Gemini 2.5 Flash</span>
               </div>
             </div>
           </div>
@@ -522,7 +522,7 @@
 
               <!-- AI response 2 -->
               <div class="bubble bubble-ai">
-                <strong>Tidak.</strong> Kehadiran Anda 90.5% masih di atas batas minimal 75%. Namun, perhatikan MK <strong>Basis Data</strong> â€” kehadiran di MK tersebut hanya 78%, mendekati batas.
+                <strong>Tidak.</strong> Kehadiran Anda 90.5% masih di atas batas minimal 75%. Namun, perhatikan MK <strong>Basis Data</strong> — kehadiran di MK tersebut hanya 78%, mendekati batas.
               </div>
 
               <!-- User message 3 -->
@@ -552,14 +552,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 2 Â· Percakapan Aktif
-        <small>User bubble Â· AI bubble (markdown) Â· typing dots Â· loading</small>
+        Frame 2 · Percakapan Aktif
+        <small>User bubble · AI bubble (markdown) · typing dots · loading</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        <strong>User bubble</strong> warna primary (kanan, radius bawah-kanan kecil). <strong>AI bubble</strong> putih + border (kiri, radius bawah-kiri kecil). Response AI pakai <strong>markdown ringan</strong> (bold, italic, ordered/unordered list) â€” parser custom tanpa library tambahan. <strong>Typing indicator</strong> 3 dot bounce staggered + teks "Menganalisis data...". Send button berubah jadi <strong>spinner</strong> saat menunggu response. Auto-scroll ke bawah setelah pesan baru.
       </div>
-    </div>
 
   </div>
 

@@ -17,7 +17,7 @@ const loginSchema = z.object({
   email: z
     .string()
     .min(1, 'Email wajib diisi')
-    .email('Format email tidak valid'),
+    .email('Email tidak valid'),
   password: z
     .string()
     .min(1, 'Password wajib diisi')
@@ -28,9 +28,9 @@ const changePasswordSchema = z
   .object({
     newPassword: z
       .string()
-      .min(8, 'Password baru minimal 8 karakter')
-      .regex(/[A-Z]/, 'Harus mengandung minimal 1 huruf kapital')
-      .regex(/[0-9]/, 'Harus mengandung minimal 1 angka'),
+      .min(8, 'Password minimal 8 karakter')
+      .regex(/[A-Z]/, 'Wajib ada huruf kapital')
+      .regex(/[0-9]/, 'Wajib ada angka'),
     confirmPassword: z.string().min(1, 'Konfirmasi password wajib diisi'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

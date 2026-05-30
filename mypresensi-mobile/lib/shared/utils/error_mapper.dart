@@ -37,18 +37,18 @@ String friendlyErrorMessage(Object error) {
 
   // 3. Network-level exception
   if (error is TimeoutException) {
-    return 'Permintaan timeout. Periksa koneksi internet Anda.';
+    return 'Koneksi timeout';
   }
   if (error is SocketException) {
-    return 'Tidak dapat terhubung ke server. Pastikan jaringan tersedia.';
+    return 'Tidak ada koneksi internet';
   }
   if (error is HttpException) {
-    return 'Gangguan pada koneksi jaringan. Coba lagi.';
+    return 'Gangguan jaringan';
   }
 
   // 4. Parse / format error
   if (error is FormatException) {
-    return 'Format data tidak valid. Coba muat ulang halaman.';
+    return 'Data tidak valid';
   }
 
   // 5. Generic Exception — strip prefix teknis
@@ -61,11 +61,11 @@ String friendlyErrorMessage(Object error) {
       if (msg.isNotEmpty) return msg;
     }
     // Pattern "_Exception<x>: <pesan>" → fallback umum
-    return 'Terjadi kesalahan. Coba lagi nanti.';
+    return 'Terjadi kesalahan';
   }
 
   // 6. Apapun selainnya (Error / type lain) — pesan umum
-  return 'Terjadi kesalahan tidak diketahui. Coba lagi nanti.';
+  return 'Terjadi kesalahan';
 }
 
 /// Mapping DioException → pesan Bahasa Indonesia.
@@ -81,21 +81,21 @@ String _mapDioException(DioException e) {
   // Fallback per status code
   switch (e.response?.statusCode) {
     case 400:
-      return 'Data yang dikirim tidak valid.';
+      return 'Data tidak valid';
     case 401:
-      return 'Sesi berakhir. Silakan login ulang.';
+      return 'Sesi berakhir, login ulang';
     case 403:
-      return 'Akses ditolak.';
+      return 'Akses ditolak';
     case 404:
-      return 'Data tidak ditemukan.';
+      return 'Data tidak ditemukan';
     case 409:
-      return 'Data sudah ada. Operasi tidak bisa dilakukan dua kali.';
+      return 'Data sudah ada';
     case 429:
-      return 'Terlalu banyak permintaan. Tunggu beberapa saat.';
+      return 'Terlalu banyak permintaan';
     case 500:
     case 502:
     case 503:
-      return 'Server sedang bermasalah. Coba lagi nanti.';
+      return 'Server bermasalah';
   }
 
   // Network error (no response)
@@ -103,14 +103,14 @@ String _mapDioException(DioException e) {
     case DioExceptionType.connectionTimeout:
     case DioExceptionType.sendTimeout:
     case DioExceptionType.receiveTimeout:
-      return 'Koneksi timeout. Periksa jaringan Anda.';
+      return 'Koneksi timeout';
     case DioExceptionType.connectionError:
-      return 'Tidak dapat terhubung ke server. Pastikan jaringan tersedia.';
+      return 'Tidak ada koneksi internet';
     case DioExceptionType.cancel:
-      return 'Permintaan dibatalkan.';
+      return 'Permintaan dibatalkan';
     case DioExceptionType.badCertificate:
-      return 'Sertifikat keamanan tidak valid.';
+      return 'Sertifikat tidak valid';
     default:
-      return 'Terjadi kesalahan jaringan. Coba lagi.';
+      return 'Gangguan jaringan';
   }
 }

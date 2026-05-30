@@ -114,7 +114,7 @@ export default function AddCourseModal({ dosenList, userRole = 'admin' }: { dose
               )}
 
               <div className="flex gap-3 justify-end pt-2">
-                <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-gray-50 transition-colors">
+                <button type="button" onClick={() => setOpen(false)} className="btn-secondary text-sm py-2.5 px-4">
                   Batal
                 </button>
                 <button type="submit" className="btn-primary">

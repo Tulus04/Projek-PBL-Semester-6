@@ -97,7 +97,7 @@ export async function GET(req: NextRequest) {
       .eq('student_id', user.id)
 
     if (enrollmentError) {
-      return errorResponse('Gagal mengambil data mata kuliah.', 500)
+      return errorResponse('Gagal mengambil data mata kuliah', 500)
     }
 
     if (!enrollments || enrollments.length === 0) {
@@ -128,7 +128,7 @@ export async function GET(req: NextRequest) {
       .order('started_at', { ascending: false })
 
     if (sessionsError) {
-      return errorResponse('Gagal mengambil data sesi.', 500)
+      return errorResponse('Gagal mengambil data sesi', 500)
     }
 
     const sessions = (sessionsData ?? []) as unknown as SessionRow[]
@@ -158,7 +158,7 @@ export async function GET(req: NextRequest) {
     ])
 
     if (attendedRes.error || leavedRes.error) {
-      return errorResponse('Gagal mengambil data kehadiran.', 500)
+      return errorResponse('Gagal mengambil data kehadiran', 500)
     }
 
     const excludedSet = new Set<string>([
@@ -187,6 +187,6 @@ export async function GET(req: NextRequest) {
       recent_sessions: recentSessions,
     })
   } catch {
-    return errorResponse('Terjadi kesalahan server.', 500)
+    return errorResponse('Terjadi kesalahan server', 500)
   }
 }

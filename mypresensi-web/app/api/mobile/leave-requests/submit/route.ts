@@ -22,9 +22,9 @@ import { z } from 'zod'
 // Zod Schema
 // ===========================
 const submitSchema = z.object({
-  session_id: z.string().uuid('session_id harus UUID valid'),
+  session_id: z.string().uuid('Sesi tidak valid'),
   type: z.enum(['izin', 'sakit'], {
-    errorMap: () => ({ message: "Tipe pengajuan harus 'izin' atau 'sakit'" }),
+    errorMap: () => ({ message: 'Tipe tidak valid' }),
   }),
   reason: z
     .string()
@@ -35,7 +35,7 @@ const submitSchema = z.object({
   // Server akan validate prefix === user.id sebagai defense in depth selain RLS.
   evidence_path: z
     .string()
-    .regex(EVIDENCE_PATH_REGEX, 'Format path bukti tidak valid')
+    .regex(EVIDENCE_PATH_REGEX, 'Bukti tidak valid')
     .optional()
     .nullable(),
 })
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     // 2. RATE LIMIT — composite key user+device
     const rlKey = buildRateLimitKey(user.id, deviceId)
     if (!checkSlidingRateLimit(rateLimitMap, rlKey, RATE_LIMIT_CONFIG)) {
-      return errorResponse('Terlalu banyak pengajuan. Coba lagi dalam 10 menit.', 429)
+      return errorResponse('Terlalu banyak pengajuan, coba 10 menit lagi', 429)
     }
 
     // 3. VALIDASI INPUT
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     // 3a. Defense in depth: kalau evidence_path dikirim, prefix harus user.id sendiri.
     // Mencegah attacker submit dengan path yang menunjuk file user lain.
     if (input.evidence_path && !isPathOwnedByUser(input.evidence_path, user.id)) {
-      return errorResponse('Bukti pendukung tidak valid.', 403)
+      return errorResponse('Bukti tidak valid', 403)
     }
 
     const supabase = createAdminClient()
@@ -85,11 +85,11 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (sessionError || !session) {
-      return errorResponse('Sesi tidak ditemukan.', 404)
+      return errorResponse('Sesi tidak ditemukan', 404)
     }
 
     if (session.ended_at) {
-      return errorResponse('Sesi sudah berakhir, tidak bisa mengajukan izin lagi.', 400)
+      return errorResponse('Sesi sudah berakhir', 400)
     }
 
     // 5. CEK ENROLLMENT
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle()
 
     if (!enrollment) {
-      return errorResponse('Anda tidak terdaftar di mata kuliah ini.', 403)
+      return errorResponse('Anda tidak terdaftar di mata kuliah ini', 403)
     }
 
     // 6. CEK DUPLIKASI: belum ada request pending/approved untuk sesi sama
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle()
 
     if (existingAttendance && existingAttendance.status === 'hadir') {
-      return errorResponse('Anda sudah tercatat hadir untuk sesi ini.', 409)
+      return errorResponse('Anda sudah hadir di sesi ini', 409)
     }
 
     // 8. INSERT
@@ -185,6 +185,6 @@ export async function POST(req: NextRequest) {
       201
     )
   } catch {
-    return errorResponse('Terjadi kesalahan server.', 500)
+    return errorResponse('Terjadi kesalahan server', 500)
   }
 }

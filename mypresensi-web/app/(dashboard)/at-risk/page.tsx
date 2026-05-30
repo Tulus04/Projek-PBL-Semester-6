@@ -7,6 +7,7 @@ import type { Metadata } from 'next'
 import { AlertTriangle } from 'lucide-react'
 import { getAtRiskStudents, type AtRiskStudent } from '@/lib/actions/at-risk'
 import EmptyState from '@/components/ui/empty-state'
+import BackButton from '@/components/ui/back-button'
 import { formatDateId } from '@/lib/utils'
 
 export const metadata: Metadata = {
@@ -130,6 +131,9 @@ export default async function AtRiskPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Back navigation — drill-down dari dashboard */}
+      <BackButton href="/dashboard" label="Kembali ke Dashboard" />
+
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">

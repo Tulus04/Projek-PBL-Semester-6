@@ -159,10 +159,10 @@ class QrCodeData {
     final code = (map['code'] ?? map['session_code']) as String?;
 
     if (sessionId == null || sessionId.isEmpty) {
-      throw const FormatException('QR code tidak mengandung ID sesi');
+      throw const FormatException('QR tidak valid');
     }
     if (code == null || code.isEmpty) {
-      throw const FormatException('QR code tidak mengandung kode sesi');
+      throw const FormatException('QR tidak valid');
     }
 
     return QrCodeData(sessionId: sessionId, sessionCode: code);

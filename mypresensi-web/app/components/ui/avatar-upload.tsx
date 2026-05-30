@@ -301,7 +301,7 @@ export default function AvatarUpload({
               <button
                 type="button"
                 onClick={handleCancelCrop}
-                className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-gray-50 transition-colors"
+                className="btn-secondary text-sm py-2.5 px-4"
               >
                 Batal
               </button>

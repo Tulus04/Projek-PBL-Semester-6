@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     .eq('student_id', user.id)
 
   if (error) {
-    return errorResponse('Gagal mengambil data mata kuliah.', 500)
+    return errorResponse('Gagal mengambil data mata kuliah', 500)
   }
 
   // 2. Ambil semua sesi aktif untuk course yang di-enroll

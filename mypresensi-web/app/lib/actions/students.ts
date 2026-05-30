@@ -19,7 +19,7 @@ const studentSchema = z.object({
     .string()
     .min(5, 'NIM minimal 5 karakter')
     .max(20, 'NIM maksimal 20 karakter'),
-  email: z.string().email('Format email tidak valid'),
+  email: z.string().email('Email tidak valid'),
   semester: z.coerce.number().min(1).max(14).optional(),
   kelas: z.string().max(10).optional(),
   phone: z.string().max(20).optional(),

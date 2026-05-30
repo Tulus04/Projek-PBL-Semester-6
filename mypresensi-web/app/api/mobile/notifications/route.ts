@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     .limit(limit)
 
   if (error) {
-    return errorResponse('Gagal mengambil notifikasi.', 500)
+    return errorResponse('Gagal mengambil notifikasi', 500)
   }
 
   // 2. Hitung unread count

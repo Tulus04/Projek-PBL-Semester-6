@@ -5,6 +5,11 @@
 // Handle: countdown timer, polling stats 5s, expired overlay, refresh code,
 // abort cleanup, exponential backoff on consecutive errors.
 //
+// Phase 3 v7 (Rolling QR TOTP-like) — tambah polling kedua paralel ke
+// `/api/admin/sessions/:id/current-code` setiap 5 detik untuk dapat code current.
+// QR `value` + countdown derive dari STATE polling (bukan prop SSR static).
+// Sessions legacy (seed=null) tetap kompatibel via fallback ke prop expires_at.
+//
 // Diakses dari Server Component page.tsx — semua initial data via props.
 
 import { useEffect, useRef, useState, useCallback } from 'react'
@@ -79,14 +84,21 @@ function formatCountdown(seconds: number): string {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 }
 
+// Format jam HH:mm dari ISO string ke timezone Asia/Jakarta (WIB UTC+7).
+// Pakai Intl.DateTimeFormat dengan timeZone explicit untuk konsistensi SSR
+// vs client (Node.js server timezone vs browser timezone bisa beda — fix
+// hydration mismatch). Fallback ke '--:--' kalau iso invalid.
 function formatStartTime(iso: string | null): string {
   if (!iso) return '--:--'
   try {
     const d = new Date(iso)
-    return `${d.getHours().toString().padStart(2, '0')}:${d
-      .getMinutes()
-      .toString()
-      .padStart(2, '0')}`
+    if (Number.isNaN(d.getTime())) return '--:--'
+    return new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Jakarta',
+    }).format(d)
   } catch {
     return '--:--'
   }
@@ -99,10 +111,11 @@ function formatStartTime(iso: string | null): string {
 export function QrDisplayClient(props: QrDisplayClientProps) {
   const router = useRouter()
 
-  // Countdown state
-  const [countdownSec, setCountdownSec] = useState<number>(() =>
-    computeCountdown(props.sessionCodeExpiresAt),
-  )
+  // Countdown state — init 0 deterministic untuk SSR safety (fix React hydration
+  // mismatch). Akan di-overwrite di useEffect setelah mount via computeCountdown.
+  // Note: formatStartTime() pakai Intl.DateTimeFormat timeZone='Asia/Jakarta'
+  // supaya SSR (UTC) dan client (WIB) menghasilkan output identik.
+  const [countdownSec, setCountdownSec] = useState<number>(0)
 
   // Stats + polling state
   const [stats, setStats] = useState<LiveStats>(props.initialStats)
@@ -113,6 +126,17 @@ export function QrDisplayClient(props: QrDisplayClientProps) {
 
   // Banner state (untuk 403/404 → auto-close)
   const [banner, setBanner] = useState<string | null>(null)
+
+  // ===========================================================================
+  // Phase 3 v7 — Rolling QR state (current-code polling)
+  // ===========================================================================
+  // Initialize dari prop SSR supaya first render tidak flicker. Polling kedua
+  // (paralel dengan live-stats) akan refresh setiap 5 detik.
+  const [currentCode, setCurrentCode] = useState<string | null>(
+    props.sessionCode,
+  )
+  const [windowTtlMs, setWindowTtlMs] = useState<number>(0)
+  const [isRolling, setIsRolling] = useState<boolean>(false)
 
   // Refs untuk cleanup
   const errorCountRef = useRef(0)
@@ -222,6 +246,108 @@ export function QrDisplayClient(props: QrDisplayClientProps) {
   }, [schedulePoll])
 
   // ===========================================================================
+  // Phase 3 v7 — Polling current-code (paralel dengan live-stats)
+  // ===========================================================================
+  // Polling independen ke /api/admin/sessions/:id/current-code setiap 5 detik.
+  // Dapat current_code (rolling/legacy), window TTL, is_rolling, is_active.
+  // Pattern: AbortController + 3x consecutive error → backoff 30s, 410 → banner
+  // + auto-close (sama dengan live-stats handler 403/404).
+  useEffect(() => {
+    let cancelled = false
+    const controller = new AbortController()
+    let consecutiveErrors = 0
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+    async function pollCurrentCode() {
+      if (cancelled) return
+      try {
+        const res = await fetch(
+          `/api/admin/sessions/${props.sessionId}/current-code`,
+          { signal: controller.signal, cache: 'no-store' },
+        )
+
+        if (cancelled) return
+
+        // 401 → tidak terautentikasi, redirect login (samakan dengan live-stats)
+        if (res.status === 401) {
+          window.location.href = '/login?next=/sesi'
+          return
+        }
+
+        // 410 Gone → sesi sudah berakhir, banner + auto-close window
+        if (res.status === 410) {
+          if (!cancelled) {
+            setBanner('Sesi sudah berakhir. Window akan tertutup otomatis.')
+            setTimeout(() => {
+              if (typeof window !== 'undefined') window.close()
+            }, 3000)
+          }
+          return
+        }
+
+        if (!res.ok) {
+          consecutiveErrors += 1
+          const interval = consecutiveErrors >= 3 ? 30_000 : 5000
+          if (!cancelled) {
+            timeoutId = setTimeout(pollCurrentCode, interval)
+          }
+          return
+        }
+
+        consecutiveErrors = 0
+        const data = (await res.json()) as {
+          current_code: string | null
+          window: number | null
+          ttl_ms_until_next: number
+          is_rolling: boolean
+          is_active: boolean
+          expires_at: string | null
+        }
+
+        if (!cancelled) {
+          setCurrentCode(data.current_code)
+          setWindowTtlMs(data.ttl_ms_until_next ?? 0)
+          setIsRolling(data.is_rolling === true)
+        }
+
+        if (!cancelled) {
+          timeoutId = setTimeout(pollCurrentCode, 5000)
+        }
+      } catch (err) {
+        if (cancelled) return
+        // AbortError = expected on unmount, silent
+        if (err instanceof DOMException && err.name === 'AbortError') return
+
+        consecutiveErrors += 1
+        const interval = consecutiveErrors >= 3 ? 30_000 : 5000
+        timeoutId = setTimeout(pollCurrentCode, interval)
+      }
+    }
+
+    // Kick off pertama segera (initial state dari prop SSR sudah siap).
+    pollCurrentCode()
+
+    return () => {
+      cancelled = true
+      controller.abort()
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [props.sessionId])
+
+  // ===========================================================================
+  // Phase 3 v7 — Local TTL ticker untuk OtpBlock countdown (rolling mode)
+  // ===========================================================================
+  // Saat isRolling=true, decrement windowTtlMs lokal setiap 1 detik supaya
+  // bar countdown turun smooth. Polling next tick reset ke fresh value (~30s).
+  useEffect(() => {
+    if (!isRolling) return
+    const interval = setInterval(() => {
+      setWindowTtlMs((prev) => Math.max(0, prev - 1000))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [isRolling])
+
+  // ===========================================================================
   // Refresh code handler
   // ===========================================================================
   const handleRefreshCode = useCallback(async () => {
@@ -238,7 +364,7 @@ export function QrDisplayClient(props: QrDisplayClientProps) {
       // Reset isRefreshing after a small delay agar countdown timer nge-update lewat props baru
       setTimeout(() => setIsRefreshing(false), 800)
     } catch {
-      toast.fire({ icon: 'error', title: 'Gagal refresh kode sesi' })
+      toast.fire({ icon: 'error', title: 'Gagal memuat QR baru' })
       setIsRefreshing(false)
     }
   }, [props.sessionId, router])
@@ -246,9 +372,27 @@ export function QrDisplayClient(props: QrDisplayClientProps) {
   // ===========================================================================
   // Derived state
   // ===========================================================================
-  const isExpired = countdownSec === 0
-  const fillPct =
-    SESSION_CODE_EXPIRY_TOTAL_SEC > 0
+  // Phase 3 v7 — Logic countdown:
+  //   - Rolling mode: countdownSec dari windowTtlMs (max 30s, turun ke 0 lalu
+  //     reset polling next tick). NEVER expired.
+  //   - Legacy mode: existing logic — countdownSec dari expires_at, isExpired
+  //     saat 0, ExpiredOverlay tampil saat expired + isActive.
+  const rollingCountdownSec = Math.ceil(windowTtlMs / 1000)
+  const displayCountdownSec = isRolling ? rollingCountdownSec : countdownSec
+
+  // ExpiredOverlay HANYA untuk legacy mode — rolling code tidak pernah expired.
+  const isLegacyExpired = !isRolling && countdownSec === 0
+
+  // Fill percentage bar countdown.
+  //   - Rolling: relatif ke window 5s (Phase 3 v7 A1 config)
+  //   - Legacy: relatif ke 3-menit total
+  const ROLLING_WINDOW_SEC = 5
+  const fillPct = isRolling
+    ? Math.max(
+        0,
+        Math.min(100, (rollingCountdownSec / ROLLING_WINDOW_SEC) * 100),
+      )
+    : SESSION_CODE_EXPIRY_TOTAL_SEC > 0
       ? Math.max(
           0,
           Math.min(100, (countdownSec / SESSION_CODE_EXPIRY_TOTAL_SEC) * 100),
@@ -257,10 +401,13 @@ export function QrDisplayClient(props: QrDisplayClientProps) {
   const hadirPct =
     stats.total > 0 ? Math.min(100, (stats.hadir / stats.total) * 100) : 0
 
-  const qrPayload = props.sessionCode
+  // Phase 3 v7 — QR derive dari currentCode STATE (bukan prop SSR static).
+  // `exp` field dipertahankan untuk backward compat parser mobile, tapi
+  // tidak relevan di rolling mode (server verify pakai TOTP window).
+  const qrPayload = currentCode
     ? JSON.stringify({
         sid: props.sessionId,
-        code: props.sessionCode,
+        code: currentCode,
         exp: props.sessionCodeExpiresAt,
       })
     : ''
@@ -326,10 +473,10 @@ export function QrDisplayClient(props: QrDisplayClientProps) {
             mode={props.mode}
           />
 
-          <OtpBlock
-            code={props.sessionCode}
-            countdownSec={countdownSec}
+          <OtpCountdown
+            countdownSec={displayCountdownSec}
             fillPct={fillPct}
+            isRolling={isRolling}
           />
 
           <InstructionList />
@@ -339,8 +486,8 @@ export function QrDisplayClient(props: QrDisplayClientProps) {
       {/* Bottom progress strip */}
       <PresProgress stats={stats} hadirPct={hadirPct} pollState={pollState} />
 
-      {/* Expired overlay */}
-      {isExpired && props.isActive && (
+      {/* Expired overlay — HANYA legacy mode (rolling code tidak pernah expired, R8.12) */}
+      {isLegacyExpired && props.isActive && (
         <ExpiredOverlay
           isRefreshing={isRefreshing}
           onRefresh={handleRefreshCode}
@@ -553,54 +700,37 @@ function MkHeader({
 }
 
 // ============================================================================
-// Sub-component: OtpBlock
+// Sub-component: OtpCountdown — countdown bar tanpa display angka 6-digit
 // ============================================================================
+// Phase 3 v7: code di payload QR TIDAK dipakai user input. Dosen + audience
+// kelas tidak perlu lihat angka 6-digit (cuma bocor + bisa di-screenshot oleh
+// audience). Yang ditampilkan: progress bar countdown + label informatif
+// "Kode berganti dalam: 00:18" — cukup buat dosen tahu kapan QR refresh.
 
-function OtpBlock({
-  code,
+function OtpCountdown({
   countdownSec,
   fillPct,
+  isRolling,
 }: {
-  code: string | null
   countdownSec: number
   fillPct: number
+  isRolling: boolean
 }) {
   return (
     <div
       className="rounded-3xl border border-white/10 bg-white/5 px-8 py-6 backdrop-blur-md"
     >
       <div
-        className="mb-2 text-xs font-bold uppercase tracking-[2px] text-amber-300/85"
+        className="mb-3 text-xs font-bold uppercase tracking-[2px] text-amber-300/85"
         style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
       >
-        Kode Sesi
-      </div>
-
-      <div
-        className="my-1 mb-4 leading-none text-white"
-        style={{
-          fontFamily: 'JetBrains Mono, monospace',
-          fontWeight: 700,
-          fontSize: '88px',
-          letterSpacing: '4px',
-          textShadow: '0 4px 16px rgba(45, 134, 255, 0.5)',
-        }}
-      >
-        {code ? (
-          <>
-            {code.slice(0, 3)}
-            <span className="mx-1 text-amber-400/80">·</span>
-            {code.slice(3, 6)}
-          </>
-        ) : (
-          '— · —'
-        )}
+        Status QR
       </div>
 
       <div className="flex items-center gap-3.5">
         <div
           className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-white/10"
-          aria-label="Sisa waktu kode aktif"
+          aria-label="Sisa waktu QR aktif"
         >
           <div
             className="h-full rounded-full transition-[width] duration-1000 ease-linear"
@@ -618,6 +748,12 @@ function OtpBlock({
           <Clock className="h-5 w-5 text-amber-400" />
           {formatCountdown(countdownSec)}
         </div>
+      </div>
+
+      <div className="mt-3 text-sm font-medium text-white/65">
+        {isRolling
+          ? 'QR otomatis berganti — pastikan mahasiswa scan QR yang sedang ditampilkan.'
+          : 'QR tetap berlaku selama countdown belum habis. Klik "Putar Ulang QR" untuk membuat yang baru.'}
       </div>
     </div>
   )
@@ -793,10 +929,10 @@ function ExpiredOverlay({
           className="mb-2 text-3xl font-extrabold text-white"
           style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
         >
-          Kode Sesi Sudah Expired
+          QR Sudah Kedaluwarsa
         </h2>
         <p className="mb-8 text-base text-white/70">
-          Kode 6-digit sudah lewat masa aktifnya. Generate kode baru untuk
+          QR presensi sudah lewat masa aktifnya. Putar ulang QR untuk
           lanjut menerima presensi mahasiswa.
         </p>
         <button
@@ -808,7 +944,7 @@ function ExpiredOverlay({
           <RefreshCw
             className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
           />
-          {isRefreshing ? 'Mengambil kode baru...' : 'Refresh Kode'}
+          {isRefreshing ? 'Memuat QR baru...' : 'Putar Ulang QR'}
         </button>
       </div>
     </div>

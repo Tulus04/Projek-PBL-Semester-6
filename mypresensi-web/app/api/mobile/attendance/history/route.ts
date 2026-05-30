@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
   const { data: attendances, error } = await query
 
   if (error) {
-    return errorResponse('Gagal mengambil riwayat kehadiran.', 500)
+    return errorResponse('Gagal mengambil riwayat kehadiran', 500)
   }
 
   // 2. Map & filter

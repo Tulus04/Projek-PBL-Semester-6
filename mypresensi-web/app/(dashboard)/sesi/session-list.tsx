@@ -1,15 +1,15 @@
 'use client'
 // app/(dashboard)/sesi/session-list.tsx
 // Client Component — daftar sesi dikelompokkan per mata kuliah.
-// Mendukung: tambah sesi, mulai/akhiri sesi, QR code, refresh kode, hapus sesi, lihat detail.
+// Mendukung: tambah sesi, mulai/akhiri sesi, tampil QR, hapus sesi, lihat detail.
 // Lifecycle: Pending (belum dimulai) → Active (berlangsung) → Ended (selesai)
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  Plus, PlayCircle, StopCircle, Trash2, RefreshCw,
-  Copy, Check, QrCode, ClipboardList, BookOpen,
+  Plus, PlayCircle, StopCircle, Trash2,
+  QrCode, ClipboardList, BookOpen,
   ChevronDown, ChevronUp, Zap, MapPin, Info,
   Maximize2, Activity,
 } from 'lucide-react'
@@ -18,7 +18,6 @@ import {
   addSessionAction,
   toggleSessionAction,
   deleteSessionAction,
-  refreshSessionCode,
 } from '@/lib/actions/sessions'
 import { swal, toast } from '@/lib/swal'
 import SessionDetailModal from '../matakuliah/session-detail-modal'
@@ -95,16 +94,23 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
   const [adding, setAdding] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [detailSessionId, setDetailSessionId] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
 
   // Form state: mode-aware location fields
   const [formMode, setFormMode] = useState<'offline' | 'online'>('offline')
   const defaultLocation = campusLocations.find((l) => l.is_default) ?? campusLocations[0]
   const [radiusValue, setRadiusValue] = useState(defaultLocation?.radius_meters ?? 150)
 
-  // Countdown untuk sesi aktif
+  // Countdown untuk sesi aktif (legacy mode — pakai expires_at static)
   const [countdowns, setCountdowns] = useState<Record<string, number>>({})
   const countdownRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Phase 3 v7 — Rolling QR polling state per session.
+  // Map sessionId → {code 6-digit current, ttl_ms sampai window berikutnya, isRolling}.
+  // Polling /api/admin/sessions/:id/current-code setiap 5 detik untuk active+expanded.
+  // Fallback ke session.session_code prop saat polling belum sukses pertama.
+  const [modalCurrentCodes, setModalCurrentCodes] = useState<
+    Record<string, { code: string; ttl: number; isRolling: boolean }>
+  >({})
 
   // Track active sessions for countdown
   const activeSessions = groupedSessions.flatMap((g) =>
@@ -136,6 +142,132 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
     return () => { if (countdownRef.current) clearInterval(countdownRef.current) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSessions.map(s => s.id + s.session_code_expires_at).join(',')])
+
+  // Phase 3 v7 — Polling current-code per active+expanded session
+  // (R9.1-9.9, R14.3). Pattern:
+  //   - Hanya sessions yang course_id-nya di expandedCourses (modal QR visible)
+  //   - Setiap 5 detik per session, AbortController per session
+  //   - 3x error consecutive → backoff 30s per session (independen)
+  //   - 410 Gone (sesi berakhir) → stop polling, jangan retry
+  //   - is_rolling=false → auto-stop polling (legacy session pakai static)
+  //   - Cleanup saat collapse/unmount → abort semua controllers + clear timeouts
+  const activeExpandedKey = groupedSessions
+    .flatMap((g) =>
+      g.sessions
+        .filter((s) => s.is_active && expandedCourses.has(s.course_id))
+        .map((s) => s.id),
+    )
+    .sort()
+    .join(',')
+
+  useEffect(() => {
+    const activeExpandedIds = groupedSessions
+      .flatMap((g) => g.sessions)
+      .filter((s) => s.is_active && expandedCourses.has(s.course_id))
+      .map((s) => s.id)
+
+    if (activeExpandedIds.length === 0) return
+
+    const controllers = new Map<string, AbortController>()
+    const timeouts = new Map<string, ReturnType<typeof setTimeout>>()
+    const errorCounts = new Map<string, number>()
+    const stoppedIds = new Set<string>()
+
+    activeExpandedIds.forEach((sessionId) => {
+      const controller = new AbortController()
+      controllers.set(sessionId, controller)
+
+      const pollSession = async () => {
+        if (stoppedIds.has(sessionId)) return
+        try {
+          const res = await fetch(
+            `/api/admin/sessions/${sessionId}/current-code`,
+            { signal: controller.signal, cache: 'no-store' },
+          )
+          if (controller.signal.aborted) return
+
+          if (!res.ok) {
+            // 410 Gone → sesi sudah berakhir, stop polling
+            if (res.status === 410) {
+              stoppedIds.add(sessionId)
+              return
+            }
+            const errCount = (errorCounts.get(sessionId) ?? 0) + 1
+            errorCounts.set(sessionId, errCount)
+            const interval = errCount >= 3 ? 30_000 : 5000
+            timeouts.set(sessionId, setTimeout(pollSession, interval))
+            return
+          }
+
+          errorCounts.set(sessionId, 0)
+          const data = (await res.json()) as {
+            current_code: string | null
+            ttl_ms_until_next: number
+            is_rolling: boolean
+            is_active: boolean
+          }
+
+          if (data.current_code) {
+            const codeValue = data.current_code
+            setModalCurrentCodes((prev) => ({
+              ...prev,
+              [sessionId]: {
+                code: codeValue,
+                ttl: data.ttl_ms_until_next ?? 0,
+                isRolling: data.is_rolling === true,
+              },
+            }))
+          }
+
+          // Legacy session (seed=null) — auto-stop polling, fallback ke static prop.
+          // R9.7: SKIP polling untuk legacy session.
+          if (data.is_rolling === false) {
+            stoppedIds.add(sessionId)
+            return
+          }
+
+          timeouts.set(sessionId, setTimeout(pollSession, 5000))
+        } catch (err) {
+          if (controller.signal.aborted) return
+          if (err instanceof DOMException && err.name === 'AbortError') return
+          const errCount = (errorCounts.get(sessionId) ?? 0) + 1
+          errorCounts.set(sessionId, errCount)
+          const interval = errCount >= 3 ? 30_000 : 5000
+          timeouts.set(sessionId, setTimeout(pollSession, interval))
+        }
+      }
+
+      pollSession()
+    })
+
+    return () => {
+      controllers.forEach((c) => c.abort())
+      timeouts.forEach((t) => clearTimeout(t))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeExpandedKey])
+
+  // Phase 3 v7 — Local TTL ticker (R9.4). Decrement ttl per session rolling
+  // setiap 1 detik supaya countdown turun smooth. Polling next tick reset ke
+  // fresh value (~30000ms) saat window berganti.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setModalCurrentCodes((prev) => {
+        let changed = false
+        const next: typeof prev = {}
+        for (const [id, entry] of Object.entries(prev)) {
+          if (entry.isRolling && entry.ttl > 0) {
+            next[id] = { ...entry, ttl: Math.max(0, entry.ttl - 1000) }
+            changed = true
+          } else {
+            next[id] = entry
+          }
+        }
+        return changed ? next : prev
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   const formatCountdown = (seconds: number) => {
     const m = Math.floor(seconds / 60)
@@ -194,15 +326,6 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
     setActionLoading(null)
   }
 
-  const handleRefreshCode = async (sessionId: string) => {
-    const result = await refreshSessionCode(sessionId)
-    if (result.error) {
-      toast.fire({ icon: 'error', title: result.error })
-    } else {
-      router.refresh()
-    }
-  }
-
   const handleDelete = async (session: Session) => {
     const result = await swal.fire({
       title: 'Hapus Sesi',
@@ -223,12 +346,6 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
       router.refresh()
     }
     setActionLoading(session.id)
-  }
-
-  const handleCopyCode = async (code: string) => {
-    await navigator.clipboard.writeText(code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   // Collect pending sessions across all courses for "Quick Start" section
@@ -380,7 +497,21 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
               {isExpanded && (
                 <div className="border-t border-border px-5 py-4">
                   {/* Active Session QR Card */}
-                  {activeSession && activeSession.session_code && (
+                  {activeSession && activeSession.session_code && (() => {
+                    const polled = modalCurrentCodes[activeSession.id]
+                    // Fallback ke prop static saat polling belum sukses pertama kali (R9.5).
+                    // Untuk legacy session (seed=null), polling auto-stop & isRolling=false →
+                    // tetap pakai prop static + countdowns legacy (R9.7, R14.3).
+                    const displayCode = polled?.code ?? activeSession.session_code!
+                    const isRollingMode = polled?.isRolling === true
+                    const rollingCountdownSec = isRollingMode
+                      ? Math.ceil((polled?.ttl ?? 0) / 1000)
+                      : 0
+                    const legacyCountdownSec = countdowns[activeSession.id] ?? 0
+                    const displayCountdownSec = isRollingMode
+                      ? rollingCountdownSec
+                      : legacyCountdownSec
+                    return (
                     <div
                       className="rounded-xl p-5 mb-4 border-2 border-success/25"
                       style={{
@@ -407,7 +538,7 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                           <QRCodeSVG
                             value={JSON.stringify({
                               sid: activeSession.id,
-                              code: activeSession.session_code,
+                              code: displayCode,
                               exp: activeSession.session_code_expires_at,
                             })}
                             size={160}
@@ -423,38 +554,29 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                         </div>
                       </div>
 
-                      {/* Divider */}
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="flex-1 h-px bg-border" />
-                        <span className="text-[11px] text-text-secondary font-medium uppercase tracking-wider">
-                          atau masukkan kode
-                        </span>
-                        <div className="flex-1 h-px bg-border" />
-                      </div>
-
-                      {/* OTP Display */}
-                      <div className="flex items-center justify-center gap-2 mb-3">
-                        {activeSession.session_code.split('').map((digit, i) => (
-                          <div
-                            key={i}
-                            className="w-11 h-13 flex items-center justify-center rounded-lg border-2 border-primary/30 bg-white"
-                          >
-                            <span className="text-xl font-bold font-mono text-text-primary">{digit}</span>
-                          </div>
-                        ))}
-                      </div>
+                      {/* OTP Display dihilangkan (Phase 3 v7) — code di payload
+                          QR TIDAK dipakai user input. Mahasiswa scan QR otomatis,
+                          code rolling tetap ada di payload untuk server verify. */}
 
                       {/* Countdown */}
                       <div className="text-center mb-3">
                         <span
-                          className={`text-sm font-medium ${(countdowns[activeSession.id] ?? 0) <= 30 ? 'text-danger' : 'text-text-secondary'}`}
+                          className={`text-sm font-medium ${displayCountdownSec <= 30 ? 'text-danger' : 'text-text-secondary'}`}
                         >
-                          Kode berlaku: {formatCountdown(countdowns[activeSession.id] ?? 0)}
+                          QR berganti dalam: {formatCountdown(displayCountdownSec)}
                         </span>
                       </div>
 
                       {/* Action Buttons */}
                       <div className="flex items-center justify-center gap-2 flex-wrap">
+                        {/* Primary action — pemantauan real-time sesi aktif */}
+                        <Link
+                          href={`/sesi/${activeSession.id}/live`}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white transition-colors bg-primary hover:bg-primary-hover"
+                        >
+                          <Activity size={13} /> Live Monitor
+                        </Link>
+                        {/* Secondary — outline */}
                         <a
                           href={`/sesi/${activeSession.id}/qr`}
                           target="_blank"
@@ -463,40 +585,23 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                         >
                           <Maximize2 size={13} /> Tampilkan Fullscreen
                         </a>
-                        <Link
-                          href={`/sesi/${activeSession.id}/live`}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
-                        >
-                          <Activity size={13} /> Live Monitor
-                        </Link>
-                        <button
-                          onClick={() => handleCopyCode(activeSession.session_code!)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-white hover:bg-gray-50 transition-colors"
-                        >
-                          {copied ? <Check size={13} className="text-success" /> : <Copy size={13} />}
-                          {copied ? 'Tersalin' : 'Salin Kode'}
-                        </button>
-                        <button
-                          onClick={() => handleRefreshCode(activeSession.id)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-white hover:bg-gray-50 transition-colors"
-                        >
-                          <RefreshCw size={13} /> Refresh Kode
-                        </button>
                         <button
                           onClick={() => setDetailSessionId(activeSession.id)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white transition-colors bg-primary hover:bg-primary-hover"
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
                         >
                           <ClipboardList size={13} /> Lihat Detail
                         </button>
+                        {/* Destructive — danger outline (bukan solid, cegah salah klik) */}
                         <button
                           onClick={() => handleToggle(activeSession)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white transition-opacity bg-danger hover:opacity-90"
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-danger/30 bg-danger/5 text-danger hover:bg-danger/10 transition-colors"
                         >
                           <StopCircle size={13} /> Akhiri
                         </button>
                       </div>
                     </div>
-                  )}
+                    )
+                  })()}
 
                   {/* Add Session Button + Form */}
                   {isOwner && (

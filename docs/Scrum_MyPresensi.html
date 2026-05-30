@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumen Scrum — MyPresensi</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #fff;
+        }
+
+        /* ===== PAGE SETUP FOR PRINT ===== */
+        @page {
+            size: A4;
+            margin: 2cm 2.5cm;
+        }
+
+        @media print {
+            body { font-size: 10.5pt; }
+            .page-break { page-break-before: always; }
+            .no-break { page-break-inside: avoid; }
+            .cover-page { page-break-after: always; }
+            h2 { page-break-before: always; }
+            h2:first-of-type { page-break-before: avoid; }
+            table { page-break-inside: avoid; }
+        }
+
+        /* ===== COVER PAGE ===== */
+        .cover-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .cover-page .institution {
+            font-size: 13pt;
+            font-weight: 600;
+            color: #1e3a5f;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        .cover-page .prodi {
+            font-size: 11pt;
+            color: #4a6fa5;
+            margin-bottom: 3rem;
+        }
+        .cover-page .doc-title {
+            font-size: 28pt;
+            font-weight: 700;
+            color: #0d2137;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        .cover-page .doc-subtitle {
+            font-size: 14pt;
+            color: #2c5282;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+        .cover-page .doc-desc {
+            font-size: 11pt;
+            color: #555;
+            margin-bottom: 3rem;
+        }
+        .cover-page .divider {
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #2c5282, #4299e1);
+            border-radius: 2px;
+            margin: 1.5rem auto;
+        }
+        .cover-team {
+            margin-top: 1rem;
+            text-align: left;
+            width: 100%;
+            max-width: 480px;
+        }
+        .cover-team table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+        }
+        .cover-team th {
+            background: #edf2f7;
+            padding: 6px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #2d3748;
+            border-bottom: 2px solid #cbd5e0;
+        }
+        .cover-team td {
+            padding: 5px 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .cover-date {
+            margin-top: 2rem;
+            font-size: 10pt;
+            color: #718096;
+        }
+
+        /* ===== HEADINGS ===== */
+        h2 {
+            font-size: 16pt;
+            font-weight: 700;
+            color: #1e3a5f;
+            border-bottom: 3px solid #2c5282;
+            padding-bottom: 6px;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        h3 {
+            font-size: 13pt;
+            font-weight: 600;
+            color: #2d3748;
+            margin-top: 1.2rem;
+            margin-bottom: 0.6rem;
+        }
+        h4 {
+            font-size: 11pt;
+            font-weight: 600;
+            color: #4a5568;
+            margin-top: 1rem;
+            margin-bottom: 0.4rem;
+        }
+
+        /* ===== TABLES ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.8rem 0 1.2rem 0;
+            font-size: 9.5pt;
+        }
+        th {
+            background: #1e3a5f;
+            color: #fff;
+            font-weight: 600;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 9pt;
+        }
+        td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+        tr:nth-child(even) { background: #f7fafc; }
+        tr:hover { background: #edf2f7; }
+
+        /* Table variants */
+        .info-table { max-width: 500px; }
+        .info-table th { width: 160px; background: #edf2f7; color: #2d3748; }
+        .info-table td { font-weight: 500; }
+
+        .status-done { color: #22543d; font-weight: 600; }
+        .status-progress { color: #c05621; font-weight: 600; }
+        .status-todo { color: #718096; }
+        .status-backlog { color: #e53e3e; }
+
+        /* ===== PERSONA CARDS ===== */
+        .persona-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #fafbfc;
+        }
+        .persona-card h4 {
+            color: #1e3a5f;
+            font-size: 12pt;
+            margin-top: 0;
+            border-bottom: 2px solid #4299e1;
+            padding-bottom: 4px;
+            display: inline-block;
+        }
+        .persona-card table { margin-top: 0.5rem; }
+        .persona-card th { background: #edf2f7; color: #2d3748; width: 150px; }
+
+        /* ===== SPRINT HEADER ===== */
+        .sprint-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        .sprint-header h3 {
+            color: #fff;
+            margin: 0;
+            font-size: 14pt;
+        }
+        .sprint-header p {
+            color: #bee3f8;
+            font-size: 9.5pt;
+            margin-top: 2px;
+        }
+
+        /* ===== RETRO SECTIONS ===== */
+        .retro-well {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 10px 14px;
+            margin: 0.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        .retro-bad {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 10px 14px;
+            margin: 0.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        .retro-well h4, .retro-bad h4 { margin-top: 0; }
+
+        /* ===== BURNDOWN ASCII ===== */
+        .chart-container {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin: 0.8rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 9pt;
+            line-height: 1.3;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        /* ===== LISTS ===== */
+        ul, ol {
+            margin: 0.4rem 0 0.8rem 1.5rem;
+        }
+        li { margin-bottom: 0.3rem; }
+
+        /* ===== MISC ===== */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 8.5pt;
+            font-weight: 600;
+        }
+        .badge-must { background: #fed7d7; color: #9b2c2c; }
+        .badge-should { background: #fefcbf; color: #975a16; }
+        .badge-could { background: #c6f6d5; color: #276749; }
+        .badge-wont { background: #e2e8f0; color: #4a5568; }
+
+        .highlight-box {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin: 0.8rem 0;
+        }
+
+        .summary-stat {
+            display: inline-block;
+            text-align: center;
+            padding: 12px 16px;
+            margin: 4px;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+        .summary-stat .number {
+            font-size: 22pt;
+            font-weight: 700;
+            display: block;
+        }
+        .summary-stat .label {
+            font-size: 8.5pt;
+            color: #718096;
+        }
+
+        .signature-block {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-item {
+            text-align: center;
+            width: 45%;
+        }
+        .signature-line {
+            border-bottom: 1px solid #2d3748;
+            margin: 3rem auto 0.3rem auto;
+            width: 200px;
+        }
+
+        p { margin-bottom: 0.5rem; }
+        strong { color: #2d3748; }
+    </style>
+</head>
+<body>
+
+<!-- ==================== COVER PAGE ==================== -->
+<div class="cover-page">
+    <div class="institution">Politeknik Pertanian Negeri Samarinda</div>
+    <div class="prodi">Program Studi Teknologi Rekayasa Perangkat Lunak (TRPL)</div>
+    
+    <div class="divider"></div>
+    
+    <div class="doc-title">Dokumen Scrum</div>
+    <div class="doc-subtitle">MyPresensi</div>
+    <div class="doc-desc">Sistem Absensi Mahasiswa dengan 3-Layer Verifikasi<br>(QR Code + GPS + Face Recognition)</div>
+    
+    <div class="divider"></div>
+
+    <div class="cover-team">
+        <table>
+            <thead>
+                <tr><th>Nama</th><th>Peran Scrum</th><th>Peran Teknis</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Tulus Arya Danendra</td><td>Scrum Master</td><td>Full-Stack Developer</td></tr>
+                <tr><td>I Made Sachio Dharmayasa</td><td>Dev Team</td><td>Front-End Developer</td></tr>
+                <tr><td>Abdul Latif</td><td>Dev Team</td><td>Front-End Developer</td></tr>
+                <tr><td>Eza Aditya Dewangga</td><td>Dev Team</td><td>Back-End Developer</td></tr>
+                <tr><td>Muhammad Mukhlis Adim</td><td>Dev Team</td><td>Testing / QA</td></tr>
+                <tr><td>Annafi' Franz, S.Kom., M.Kom</td><td>Product Owner</td><td>Dosen Pembimbing</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cover-date">
+        Mata Kuliah: Project Based Learning (PBL) Semester 6<br>
+        Periode: April – Juni 2026 &nbsp;|&nbsp; Tanggal Dokumen: 20 Mei 2026
+    </div>
+</div>
+
+<!-- ==================== BAB 1: USER STORIES & PERSONA ==================== -->
+<h2>Bab 1: User Stories & Persona</h2>
+
+<h3>1.1 Persona Pengguna</h3>
+
+<div class="persona-card no-break">
+    <h4>Persona 1: Admin Prodi</h4>
+    <table>
+        <tr><th>Nama</th><td>Ibu Sari (representasi admin)</td></tr>
+        <tr><th>Role</th><td>Admin Prodi TRPL</td></tr>
+        <tr><th>Latar Belakang</th><td>Staff administrasi prodi yang mengelola data akademik</td></tr>
+        <tr><th>Kebutuhan</th><td>Mengelola data mahasiswa, dosen, mata kuliah; memantau kehadiran; menghasilkan laporan</td></tr>
+        <tr><th>Pain Points</th><td>Rekap absensi manual rentan kesalahan, sulit pantau real-time, export data lambat</td></tr>
+        <tr><th>Tujuan</th><td>Sistem otomatis yang mengelola seluruh data presensi dan laporan akurat</td></tr>
+    </table>
+</div>
+
+<div class="persona-card no-break">
+    <h4>Persona 2: Dosen Pengampu</h4>
+    <table>
+        <tr><th>Nama</th><td>Pak Andi (representasi dosen)</td></tr>
+        <tr><th>Role</th><td>Dosen Pengampu Mata Kuliah</td></tr>
+        <tr><th>Latar Belakang</th><td>Dosen yang mengajar beberapa mata kuliah dan perlu memantau kehadiran</td></tr>
+        <tr><th>Kebutuhan</th><td>Membuat sesi presensi mudah, pantau siapa hadir real-time, approve izin/sakit</td></tr>
+        <tr><th>Pain Points</th><td>Proses absensi manual memakan waktu, tidak tahu siapa titip absen, susah rekap akhir semester</td></tr>
+        <tr><th>Tujuan</th><td>Satu klik buat sesi → mahasiswa scan → langsung tahu siapa hadir</td></tr>
+    </table>
+</div>
+
+<div class="persona-card no-break">
+    <h4>Persona 3: Mahasiswa</h4>
+    <table>
+        <tr><th>Nama</th><td>Budi (representasi mahasiswa)</td></tr>
+        <tr><th>Role</th><td>Mahasiswa Aktif Semester 6 TRPL</td></tr>
+        <tr><th>Latar Belakang</th><td>Mahasiswa yang mengikuti perkuliahan harian dan perlu presensi setiap pertemuan</td></tr>
+        <tr><th>Kebutuhan</th><td>Presensi cepat lewat HP, lihat riwayat kehadiran, ajukan izin jika tidak bisa hadir</td></tr>
+        <tr><th>Pain Points</th><td>Absensi kertas mudah dititipkan teman, tidak tahu persentase kehadiran sendiri</td></tr>
+        <tr><th>Tujuan</th><td>Presensi cepat (&lt;30 detik), aman (tidak bisa dititip), bisa dipantau mandiri</td></tr>
+    </table>
+</div>
+
+<h3>1.2 User Stories</h3>
+
+<table>
+    <thead>
+        <tr><th>ID</th><th>User Story</th><th>Prioritas</th><th style="text-align:center">SP</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>US-01</td><td>Sebagai <strong>Admin</strong>, saya ingin <strong>login ke dashboard web</strong> agar saya dapat mengelola sistem presensi.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">3</td></tr>
+        <tr><td>US-02</td><td>Sebagai <strong>Admin</strong>, saya ingin <strong>mengelola data mahasiswa</strong> (tambah, edit, hapus, import CSV) agar data selalu akurat.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-03</td><td>Sebagai <strong>Admin</strong>, saya ingin <strong>mengelola data dosen</strong> agar dosen dapat menggunakan sistem.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-04</td><td>Sebagai <strong>Admin</strong>, saya ingin <strong>mengelola mata kuliah dan enrollment</strong> agar jadwal terstruktur.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-05</td><td>Sebagai <strong>Dosen</strong>, saya ingin <strong>membuat sesi presensi dan menampilkan QR Code</strong> agar mahasiswa bisa absensi.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">8</td></tr>
+        <tr><td>US-06</td><td>Sebagai <strong>Mahasiswa</strong>, saya ingin <strong>scan QR Code</strong> dari layar dosen agar saya bisa memulai presensi.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">8</td></tr>
+        <tr><td>US-07</td><td>Sebagai <strong>Mahasiswa</strong>, saya ingin <strong>lokasi GPS diverifikasi</strong> agar sistem memastikan saya di kelas.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">8</td></tr>
+        <tr><td>US-08</td><td>Sebagai <strong>Mahasiswa</strong>, saya ingin <strong>wajah saya diverifikasi</strong> agar identitas tidak bisa dipalsukan.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">13</td></tr>
+        <tr><td>US-09</td><td>Sebagai <strong>Dosen</strong>, saya ingin <strong>melihat rekap kehadiran per MK</strong> agar bisa evaluasi partisipasi.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-10</td><td>Sebagai <strong>Mahasiswa</strong>, saya ingin <strong>melihat riwayat kehadiran</strong> agar tahu persentase kehadiran.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-11</td><td>Sebagai <strong>Mahasiswa</strong>, saya ingin <strong>mengajukan izin/sakit</strong> agar ketidakhadiran tercatat valid.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-12</td><td>Sebagai <strong>Dosen</strong>, saya ingin <strong>approve/reject pengajuan izin</strong> agar kontrol tetap di dosen.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">3</td></tr>
+        <tr><td>US-13</td><td>Sebagai <strong>Admin</strong>, saya ingin <strong>konfigurasi radius geofencing dan toleransi terlambat</strong>.</td><td><span class="badge badge-must">Must</span></td><td style="text-align:center">3</td></tr>
+        <tr><td>US-14</td><td>Sebagai <strong>Admin</strong>, saya ingin <strong>export data kehadiran ke CSV/PDF</strong> untuk pelaporan.</td><td><span class="badge badge-should">Should</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-15</td><td>Sebagai <strong>Admin</strong>, saya ingin <strong>melihat audit log</strong> agar semua aksi tercatat.</td><td><span class="badge badge-should">Should</span></td><td style="text-align:center">3</td></tr>
+        <tr><td>US-16</td><td>Sebagai <strong>Dosen</strong>, saya ingin <strong>memonitor kehadiran real-time</strong> dengan visualisasi geofence.</td><td><span class="badge badge-should">Should</span></td><td style="text-align:center">8</td></tr>
+        <tr><td>US-17</td><td>Sebagai <strong>Dosen</strong>, saya ingin <strong>menampilkan QR fullscreen di proyektor</strong>.</td><td><span class="badge badge-should">Should</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-18</td><td>Sebagai <strong>Mahasiswa</strong>, saya ingin <strong>upload bukti surat sakit/izin</strong> agar lebih valid.</td><td><span class="badge badge-should">Should</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-19</td><td>Sebagai <strong>Pengguna</strong>, saya ingin <strong>bertanya ke AI assistant</strong> tentang data presensi.</td><td><span class="badge badge-could">Could</span></td><td style="text-align:center">8</td></tr>
+        <tr><td>US-20</td><td>Sebagai <strong>Mahasiswa</strong>, saya ingin <strong>onboarding saat pertama install</strong> agar tahu cara pakai.</td><td><span class="badge badge-could">Could</span></td><td style="text-align:center">3</td></tr>
+        <tr><td>US-21</td><td>Sebagai <strong>Mahasiswa</strong>, saya ingin <strong>upload foto profil</strong>.</td><td><span class="badge badge-could">Could</span></td><td style="text-align:center">3</td></tr>
+        <tr><td>US-22</td><td>Sebagai <strong>Admin</strong>, saya ingin <strong>melihat mahasiswa berisiko alpa</strong> untuk intervensi dini.</td><td><span class="badge badge-could">Could</span></td><td style="text-align:center">5</td></tr>
+        <tr><td>US-23</td><td>Sebagai <strong>Mahasiswa</strong>, saya ingin <strong>menghapus data wajah</strong> (hak UU PDP).</td><td><span class="badge badge-could">Could</span></td><td style="text-align:center">3</td></tr>
+        <tr><td>US-24</td><td>Sebagai <strong>Dosen</strong>, saya ingin <strong>push notification</strong> ke mahasiswa saat sesi dibuat.</td><td><span class="badge badge-wont">Won't</span></td><td style="text-align:center">8</td></tr>
+        <tr><td>US-25</td><td>Sebagai <strong>Admin</strong>, saya ingin <strong>monitoring & alerting otomatis</strong>.</td><td><span class="badge badge-wont">Won't</span></td><td style="text-align:center">5</td></tr>
+    </tbody>
+    <tfoot>
+        <tr style="background:#edf2f7;font-weight:700"><td colspan="3" style="text-align:right">Total Story Points</td><td style="text-align:center">139</td></tr>
+    </tfoot>
+</table>
+
+<!-- ==================== BAB 2: PRODUCT BACKLOG ==================== -->
+<h2>Bab 2: Product Backlog</h2>
+
+<h3>2.1 Product Backlog dengan Prioritas MoSCoW</h3>
+
+<table>
+    <thead>
+        <tr><th>Prioritas</th><th>ID</th><th>Product Backlog Item</th><th style="text-align:center">SP</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-01</td><td>Autentikasi Web (Login, Logout, Change Password)</td><td style="text-align:center">3</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-02</td><td>CRUD Mahasiswa + Import CSV</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-03</td><td>CRUD Dosen</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-04</td><td>Manajemen Mata Kuliah & Enrollment</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-05</td><td>Sesi Presensi + QR Code Generation</td><td style="text-align:center">8</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-06</td><td>Scan QR Code Mobile</td><td style="text-align:center">8</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-07</td><td>Verifikasi GPS + Anti Mock Location</td><td style="text-align:center">8</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-08</td><td>Face Recognition (Register + Verify)</td><td style="text-align:center">13</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-09</td><td>Rekap Kehadiran Dosen</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-10</td><td>Riwayat Kehadiran Mahasiswa</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-11</td><td>Pengajuan Izin/Sakit Mahasiswa</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-12</td><td>Approve/Reject Izin Dosen</td><td style="text-align:center">3</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-must">Must</span></td><td>US-13</td><td>Settings Geofence & Toleransi</td><td style="text-align:center">3</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-should">Should</span></td><td>US-14</td><td>Export CSV/PDF</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-should">Should</span></td><td>US-15</td><td>Audit Log</td><td style="text-align:center">3</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-should">Should</span></td><td>US-16</td><td>Live Monitor Real-time</td><td style="text-align:center">8</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-should">Should</span></td><td>US-17</td><td>QR Display Fullscreen</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-should">Should</span></td><td>US-18</td><td>Upload Bukti Izin/Sakit</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-could">Could</span></td><td>US-19</td><td>AI Chatbot Assistant</td><td style="text-align:center">8</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-could">Could</span></td><td>US-20</td><td>Onboarding Mobile</td><td style="text-align:center">3</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-could">Could</span></td><td>US-21</td><td>Upload Foto Profil</td><td style="text-align:center">3</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-could">Could</span></td><td>US-22</td><td>Dashboard At-Risk Students</td><td style="text-align:center">5</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-could">Could</span></td><td>US-23</td><td>Hapus Data Wajah (UU PDP)</td><td style="text-align:center">3</td><td class="status-done">✅ Done</td></tr>
+        <tr><td><span class="badge badge-wont">Won't</span></td><td>US-24</td><td>Push Notification FCM</td><td style="text-align:center">8</td><td class="status-backlog">❌ Backlog</td></tr>
+        <tr><td><span class="badge badge-wont">Won't</span></td><td>US-25</td><td>Monitoring & Alerting</td><td style="text-align:center">5</td><td class="status-backlog">❌ Backlog</td></tr>
+    </tbody>
+</table>
+
+<div class="highlight-box">
+    <strong>Ringkasan:</strong> Must Have: 76 SP (100% ✅) &nbsp;|&nbsp; Should Have: 26 SP (100% ✅) &nbsp;|&nbsp; Could Have: 22 SP (100% ✅) &nbsp;|&nbsp; Won't Have: 13 SP (deferred)
+</div>
+
+<!-- ==================== BAB 3-4: SPRINT 1 ==================== -->
+<h2>Bab 3: Sprint 1 — Foundation & Web Core</h2>
+
+<div class="sprint-header">
+    <h3>Sprint Planning — Sprint 1</h3>
+    <p>6 April – 20 April 2026 &nbsp;|&nbsp; Target: 42 SP &nbsp;|&nbsp; Kapasitas: 5 dev × 10 hari</p>
+</div>
+
+<table class="info-table">
+    <tr><th>Sprint Goal</th><td>Membangun fondasi sistem web (autentikasi, database, dashboard) agar Admin bisa login dan melihat dashboard</td></tr>
+    <tr><th>Velocity Target</th><td>40 SP (sprint pertama, konservatif)</td></tr>
+    <tr><th>Sprint Backlog</th><td>US-01, US-02, US-03, US-04, US-13 + Infrastructure</td></tr>
+</table>
+
+<h3>Sprint Backlog — Sprint 1</h3>
+
+<table>
+    <thead>
+        <tr><th>Task</th><th>User Story</th><th>Deskripsi</th><th>PIC</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>T1-01</td><td>US-01</td><td>Scaffold Next.js 14 + konfigurasi TypeScript</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-02</td><td>US-01</td><td>Setup Supabase project + .env.local</td><td>Tulus, Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-03</td><td>US-01</td><td>Buat Supabase client (server + browser)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-04</td><td>US-01</td><td>Halaman Login (Server + Client Component)</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-05</td><td>US-01</td><td>Server Action: login, logout, changePassword</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-06</td><td>US-01</td><td>Middleware route guard</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-07</td><td>Infra</td><td>Design System (globals.css, Tailwind config, color tokens TRPL)</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-08</td><td>Infra</td><td>Type definitions (10 interface + 5 union types)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-09</td><td>Infra</td><td>Utility functions (11 helper)</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-10</td><td>Infra</td><td>SQL Migration 001: initial schema (10 tabel + RLS + triggers)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-11</td><td>Infra</td><td>SQL Migration 002-005</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-12</td><td>Infra</td><td>Dashboard Layout (Sidebar + Topbar)</td><td>Sachio, Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-13</td><td>Infra</td><td>Dashboard Admin (summary cards + tabel absensi)</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-14</td><td>US-02</td><td>Halaman Mahasiswa (tabel + add modal + edit modal)</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-15</td><td>US-02</td><td>Import CSV mahasiswa + bulk create akun</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-16</td><td>US-03</td><td>Halaman Dosen (tabel + CRUD)</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-17</td><td>US-04</td><td>Halaman Mata Kuliah (card grid + CRUD + enrollment)</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-18</td><td>US-13</td><td>Halaman Settings (geofence radius, toleransi, face mode)</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-19</td><td>QA</td><td>Testing integrasi login → dashboard → CRUD</td><td>Mukhlis</td><td class="status-done">✅</td></tr>
+        <tr><td>T1-20</td><td>QA</td><td>Bug fixing (5 bug ditemukan dan diperbaiki)</td><td>Tulus</td><td class="status-done">✅</td></tr>
+    </tbody>
+    <tfoot>
+        <tr style="background:#f0fff4;font-weight:700"><td colspan="4" style="text-align:right">Realisasi Sprint 1</td><td class="status-done">42/42 SP (100%)</td></tr>
+    </tfoot>
+</table>
+
+<h3>Sprint Review — Sprint 1</h3>
+<table class="info-table">
+    <tr><th>Tanggal Demo</th><td>20 April 2026</td></tr>
+    <tr><th>Peserta</th><td>Tim Development + Product Owner (Pak Annafi' Franz)</td></tr>
+    <tr><th>Lokasi</th><td>Kampus Politeknik Pertanian Negeri Samarinda</td></tr>
+</table>
+
+<table>
+    <thead><tr><th>#</th><th>Fitur Demo</th><th>Hasil</th><th>Feedback PO</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>Login web dengan email + password</td><td class="status-done">✅ Berhasil</td><td>Perlu force change password</td></tr>
+        <tr><td>2</td><td>Dashboard admin (5 KPI cards + tabel)</td><td class="status-done">✅ Berhasil</td><td>Tampilan sudah bagus</td></tr>
+        <tr><td>3</td><td>CRUD Mahasiswa + Import CSV</td><td class="status-done">✅ Berhasil</td><td>Import CSV sangat membantu</td></tr>
+        <tr><td>4</td><td>CRUD Dosen</td><td class="status-done">✅ Berhasil</td><td>OK</td></tr>
+        <tr><td>5</td><td>Manajemen Mata Kuliah + Enrollment</td><td class="status-done">✅ Berhasil</td><td>Perlu assignment otomatis</td></tr>
+        <tr><td>6</td><td>Database schema (10 tabel + RLS)</td><td class="status-done">✅ Berhasil</td><td>Keamanan RLS sudah baik</td></tr>
+        <tr><td>7</td><td>Settings page</td><td class="status-done">✅ Berhasil</td><td>Default radius 100m sesuai</td></tr>
+    </tbody>
+</table>
+
+<h3>Sprint Retrospective — Sprint 1</h3>
+
+<div class="retro-well">
+    <h4>✅ What Went Well</h4>
+    <ol>
+        <li><strong>Scaffold cepat</strong> — Next.js 14 + Supabase berhasil di-setup dalam 1 sesi pertama</li>
+        <li><strong>Design system solid</strong> — Color token TRPL, CSS utility, component pattern terbentuk di awal</li>
+        <li><strong>Database schema komprehensif</strong> — 10 tabel + 11 index + RLS policies selesai dalam 1 migration</li>
+        <li><strong>Import CSV mahasiswa</strong> berfungsi baik, menghemat waktu admin</li>
+        <li><strong>Kolaborasi front-end</strong> — Sachio dan Abdul Latif bisa paralel tanpa konflik</li>
+    </ol>
+</div>
+
+<div class="retro-bad">
+    <h4>❌ What Didn't Go Well</h4>
+    <ol>
+        <li><strong>Setup environment lambat</strong> — Hari 1-2 banyak waktu konfigurasi</li>
+        <li><strong>5 bug ditemukan</strong> saat integrasi (package.json, 404 route, middleware crash)</li>
+        <li><strong>Belum ada automated testing</strong></li>
+        <li><strong>Mobile app belum dimulai</strong> — Flutter SDK masih proses instalasi</li>
+    </ol>
+</div>
+
+<h4>Action Items</h4>
+<table>
+    <thead><tr><th>#</th><th>Action Item</th><th>PIC</th><th>Target</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>Buat checklist setup environment untuk developer baru</td><td>Tulus</td><td>Sprint 2</td></tr>
+        <tr><td>2</td><td>Setup Flutter project</td><td>Tulus</td><td>Sprint 2 awal</td></tr>
+        <tr><td>3</td><td>Buat halaman force change password</td><td>Eza</td><td>Sprint 2</td></tr>
+        <tr><td>4</td><td>Mulai test plan untuk fitur inti</td><td>Mukhlis</td><td>Sprint 2</td></tr>
+        <tr><td>5</td><td>Dokumentasi API endpoint untuk tim mobile</td><td>Eza</td><td>Sprint 2</td></tr>
+    </tbody>
+</table>
+
+<!-- ==================== BAB 5-6: SPRINT 2 ==================== -->
+<h2>Bab 4: Sprint 2 — Mobile Core & Presensi Flow</h2>
+
+<div class="sprint-header">
+    <h3>Sprint Planning — Sprint 2</h3>
+    <p>21 April – 4 Mei 2026 &nbsp;|&nbsp; Target: 47 SP &nbsp;|&nbsp; Velocity Ref: 42 SP (Sprint 1)</p>
+</div>
+
+<table class="info-table">
+    <tr><th>Sprint Goal</th><td>Mengembangkan mobile app mahasiswa dan flow presensi inti (scan QR → GPS → submit)</td></tr>
+    <tr><th>Sprint Backlog</th><td>US-05, US-06, US-07, US-09, US-10, US-11, US-12, US-14, US-15 + Mobile Foundation</td></tr>
+</table>
+
+<h3>Sprint Backlog — Sprint 2</h3>
+
+<table>
+    <thead><tr><th>Task</th><th>US</th><th>Deskripsi</th><th>PIC</th><th>Status</th></tr></thead>
+    <tbody>
+        <tr><td>T2-01</td><td>Infra</td><td>Scaffold Flutter project + konfigurasi</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-02</td><td>Infra</td><td>Setup Riverpod 3 + GoRouter + Dio client</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-03</td><td>Infra</td><td>Mobile design system (AppColors, AppTheme)</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-04</td><td>Infra</td><td>Mobile login screen + auth provider</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-05</td><td>Infra</td><td>Splash screen + routing guard</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-06</td><td>Infra</td><td>Bottom navigation (AppShell) + 5 tab</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-07</td><td>US-05</td><td>Web: Halaman sesi presensi (buat/tutup sesi)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-08</td><td>US-05</td><td>Web: QR Code generation + OTP 6-digit</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-09</td><td>US-05</td><td>API Route: POST/GET sesi + session_code</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-10</td><td>US-06</td><td>Mobile: Scan QR screen (camera + decode)</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-11</td><td>US-07</td><td>Mobile: Location service (Haversine + mock detection)</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-12</td><td>US-07</td><td>API: Attendance submit (6-layer validation)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-13</td><td>US-06</td><td>Mobile: Attendance result screen</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-14</td><td>US-09</td><td>Web: Halaman rekap kehadiran (filter + tabel)</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-15</td><td>US-14</td><td>Web: Export CSV/PDF</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-16</td><td>US-10</td><td>Mobile: History screen + provider</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-17</td><td>US-11</td><td>Mobile: Submit leave request screen</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-18</td><td>US-11</td><td>API: POST leave request + file logic</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-19</td><td>US-12</td><td>Web: Halaman izin dosen (approve/reject)</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-20</td><td>US-15</td><td>Web: Halaman audit log</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-21</td><td>Infra</td><td>Mobile: Notification screen</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-22</td><td>Infra</td><td>Mobile: Profile screen + change password</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-23</td><td>QA</td><td>Testing integrasi mobile ↔ web API</td><td>Mukhlis</td><td class="status-done">✅</td></tr>
+        <tr><td>T2-24</td><td>QA</td><td>Bug fixing QR field mismatch + face migration</td><td>Tulus</td><td class="status-done">✅</td></tr>
+    </tbody>
+    <tfoot>
+        <tr style="background:#f0fff4;font-weight:700"><td colspan="4" style="text-align:right">Realisasi Sprint 2</td><td class="status-done">47/47 SP (100%)</td></tr>
+    </tfoot>
+</table>
+
+<h3>Sprint Review — Sprint 2</h3>
+<table>
+    <thead><tr><th>#</th><th>Fitur Demo</th><th>Hasil</th><th>Feedback PO</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>Mobile login + splash screen</td><td class="status-done">✅ Berhasil</td><td>Tampilan sudah baik</td></tr>
+        <tr><td>2</td><td>Dosen buat sesi → QR Code + OTP</td><td class="status-done">✅ Berhasil</td><td>Perlu QR fullscreen</td></tr>
+        <tr><td>3</td><td>Mahasiswa scan QR → GPS check → submit</td><td class="status-done">✅ Berhasil</td><td>Core flow berjalan</td></tr>
+        <tr><td>4</td><td>Anti mock GPS (isMocked reject)</td><td class="status-done">✅ Berhasil</td><td>Fitur kritis, pertahankan</td></tr>
+        <tr><td>5</td><td>Rekap kehadiran + export CSV</td><td class="status-done">✅ Berhasil</td><td>Sangat membantu</td></tr>
+        <tr><td>6</td><td>Submit izin/sakit + approve dosen</td><td class="status-done">✅ Berhasil</td><td>Perlu upload bukti</td></tr>
+        <tr><td>7</td><td>Riwayat kehadiran mahasiswa</td><td class="status-done">✅ Berhasil</td><td>Perlu persentase</td></tr>
+        <tr><td>8</td><td>Audit log</td><td class="status-done">✅ Berhasil</td><td>Bagus untuk tracking</td></tr>
+    </tbody>
+</table>
+
+<h3>Sprint Retrospective — Sprint 2</h3>
+
+<div class="retro-well">
+    <h4>✅ What Went Well</h4>
+    <ol>
+        <li><strong>Mobile app fungsional</strong> — Dalam 2 minggu, app bisa login → scan QR → submit presensi</li>
+        <li><strong>GPS Haversine + mock detection</strong> bekerja sempurna</li>
+        <li><strong>API design konsisten</strong> — Pola autentikasi terstandardisasi</li>
+        <li><strong>Paralelisasi efektif</strong> — Tim web dan mobile bersamaan tanpa blocking</li>
+        <li><strong>Velocity naik 42 → 47 SP</strong> (+12%)</li>
+    </ol>
+</div>
+
+<div class="retro-bad">
+    <h4>❌ What Didn't Go Well</h4>
+    <ol>
+        <li><strong>Face Recognition belum masuk</strong> — Terlalu banyak task presensi</li>
+        <li><strong>Bug QR field mismatch</strong> (sid vs session_id) memakan waktu debug</li>
+        <li><strong>UI mobile masih basic</strong></li>
+        <li><strong>Test coverage masih minim</strong></li>
+    </ol>
+</div>
+
+<!-- ==================== BAB 7-8: SPRINT 3 ==================== -->
+<h2>Bab 5: Sprint 3 — Security Hardening & Advanced Features</h2>
+
+<div class="sprint-header">
+    <h3>Sprint Planning — Sprint 3</h3>
+    <p>5 Mei – 18 Mei 2026 &nbsp;|&nbsp; Target: 53 SP (stretch) &nbsp;|&nbsp; Velocity Ref: 44.5 SP avg</p>
+</div>
+
+<table class="info-table">
+    <tr><th>Sprint Goal</th><td>Mengimplementasikan face recognition (layer ke-3), fitur advanced, dan hardening keamanan sistem</td></tr>
+    <tr><th>Sprint Backlog</th><td>US-08, US-16, US-17, US-18, US-19, US-20, US-21, US-22, US-23 + Security</td></tr>
+</table>
+
+<h3>Sprint Backlog — Sprint 3</h3>
+
+<table>
+    <thead><tr><th>Task</th><th>US</th><th>Deskripsi</th><th>PIC</th><th>Status</th></tr></thead>
+    <tbody>
+        <tr><td>T3-01</td><td>US-08</td><td>Integrasi MobileFaceNet TFLite (192-D embedding)</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-02</td><td>US-08</td><td>Face registration screen (capture + extract + upload)</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-03</td><td>US-08</td><td>API: POST /face/register (simpan embedding ke DB)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-04</td><td>US-08</td><td>Face verification screen (capture + compare)</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-05</td><td>US-08</td><td>API: POST /face/verify (server-side cosine similarity)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-06</td><td>US-08</td><td>SQL Migration: face_embeddings table + RLS</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-07</td><td>US-08</td><td>Integrasi face verify ke attendance flow</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-08</td><td>US-16</td><td>Web: Live monitor (SVG geofence ring)</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-09</td><td>US-16</td><td>Supabase Realtime subscription</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-10</td><td>US-16</td><td>Live attendance stats (counter)</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-11</td><td>US-17</td><td>QR Display fullscreen (projector mode)</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-12</td><td>US-18</td><td>Supabase Storage: bucket izin + signed URL</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-13</td><td>US-18</td><td>Mobile: upload file picker + compress</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-14</td><td>US-18</td><td>Web: preview bukti izin (signed URL)</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-15</td><td>US-19</td><td>API: POST /ai/chat (Gemini 2.5 Flash, streaming)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-16</td><td>US-19</td><td>Web: AI chatbot panel (context-aware)</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-17</td><td>US-19</td><td>Mobile: AI chatbot screen</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-18</td><td>US-20</td><td>Mobile: Onboarding 3-step</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-19</td><td>US-21</td><td>Mobile: Avatar upload + crop</td><td>Sachio</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-20</td><td>US-22</td><td>Web: Dashboard widget at-risk students</td><td>Latif</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-21</td><td>US-22</td><td>Supabase RPC: get_at_risk_students + security</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-22</td><td>US-23</td><td>Mobile: Hapus data wajah (2-step UU PDP)</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-23</td><td>Sec</td><td>RLS consolidation (10 tabel, drop-recreate)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-24</td><td>Sec</td><td>Rate limiting per-device (composite key)</td><td>Eza</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-25</td><td>Sec</td><td>Security audit: function grants, revoke public</td><td>Eza, Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-26</td><td>Doc</td><td>DB Recovery Runbook documentation</td><td>Tulus</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-27</td><td>QA</td><td>Testing integrasi face recognition E2E</td><td>Mukhlis</td><td class="status-done">✅</td></tr>
+        <tr><td>T3-28</td><td>QA</td><td>Bug fixing (session code 404, face migration, RLS)</td><td>Tulus</td><td class="status-done">✅</td></tr>
+    </tbody>
+    <tfoot>
+        <tr style="background:#f0fff4;font-weight:700"><td colspan="4" style="text-align:right">Realisasi Sprint 3</td><td class="status-done">53/53 SP (100%)</td></tr>
+    </tfoot>
+</table>
+
+<h3>Sprint Review — Sprint 3</h3>
+<table>
+    <thead><tr><th>#</th><th>Fitur Demo</th><th>Hasil</th><th>Feedback PO</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>Face Registration → Face Verify → Submit Presensi</td><td class="status-done">✅ Berhasil</td><td><strong>Fitur unggulan!</strong></td></tr>
+        <tr><td>2</td><td>Server-side face comparison (cosine similarity)</td><td class="status-done">✅ Berhasil</td><td>Bagus, embedding aman di server</td></tr>
+        <tr><td>3</td><td>Live Monitor + Geofence Ring SVG</td><td class="status-done">✅ Berhasil</td><td>Visualisasi sangat membantu</td></tr>
+        <tr><td>4</td><td>QR Fullscreen (projector mode)</td><td class="status-done">✅ Berhasil</td><td>Praktis untuk kelas besar</td></tr>
+        <tr><td>5</td><td>AI Chatbot (Web + Mobile)</td><td class="status-done">✅ Berhasil</td><td>Value-add, respons cepat</td></tr>
+        <tr><td>6</td><td>Upload bukti izin + preview signed URL</td><td class="status-done">✅ Berhasil</td><td>Dosen bisa lihat langsung</td></tr>
+        <tr><td>7</td><td>Onboarding 3-step + avatar upload</td><td class="status-done">✅ Berhasil</td><td>UX friendly</td></tr>
+        <tr><td>8</td><td>Hapus data wajah (UU PDP)</td><td class="status-done">✅ Berhasil</td><td>Compliance hukum penting</td></tr>
+        <tr><td>9</td><td>Dashboard at-risk students</td><td class="status-done">✅ Berhasil</td><td>Early warning system</td></tr>
+        <tr><td>10</td><td>Security hardening (RLS, rate limit)</td><td class="status-done">✅ Berhasil</td><td>Enterprise-grade</td></tr>
+    </tbody>
+</table>
+
+<h3>Sprint Retrospective — Sprint 3</h3>
+
+<div class="retro-well">
+    <h4>✅ What Went Well</h4>
+    <ol>
+        <li><strong>Face Recognition berhasil</strong> — MobileFaceNet 192-D, threshold 0.65 optimal</li>
+        <li><strong>Server-side verification</strong> tepat (anti-bypass)</li>
+        <li><strong>Velocity tertinggi: 53 SP</strong> — produktivitas optimal</li>
+        <li><strong>3-layer security</strong> menjadi USP proyek</li>
+        <li><strong>AI Chatbot</strong> streaming Gemini 2.5 Flash berjalan lancar</li>
+        <li><strong>UU PDP compliance</strong> — hapus data biometrik dengan edukasi 2-step</li>
+    </ol>
+</div>
+
+<div class="retro-bad">
+    <h4>❌ What Didn't Go Well</h4>
+    <ol>
+        <li><strong>Debt teknis menumpuk</strong> — RLS perlu consolidation</li>
+        <li><strong>Bug face migration</strong> sempat konflik</li>
+        <li><strong>Testing masih manual</strong></li>
+        <li><strong>QR Rolling 5s</strong> belum sempat diimplementasi</li>
+    </ol>
+</div>
+
+<!-- ==================== BAB 9: SPRINT 4 ==================== -->
+<h2>Bab 6: Sprint 4 — Production Readiness (In Progress)</h2>
+
+<div class="sprint-header" style="background: linear-gradient(135deg, #c05621 0%, #dd6b20 100%);">
+    <h3>🟡 Sprint 4 — In Progress</h3>
+    <p>19 Mei – 8 Juni 2026 &nbsp;|&nbsp; Target: 21 SP &nbsp;|&nbsp; Fokus: Quality & Demo Preparation</p>
+</div>
+
+<table class="info-table">
+    <tr><th>Sprint Goal</th><td>Memastikan sistem production-ready untuk demo PBL 8 Juni 2026</td></tr>
+    <tr><th>Status</th><td><strong style="color:#c05621">🟡 In Progress</strong></td></tr>
+</table>
+
+<table>
+    <thead><tr><th>Task</th><th>Deskripsi</th><th>PIC</th><th style="text-align:center">SP</th><th>Status</th></tr></thead>
+    <tbody>
+        <tr><td>T4-01</td><td>Smoke test E2E pada HP fisik (Android)</td><td>Mukhlis</td><td style="text-align:center">5</td><td class="status-progress">⏳ In Progress</td></tr>
+        <tr><td>T4-02</td><td>Fix UI bugs (overflow, padding, responsive)</td><td>Sachio, Latif</td><td style="text-align:center">3</td><td class="status-progress">⏳ In Progress</td></tr>
+        <tr><td>T4-03</td><td>Performance optimization (lazy load, caching)</td><td>Eza</td><td style="text-align:center">3</td><td class="status-todo">📋 To Do</td></tr>
+        <tr><td>T4-04</td><td>Persiapan materi demo PBL (skenario + slide)</td><td>Seluruh tim</td><td style="text-align:center">3</td><td class="status-todo">📋 To Do</td></tr>
+        <tr><td>T4-05</td><td>Dokumentasi final (README + API docs)</td><td>Tulus</td><td style="text-align:center">2</td><td class="status-progress">⏳ In Progress</td></tr>
+        <tr><td>T4-06</td><td>Penyusunan dokumen Scrum</td><td>Tulus</td><td style="text-align:center">2</td><td class="status-progress">⏳ In Progress</td></tr>
+        <tr><td>T4-07</td><td>Regression testing fitur inti</td><td>Mukhlis</td><td style="text-align:center">3</td><td class="status-todo">📋 To Do</td></tr>
+    </tbody>
+    <tfoot>
+        <tr style="background:#fefcbf;font-weight:700"><td colspan="3" style="text-align:right">Progress Sprint 4</td><td style="text-align:center">21</td><td class="status-progress">8/21 SP in progress</td></tr>
+    </tfoot>
+</table>
+
+<!-- ==================== BAB 10: REFINEMENT ==================== -->
+<h2>Bab 7: Product Backlog Refinement</h2>
+
+<h3>7.1 Perubahan Prioritas Selama Proyek</h3>
+<table>
+    <thead><tr><th>Item</th><th>Perubahan</th><th>Alasan</th></tr></thead>
+    <tbody>
+        <tr><td>US-08 (Face Recognition)</td><td>Sprint 2 → Sprint 3</td><td>Sprint 2 terlalu padat dengan presensi core flow</td></tr>
+        <tr><td>US-16 (Live Monitor)</td><td>Could Have → Should Have</td><td>Feedback PO: fitur penting untuk dosen</td></tr>
+        <tr><td>US-19 (AI Chatbot)</td><td>Tetap Could Have</td><td>Dimasukkan Sprint 3 karena kapasitas masih ada</td></tr>
+        <tr><td>US-24 (Push Notif)</td><td>Tetap Won't Have</td><td>Butuh konfigurasi Firebase yang belum prioritas</td></tr>
+    </tbody>
+</table>
+
+<h3>7.2 User Story Baru (muncul selama development)</h3>
+<table>
+    <thead><tr><th>ID</th><th>User Story Baru</th><th>Asal</th><th style="text-align:center">SP</th></tr></thead>
+    <tbody>
+        <tr><td>US-20</td><td>Onboarding 3-step</td><td>Feedback UX testing</td><td style="text-align:center">3</td></tr>
+        <tr><td>US-22</td><td>At-risk students dashboard</td><td>Feedback PO Sprint 2 review</td><td style="text-align:center">5</td></tr>
+        <tr><td>US-23</td><td>Hapus data wajah (UU PDP)</td><td>Analisis compliance hukum</td><td style="text-align:center">3</td></tr>
+    </tbody>
+</table>
+
+<h3>7.3 Re-estimation Story Points</h3>
+<table>
+    <thead><tr><th>ID</th><th style="text-align:center">Estimasi Awal</th><th style="text-align:center">Estimasi Akhir</th><th>Alasan</th></tr></thead>
+    <tbody>
+        <tr><td>US-08</td><td style="text-align:center">8 SP</td><td style="text-align:center">13 SP</td><td>Kompleksitas TFLite + server-side lebih tinggi</td></tr>
+        <tr><td>US-05</td><td style="text-align:center">5 SP</td><td style="text-align:center">8 SP</td><td>Perlu QR generation + OTP + session management</td></tr>
+        <tr><td>US-16</td><td style="text-align:center">5 SP</td><td style="text-align:center">8 SP</td><td>Supabase Realtime + SVG geofence ring lebih kompleks</td></tr>
+    </tbody>
+</table>
+
+<h3>7.4 Definition of Done (DoD)</h3>
+<ol>
+    <li>Kode berjalan tanpa error di environment development</li>
+    <li>Fitur sesuai acceptance criteria dari User Story</li>
+    <li>RLS policy diterapkan untuk tabel terkait</li>
+    <li>UI responsive (web) / adaptive (mobile)</li>
+    <li>Diuji manual oleh QA (Mukhlis)</li>
+    <li>Tidak ada regression pada fitur yang sudah ada</li>
+    <li>Kode sudah di-commit dan di-push ke repository</li>
+</ol>
+
+<!-- ==================== BAB 11: VELOCITY CHART ==================== -->
+<h2>Bab 8: Velocity Chart</h2>
+
+<h3>8.1 Data Velocity per Sprint</h3>
+<table>
+    <thead><tr><th style="text-align:center">Sprint</th><th style="text-align:center">SP Planned</th><th style="text-align:center">SP Completed</th><th style="text-align:center">Velocity</th></tr></thead>
+    <tbody>
+        <tr><td style="text-align:center">Sprint 1</td><td style="text-align:center">42</td><td style="text-align:center">42</td><td style="text-align:center"><strong>42</strong></td></tr>
+        <tr><td style="text-align:center">Sprint 2</td><td style="text-align:center">47</td><td style="text-align:center">47</td><td style="text-align:center"><strong>47</strong></td></tr>
+        <tr><td style="text-align:center">Sprint 3</td><td style="text-align:center">53</td><td style="text-align:center">53</td><td style="text-align:center"><strong>53</strong></td></tr>
+        <tr><td style="text-align:center">Sprint 4</td><td style="text-align:center">21</td><td style="text-align:center">6 (in progress)</td><td style="text-align:center">—</td></tr>
+    </tbody>
+    <tfoot>
+        <tr style="background:#edf2f7;font-weight:700"><td colspan="3" style="text-align:right">Rata-rata Velocity (Sprint 1-3)</td><td style="text-align:center">47.3 SP</td></tr>
+    </tfoot>
+</table>
+
+<h3>8.2 Visualisasi Velocity</h3>
+<div class="chart-container">
+SP
+55 │                           ┌─────┐
+50 │              ┌─────┐      │  53 │
+45 │  ┌─────┐    │  47 │      │     │
+40 │  │  42 │    │     │      │     │
+35 │  │     │    │     │      │     │
+30 │  │     │    │     │      │     │
+25 │  │     │    │     │      │     │     ┌─────┐
+20 │  │     │    │     │      │     │     │  21 │ ← target
+15 │  │     │    │     │      │     │     │     │
+10 │  │     │    │     │      │     │     │░░░░░│ 6 done
+ 5 │  │     │    │     │      │     │     │░░░░░│
+ 0 └──┴─────┴────┴─────┴──────┴─────┴─────┴─────┘
+    Sprint 1    Sprint 2     Sprint 3    Sprint 4
+                                       (In Progress)
+
+Tren: +12%       +13%        ↓ (controlled, quality focus)
+</div>
+
+<!-- ==================== BAB 12: BURNDOWN CHART ==================== -->
+<h2>Bab 9: Burndown Chart</h2>
+
+<h3>9.1 Burndown Chart — Sprint 1 (42 SP)</h3>
+<table>
+    <thead><tr><th style="text-align:center">Hari</th><th style="text-align:center">1</th><th style="text-align:center">2</th><th style="text-align:center">3</th><th style="text-align:center">4</th><th style="text-align:center">5</th><th style="text-align:center">6</th><th style="text-align:center">7</th><th style="text-align:center">8</th><th style="text-align:center">9</th><th style="text-align:center">10</th></tr></thead>
+    <tbody>
+        <tr><td style="text-align:center"><strong>Ideal</strong></td><td style="text-align:center">38</td><td style="text-align:center">34</td><td style="text-align:center">30</td><td style="text-align:center">26</td><td style="text-align:center">22</td><td style="text-align:center">18</td><td style="text-align:center">14</td><td style="text-align:center">10</td><td style="text-align:center">6</td><td style="text-align:center">0</td></tr>
+        <tr style="background:#ebf8ff"><td style="text-align:center"><strong>Aktual</strong></td><td style="text-align:center">42</td><td style="text-align:center">39</td><td style="text-align:center">35</td><td style="text-align:center">30</td><td style="text-align:center">25</td><td style="text-align:center">20</td><td style="text-align:center">16</td><td style="text-align:center">12</td><td style="text-align:center">7</td><td style="text-align:center">0</td></tr>
+    </tbody>
+</table>
+<p><em>Catatan: Awal sprint lebih lambat (setup environment). Hari 5-10 percepatan karena tim familiar.</em></p>
+
+<h3>9.2 Burndown Chart — Sprint 2 (47 SP)</h3>
+<table>
+    <thead><tr><th style="text-align:center">Hari</th><th style="text-align:center">1</th><th style="text-align:center">2</th><th style="text-align:center">3</th><th style="text-align:center">4</th><th style="text-align:center">5</th><th style="text-align:center">6</th><th style="text-align:center">7</th><th style="text-align:center">8</th><th style="text-align:center">9</th><th style="text-align:center">10</th></tr></thead>
+    <tbody>
+        <tr><td style="text-align:center"><strong>Ideal</strong></td><td style="text-align:center">42</td><td style="text-align:center">38</td><td style="text-align:center">33</td><td style="text-align:center">28</td><td style="text-align:center">24</td><td style="text-align:center">19</td><td style="text-align:center">14</td><td style="text-align:center">9</td><td style="text-align:center">5</td><td style="text-align:center">0</td></tr>
+        <tr style="background:#ebf8ff"><td style="text-align:center"><strong>Aktual</strong></td><td style="text-align:center">47</td><td style="text-align:center">44</td><td style="text-align:center">39</td><td style="text-align:center">33</td><td style="text-align:center">28</td><td style="text-align:center">22</td><td style="text-align:center">17</td><td style="text-align:center">12</td><td style="text-align:center">5</td><td style="text-align:center">0</td></tr>
+    </tbody>
+</table>
+<p><em>Catatan: Sprint 2 lebih smooth. Hari 8-10 percepatan integrasi.</em></p>
+
+<h3>9.3 Burndown Chart — Sprint 3 (53 SP)</h3>
+<table>
+    <thead><tr><th style="text-align:center">Hari</th><th style="text-align:center">1</th><th style="text-align:center">2</th><th style="text-align:center">3</th><th style="text-align:center">4</th><th style="text-align:center">5</th><th style="text-align:center">6</th><th style="text-align:center">7</th><th style="text-align:center">8</th><th style="text-align:center">9</th><th style="text-align:center">10</th></tr></thead>
+    <tbody>
+        <tr><td style="text-align:center"><strong>Ideal</strong></td><td style="text-align:center">48</td><td style="text-align:center">42</td><td style="text-align:center">37</td><td style="text-align:center">32</td><td style="text-align:center">27</td><td style="text-align:center">21</td><td style="text-align:center">16</td><td style="text-align:center">11</td><td style="text-align:center">5</td><td style="text-align:center">0</td></tr>
+        <tr style="background:#ebf8ff"><td style="text-align:center"><strong>Aktual</strong></td><td style="text-align:center">53</td><td style="text-align:center">50</td><td style="text-align:center">45</td><td style="text-align:center">38</td><td style="text-align:center">32</td><td style="text-align:center">26</td><td style="text-align:center">20</td><td style="text-align:center">13</td><td style="text-align:center">6</td><td style="text-align:center">0</td></tr>
+    </tbody>
+</table>
+<p><em>Catatan: Sprint 3 paling menantang. Hari 1-3 lambat (face recognition). Setelah TFLite berhasil, velocity melonjak.</em></p>
+
+<!-- ==================== BAB 13: RINGKASAN ==================== -->
+<h2>Bab 10: Ringkasan & Kesimpulan</h2>
+
+<h3>10.1 Ringkasan Progres Proyek</h3>
+
+<table>
+    <thead><tr><th>Metrik</th><th>Nilai</th></tr></thead>
+    <tbody>
+        <tr><td>Total Sprint</td><td><strong>4</strong> (3 selesai, 1 in progress)</td></tr>
+        <tr><td>Total SP Selesai</td><td><strong>142 SP</strong> dari 160 SP total backlog</td></tr>
+        <tr><td>Rata-rata Velocity</td><td><strong>47.3 SP/sprint</strong></td></tr>
+        <tr><td>Must Have Completion</td><td><strong>76/76 SP (100%)</strong></td></tr>
+        <tr><td>Should Have Completion</td><td><strong>26/26 SP (100%)</strong></td></tr>
+        <tr><td>Could Have Completion</td><td><strong>22/22 SP (100%)</strong></td></tr>
+        <tr><td>Won't Have (deferred)</td><td>13 SP → rilis berikutnya</td></tr>
+        <tr><td>Fitur Selesai</td><td><strong>23 dari 25</strong> user stories</td></tr>
+        <tr><td>Status Proyek</td><td><strong style="color:#22543d">🟢 On Track — Release Candidate</strong></td></tr>
+    </tbody>
+</table>
+
+<h3>10.2 Pencapaian Utama</h3>
+<ol>
+    <li><strong>3-Layer Verification System</strong> — QR Code + GPS (Haversine + anti-mock) + Face Recognition (MobileFaceNet 192-D)</li>
+    <li><strong>Full-Stack Implementation</strong> — Web (Next.js 14) + Mobile (Flutter 3.11) + Backend (Supabase) dalam 6 minggu</li>
+    <li><strong>Enterprise-Grade Security</strong> — RLS 10 tabel, server-side face, rate limiting, audit log</li>
+    <li><strong>AI-Powered</strong> — Chatbot Gemini 2.5 Flash terintegrasi untuk insight data</li>
+    <li><strong>UU PDP Compliance</strong> — Hapus data biometrik dengan edukasi 2-step</li>
+</ol>
+
+<h3>10.3 Tantangan & Pembelajaran</h3>
+<table>
+    <thead><tr><th>Tantangan</th><th>Solusi</th><th>Pembelajaran</th></tr></thead>
+    <tbody>
+        <tr><td>Face Recognition kompleks</td><td>TFLite pre-trained, server-side compare</td><td>Estimasi SP untuk AI/ML harus lebih besar</td></tr>
+        <tr><td>RLS policy konflik</td><td>Consolidation: drop-recreate</td><td>Desain RLS harus mature di awal</td></tr>
+        <tr><td>QR field mismatch</td><td>Standardisasi naming convention</td><td>Perlu API contract document</td></tr>
+        <tr><td>Environment setup lambat</td><td>Checklist + .env.example</td><td>Developer onboarding prioritas</td></tr>
+    </tbody>
+</table>
+
+<h3>10.4 Kesimpulan</h3>
+<p>
+    Proyek MyPresensi berhasil mencapai target <strong>release candidate</strong> dalam 3 sprint (6 minggu), 
+    dengan seluruh fitur Must Have, Should Have, dan Could Have terselesaikan. Velocity tim menunjukkan 
+    tren positif konsisten (42 → 47 → 53 SP), mencerminkan peningkatan produktivitas seiring familiaritas 
+    dengan tech stack.
+</p>
+<p>
+    Sistem <strong>3-layer verifikasi</strong> (QR + GPS + Face) menjadi diferensiasi utama dibandingkan 
+    sistem presensi konvensional, dan kepatuhan terhadap <strong>UU PDP</strong> menunjukkan kesadaran 
+    tim terhadap aspek legal teknologi biometrik.
+</p>
+<p>
+    Sprint 4 saat ini berjalan dengan fokus pada quality assurance dan persiapan demo PBL yang dijadwalkan 
+    tanggal <strong>8 Juni 2026</strong>.
+</p>
+
+<hr style="border:none;border-top:1.5px solid #a0aec0;margin:30px 0 16px 0">
+<p style="text-align:center; font-style:italic; color:#718096; font-size:9.5pt; line-height:1.6">
+Dokumen ini merupakan dokumentasi lengkap penerapan Scrum Framework untuk proyek MyPresensi – Sistem Absensi Mahasiswa dengan 3-Layer Verifikasi. Disusun oleh Tim PBL Semester 6, Program Studi Teknologi Rekayasa Perangkat Lunak (TRPL), Politeknik Pertanian Negeri Samarinda. Tanggal: 20 Mei 2026.
+</p>
+
+</body>
+</html>

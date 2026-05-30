@@ -12,7 +12,7 @@ import { ADMIN_SYSTEM_PROMPT } from '@/lib/ai/prompts'
 import { buildWebAiContext, checkAiRateLimit, type WebAiRole } from '@/lib/ai/tools'
 
 const ChatSchema = z.object({
-  message: z.string().trim().min(1, 'Pertanyaan tidak boleh kosong.').max(1000, 'Pertanyaan maksimal 1000 karakter.'),
+  message: z.string().trim().min(1, 'Pertanyaan kosong').max(1000, 'Pertanyaan terlalu panjang'),
 })
 
 export async function POST(req: NextRequest) {

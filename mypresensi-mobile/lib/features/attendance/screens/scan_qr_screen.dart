@@ -2,11 +2,30 @@
 // Halaman scanner QR code — full-screen kamera dengan overlay frame.
 // Setelah scan berhasil, auto-submit presensi (GPS + API call).
 // Menampilkan loading overlay saat proses submit berlangsung.
+//
+// REFAKTOR BUG-019 (spec `qr-scan-unify-camera-plugin`, sesi 2026-05-15):
+// Migrasi dari `mobile_scanner` ke `package:camera` + `QrDecoderService`
+// (`google_mlkit_barcode_scanning`). Tujuan: menyatukan kamera ke 1 plugin
+// Flutter agar Camera2 HAL OEM (ColorOS RMX5000, MIUI, FunTouch, OneUI)
+// tidak gagal release/re-acquire setelah lifecycle handoff ke face flow.
+// Sebelumnya `mobile_scanner` (back) + `package:camera` (front) berebut
+// HAL → preview freeze setelah pop dari `/face-verify` atau
+// `/face-register`. 7 iterasi workaround in-place gagal — fix at the root
+// dengan eliminasi plugin conflict.
+//
+// PRESERVATION (Property 2 di design):
+//   • Kontrak `attendanceSubmitProvider.parseQrCode/submitFromQr` tidak berubah.
+//   • Dialog flow + error routing (face_not_registered, face_mismatch, generic) preserved.
+//   • UI overlay (top bar, corner border, bottom panel, loading overlay) visually identical.
+//   • BUG-018 fix (markFaceRegistered + invalidate faceConfigProvider) preserved.
+//   • CAMERA permission tetap via `permission_handler` runtime request.
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../face/data/face_config_models.dart';
@@ -14,6 +33,7 @@ import '../../face/data/face_models.dart';
 import '../../face/providers/face_provider.dart';
 import '../data/attendance_models.dart';
 import '../providers/attendance_provider.dart';
+import '../services/qr_decoder_service.dart';
 
 class ScanQrScreen extends ConsumerStatefulWidget {
   const ScanQrScreen({super.key});
@@ -22,51 +42,261 @@ class ScanQrScreen extends ConsumerStatefulWidget {
   ConsumerState<ScanQrScreen> createState() => _ScanQrScreenState();
 }
 
-class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
-  final MobileScannerController _scannerController = MobileScannerController(
-    detectionSpeed: DetectionSpeed.normal,
-    facing: CameraFacing.back,
-    torchEnabled: false,
-  );
+class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
+    with WidgetsBindingObserver {
+  /// Controller `package:camera` — back camera, ResolutionPreset.medium
+  /// (cukup untuk QR static, hemat CPU vs `high` di face).
+  CameraController? _cameraController;
 
+  /// Description back camera yang dipakai — disimpan untuk re-init di
+  /// lifecycle observer + dipassing ke `QrDecoderService` per frame.
+  CameraDescription? _camera;
+
+  /// Decoder QR via ML Kit Barcode Scanning. Owner singleton scanner native.
+  final QrDecoderService _qrDecoder = QrDecoderService();
+
+  /// Flag siap render `CameraPreview` — false saat init / re-init.
+  bool _isCameraReady = false;
+
+  /// Status flash back camera. Plain `setState` (tidak pakai
+  /// `ValueListenableBuilder` seperti `mobile_scanner` lama).
+  bool _isTorchOn = false;
+
+  /// Flag user menolak izin CAMERA — tampil UI fallback dengan tombol
+  /// "Buka Pengaturan".
+  bool _permissionDenied = false;
+
+  /// Submit lock — prevent double-scan saat processing in-flight.
   bool _isProcessing = false;
+
+  /// True selama ScanQrScreen sedang push child screen (`/face-verify`
+  /// atau `/face-register`) dan menunggu hasil pop. Selama true,
+  /// `didChangeAppLifecycleState(resumed)` SKIP auto-init kamera —
+  /// karena re-init sudah jadi tanggung jawab `_processSubmit` /
+  /// `_showFaceNotRegisteredDialog` setelah pop. Tanpa flag ini,
+  /// resume event saat user pop dari face flow akan men-trigger init
+  /// kedua paralel → race condition di RMX5000 (kamera open lalu
+  /// langsung close).
+  bool _isAwaitingFaceFlow = false;
+
+  /// Serialization lock untuk camera lifecycle. Mencegah race antara
+  /// `didChangeAppLifecycleState(resumed)` (yang re-init kamera saat OS
+  /// kill) dan explicit `_initCamera()` setelah pop dari `/face-verify`
+  /// atau `/face-register`. Tanpa lock, dua `_initCamera()` paralel
+  /// akan saling overwrite `_cameraController` field — controller A
+  /// orphan, controller B initialized, tapi setState/lifecycle handler
+  /// dispose B saat A masih try start stream → CameraDevice OPEN lalu
+  /// langsung CLOSED (lihat log RMX5000 sesi 2026-05-15).
+  ///
+  /// Pola: setiap entry ke `_initCamera`/`_disposeCamera` `await` future
+  /// ini, lalu set future-nya ke operasi sendiri. Caller berikutnya
+  /// menunggu sampai operasi selesai, baru re-evaluate kondisi (mis.
+  /// kalau init kedua datang sementara init pertama sudah sukses,
+  /// caller kedua bail-out tanpa duplikasi).
+  Future<void>? _cameraOp;
 
   @override
   void initState() {
     super.initState();
-    // Reset submit state saat masuk scanner
+    WidgetsBinding.instance.addObserver(this);
+
+    // Reset submit state saat masuk scanner (preserved dari pre-fix flow).
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(attendanceSubmitProvider.notifier).reset();
     });
+
+    _initCamera();
   }
 
-  @override
-  void dispose() {
-    _scannerController.dispose();
-    super.dispose();
-  }
-
-  void _onDetect(BarcodeCapture capture) {
-    if (_isProcessing) return;
-
-    final barcodes = capture.barcodes;
-    if (barcodes.isEmpty) return;
-
-    final rawValue = barcodes.first.rawValue;
-    if (rawValue == null || rawValue.isEmpty) return;
-
-    // Parse QR code
-    final qrData = ref.read(attendanceSubmitProvider.notifier).parseQrCode(rawValue);
-    if (qrData == null) {
-      _showError('QR code tidak valid. Pastikan Anda memindai QR presensi yang benar.');
+  /// Async sequence init camera + decoder dengan retry pada CameraException.
+  /// Retry diperlukan karena CameraX max 1 kamera open — saat kamera face
+  /// verify baru dispose tapi Camera2 HAL belum sepenuhnya release back
+  /// camera, init pertama bisa fail dengan error "CameraAccessException".
+  /// Retry dengan delay 200ms (max 3x) memberi HAL waktu release resource.
+  ///
+  /// Serialized via `_cameraOp` — kalau ada operasi pending (init/dispose),
+  /// tunggu selesai dulu, baru cek apakah controller sudah live. Mencegah
+  /// race dual-init dari `didChangeAppLifecycleState(resumed)` + explicit
+  /// re-init setelah pop dari `/face-verify`.
+  Future<void> _initCamera() async {
+    // Tunggu operasi pending sebelumnya (kalau ada).
+    final pending = _cameraOp;
+    if (pending != null) {
+      try {
+        await pending;
+      } catch (_) {
+        // operasi sebelumnya error → kita tetap lanjut init.
+      }
+    }
+    if (!mounted) return;
+    // Setelah operasi sebelumnya selesai, kalau controller sudah live →
+    // tidak perlu init lagi (caller kedua bail-out).
+    final existing = _cameraController;
+    if (existing != null && existing.value.isInitialized && _isCameraReady) {
       return;
     }
 
-    // Cegah double-scan
-    setState(() => _isProcessing = true);
+    final op = _runInitCamera();
+    _cameraOp = op;
+    try {
+      await op;
+    } finally {
+      // Hanya clear kalau yang kita simpan masih operasi ini (bisa saja
+      // operasi lain sudah replace di tengah jalan).
+      if (identical(_cameraOp, op)) {
+        _cameraOp = null;
+      }
+    }
+  }
 
-    // Auto-submit
-    _processSubmit(qrData);
+  /// Inner init — retry loop (3x, 200ms delay) untuk CameraException.
+  Future<void> _runInitCamera() async {
+    const maxRetries = 3;
+    const retryDelayMs = 200;
+
+    for (var attempt = 0; attempt < maxRetries; attempt++) {
+      if (!mounted) return;
+      try {
+        await _initCameraOnce();
+        return; // sukses
+      } on CameraException catch (e) {
+        debugPrint(
+          '[SCAN QR] Init attempt ${attempt + 1}/$maxRetries failed: '
+          '${e.code} ${e.description}',
+        );
+        // Cleanup partial state sebelum retry — pakai inner dispose
+        // (bukan `_disposeCamera()`) karena kita SUDAH di dalam lock,
+        // calling `_disposeCamera()` akan deadlock pada `_cameraOp`.
+        await _runDisposeCamera();
+        if (attempt < maxRetries - 1) {
+          await Future.delayed(const Duration(milliseconds: retryDelayMs));
+        } else {
+          // Last attempt failed — show error.
+          if (mounted) {
+            _showError('Gagal membuka kamera');
+          }
+        }
+      } catch (e) {
+        debugPrint('[SCAN QR] Init unexpected error: $e');
+        if (mounted) {
+          _showError('Gagal membuka kamera');
+        }
+        return;
+      }
+    }
+  }
+
+  /// Single init attempt — dipanggil dari `_initCamera` dengan retry wrapper.
+  Future<void> _initCameraOnce() async {
+    // 1. Runtime permission CAMERA (Android 6+).
+    final status = await Permission.camera.request();
+    if (status.isDenied || status.isPermanentlyDenied) {
+      if (mounted) {
+        setState(() => _permissionDenied = true);
+      }
+      return;
+    }
+
+    // 2. Cari back camera. Kalau tidak ada → fallback ke camera pertama.
+    final cameras = await availableCameras();
+    if (cameras.isEmpty) {
+      if (mounted) {
+        _showError('Kamera tidak tersedia');
+      }
+      return;
+    }
+
+    _camera = cameras.firstWhere(
+      (cam) => cam.lensDirection == CameraLensDirection.back,
+      orElse: () => cameras.first,
+    );
+
+    // 3. Construct controller. ResolutionPreset.medium cukup untuk QR
+    // (static target), hemat CPU vs `high` yang dipakai face.
+    // imageFormatGroup NV21 = standar Android, didukung ML Kit.
+    _cameraController = CameraController(
+      _camera!,
+      ResolutionPreset.medium,
+      imageFormatGroup: ImageFormatGroup.nv21,
+      enableAudio: false,
+    );
+
+    await _cameraController!.initialize();
+    if (!mounted) {
+      await _cameraController?.dispose();
+      return;
+    }
+
+    // 4. Init ML Kit barcode scanner (idempotent).
+    _qrDecoder.initialize();
+
+    // 5. Start image stream → callback `_onCameraFrame` per frame.
+    await _cameraController!.startImageStream(_onCameraFrame);
+    if (!mounted) {
+      await _cameraController?.stopImageStream();
+      await _cameraController?.dispose();
+      return;
+    }
+
+    setState(() => _isCameraReady = true);
+  }
+
+  /// Callback per frame — decode QR via ML Kit, parse, submit.
+  ///
+  /// Re-entrance: `_isProcessing` flag mencegah double-fire saat ada
+  /// submit in-flight. `_qrDecoder` punya guard internal sendiri
+  /// (throttle 200ms + processing flag) sehingga aman dipanggil per
+  /// frame tanpa CPU saturation.
+  Future<void> _onCameraFrame(CameraImage image) async {
+    if (_isProcessing) return;
+    if (_camera == null) return;
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+      return;
+    }
+
+    final raw = await _qrDecoder.decodeFromCameraImage(image, _camera!);
+    if (raw == null) return;
+    if (!mounted) return;
+
+    // Kontrak provider preserved — parser sama, validasi JSON sama.
+    final qrData =
+        ref.read(attendanceSubmitProvider.notifier).parseQrCode(raw);
+    if (qrData == null) {
+      _showError('QR tidak valid');
+      return;
+    }
+
+    // Cegah double-scan + stop stream untuk hemat CPU saat processing.
+    setState(() => _isProcessing = true);
+    if (_cameraController!.value.isStreamingImages) {
+      try {
+        await _cameraController!.stopImageStream();
+      } catch (e) {
+        debugPrint('[SCAN QR] stopImageStream error (ignored): $e');
+      }
+    }
+
+    // Auto-submit (preserved verbatim).
+    await _processSubmit(qrData);
+
+    // Setelah submit selesai (sukses → sudah pushReplacement, tidak lagi
+    // mounted; gagal/cancel → `_processSubmit` reset `_isProcessing=false`),
+    // restart image stream supaya user bisa scan ulang.
+    if (mounted &&
+        !_isProcessing &&
+        _cameraController != null &&
+        _cameraController!.value.isInitialized &&
+        !_cameraController!.value.isStreamingImages) {
+      try {
+        await _cameraController!.startImageStream(_onCameraFrame);
+      } catch (e) {
+        debugPrint('[SCAN QR] startImageStream restart error: $e');
+      }
+    }
+  }
+
+  Future<FaceVerificationResult?> _pushFaceVerify(BuildContext context) {
+    return context.push<FaceVerificationResult?>('/face-verify');
   }
 
   Future<void> _processSubmit(QrCodeData qrData) async {
@@ -87,28 +317,60 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
 
         if (!isFaceRegistered) {
           if (!mounted) return;
+          // Dispose kamera sebelum push ke face register agar kamera
+          // belakang ScanQrScreen melepas resource Camera2 HAL.
+          // CameraX hanya allow 1 kamera open (Open count max=1) — tanpa
+          // dispose explicit, controller jadi zombie state setelah pop.
+          await _disposeCamera();
           await _showFaceNotRegisteredDialog();
-          setState(() => _isProcessing = false);
+          if (mounted) {
+            setState(() => _isProcessing = false);
+            // Re-init kamera setelah dialog selesai.
+            await _initCamera();
+          }
           return;
         }
 
-        // Push face verification screen, tunggu result
+        // Push face verification screen, tunggu result.
+        // FIX BUG-019: dispose kamera back DULU sebelum push ke face
+        // verify (yang akan claim front camera). CameraX max 1 kamera
+        // open — kalau back camera tidak di-dispose explicit, sistem
+        // paksa close tapi controller di sini tetap pegang state lama
+        // → freeze setelah pop. Re-init setelah pop balik.
         if (!mounted) return;
-        final result =
-            await context.push<FaceVerificationResult?>('/face-verify');
+        await _disposeCamera();
+        if (!context.mounted) return;
+        // Set flag SEBELUM push — supaya `didChangeAppLifecycleState`
+        // skip auto-init saat ScanQrScreen "paused" karena push child.
+        _isAwaitingFaceFlow = true;
+        // ignore: use_build_context_synchronously
+        final result = await _pushFaceVerify(context);
+        // Clear flag SEGERA setelah pop — sebelum delay & re-init.
+        _isAwaitingFaceFlow = false;
 
+        if (!mounted) return;
+
+        // Beri waktu Camera2 HAL release front camera resource setelah
+        // face_verification_screen dispose. Tanpa delay, _initCamera bisa
+        // race dengan dispose front camera → CameraAccessException
+        // (CameraX max 1 open).
+        await Future.delayed(const Duration(milliseconds: 300));
         if (!mounted) return;
 
         if (result == null) {
-          // User cancel atau timeout 15s — izinkan scan ulang
-          _showError(
-            'Verifikasi wajah gagal atau dibatalkan. Coba lagi dengan pencahayaan yang lebih baik.',
-          );
+          // User cancel (intentional) — JANGAN tampilkan snackbar merah,
+          // user yang cancel sendiri tidak butuh error feedback. Cukup
+          // silent re-init kamera supaya user bisa scan ulang. Smooth UX
+          // priority over informational notice.
           setState(() => _isProcessing = false);
+          await _initCamera();
           return;
         }
 
         faceResult = result;
+        // Sukses verify → re-init kamera kalau submit gagal nanti.
+        // (Kalau submit sukses, screen pushReplacement ke result page,
+        // kamera akan ke-dispose otomatis di dispose() lifecycle.)
       }
     } catch (e) {
       // Network error fetch config — fallback: lanjut submit, server akan gate kalau perlu
@@ -125,8 +387,8 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
     if (!mounted) return;
 
     if (success) {
-      // Navigate ke result screen
-      context.push('/attendance-result');
+      // Navigate ke result screen.
+      context.pushReplacement('/attendance-result');
       return;
     }
 
@@ -136,7 +398,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
     final errMsg = submitState.errorMessage ?? 'Gagal submit presensi.';
 
     if (errCode == 'face_not_registered') {
-      // Defense in depth: server reject walau pre-flight pass (race condition / cache stale)
+      // Defense in depth: server reject walau pre-flight pass.
       await _showFaceNotRegisteredDialog();
     } else if (errCode == 'face_mismatch') {
       await _showFaceMismatchDialog(errMsg);
@@ -144,55 +406,141 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
       _showError(errMsg);
     }
 
-    setState(() => _isProcessing = false);
+    if (mounted) {
+      setState(() => _isProcessing = false);
+      // Re-init kamera setelah error supaya user bisa scan ulang
+      // (kalau kamera sudah di-dispose di phase verify push).
+      if (_cameraController == null || !_cameraController!.value.isInitialized) {
+        await _initCamera();
+      }
+    }
   }
 
   /// Dialog: wajah belum terdaftar — ajak ke face registration screen.
-  Future<void> _showFaceNotRegisteredDialog() async {
-    if (!mounted) return;
+  ///
+  /// Returns `true` kalau user pilih "Daftar Sekarang" DAN registrasi
+  /// sukses (server confirm row `face_embeddings` tersimpan). Caller
+  /// tanggung jawab pop ScanQrScreen + snackbar (BUG-019).
+  ///
+  /// Returns `false` kalau user pilih "Nanti Saja" atau register cancel/error.
+  Future<bool> _showFaceNotRegisteredDialog() async {
+    if (!mounted) return false;
     final shouldRegister = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        icon: Icon(Icons.face_retouching_off, color: AppColors.primary, size: 40),
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: AppColors.primarySurface,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            IconsaxPlusBold.user_octagon,
+            color: AppColors.primary,
+            size: 32,
+          ),
+        ),
         title: const Text(
           'Wajah Belum Didaftarkan',
-          style: TextStyle(fontWeight: FontWeight.w700),
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
           textAlign: TextAlign.center,
         ),
         content: const Text(
           'Sebelum melakukan presensi, Anda perlu mendaftarkan wajah terlebih dahulu. Proses ini hanya perlu dilakukan sekali.',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13, height: 1.5),
-        ),
-        actionsAlignment: MainAxisAlignment.spaceBetween,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              'Nanti Saja',
-              style: TextStyle(color: AppColors.textTertiary),
-            ),
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 13,
+            height: 1.55,
+            color: AppColors.textSecondary,
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        actions: [
+          // Stack vertikal — primary action di atas (paling tebal),
+          // secondary "Nanti Saja" sebagai TextButton di bawah.
+          // Pattern Material 3 untuk modal action yang lebih scannable
+          // dibanding side-by-side spaceBetween (yang ambigu).
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    textStyle: const TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      letterSpacing: 0.14,
+                    ),
+                  ),
+                  child: const Text('Daftar Sekarang'),
+                ),
               ),
-            ),
-            child: const Text('Daftar Sekarang'),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.textTertiary,
+                  textStyle: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                ),
+                child: const Text('Nanti Saja'),
+              ),
+            ],
           ),
         ],
       ),
     );
 
     if (shouldRegister == true && mounted) {
-      context.push('/face-register');
+      // FIX BUG-019: dispose kamera back DULU sebelum push ke
+      // /face-register (yang akan claim front camera). Sama dengan
+      // logic push verify — CameraX max 1 kamera open. Path ini juga
+      // dipakai dari _processSubmit setelah server return error
+      // `face_not_registered` (defense in depth) — di situ kamera juga
+      // perlu di-dispose karena sebelumnya sempat re-init.
+      await _disposeCamera();
+      if (!context.mounted) return false;
+      _isAwaitingFaceFlow = true;
+      // ignore: use_build_context_synchronously
+      final registered = await context.push<bool>('/face-register');
+      _isAwaitingFaceFlow = false;
+      if (!mounted) return false;
+
+      if (registered == true) {
+        // Update local auth flag — prevent dialog muncul lagi saat scan
+        // ulang. Tanpa ini, `_isFaceRegistered` masih false di state local
+        // walau DB sudah ada row face_embeddings (BUG-018).
+        ref.read(authProvider.notifier).markFaceRegistered();
+        // Invalidate face config supaya provider re-fetch dari server
+        // (defensive — kalau ada admin yang ganti config bersamaan).
+        ref.invalidate(faceConfigProvider);
+        return true;
+      }
     }
+    return false;
   }
 
   /// Dialog: wajah tidak cocok — minta retry.
@@ -202,31 +550,64 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        icon: Icon(Icons.face_unlock_outlined, color: AppColors.warning, size: 40),
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: AppColors.warningTint,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            IconsaxPlusBold.shield_cross,
+            color: AppColors.warning,
+            size: 32,
+          ),
+        ),
         title: const Text(
           'Wajah Tidak Cocok',
-          style: TextStyle(fontWeight: FontWeight.w700),
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
           textAlign: TextAlign.center,
         ),
         content: Text(
           message,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 13, height: 1.5),
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 13,
+            height: 1.55,
+            color: AppColors.textSecondary,
+          ),
         ),
-        actionsAlignment: MainAxisAlignment.center,
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                textStyle: const TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  letterSpacing: 0.14,
+                ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              child: const Text('Coba Lagi'),
             ),
-            child: const Text('Coba Lagi'),
           ),
         ],
       ),
@@ -256,33 +637,341 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
     );
   }
 
+  /// Toggle flash back camera. Replace `MobileScannerController.toggleTorch`
+  /// dengan `CameraController.setFlashMode` (preservation 2.5, 3.12).
+  Future<void> _toggleTorch() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+      return;
+    }
+    final newState = !_isTorchOn;
+    try {
+      await _cameraController!.setFlashMode(
+        newState ? FlashMode.torch : FlashMode.off,
+      );
+      if (!mounted) return;
+      setState(() => _isTorchOn = newState);
+    } catch (e) {
+      debugPrint('[SCAN QR] Toggle torch error: $e');
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Defensive (Plan B mitigasi root cause refute): handle background→
+    // foreground edge case. Kalau OS kill camera saat app paused, re-init
+    // saat resumed.
+    //
+    // PENTING: skip auto-init saat `_isAwaitingFaceFlow=true`. Itu artinya
+    // user di tengah flow `/face-verify` atau `/face-register` — re-init
+    // adalah tanggung jawab `_processSubmit` setelah pop, BUKAN lifecycle
+    // observer. Tanpa skip, dua `_initCamera()` paralel akan race dan di
+    // device RMX5000 berakhir di kamera "open lalu langsung close"
+    // (lihat log sesi 2026-05-15).
+    if (state == AppLifecycleState.resumed) {
+      if (_isAwaitingFaceFlow) return;
+      final controller = _cameraController;
+      if (controller == null || !controller.value.isInitialized) {
+        _initCamera();
+      }
+    } else if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      // Selama menunggu hasil face flow, JANGAN dispose kamera lagi —
+      // sudah didispose explicit di `_processSubmit` sebelum push, dan
+      // kalau kita dispose ulang di sini bisa nge-trigger setState saat
+      // child route mounting. Biarkan lifecycle face screen yang manage
+      // kamera-nya sendiri.
+      if (_isAwaitingFaceFlow) return;
+      _disposeCamera();
+    }
+  }
+
+  /// Tear down camera + decoder. Dipanggil dari `dispose()` dan
+  /// `didChangeAppLifecycleState(paused/inactive)`, juga sebelum push
+  /// ke `/face-verify` atau `/face-register` untuk release Camera2 HAL.
+  ///
+  /// Serialized via `_cameraOp` — kalau ada operasi pending (init/dispose),
+  /// tunggu selesai dulu. Mencegah race controller A initialized
+  /// sementara controller B dispose dipanggil paralel.
+  Future<void> _disposeCamera() async {
+    final pending = _cameraOp;
+    if (pending != null) {
+      try {
+        await pending;
+      } catch (_) {
+        // operasi sebelumnya error → tetap lanjut dispose.
+      }
+    }
+    if (_cameraController == null) return;
+
+    final op = _runDisposeCamera();
+    _cameraOp = op;
+    try {
+      await op;
+    } finally {
+      if (identical(_cameraOp, op)) {
+        _cameraOp = null;
+      }
+    }
+  }
+
+  /// Inner dispose — actual stop stream + dispose controller.
+  /// JANGAN dipanggil langsung dari luar; pakai `_disposeCamera()` yang
+  /// punya lock. Kecuali sudah berada di dalam lock (mis. retry inner
+  /// loop di `_runInitCamera`).
+  Future<void> _runDisposeCamera() async {
+    final controller = _cameraController;
+    _cameraController = null;
+    if (mounted) {
+      setState(() {
+        _isCameraReady = false;
+        _isTorchOn = false;
+      });
+    } else {
+      _isCameraReady = false;
+      _isTorchOn = false;
+    }
+    if (controller != null) {
+      try {
+        if (controller.value.isStreamingImages) {
+          await controller.stopImageStream();
+        }
+      } catch (e) {
+        debugPrint('[SCAN QR] stopImageStream on dispose error (ignored): $e');
+      }
+      try {
+        await controller.dispose();
+      } catch (e) {
+        debugPrint('[SCAN QR] CameraController dispose error (ignored): $e');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    // Defensive sequencing — stop stream + dispose camera + dispose decoder.
+    final controller = _cameraController;
+    _cameraController = null;
+    if (controller != null) {
+      try {
+        if (controller.value.isStreamingImages) {
+          controller.stopImageStream();
+        }
+      } catch (e) {
+        debugPrint('[SCAN QR] stopImageStream on dispose error (ignored): $e');
+      }
+      controller.dispose();
+    }
+    _qrDecoder.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final submitState = ref.watch(attendanceSubmitProvider);
     final isLoading = submitState.status == SubmitStatus.gettingLocation ||
         submitState.status == SubmitStatus.submitting;
 
+    if (_permissionDenied) {
+      return _buildPermissionDeniedScaffold();
+    }
+
+    final cameraReady = _isCameraReady &&
+        _cameraController != null &&
+        _cameraController!.value.isInitialized;
+
+    // Fade transition antara loading scaffold ↔ camera preview supaya
+    // peralihan smooth (mis. setelah pop dari face-verify cancel, kamera
+    // re-init ~500ms). Tanpa AnimatedSwitcher, frame transisi terlihat
+    // "blink" hitam → langsung preview.
     return Scaffold(
-      body: Stack(
-        children: [
-          // === Camera ===
-          MobileScanner(
-            controller: _scannerController,
-            onDetect: _onDetect,
+      backgroundColor: Colors.black,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        child: cameraReady
+            ? _buildCameraStack(context, submitState, isLoading)
+            : _buildLoadingScaffold(),
+      ),
+    );
+  }
+
+  Widget _buildCameraStack(
+    BuildContext context,
+    AttendanceSubmitState submitState,
+    bool isLoading,
+  ) {
+    // Key memastikan AnimatedSwitcher treat as different child saat
+    // controller berubah identity (post re-init).
+    return Stack(
+      key: const ValueKey('camera-stack'),
+      children: [
+        // === Camera ===
+        Positioned.fill(
+          child: ClipRect(
+            child: OverflowBox(
+              alignment: Alignment.center,
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _cameraController!.value.previewSize?.height ?? 1,
+                  height: _cameraController!.value.previewSize?.width ?? 1,
+                  child: CameraPreview(_cameraController!),
+                ),
+              ),
+            ),
           ),
+        ),
 
-          // === Overlay ===
-          _buildScanOverlay(context),
+        // === Overlay ===
+        _buildScanOverlay(context),
 
-          // === Top Bar ===
-          _buildTopBar(context),
+        // === Top Bar ===
+        _buildTopBar(context),
 
-          // === Bottom Instructions ===
-          _buildBottomPanel(context, submitState),
+        // === Bottom Instructions ===
+        _buildBottomPanel(context, submitState),
 
-          // === Loading overlay ===
-          if (isLoading) _buildLoadingOverlay(submitState),
-        ],
+        // === Loading overlay ===
+        if (isLoading) _buildLoadingOverlay(submitState),
+      ],
+    );
+  }
+
+  Widget _buildPermissionDeniedScaffold() {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: AppColors.textPrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text(
+          'Scan QR Presensi',
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 88,
+                height: 88,
+                decoration: BoxDecoration(
+                  color: AppColors.warningTint,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Icon(
+                  IconsaxPlusBold.camera_slash,
+                  color: AppColors.warning,
+                  size: 44,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Izin Kamera Diperlukan',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  color: AppColors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Untuk memindai QR presensi, MyPresensi memerlukan akses ke kamera Anda. Buka pengaturan untuk mengaktifkan izin.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  height: 1.55,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await openAppSettings();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    textStyle: const TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      letterSpacing: 0.14,
+                    ),
+                  ),
+                  child: const Text('Buka Pengaturan'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: TextButton(
+                  onPressed: () async {
+                    setState(() => _permissionDenied = false);
+                    await _initCamera();
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    textStyle: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                  ),
+                  child: const Text('Coba Lagi'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingScaffold() {
+    // Subtle loading — minim friction. Hanya spinner kecil tanpa teks
+    // bombastis "Mempersiapkan kamera..." karena window ini biasanya
+    // <1 detik (transisi pop dari face flow). Teks panjang bikin user
+    // mengira ada masalah; spinner mini = "lagi switching".
+    //
+    // Return Container (bukan Scaffold) — caller `AnimatedSwitcher`
+    // sudah membungkus dalam Scaffold root.
+    return Container(
+      key: const ValueKey('loading-scaffold'),
+      color: Colors.black,
+      alignment: Alignment.center,
+      child: const SizedBox(
+        width: 32,
+        height: 32,
+        child: CircularProgressIndicator(
+          strokeWidth: 2.5,
+          color: Colors.white70,
+        ),
       ),
     );
   }
@@ -327,32 +1016,23 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
                   ),
                 ),
               ),
-              // Torch toggle
-              ValueListenableBuilder(
-                valueListenable: _scannerController,
-                builder: (context, state, _) {
-                  final torchState = state.torchState;
-                  return Material(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
-                      onTap: () => _scannerController.toggleTorch(),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Icon(
-                          torchState == TorchState.on
-                              ? Icons.flash_on
-                              : Icons.flash_off,
-                          color: torchState == TorchState.on
-                              ? AppColors.warning
-                              : Colors.white,
-                          size: 22,
-                        ),
-                      ),
+              // Torch toggle — plain `setState` dari `_isTorchOn` (replace
+              // `ValueListenableBuilder(_scannerController)` mobile_scanner lama).
+              Material(
+                color: Colors.black.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  onTap: _toggleTorch,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Icon(
+                      _isTorchOn ? Icons.flash_on : Icons.flash_off,
+                      color: _isTorchOn ? AppColors.warning : Colors.white,
+                      size: 22,
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
             ],
           ),

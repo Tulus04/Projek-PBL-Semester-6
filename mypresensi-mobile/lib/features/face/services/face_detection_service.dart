@@ -45,8 +45,8 @@ class FaceDetectionResult {
 enum LivenessStep {
   lookStraight,   // Step 1: Hadapkan wajah lurus ke kamera
   blinkEyes,      // Step 2: Kedipkan mata
-  turnLeft,       // Step 3: Tolehkan kepala ke kiri
-  turnRight,      // Step 4: Tolehkan kepala ke kanan
+  turnLeft,       // Step 3: Miringkan sedikit kepala ke kiri
+  turnRight,      // Step 4: Miringkan sedikit kepala ke kanan
   completed,      // Semua step selesai
 }
 

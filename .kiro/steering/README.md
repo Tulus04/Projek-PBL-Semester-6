@@ -29,6 +29,7 @@ Setiap file `.md` di folder ini diatur via frontmatter:
 | `03-design-and-libraries.md` | Prinsip desain UI (3-state wajib, Bahasa Indonesia, design token) + library lock |
 | `04-security-and-privacy.md` | Data classification, biometric handling, threat model checklist, anti-pattern |
 | `05-testing-and-release.md` | Strategi testing, manual QA checklist, commit convention, branch workflow |
+| `06-runtime-verification.md` | Protokol runtime verification — paksa AI tidak klaim "selesai" sampai bukti runtime sukses (build/screenshot/smoke). Komplemen 02 dengan fokus E2E. |
 
 ### Web-scoped (`mypresensi-web/**`)
 

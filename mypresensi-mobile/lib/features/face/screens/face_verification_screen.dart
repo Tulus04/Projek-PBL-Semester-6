@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../data/face_config_models.dart';
 import '../data/face_models.dart';
 import '../providers/face_provider.dart';
 
@@ -52,7 +53,7 @@ class _FaceVerificationScreenState
       if (!isFaceRegistered) {
         if (mounted) {
           // User belum register → kembali ke caller dengan null
-          context.pop(null);
+          await _disposeAndPop();
         }
         return;
       }
@@ -124,7 +125,7 @@ class _FaceVerificationScreenState
     } catch (e) {
       debugPrint('[FACE VERIFY] Init error: $e');
       if (mounted) {
-        context.pop(null);
+        await _disposeAndPop();
       }
     }
   }
@@ -141,7 +142,7 @@ class _FaceVerificationScreenState
       if (_remainingSeconds <= 0) {
         timer.cancel();
         // Timeout — return null (gagal verify)
-        context.pop(null);
+        _disposeAndPop();
       }
     });
   }
@@ -173,9 +174,46 @@ class _FaceVerificationScreenState
   @override
   void dispose() {
     _timeoutTimer?.cancel();
-    _cameraController?.stopImageStream();
-    _cameraController?.dispose();
+    // Guard: stopImageStream throw kalau dipanggil saat stream sudah
+    // berhenti (sudah di-stop di listener `matched` di build()). Tanpa
+    // guard ini exception bubble up → dispose abort → CameraController
+    // tidak release native HAL → MobileScanner parent freeze (BUG-019).
+    final controller = _cameraController;
+    if (controller != null) {
+      if (controller.value.isStreamingImages) {
+        controller.stopImageStream();
+      }
+      controller.dispose();
+    }
     super.dispose();
+  }
+
+  /// Tear down camera dengan await proper sebelum pop. Dipakai di tiap
+  /// path keluar (cancel button, timeout, error, init failure) supaya
+  /// CameraX max-1-open invariant terpenuhi sebelum ScanQrScreen
+  /// (caller) re-init back camera. Tanpa await proper, dispose() Flutter
+  /// jalan async tanpa kontrol → race condition.
+  Future<void> _disposeAndPop([Object? result]) async {
+    _timeoutTimer?.cancel();
+    final controller = _cameraController;
+    _cameraController = null;
+    if (controller != null) {
+      try {
+        if (controller.value.isStreamingImages) {
+          await controller.stopImageStream();
+        }
+      } catch (e) {
+        debugPrint('[FACE VERIFY] stopImageStream error (ignored): $e');
+      }
+      try {
+        await controller.dispose();
+      } catch (e) {
+        debugPrint('[FACE VERIFY] dispose error (ignored): $e');
+      }
+    }
+    if (mounted) {
+      context.pop(result);
+    }
   }
 
   @override
@@ -187,20 +225,23 @@ class _FaceVerificationScreenState
       if (prev?.status != VerificationStatus.matched &&
           next.status == VerificationStatus.matched) {
         _timeoutTimer?.cancel();
-        _cameraController?.stopImageStream();
+        // Guard sama: cek isStreamingImages sebelum stop.
+        final controller = _cameraController;
+        if (controller != null && controller.value.isStreamingImages) {
+          controller.stopImageStream();
+        }
 
-        // Capture navigator before async gap
-        final navigator = GoRouter.of(context);
         final result = FaceVerificationResult(
           confidence: next.confidence ?? 0.0,
           isMatched: true,
           isLivenessPassed: next.isLivenessPassed,
         );
 
-        // Delay sedikit untuk feedback visual
+        // Delay sedikit untuk feedback visual lalu dispose-and-pop
+        // (dispose camera SEBELUM pop supaya scan-qr re-init aman).
         Future.delayed(const Duration(milliseconds: 800), () {
           if (mounted) {
-            navigator.pop(result);
+            _disposeAndPop(result);
           }
         });
       }
@@ -214,7 +255,7 @@ class _FaceVerificationScreenState
         title: const Text('Verifikasi Wajah'),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => context.pop(null),
+          onPressed: () => _disposeAndPop(),
         ),
         actions: [
           // Countdown timer
@@ -403,16 +444,34 @@ class _FaceVerificationScreenState
 
           const SizedBox(height: 16),
 
-          // Skip button (untuk mode optional)
-          TextButton(
-            onPressed: () => context.pop(null),
-            child: const Text(
-              'Lewati Verifikasi',
-              style: TextStyle(color: Colors.white54, fontSize: 13),
-            ),
-          ),
+          // Tombol Lewati hanya muncul saat mode = optional.
+          // Saat mode = required (default kebijakan kampus saat ini) atau
+          // config masih loading/error → button DISEMBUNYIKAN supaya
+          // mahasiswa tidak bisa bypass verifikasi wajah.
+          // SECURITY: fail-safe — kalau ragu, sembunyikan.
+          _buildSkipButtonIfOptional(),
         ],
       ),
+    );
+  }
+
+  Widget _buildSkipButtonIfOptional() {
+    final configAsync = ref.watch(faceConfigProvider);
+    return configAsync.when(
+      data: (config) {
+        if (config.verificationMode != FaceVerificationMode.optional) {
+          return const SizedBox.shrink();
+        }
+        return TextButton(
+          onPressed: () => _disposeAndPop(),
+          child: const Text(
+            'Lewati Verifikasi',
+            style: TextStyle(color: Colors.white54, fontSize: 13),
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }

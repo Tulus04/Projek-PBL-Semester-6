@@ -46,11 +46,11 @@ class HistoryRepository {
     }
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return 'Koneksi timeout. Periksa jaringan Anda.';
+      return 'Koneksi timeout';
     }
     if (e.type == DioExceptionType.connectionError) {
-      return 'Tidak dapat terhubung ke server.';
+      return 'Tidak ada koneksi internet';
     }
-    return 'Gagal memuat riwayat kehadiran.';
+    return 'Gagal memuat riwayat';
   }
 }

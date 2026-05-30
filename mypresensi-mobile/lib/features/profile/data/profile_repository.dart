@@ -60,19 +60,19 @@ class ProfileRepository {
     }
     switch (e.response?.statusCode) {
       case 400:
-        return 'Format atau ukuran foto tidak valid.';
+        return 'Foto tidak valid';
       case 401:
-        return 'Sesi berakhir. Silakan login ulang.';
+        return 'Sesi berakhir, login ulang';
       case 403:
-        return 'Akses ditolak.';
+        return 'Akses ditolak';
       case 429:
-        return 'Terlalu banyak upload. Coba lagi nanti.';
+        return 'Terlalu banyak upload';
       case 500:
-        return 'Server bermasalah. Coba lagi nanti.';
+        return 'Server bermasalah';
     }
     if (e.type == DioExceptionType.connectionError) {
-      return 'Tidak dapat terhubung ke server.';
+      return 'Tidak ada koneksi internet';
     }
-    return 'Terjadi kesalahan saat mengunggah foto.';
+    return 'Gagal mengunggah foto';
   }
 }

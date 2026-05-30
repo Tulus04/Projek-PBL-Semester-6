@@ -62,6 +62,6 @@ export async function GET(req: NextRequest) {
       source: 'database',
     })
   } catch {
-    return errorResponse('Terjadi kesalahan server.', 500)
+    return errorResponse('Terjadi kesalahan server', 500)
   }
 }

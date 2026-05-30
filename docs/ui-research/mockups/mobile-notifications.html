@@ -1,14 +1,28 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mobile Notifications — MyPresensi Mockup</title>
+  <title>Mobile Notifications � MyPresensi Mockup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="_tokens.css" />
   <link rel="stylesheet" href="_mobile.css" />
+  <script>
+    // Embed-mode: pas iframe load, hanya tampilkan phone-frame pertama, center vertikal+horizontal.
+    // Konten dokumentasi (showcase-header, annotation, mockup-label) sudah di-strip permanen dari HTML source.
+    if (window.top !== window.self) {
+      document.write('<style>' +
+        'html,body{margin:0;padding:0;background:#0a0e1a;height:100vh;overflow:hidden}' +
+        'body{display:flex;align-items:center;justify-content:center}' +
+        '.mockup-grid,main.mockup-grid{display:block;padding:0;margin:0;max-width:none;gap:0}' +
+        '.mockup-item{margin:0;padding:0;gap:0}' +
+        '.mockup-item:not(:first-of-type),.mockup-label{display:none!important}' +
+        '.phone-frame{transform:scale(0.86);transform-origin:center center}' +
+      '</style>');
+    }
+  </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     /* Notification appbar with badge */
@@ -339,17 +353,7 @@
 </head>
 <body>
 
-  <div class="showcase-header">
-    <a href="index.html" class="nav-back">
-      <iconify-icon icon="solar:arrow-left-bold-duotone" style="vertical-align: middle;"></iconify-icon>
-      Kembali ke Katalog
-    </a>
-    <h1>Mobile · Notifications</h1>
-    <p>3 state: Inbox group by date · Swipe action reveal · Empty state ramah</p>
-    <div class="legend">
-      <strong>Reference:</strong> iOS Mail swipe · Material You notification · Linear inbox
-    </div>
-  </div>
+  
 
   <div class="mockup-grid">
 
@@ -438,7 +442,7 @@
                 </div>
               </div>
 
-              <!-- 3. Mock GPS warning (unread, danger) — CTA dihilangkan,
+              <!-- 3. Mock GPS warning (unread, danger) � CTA dihilangkan,
                    body sudah cukup informatif. Mahasiswa tahu apa yang harus
                    dilakukan dari pesan body. -->
               <div class="notif-item-wrap">
@@ -523,7 +527,7 @@
                   <div class="notif-content">
                     <h4 class="notif-title">Wajahmu sudah terdaftar</h4>
                     <p class="notif-body">
-                      Sekarang kamu bisa pakai verifikasi wajah saat presensi. Mau dihapus kapan-kapan? Buka <strong>Profil → Privasi</strong>.
+                      Sekarang kamu bisa pakai verifikasi wajah saat presensi. Mau dihapus kapan-kapan? Buka <strong>Profil ? Privasi</strong>.
                     </p>
                     <div class="notif-meta">
                       <span class="notif-meta-tag">
@@ -563,14 +567,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 1 · Inbox List
-        <small>Group by date · 5 notif type · CTA inline · unread indicator</small>
+        Frame 1 � Inbox List
+        <small>Group by date � 5 notif type � CTA inline � unread indicator</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Type icon color-coded: <strong>primary</strong> sesi mulai, <strong>success</strong> izin disetujui / presensi tercatat / wajah terdaftar, <strong>danger</strong> mock GPS warning, <strong>gold</strong> reminder. Unread item: bg gradient + dot biru kiri + padding-left lebih lebar. CTA inline ("Scan Sekarang") hanya untuk notif yang butuh action mahasiswa langsung. Mark-all-read inline per date-group, bukan global di appbar — supaya kontekstual.
       </div>
-    </div>
 
     <!-- ========== FRAME 2: SWIPE ACTION ========== -->
     <div class="mockup-item">
@@ -697,14 +697,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 2 · Swipe Reveal
-        <small>Dismissible card · 2 arah action · helper toast first-time</small>
+        Frame 2 � Swipe Reveal
+        <small>Dismissible card � 2 arah action � helper toast first-time</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Pakai widget <strong>Dismissible</strong> Flutter dengan arah `horizontal`. Swipe kanan ke kiri (background merah) → hapus, swipe kiri ke kanan (background biru) → tandai dibaca. Helper toast muncul di first-launch supaya user tahu gesture-nya — auto-dismiss setelah 4 detik atau setelah pertama kali swipe.
       </div>
-    </div>
 
     <!-- ========== FRAME 3: EMPTY STATE ========== -->
     <div class="mockup-item">
@@ -760,14 +756,10 @@
         </div>
       </div>
       <div class="mockup-label">
-        Frame 3 · Empty State
-        <small>Bell illustration · confetti · pure informational copy</small>
+        Frame 3 � Empty State
+        <small>Bell illustration � confetti � pure informational copy</small>
       </div>
-      <div class="annotation">
-        <span class="anno-label">Detail UX</span>
-        Empty state JANGAN cuma "Tidak ada notifikasi". Wajib jelaskan <strong>kenapa kosong</strong> + <strong>apa yang akan muncul</strong> di sini. Tidak ada CTA — empty state notifikasi bersifat <strong>occasional</strong> (saat user baru install atau setelah mark-all-read), bukan kondisi yang perlu diperbaiki user. Confetti dot kasih kesan playful tanpa over-animated. Animasi bell circle: float + dashed ring rotating slow.
       </div>
-    </div>
 
   </div>
 

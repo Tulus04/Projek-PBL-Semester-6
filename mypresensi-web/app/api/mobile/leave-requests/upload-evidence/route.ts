@@ -64,17 +64,17 @@ export async function POST(req: NextRequest) {
     try {
       formData = await req.formData()
     } catch {
-      return errorResponse('Format request tidak valid (harus multipart).', 400)
+      return errorResponse('Format request tidak valid', 400)
     }
 
     const fileEntry = formData.get('file')
     if (!(fileEntry instanceof Blob)) {
-      return errorResponse('File tidak ditemukan dalam request.', 400)
+      return errorResponse('File tidak ditemukan', 400)
     }
 
     // 4. VALIDATE size
     if (fileEntry.size === 0) {
-      return errorResponse('File kosong.', 400)
+      return errorResponse('File kosong', 400)
     }
     if (fileEntry.size > MAX_IMAGE_SIZE_BYTES) {
       return errorResponse(
@@ -142,6 +142,6 @@ export async function POST(req: NextRequest) {
     return successResponse({ path }, 201)
   } catch (err) {
     console.error('[LEAVE EVIDENCE UPLOAD] Unexpected error:', err)
-    return errorResponse('Terjadi kesalahan server.', 500)
+    return errorResponse('Terjadi kesalahan server', 500)
   }
 }

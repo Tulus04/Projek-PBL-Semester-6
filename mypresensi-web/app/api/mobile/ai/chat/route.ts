@@ -12,13 +12,13 @@ import { MOBILE_SYSTEM_PROMPT } from '@/lib/ai/prompts'
 import { buildMobileAiContext, checkAiRateLimit } from '@/lib/ai/tools'
 
 const ChatSchema = z.object({
-  message: z.string().trim().min(1, 'Pertanyaan tidak boleh kosong.').max(1000, 'Pertanyaan maksimal 1000 karakter.'),
+  message: z.string().trim().min(1, 'Pertanyaan kosong').max(1000, 'Pertanyaan terlalu panjang'),
 })
 
 export async function POST(req: NextRequest) {
   try {
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-      return errorResponse('AI belum dikonfigurasi. Hubungi admin prodi.', 503)
+      return errorResponse('AI belum tersedia', 503)
     }
 
     const { user, error, status } = await authenticateRequest(req)
@@ -59,6 +59,6 @@ export async function POST(req: NextRequest) {
     return Response.json({ reply: result.text })
   } catch (err) {
     console.error('[AI_CHAT_MOBILE]', err)
-    return errorResponse('Asisten AI sedang tidak tersedia. Silakan coba lagi sebentar.', 500)
+    return errorResponse('AI sedang tidak tersedia', 500)
   }
 }

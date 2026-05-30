@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
     id: user.id,
     full_name: user.full_name,
     nim_nip: user.nim_nip,
+    email: user.email,
     role: user.role,
     semester: user.semester,
     kelas: user.kelas,

@@ -20,6 +20,9 @@ class ApiEndpoints {
   static const String submitAttendance = '/api/mobile/attendance/submit';
   static const String attendanceHistory = '/api/mobile/attendance/history';
 
+  // Activity Feed (Beranda mobile — gabungan attendance + leave_requests)
+  static const String activityRecent = '/api/mobile/activity/recent';
+
   // Notifications
   static const String notifications = '/api/mobile/notifications';
 

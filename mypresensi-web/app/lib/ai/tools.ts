@@ -34,7 +34,7 @@ export async function checkAiRateLimit(userId: string, endpoint: string) {
   if ((count ?? 0) >= 10) {
     return {
       allowed: false,
-      message: 'Terlalu banyak pertanyaan dalam 1 menit. Tunggu sebentar lalu coba lagi.',
+      message: 'Terlalu banyak pertanyaan, tunggu sebentar',
     }
   }
 

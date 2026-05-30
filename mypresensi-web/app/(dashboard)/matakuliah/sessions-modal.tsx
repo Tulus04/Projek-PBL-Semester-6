@@ -1,12 +1,12 @@
 'use client'
 // app/(dashboard)/matakuliah/sessions-modal.tsx
 // Modal untuk mengelola sesi perkuliahan per mata kuliah.
-// Termasuk generate session code (OTP 6 digit) + countdown timer saat sesi aktif.
+// Termasuk tampilan QR rolling + countdown timer saat sesi aktif.
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import {
   X, Plus, Trash2, PlayCircle, StopCircle, Calendar,
-  RefreshCw, ClipboardList, Copy, Check, QrCode, Maximize2
+  ClipboardList, QrCode, Maximize2, Activity
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import {
@@ -46,7 +46,6 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
   const [adding, setAdding] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [detailSessionId, setDetailSessionId] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
 
   // Countdown state
   const [countdown, setCountdown] = useState<number>(0)
@@ -80,7 +79,7 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
       )
       setCountdown(diff)
 
-      // Auto-refresh kode jika expired
+      // Auto-refresh QR jika expired
       if (diff === 0 && activeSession.is_active) {
         handleRefreshCode(activeSession.id)
       }
@@ -164,12 +163,6 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
       loadData()
     }
     setActionLoading(null)
-  }
-
-  const handleCopyCode = async (code: string) => {
-    await navigator.clipboard.writeText(code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   // Format countdown mm:ss
@@ -262,42 +255,30 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
                       </div>
                     </div>
 
-                    {/* Divider */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex-1 h-px bg-border" />
-                      <span className="text-[11px] text-text-secondary font-medium uppercase tracking-wider">
-                        atau masukkan kode
-                      </span>
-                      <div className="flex-1 h-px bg-border" />
-                    </div>
-
-                    {/* OTP Display */}
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      {activeSession.session_code.split('').map((digit, i) => (
-                        <div
-                          key={i}
-                          className="w-11 h-13 flex items-center justify-center rounded-lg border-2 bg-white"
-                          style={{ borderColor: 'rgba(84,131,173,0.3)' }}
-                        >
-                          <span className="text-xl font-bold font-mono text-text-primary">{digit}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {/* OTP Display dihilangkan (Phase 3 v7) — code di payload QR
+                        TIDAK dipakai user input, mahasiswa scan QR otomatis.
+                        Dosen tidak perlu lihat angka 6-digit. Kode rolling tetap
+                        ada di payload QR untuk server verify (TOTP). */}
 
                     {/* Countdown */}
                     <div className="text-center mb-3">
                       <span
                         className={`text-sm font-medium ${countdown <= 30 ? 'text-danger' : 'text-text-secondary'}`}
                       >
-                        Kode berlaku: {formatCountdown(countdown)}
+                        QR berganti dalam: {formatCountdown(countdown)}
                       </span>
-                      {countdown <= 30 && countdown > 0 && (
-                        <span className="text-xs text-danger ml-2">(segera expire)</span>
-                      )}
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
+                      {/* Primary — pemantauan real-time */}
+                      <a
+                        href={`/sesi/${activeSession.id}/live`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white transition-colors bg-primary hover:bg-primary-hover"
+                      >
+                        <Activity size={13} /> Live Monitor
+                      </a>
+                      {/* Secondary — outline */}
                       <a
                         href={`/sesi/${activeSession.id}/qr`}
                         target="_blank"
@@ -307,27 +288,15 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
                         <Maximize2 size={13} /> Tampilkan Fullscreen
                       </a>
                       <button
-                        onClick={() => handleCopyCode(activeSession.session_code!)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        {copied ? <Check size={13} className="text-success" /> : <Copy size={13} />}
-                        {copied ? 'Tersalin' : 'Salin Kode'}
-                      </button>
-                      <button
-                        onClick={() => handleRefreshCode(activeSession.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        <RefreshCw size={13} /> Refresh Kode
-                      </button>
-                      <button
                         onClick={() => setDetailSessionId(activeSession.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white transition-colors bg-primary hover:bg-primary-hover"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
                       >
                         <ClipboardList size={13} /> Lihat Detail
                       </button>
+                      {/* Destructive — danger outline */}
                       <button
                         onClick={() => handleToggle(activeSession)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white transition-opacity bg-danger hover:opacity-90"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-danger/30 bg-danger/5 text-danger hover:bg-danger/10 transition-colors"
                       >
                         <StopCircle size={13} /> Akhiri
                       </button>

@@ -14,14 +14,15 @@ import {
 } from '../../_lib/rate-limit'
 import { createAdminClient } from '@/lib/supabase/server'
 import { logAudit } from '@/lib/audit-logger'
+import { verifyWithTolerance, getCurrentWindow } from '@/lib/utils/totp'
 import { z } from 'zod'
 
 // ===========================
 // Zod Schema
 // ===========================
 const submitSchema = z.object({
-  session_id: z.string().uuid('session_id harus UUID valid'),
-  session_code: z.string().length(6, 'Kode sesi harus 6 digit'),
+  session_id: z.string().uuid('QR tidak valid'),
+  session_code: z.string().length(6, 'QR tidak valid'),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   is_mock_location: z.boolean().default(false),
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest) {
     // 2. Rate limit check — composite key user+device
     const rlKey = buildRateLimitKey(user.id, deviceId)
     if (!checkSlidingRateLimit(rateLimitMap, rlKey, RATE_LIMIT_CONFIG)) {
-      return errorResponse('Terlalu banyak percobaan. Coba lagi setelah 1 menit.', 429)
+      return errorResponse('Terlalu banyak percobaan, coba 1 menit lagi', 429)
     }
 
     // 3. Parse & validate body
@@ -89,27 +90,64 @@ export async function POST(req: NextRequest) {
     // 4. LAYER 1: Validasi sesi exists & aktif
     const { data: session, error: sessionError } = await adminClient
       .from('sessions')
-      .select('id, course_id, is_active, session_code, session_code_expires_at, location_lat, location_lng, radius_meters, mode, session_number, topic, started_at')
+      .select('id, course_id, is_active, session_code, session_code_seed, session_code_expires_at, location_lat, location_lng, radius_meters, mode, session_number, topic, started_at')
       .eq('id', input.session_id)
       .single()
 
     if (sessionError || !session) {
-      return errorResponse('Sesi tidak ditemukan.', 404)
+      return errorResponse('Sesi tidak ditemukan', 404)
     }
 
     if (!session.is_active) {
-      return errorResponse('Sesi ini sudah berakhir.', 400)
+      return errorResponse('Sesi sudah berakhir', 400)
     }
 
-    // 5. LAYER 2: Validasi session_code cocok & belum expire
-    if (session.session_code !== input.session_code) {
-      return errorResponse('Kode sesi tidak valid.', 400)
-    }
+    // 5. LAYER 2: Validasi session_code — branching by mode (Phase 3 v7 rolling QR)
+    // Mode rolling: session.session_code_seed != null → TOTP verify dengan tolerance ±1 (90s effective).
+    // Mode legacy: session.session_code_seed == null → static equality check + expiry (pre-Phase 3 behavior, backward compat).
+    let qrVerifyMethod: 'totp' | 'static_legacy'
+    let qrWindowOffset: number | null = null
 
-    if (session.session_code_expires_at) {
-      const expiry = new Date(session.session_code_expires_at)
-      if (expiry < new Date()) {
-        return errorResponse('Kode sesi sudah kedaluwarsa. Minta dosen untuk refresh kode.', 400)
+    if (session.session_code_seed) {
+      // Rolling QR mode — TOTP verify dengan tolerance window
+      qrVerifyMethod = 'totp'
+      const currentWindow = getCurrentWindow()
+      const verify = verifyWithTolerance(
+        session.session_code_seed,
+        input.session_code,
+        currentWindow,
+        1, // tolerance ±1 window = 90s effective acceptance
+      )
+
+      if (!verify.match) {
+        await logAudit({
+          action: 'qr_code_invalid_attempt',
+          userId: user.id,
+          ipAddress,
+          details: {
+            session_id: input.session_id,
+            qr_verify_method: 'totp',
+            current_window: currentWindow,
+            student_nim: user.nim_nip,
+          },
+        })
+        return errorResponse('QR sudah kedaluwarsa', 400)
+      }
+
+      qrWindowOffset = verify.offset
+    } else {
+      // Legacy static mode — backward compat untuk sessions pre-migration 022
+      qrVerifyMethod = 'static_legacy'
+
+      if (session.session_code !== input.session_code) {
+        return errorResponse('QR tidak valid', 400)
+      }
+
+      if (session.session_code_expires_at) {
+        const expiry = new Date(session.session_code_expires_at)
+        if (expiry < new Date()) {
+          return errorResponse('QR sudah kedaluwarsa', 400)
+        }
       }
     }
 
@@ -123,7 +161,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle()
 
     if (!enrollment) {
-      return errorResponse('Anda tidak terdaftar di mata kuliah ini.', 400)
+      return errorResponse('Anda tidak terdaftar di mata kuliah ini', 400)
     }
 
     // 7. LAYER 4: Validasi duplicate — belum pernah submit untuk sesi ini
@@ -136,7 +174,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle()
 
     if (existing) {
-      return errorResponse('Anda sudah melakukan presensi untuk sesi ini.', 409)
+      return errorResponse('Anda sudah presensi di sesi ini', 409)
     }
 
     // 8. LAYER 5: GPS calculation — mode-aware
@@ -174,10 +212,7 @@ export async function POST(req: NextRequest) {
           user_agent: userAgent,
         },
       })
-      return errorResponse(
-        'Lokasi palsu terdeteksi. Matikan aplikasi fake GPS dan coba lagi.',
-        403
-      )
+      return errorResponse('Lokasi palsu terdeteksi', 403)
     }
 
     // 9. LAYER 6: Face Recognition Gate (Phase 2 v7, 17 Mei 2026)
@@ -210,7 +245,7 @@ export async function POST(req: NextRequest) {
           },
         })
         return errorResponse(
-          'Anda belum mendaftarkan wajah. Silakan daftar wajah dulu di menu Profil sebelum melakukan presensi.',
+          'Wajah belum didaftarkan',
           403,
           'face_not_registered',
         )
@@ -234,7 +269,7 @@ export async function POST(req: NextRequest) {
           },
         })
         return errorResponse(
-          'Verifikasi wajah belum berhasil. Coba ulangi dengan pencahayaan yang lebih baik dan pastikan hanya wajah Anda yang terlihat.',
+          'Verifikasi wajah gagal',
           403,
           'face_mismatch',
         )
@@ -298,9 +333,9 @@ export async function POST(req: NextRequest) {
     if (insertError) {
       // Handle UNIQUE constraint violation
       if (insertError.code === '23505') {
-        return errorResponse('Anda sudah melakukan presensi untuk sesi ini.', 409)
+        return errorResponse('Anda sudah presensi di sesi ini', 409)
       }
-      return errorResponse('Gagal menyimpan presensi. Coba lagi.', 500)
+      return errorResponse('Gagal menyimpan presensi', 500)
     }
 
     // 10. Audit log
@@ -323,6 +358,8 @@ export async function POST(req: NextRequest) {
         device: input.device_model,
         device_id: deviceId,
         user_agent: userAgent,
+        qr_verify_method: qrVerifyMethod,
+        qr_window_offset: qrWindowOffset,
       },
     })
 
@@ -346,6 +383,6 @@ export async function POST(req: NextRequest) {
       message,
     }, 201)
   } catch {
-    return errorResponse('Terjadi kesalahan server.', 500)
+    return errorResponse('Terjadi kesalahan server', 500)
   }
 }

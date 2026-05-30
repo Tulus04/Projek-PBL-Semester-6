@@ -214,7 +214,7 @@ Siap Digunakan
 | Fitur | Deskripsi | Status |
 |-------|-----------|--------|
 | Buat Sesi | Pilih MK, topik, mode (offline/online), durasi, radius GPS | ✅ Sudah ada |
-| QR Display + Refresh | Tampilkan QR rolling 5s di proyektor untuk mahasiswa scan | ⏳ Phase 3 (rolling) |
+| QR Display + Refresh | Tampilkan QR rolling 30s di proyektor untuk mahasiswa scan | ✅ Sudah ada (Phase 3 22 Mei 2026) |
 | Monitor Real-time | Daftar hadir live saat sesi berlangsung (Supabase Realtime) | ✅ Sudah ada (migration 016) |
 | Tutup Sesi | Close manual + auto-alpa untuk yang belum absen | ✅ Sudah ada |
 | Review Izin/Sakit | Approve/reject request + lihat bukti foto mahasiswa (juga handle case mahasiswa kamera rusak permanen + tidak bisa pinjam HP teman) | ✅ Sudah ada |
@@ -742,7 +742,7 @@ dev_dependencies:
 | **Phase 1** | Document Honest Update (plan v6 → v7, workflow update) | ~3 jam | ✅ Selesai |
 | **Phase 1.5** | Adjustment: Face WAJIB di kedua mode + skip Phase 4 (sesi yang sama) | ~30 menit | ✅ Selesai |
 | **Phase 2** | Face WAJIB di **kedua mode** (route.ts gate + mobile UX 403 handling + dialog redirect ke face_registration). Backend logic lebih simpel — tidak ada branch per session.mode | 3-4 jam | ⏳ Next |
-| **Phase 3** | QR Rolling 5s (A1) — migration 020 `session_code_seed`, TOTP-like generation, web polling refresh, mobile no-change | 4-6 jam | ⏳ Pending |
+| **Phase 3** | QR Rolling **30s + tolerance ±1 = 90s effective** (A3) — migration 022 `session_code_seed`, TOTP-like generation, web polling refresh, mobile no-change | 4-6 jam | ✅ Selesai (22 Mei 2026) — manual smoke pending USER |
 | ~~**Phase 4**~~ | ~~Manual Override Dosen (B1)~~ — **DIHAPUS** sesuai adjustment Phase 1.5 | ~~3-4 jam~~ | ❌ Skip |
 
 ### Fase 5 — Hardening & Ship (Post-v7)
@@ -864,6 +864,8 @@ dev_dependencies:
 | `017_seed_demo_data` | Seed 4 mahasiswa demo + 24 attendance rows untuk demo |
 | `018_revoke_at_risk_function_public` | REVOKE public dari at_risk function |
 | `019_leave_evidence_bucket` | Bucket `leave-evidence` untuk upload bukti izin/sakit |
-| `020_rolling_qr_seed` (Phase 3, pending) | Tambah `sessions.session_code_seed` untuk TOTP-like rolling QR |
+| `020_realtime_attendances` | Enable Realtime publication untuk live monitor dosen |
+| `021_session_started_at_index` | Index pada `sessions.started_at` untuk query historical |
+| `022_rolling_qr_seed` (Phase 3) | Tambah `sessions.session_code_seed` untuk TOTP-like rolling QR ✅ Applied 22 Mei 2026 |
 | ~~`021_manual_attendance_override`~~ | ~~Phase 4 manual override~~ — **DIHAPUS** (Phase 1.5 adjustment, lihat Bagian 4.4) |
 
