@@ -86,4 +86,7 @@ trigger: always_on
     | Build (jika applicable) | ✅ exit 0 |
     | **Runtime visual (USER)** | ⏳ Mohon screenshot |
     ```
+* **Klaim Deploy & Vercel**: 
+  * JANGAN PERNAH berasumsi bahwa `git push` berarti fitur otomatis sukses ter-deploy di Vercel.
+  * Next.js memiliki aturan ESLint & TypeScript yang ketat. Selalu jalankan `npm run build` lokal atau tunggu konfirmasi Vercel selesai build sebelum memberikan klaim "Sudah Berhasil" kepada pengguna.
 * **Bug Retro**: Jika ada bug kritis yang lolos ke production/user, wajib buat entri retro di `dev-log.md` (Symptom, Root Cause, Why Slipped, Prevention, Files Affected).
