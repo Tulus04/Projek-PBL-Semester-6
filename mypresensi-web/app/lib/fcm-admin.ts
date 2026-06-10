@@ -44,6 +44,10 @@ function getMessaging(): admin.messaging.Messaging {
     let serviceAccount: admin.ServiceAccount
     try {
       serviceAccount = JSON.parse(raw) as admin.ServiceAccount
+      // Fix for Vercel env vars: replace literal \n with actual newlines
+      if (serviceAccount.private_key) {
+        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n')
+      }
     } catch {
       throw new Error('FIREBASE_SERVICE_ACCOUNT tidak parseable sebagai JSON')
     }
