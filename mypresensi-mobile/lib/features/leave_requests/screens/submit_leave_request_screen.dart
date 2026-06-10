@@ -1446,7 +1446,7 @@ class _StepTypeAndReason extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Text(
-          'Pilih jenis izin dan jelaskan alasan kamu tidak hadir.',
+          'Pilih kategori pengajuan dan tuliskan alasan ketidakhadiran Anda.',
           style: TextStyle(
             fontSize: 12.5,
             color: AppColors.textSecondary,
@@ -1498,7 +1498,7 @@ class _StepTypeAndReason extends StatelessWidget {
           ),
           decoration: InputDecoration(
             hintText:
-                'Jelaskan singkat kenapa kamu tidak bisa hadir...',
+                'Tuliskan alasan ketidakhadiran Anda di sini...',
             hintStyle: const TextStyle(
               fontSize: 13,
               color: AppColors.textTertiary,
