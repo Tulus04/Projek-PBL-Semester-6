@@ -79,8 +79,37 @@ class AttendanceResultScreen extends ConsumerWidget {
                 ),
                 child: Column(
                   children: [
-                    // Session name
-                    if (submitState.sessionName != null) ...[
+                    // Mata Kuliah & Topik
+                    if (response.courseName != null) ...[
+                      _buildDetailRow(
+                        context,
+                        icon: Icons.book_outlined,
+                        label: 'Mata Kuliah',
+                        value: response.courseName!,
+                      ),
+                      const Divider(height: 24),
+                    ],
+                    if (response.sessionNumber != null) ...[
+                      _buildDetailRow(
+                        context,
+                        icon: Icons.tag_outlined,
+                        label: 'Pertemuan',
+                        value: 'Ke-${response.sessionNumber}',
+                      ),
+                      const Divider(height: 24),
+                    ],
+                    if (response.sessionTopic != null) ...[
+                      _buildDetailRow(
+                        context,
+                        icon: Icons.topic_outlined,
+                        label: 'Topik',
+                        value: response.sessionTopic!,
+                      ),
+                      const Divider(height: 24),
+                    ],
+
+                    // Session name (Legacy, tetap dibiarkan untuk fallback)
+                    if (submitState.sessionName != null && response.courseName == null) ...[
                       _buildDetailRow(
                         context,
                         icon: Icons.class_outlined,

@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     // 4. LAYER 1: Validasi sesi exists & aktif
     const { data: session, error: sessionError } = await adminClient
       .from('sessions')
-      .select('id, course_id, is_active, session_code, session_code_seed, session_code_expires_at, location_lat, location_lng, radius_meters, mode, session_number, topic, started_at')
+      .select('id, course_id, is_active, session_code, session_code_seed, session_code_expires_at, location_lat, location_lng, radius_meters, mode, session_number, topic, started_at, courses(code, name)')
       .eq('id', input.session_id)
       .single()
 
@@ -398,6 +398,9 @@ export async function POST(req: NextRequest) {
       late_by_seconds: lateBySeconds,
       scanned_at: nowIso,
       message,
+      course_name: session.courses ? `${(session.courses as any).code} - ${(session.courses as any).name}` : null,
+      session_topic: session.topic,
+      session_number: session.session_number,
     }, 201)
   } catch {
     return errorResponse('Terjadi kesalahan server', 500)

@@ -117,6 +117,9 @@ class AttendanceSubmitResponse {
   final bool isLocationValid;
   final String scannedAt;
   final String message;
+  final String? courseName;
+  final String? sessionTopic;
+  final int? sessionNumber;
 
   const AttendanceSubmitResponse({
     required this.status,
@@ -124,6 +127,9 @@ class AttendanceSubmitResponse {
     required this.isLocationValid,
     required this.scannedAt,
     required this.message,
+    this.courseName,
+    this.sessionTopic,
+    this.sessionNumber,
   });
 
   factory AttendanceSubmitResponse.fromJson(Map<String, dynamic> json) {
@@ -133,6 +139,9 @@ class AttendanceSubmitResponse {
       isLocationValid: json['is_location_valid'] as bool? ?? false,
       scannedAt: json['scanned_at'] as String? ?? '',
       message: json['message'] as String? ?? '',
+      courseName: json['course_name'] as String?,
+      sessionTopic: json['session_topic'] as String?,
+      sessionNumber: json['session_number'] as int?,
     );
   }
 }
