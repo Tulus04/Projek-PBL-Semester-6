@@ -97,13 +97,13 @@ class LocationService {
       // Release build (production APK) TIDAK terpengaruh — `is_mock_location`
       // tetap dikirim apa adanya & server tetap menolak mock.
       bool isMock = position.isMocked;
-      if (kDebugMode && isMock) {
-        debugPrint(
-          '[LOCATION] ⚠️ DEV-ONLY: Mock detected pada debug build → '
-          'override jadi false. Test mock-rejection di RELEASE build / HP fisik.',
-        );
-        isMock = false;
-      }
+      // if (kDebugMode && isMock) {
+      //   debugPrint(
+      //     '[LOCATION] ⚠️ DEV-ONLY: Mock detected pada debug build → '
+      //     'override jadi false. Test mock-rejection di RELEASE build / HP fisik.',
+      //   );
+      //   isMock = false;
+      // }
 
       return LocationResult(
         latitude: position.latitude,
