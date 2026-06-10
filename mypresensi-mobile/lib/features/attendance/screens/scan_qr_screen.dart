@@ -300,6 +300,24 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
   }
 
   Future<void> _processSubmit(QrCodeData qrData) async {
+    // === QR GATING: Pintu Masuk ===
+    // Sesuai implementasi baru (Phase 3 QR Gating), QR divalidasi DI DEPAN secara instan!
+    String? qrToken;
+    try {
+      qrToken = await ref.read(attendanceRepositoryProvider).verifyQr(qrData);
+    } catch (e) {
+      // Jika QR expired / tidak valid, proses berhenti di sini, tidak lanjut face verify
+      _showError(e.toString());
+      if (mounted) {
+        setState(() => _isProcessing = false);
+        // Re-init kamera supaya user bisa scan ulang
+        if (_cameraController == null || !_cameraController!.value.isInitialized) {
+          await _initCamera();
+        }
+      }
+      return;
+    }
+
     // === Pre-flight: cek face_verification_mode ===
     // Phase 2 v7 (17 Mei 2026): kalau mode 'required', mahasiswa harus:
     //   1. Sudah daftar wajah (is_face_registered = true), kalau belum → dialog redirect
@@ -382,7 +400,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
     // === Submit ke server ===
     final success = await ref
         .read(attendanceSubmitProvider.notifier)
-        .submitFromQr(qrData, faceResult: faceResult);
+        .submitFromQr(qrData, qrToken: qrToken, faceResult: faceResult);
 
     if (!mounted) return;
 

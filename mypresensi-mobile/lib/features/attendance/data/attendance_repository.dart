@@ -57,6 +57,27 @@ class AttendanceRepository {
     }
   }
 
+  /// Verifikasi QR Gate secara real-time
+  /// Return qr_token jika sukses, throw exception jika gagal.
+  Future<String> verifyQr(QrCodeData qrData) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.verifyQr,
+        data: {
+          'session_id': qrData.sessionId,
+          'session_code': qrData.sessionCode,
+        },
+      );
+      final data = response.data as Map<String, dynamic>;
+      final qrToken = data['data']['qr_token'] as String;
+      
+      debugPrint('[ATTENDANCE] QR verified, token: $qrToken');
+      return qrToken;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// Submit presensi ke server
   /// Return [AttendanceSubmitResponse] jika berhasil, throw String jika gagal
   Future<AttendanceSubmitResponse> submitAttendance(

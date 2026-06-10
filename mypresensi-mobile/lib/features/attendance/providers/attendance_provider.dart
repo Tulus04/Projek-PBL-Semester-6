@@ -122,6 +122,7 @@ class AttendanceSubmitNotifier extends Notifier<AttendanceSubmitState> {
   /// faceResult opsional — jika ada, dikirim ke server sebagai data tambahan
   Future<bool> submitFromQr(
     QrCodeData qrData, {
+    String? qrToken,
     String? sessionName,
     FaceVerificationResult? faceResult,
   }) async {
@@ -164,6 +165,7 @@ class AttendanceSubmitNotifier extends Notifier<AttendanceSubmitState> {
       final request = AttendanceSubmitRequest(
         sessionId: qrData.sessionId,
         sessionCode: qrData.sessionCode,
+        qrToken: qrToken,
         latitude: location.latitude,
         longitude: location.longitude,
         isMockLocation: location.isMockLocation,

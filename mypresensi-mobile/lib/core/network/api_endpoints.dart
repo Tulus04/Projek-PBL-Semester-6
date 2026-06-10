@@ -18,6 +18,7 @@ class ApiEndpoints {
   static const String sessionsEligibleForLeave = '/api/mobile/sessions/eligible-for-leave';
 
   // Attendance
+  static const String verifyQr = '/api/mobile/attendance/verify-qr';
   static const String submitAttendance = '/api/mobile/attendance/submit';
   static const String attendanceHistory = '/api/mobile/attendance/history';
 

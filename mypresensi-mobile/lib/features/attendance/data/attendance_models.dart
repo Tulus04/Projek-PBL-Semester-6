@@ -64,7 +64,8 @@ class ActiveSession {
 /// Data yang dikirim ke POST /api/mobile/attendance/submit
 class AttendanceSubmitRequest {
   final String sessionId;
-  final String sessionCode;
+  final String? qrToken;
+  final String? sessionCode;
   final double latitude;
   final double longitude;
   final bool isMockLocation;
@@ -78,7 +79,8 @@ class AttendanceSubmitRequest {
 
   const AttendanceSubmitRequest({
     required this.sessionId,
-    required this.sessionCode,
+    this.qrToken,
+    this.sessionCode,
     required this.latitude,
     required this.longitude,
     this.isMockLocation = false,
@@ -93,7 +95,8 @@ class AttendanceSubmitRequest {
   Map<String, dynamic> toJson() {
     return {
       'session_id': sessionId,
-      'session_code': sessionCode,
+      if (qrToken != null) 'qr_token': qrToken,
+      if (sessionCode != null) 'session_code': sessionCode,
       'latitude': latitude,
       'longitude': longitude,
       'is_mock_location': isMockLocation,

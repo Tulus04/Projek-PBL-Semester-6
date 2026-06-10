@@ -22,7 +22,8 @@ import { z } from 'zod'
 // ===========================
 const submitSchema = z.object({
   session_id: z.string().uuid('QR tidak valid'),
-  session_code: z.string().length(6, 'QR tidak valid'),
+  qr_token: z.string().uuid('Token QR tidak valid').optional(),
+  session_code: z.string().length(6, 'QR tidak valid').optional(),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   is_mock_location: z.boolean().default(false),
@@ -102,53 +103,69 @@ export async function POST(req: NextRequest) {
       return errorResponse('Sesi sudah berakhir', 400)
     }
 
-    // 5. LAYER 2: Validasi session_code — branching by mode (Phase 3 v7 rolling QR)
-    // Mode rolling: session.session_code_seed != null → TOTP verify dengan tolerance ±1 (90s effective).
-    // Mode legacy: session.session_code_seed == null → static equality check + expiry (pre-Phase 3 behavior, backward compat).
-    let qrVerifyMethod: 'totp' | 'static_legacy'
+    // 5. LAYER 2: Validasi session_code atau qr_token (QR Gating Phase)
+    let qrVerifyMethod: 'token' | 'totp' | 'static_legacy' = 'token'
     let qrWindowOffset: number | null = null
 
-    if (session.session_code_seed) {
-      // Rolling QR mode — TOTP verify dengan tolerance window
-      qrVerifyMethod = 'totp'
-      const currentWindow = getCurrentWindow()
-      const verify = verifyWithTolerance(
-        session.session_code_seed,
-        input.session_code,
-        currentWindow,
-        1, // tolerance ±1 window = 90s effective acceptance
-      )
+    if (input.qr_token) {
+      // Menggunakan token QR hasil gating (QR Pintu Masuk)
+      const { data: tokenRow } = await adminClient
+        .from('attendance_qr_tokens')
+        .select('token, expires_at')
+        .eq('token', input.qr_token)
+        .eq('student_id', user.id)
+        .eq('session_id', input.session_id)
+        .single()
 
-      if (!verify.match) {
-        await logAudit({
-          action: 'qr_code_invalid_attempt',
-          userId: user.id,
-          ipAddress,
-          details: {
-            session_id: input.session_id,
-            qr_verify_method: 'totp',
-            current_window: currentWindow,
-            student_nim: user.nim_nip,
-          },
-        })
-        return errorResponse('QR sudah kedaluwarsa', 400)
+      if (!tokenRow) {
+        return errorResponse('Izin QR tidak valid', 400)
       }
 
-      qrWindowOffset = verify.offset
-    } else {
-      // Legacy static mode — backward compat untuk sessions pre-migration 022
-      qrVerifyMethod = 'static_legacy'
-
-      if (session.session_code !== input.session_code) {
-        return errorResponse('QR tidak valid', 400)
+      if (new Date(tokenRow.expires_at) < new Date()) {
+        return errorResponse('Waktu pemindaian wajah & lokasi sudah habis (lebih dari 5 menit)', 400)
       }
+    } else if (input.session_code) {
+      // Backward compatibility untuk versi app lama
+      if (session.session_code_seed) {
+        qrVerifyMethod = 'totp'
+        const currentWindow = getCurrentWindow()
+        const verify = verifyWithTolerance(
+          session.session_code_seed,
+          input.session_code,
+          currentWindow,
+          // tolerance mengikuti TOLERANCE_DEFAULT
+        )
 
-      if (session.session_code_expires_at) {
-        const expiry = new Date(session.session_code_expires_at)
-        if (expiry < new Date()) {
+        if (!verify.match) {
+          await logAudit({
+            action: 'qr_code_invalid_attempt',
+            userId: user.id,
+            ipAddress,
+            details: {
+              session_id: input.session_id,
+              qr_verify_method: 'totp',
+              current_window: currentWindow,
+              student_nim: user.nim_nip,
+              stage: 'submit',
+            },
+          })
           return errorResponse('QR sudah kedaluwarsa', 400)
         }
+        qrWindowOffset = verify.offset
+      } else {
+        qrVerifyMethod = 'static_legacy'
+        if (session.session_code !== input.session_code) {
+          return errorResponse('QR tidak valid', 400)
+        }
+        if (session.session_code_expires_at) {
+          const expiry = new Date(session.session_code_expires_at)
+          if (expiry < new Date()) {
+            return errorResponse('QR sudah kedaluwarsa', 400)
+          }
+        }
       }
+    } else {
+      return errorResponse('Token atau Kode QR harus diisi', 400)
     }
 
     // 6. LAYER 3: Validasi enrollment — mahasiswa terdaftar di MK ini

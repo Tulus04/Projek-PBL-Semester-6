@@ -32,7 +32,7 @@ import { createHmac, timingSafeEqual } from 'crypto'
 //   spotty network kelas. 125s tolerance tetap dominan reject share scenario.
 const WINDOW_SIZE_MS = 5_000 // 5 detik per window
 const DIGIT_COUNT = 6
-const TOLERANCE_DEFAULT = 12 // ±12 window = 25 window total = 125s effective acceptance
+const TOLERANCE_DEFAULT = 0 // 0 window = HANYA berlaku di 5 detik tersebut (Strict 5 detik)
 
 export interface TotpVerifyResult {
   match: boolean
