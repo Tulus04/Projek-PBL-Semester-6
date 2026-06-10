@@ -34,10 +34,8 @@ const submitSchema = z.object({
   // '<uuid_user>/<32hex>.<jpg|png|webp>'. Optional.
   // Server akan validate prefix === user.id sebagai defense in depth selain RLS.
   evidence_path: z
-    .string()
-    .regex(EVIDENCE_PATH_REGEX, 'Bukti tidak valid')
-    .optional()
-    .nullable(),
+    .string({ required_error: 'Wajib melampirkan bukti' })
+    .regex(EVIDENCE_PATH_REGEX, 'Bukti tidak valid'),
 })
 
 // ===========================

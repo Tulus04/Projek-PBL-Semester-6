@@ -158,8 +158,8 @@ class WizardState {
         final r = reason.trim();
         return r.length >= 10 && r.length <= 500;
       case WizardStep.evidence:
-        // Boleh advance walau tidak ada lampiran. Hanya block saat upload aktif.
-        return !isUploadingEvidence;
+        // Wajib ada lampiran dan tidak sedang di-upload.
+        return pickedImage != null && !isUploadingEvidence;
       case WizardStep.review:
         return true;
     }
@@ -1626,7 +1626,7 @@ class _StepEvidence extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Text(
-          'Lampirkan foto bukti seperti surat dokter (opsional). Boleh dilewati.',
+          'Lampirkan foto bukti (surat dokter, surat tugas, dll). Wajib diisi.',
           style: TextStyle(
             fontSize: 12.5,
             color: AppColors.textSecondary,
