@@ -6,6 +6,31 @@
 
 ---
 
+## [2026-06-10] — Sesi: QR Gating & Strict 5s Lifetime
+
+### Target Sesi: 
+Mengubah alur presensi mobile dari 1-tahap menjadi arsitektur "QR Gating" 2-tahap (Pintu Masuk) dan memblokir celah manipulasi QR. QR Code hanya berlaku secara mutlak selama 5 detik. Jika lolos scan, aplikasi menerbitkan token izin (berlaku 1 menit) yang memungkinkan mahasiswa santai melakukan verifikasi biometrik.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| — | [ADD] | `mypresensi-web/supabase/migrations/024_qr_gating_tokens.sql` | Migration untuk membuat tabel `attendance_qr_tokens` yang menyimpan token UUID sementara selama 1 menit. |
+| — | [MOD] | `mypresensi-web/app/lib/utils/totp.ts` | Mengembalikan window size QR ke 5 detik dan mengubah `TOLERANCE_DEFAULT` ke 0 agar waktu validasi strict tepat 5 detik. |
+| — | [ADD] | `mypresensi-web/app/api/mobile/attendance/verify-qr/route.ts` | Endpoint untuk memvalidasi `session_code` secara instan, dan mencetak token ke dalam tabel `attendance_qr_tokens`. |
+| — | [MOD] | `mypresensi-web/app/api/mobile/attendance/submit/route.ts` | Layer validasi baru untuk mensyaratkan `qr_token` dari client, lalu memvalidasi _lifespan_ token tersebut secara _server-side_. |
+| — | [MOD] | `mypresensi-mobile/lib/core/network/api_endpoints.dart` | Register endpoint `verifyQr`. |
+| — | [MOD] | `mypresensi-mobile/lib/features/attendance/data/attendance_repository.dart` | Remote request untuk API `verifyQr`. |
+| — | [MOD] | `mypresensi-mobile/lib/features/attendance/providers/attendance_provider.dart` | Meng-update method `submitFromQr` untuk menerima parameter _optional_ `qrToken`. |
+| — | [MOD] | `mypresensi-mobile/lib/features/attendance/screens/scan_qr_screen.dart` | Menerapkan intersep Gating. Segera setelah QR terbaca dari `camera`, aplikasi memanggil API `/verify-qr`. Token disimpan sementara untuk diteruskan di akhir setelah face result didapatkan. |
+
+### Verifikasi Sesi
+| Check | Result |
+|-------|--------|
+| Type-check & Linter | ✅ 0 issues |
+| Supabase DB Migration | ✅ `024_qr_gating_tokens.sql` executed di dev & apply real-time (`INTERVAL 1 minute`) |
+| Git Sync | ✅ Pushed to `main` |
+
+---
+
 ## SESSION 001 — 2026-04-06 | Fase 1: Web Foundation
 
 **Durasi:** ~36 menit (20:57 – 21:33 WIB)

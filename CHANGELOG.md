@@ -5,6 +5,30 @@
 
 ---
 
+## [2026-06-10] — Sesi: QR Gating & Strict 5s Lifetime
+
+### Target Sesi: Meningkatkan keamanan presensi dengan arsitektur QR Gating (Pintu Masuk) 2 tahap. QR diubah menjadi "tiket masuk" yang divalidasi langsung (Strict 5 detik) untuk menerbitkan token izin 1 menit, sehingga memberi kelonggaran waktu bagi mahasiswa saat pemindaian wajah & lokasi, sekaligus memblokir total celah kecurangan "Titip Absen via WhatsApp".
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| — | [ADD] | `mypresensi-web/supabase/migrations/024_qr_gating_tokens.sql` | Membuat tabel `attendance_qr_tokens` untuk menyimpan token sementara (berlaku 1 menit) yang diterbitkan setelah mahasiswa lolos scan QR. |
+| — | [MOD] | `mypresensi-web/app/lib/utils/totp.ts` | Set `WINDOW_SIZE_MS = 5_000` dan `TOLERANCE_DEFAULT = 0` agar batas waktu scan QR menjadi Strict 5 detik tanpa toleransi jeda. |
+| — | [ADD] | `mypresensi-web/app/api/mobile/attendance/verify-qr/route.ts` | Membuat API baru `/verify-qr` yang memvalidasi `session_code` dan menerbitkan `qr_token` jika valid. |
+| — | [MOD] | `mypresensi-web/app/api/mobile/attendance/submit/route.ts` | Modifikasi layer validasi QR (Layer 2) agar memvalidasi keberadaan `qr_token` dari database alih-alih `session_code` statis. Termasuk _backward compatibility_ jika aplikasi belum update. |
+| — | [MOD] | `mypresensi-mobile/lib/core/network/api_endpoints.dart` | Menambahkan endpoint `verifyQr`. |
+| — | [MOD] | `mypresensi-mobile/lib/features/attendance/data/attendance_repository.dart` | Menambahkan fungsi `verifyQr` untuk mengambil token dari server. |
+| — | [MOD] | `mypresensi-mobile/lib/features/attendance/providers/attendance_provider.dart` | Menambahkan parameter opsional `qrToken` pada `submitFromQr()`. |
+| — | [MOD] | `mypresensi-mobile/lib/features/attendance/screens/scan_qr_screen.dart` | Menambahkan intersep pemanggilan `verifyQr()` sesaat setelah berhasil membaca QR dari kamera. Token diteruskan hingga proses biometrik selesai, sehingga scan wajah tidak lagi terburu-buru. |
+
+### Verifikasi
+| Check | Result |
+|-------|--------|
+| `npm run type-check` | ✅ 0 issues |
+| Supabase DB Migration | ✅ `024_qr_gating_tokens.sql` executed |
+| Git Sync | ✅ Pushed to `main` |
+
+---
+
 ## [2026-06-10] — Sesi: Remove Quick Actions
 
 ### Target Sesi: Menghapus bagian Aksi Cepat (Quick Actions) dari halaman beranda mobile sesuai permintaan.
