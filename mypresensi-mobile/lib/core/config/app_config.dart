@@ -44,6 +44,11 @@ class AppConfig {
     const envUrl = String.fromEnvironment('API_BASE_URL');
     if (envUrl.isNotEmpty) return envUrl;
 
+    // Default for local development in emulator
+    if (isEmulator) {
+      return 'http://10.0.2.2:3000';
+    }
+
     // Default: Vercel production deployment
     return 'https://projek-pbl-semester-6.vercel.app';
   }

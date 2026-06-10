@@ -40,18 +40,18 @@ class _HistoryFilterNotifier extends Notifier<_HistoryFilter> {
 // Local view-mode provider — toggle List ↔ Calendar (rule 22 design system).
 // ============================================================================
 
-enum _HistoryViewMode { list, calendar }
+enum HistoryViewMode { list, calendar }
 
-final _historyViewModeProvider =
-    NotifierProvider<_HistoryViewModeNotifier, _HistoryViewMode>(
-  _HistoryViewModeNotifier.new,
+final historyViewModeProvider =
+    NotifierProvider<HistoryViewModeNotifier, HistoryViewMode>(
+  HistoryViewModeNotifier.new,
 );
 
-class _HistoryViewModeNotifier extends Notifier<_HistoryViewMode> {
+class HistoryViewModeNotifier extends Notifier<HistoryViewMode> {
   @override
-  _HistoryViewMode build() => _HistoryViewMode.list;
+  HistoryViewMode build() => HistoryViewMode.list;
 
-  void set(_HistoryViewMode v) => state = v;
+  void set(HistoryViewMode v) => state = v;
 }
 
 // ============================================================================
@@ -109,13 +109,7 @@ String _formatTimeOnly(String scannedAt) {
   }
 }
 
-/// Kategori label berdasarkan persentase kehadiran.
-String _categoryLabel(double percentage) {
-  if (percentage >= 90) return 'Sangat Baik';
-  if (percentage >= 75) return 'Baik';
-  if (percentage >= 60) return 'Cukup';
-  return 'Perlu Diperhatikan';
-}
+
 
 /// Mapping status enum DB → KpiColor untuk leading icon di item card.
 KpiColor _statusKpiColor(String status) {
@@ -379,7 +373,7 @@ class HistoryScreen extends ConsumerWidget {
     WidgetRef ref,
     HistoryResponse data,
   ) {
-    final viewMode = ref.watch(_historyViewModeProvider);
+    final viewMode = ref.watch(historyViewModeProvider);
 
     return RefreshIndicator(
       color: AppColors.primary,
@@ -401,7 +395,7 @@ class HistoryScreen extends ConsumerWidget {
           // View toggle — List ↔ Calendar.
           const SliverToBoxAdapter(child: _HistoryViewToggle()),
 
-          if (viewMode == _HistoryViewMode.list) ...[
+          if (viewMode == HistoryViewMode.list) ...[
             // Filter chips — horizontal scroll (hanya muncul di mode list).
             SliverToBoxAdapter(
               child: _HistoryFilterChips(
@@ -623,7 +617,7 @@ class _AppBarTitle extends StatelessWidget {
         ),
         SizedBox(height: 2),
         Text(
-          'Catatan kehadiran semesterku',
+          'Catatan kehadiran semester',
           style: TextStyle(
             fontSize: 12,
             color: AppColors.textSecondary,
@@ -646,7 +640,7 @@ class _HistoryHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final percentage = summary.percentage.clamp(0.0, 100.0);
-    final categoryLabel = _categoryLabel(percentage);
+
     final percentageText = percentage.toStringAsFixed(percentage % 1 == 0 ? 0 : 1);
 
     return HeroCard(
@@ -686,7 +680,7 @@ class _HistoryHero extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
-                  '% · $categoryLabel',
+                  '% dari ${summary.totalSessions} Sesi',
                   style: TextStyle(
                     fontFamily: 'Plus Jakarta Sans',
                     fontWeight: FontWeight.w700,
@@ -811,8 +805,8 @@ class _HistoryViewToggle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mode = ref.watch(_historyViewModeProvider);
-    final notifier = ref.read(_historyViewModeProvider.notifier);
+    final mode = ref.watch(historyViewModeProvider);
+    final notifier = ref.read(historyViewModeProvider.notifier);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
@@ -829,16 +823,16 @@ class _HistoryViewToggle extends ConsumerWidget {
               child: _ToggleSegment(
                 label: 'Daftar',
                 icon: IconsaxPlusBold.task_square,
-                active: mode == _HistoryViewMode.list,
-                onTap: () => notifier.set(_HistoryViewMode.list),
+                active: mode == HistoryViewMode.list,
+                onTap: () => notifier.set(HistoryViewMode.list),
               ),
             ),
             Expanded(
               child: _ToggleSegment(
                 label: 'Kalender',
                 icon: IconsaxPlusBold.calendar_1,
-                active: mode == _HistoryViewMode.calendar,
-                onTap: () => notifier.set(_HistoryViewMode.calendar),
+                active: mode == HistoryViewMode.calendar,
+                onTap: () => notifier.set(HistoryViewMode.calendar),
               ),
             ),
           ],
@@ -1216,10 +1210,12 @@ class _HistoryDetailSheet extends StatelessWidget {
         ? '${_idWeekday(scannedDt.weekday)}, ${scannedDt.day} ${_idMonth(scannedDt.month)} ${scannedDt.year}'
         : 'Tanggal tidak diketahui';
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+    return SafeArea(
+      bottom: true,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
         children: [
           // Drag handle 36x4.
           Container(
@@ -1292,7 +1288,7 @@ class _HistoryDetailSheet extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 

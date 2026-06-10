@@ -38,25 +38,36 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final card = Container(
+    if (onTap == null) {
+      return Container(
+        margin: margin,
+        padding: padding,
+        decoration: BoxDecoration(
+          color: backgroundColor ?? AppColors.surface,
+          borderRadius: BorderRadius.circular(borderRadius),
+          boxShadow: elevated ? AppShadows.cardElevated : AppShadows.card,
+        ),
+        child: child,
+      );
+    }
+
+    return Container(
       margin: margin,
-      padding: padding,
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.surface,
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: elevated ? AppShadows.cardElevated : AppShadows.card,
       ),
-      child: child,
-    );
-
-    if (onTap == null) return card;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
+      child: Material(
+        color: backgroundColor ?? AppColors.surface,
         borderRadius: BorderRadius.circular(borderRadius),
-        child: card,
+        clipBehavior: Clip.hardEdge,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: padding,
+            child: child,
+          ),
+        ),
       ),
     );
   }

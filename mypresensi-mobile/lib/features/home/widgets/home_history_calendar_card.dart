@@ -17,6 +17,7 @@ import '../../../shared/widgets/error_state.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../../history/data/attendance_status_style.dart';
 import '../../history/providers/history_provider.dart';
+import '../../history/screens/history_screen.dart';
 import '../providers/home_calendar_provider.dart';
 import 'day_agenda_list.dart';
 import 'week_strip_bar.dart';
@@ -44,7 +45,8 @@ class HomeHistoryCalendarCard extends ConsumerWidget {
       ),
       data: (res) {
         final grouped = groupByLocalDate(res.history);
-        final selectedRecords = grouped[dateKey(calState.selectedDay)] ?? const [];
+        final selectedRecords =
+            grouped[dateKey(calState.selectedDay)] ?? const [];
 
         return AppCard(
           padding: const EdgeInsets.all(16),
@@ -67,19 +69,27 @@ class HomeHistoryCalendarCard extends ConsumerWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => ref.read(currentTabProvider.notifier).setTab(1),
+                    onTap: () {
+                      ref
+                          .read(historyViewModeProvider.notifier)
+                          .set(HistoryViewMode.calendar);
+                      ref.read(currentTabProvider.notifier).setTab(1);
+                    },
                     behavior: HitTestBehavior.opaque,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 4,
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: const [
                           Text(
-                            'Kalender penuh',
+                            'Selengkapnya',
                             style: TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
                               fontWeight: FontWeight.w600,
-                              fontSize: 12,
+                              fontSize: 11,
                               color: AppColors.primary,
                             ),
                           ),
@@ -124,7 +134,8 @@ class HomeHistoryCalendarCard extends ConsumerWidget {
                 const EmptyState(
                   icon: IconsaxPlusBold.calendar_2,
                   title: 'Belum ada riwayat',
-                  description: 'Riwayat kehadiran kelas kamu akan muncul di sini.',
+                  description:
+                      'Riwayat kehadiran kelas kamu akan muncul di sini.',
                   padding: EdgeInsets.symmetric(vertical: 24),
                 )
               else
@@ -203,9 +214,17 @@ class _CalendarCardSkeleton extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              LoadingSkeleton(height: 32, width: 32, borderRadius: BorderRadius.all(Radius.circular(10))),
+              LoadingSkeleton(
+                height: 32,
+                width: 32,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
               LoadingSkeleton(height: 14, width: 80),
-              LoadingSkeleton(height: 32, width: 32, borderRadius: BorderRadius.all(Radius.circular(10))),
+              LoadingSkeleton(
+                height: 32,
+                width: 32,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
             ],
           ),
           const SizedBox(height: 14),

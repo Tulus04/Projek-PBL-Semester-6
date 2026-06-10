@@ -25,31 +25,13 @@ class HeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final card = Container(
       decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
+        color: AppColors.primaryHover,
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: AppShadows.hero,
       ),
       clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
-          // Gold radial glow — top-right (signature Politani accent)
-          Positioned(
-            top: -88,
-            right: -33,
-            child: IgnorePointer(
-              child: Container(
-                width: 220,
-                height: 220,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [AppColors.accentSoft, Color(0x00F4B400)],
-                    stops: [0.0, 0.65],
-                  ),
-                ),
-              ),
-            ),
-          ),
           // White highlight — bottom-left (depth + life)
           Positioned(
             bottom: -54,

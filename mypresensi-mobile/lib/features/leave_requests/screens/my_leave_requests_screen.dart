@@ -48,18 +48,16 @@ class MyLeaveRequestsScreen extends ConsumerWidget {
         ),
       ),
       // FAB extended "Ajukan Izin" — pattern Material You.
-      floatingActionButton: Container(
-        decoration: const BoxDecoration(boxShadow: AppShadows.fab),
-        child: FloatingActionButton.extended(
-          onPressed: () async {
-            final result = await context.push<bool>('/leave-request/submit');
-            if (result == true) {
-              ref.invalidate(myLeaveRequestsProvider);
-            }
-          },
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          elevation: 0, // shadow custom via parent Container
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final result = await context.push<bool>('/leave-request/submit');
+          if (result == true) {
+            ref.invalidate(myLeaveRequestsProvider);
+          }
+        },
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 4,
           icon: const Icon(IconsaxPlusBold.add_circle, size: 20),
           label: const Text(
             'Ajukan Izin',
@@ -73,7 +71,6 @@ class MyLeaveRequestsScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(999),
           ),
         ),
-      ),
       body: SafeArea(
         child: RefreshIndicator(
           color: AppColors.primary,
@@ -487,10 +484,12 @@ class _LeaveItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSakit = item.type == LeaveType.sakit;
-    final iconData = isSakit ? IconsaxPlusBold.health : IconsaxPlusBold.note_2;
-    final iconColor = isSakit ? AppColors.warning : AppColors.info;
-    final iconBg = isSakit ? AppColors.warningTint : AppColors.infoTint;
+    final (iconBg, iconColor, iconData) = switch (item.status) {
+      LeaveStatus.pending => (AppColors.warningTint, AppColors.warning, IconsaxPlusBold.clock),
+      LeaveStatus.approved => (AppColors.successTint, AppColors.success, IconsaxPlusBold.tick_circle),
+      LeaveStatus.rejected => (AppColors.dangerTint, AppColors.danger, IconsaxPlusBold.close_circle),
+      LeaveStatus.unknown => (AppColors.surfaceSunken, AppColors.textTertiary, IconsaxPlusBold.minus_cirlce),
+    };
 
     return Container(
       padding: const EdgeInsets.all(14),

@@ -1382,6 +1382,27 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` — verifikasi otomati
 - Next.js Type Check — ✅ Success (0 issues)
 - Git repository sync — ✅ Pushed to `main` branch
 
+---
 
+## 2026-06-10 — Sesi: Offline Proofing & Fallback Data Dummy (Mobile)
 
+**Konteks**: Memastikan data dummy yang digunakan untuk visual testing (Riwayat Kehadiran dan Riwayat Izin) dapat dirender secara konsisten walaupun aplikasi berjalan secara offline atau tidak terhubung ke backend server (misalnya saat proses handshake API gagal).
 
+### File yang diubah/dibuat
+
+```
+[MOD] mypresensi-mobile/lib/features/leave_requests/providers/leave_provider.dart
+      Membungkus pemanggilan repo.getMyRequests() dengan try-catch block, agar jika gagal (karena offline/koneksi terputus), state provider akan otomatis jatuh ke array kosong (fallback) dan tetap bisa menambahkan data dummy ke dalam list visual untuk di-test oleh pengguna.
+[MOD] mypresensi-mobile/lib/features/history/providers/history_provider.dart
+      Membungkus pemanggilan repo.getHistory() dengan try-catch block dengan perilaku yang sama (fallback ke data kosong), memastikan list data dummy riwayat kehadiran (Hadir, Alpa, Sakit, Izin, Terlambat) selalu tampil.
+```
+
+### Verifikasi
+- `flutter analyze` — ✅ 0 issues
+- Git repository sync — ✅ Ter-apply secara lokal
+
+## [2026-06-10] UI Fixes & Offline Gracefulness for Leave Submission
+- Fixed inconsistent Back button icon (IconsaxPlusBold.arrow_left -> Icons.arrow_back).
+- Standardized the disabled color state of _WizardFooter to use AppColors.surfaceSunken instead of an active-looking light blue.
+- Converted the small 'Empty Session' hint box into a prominent validation empty state.
+- Added a \	ry-catch\ offline fallback block to eligibleSessionsForLeaveProvider to gracefully render the empty state instead of getting stuck on skeletons.

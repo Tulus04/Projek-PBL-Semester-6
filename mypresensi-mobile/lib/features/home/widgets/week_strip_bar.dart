@@ -56,7 +56,7 @@ class WeekStripBar extends ConsumerWidget {
             children: [
               // Tombol mundur
               _NavChevron(
-                icon: IconsaxPlusBold.arrow_left_2,
+                icon: IconsaxPlusBold.arrow_left_3,
                 enabled: notifier.canGoBack,
                 onTap: () => notifier.shiftWeek(-1),
               ),
@@ -97,7 +97,12 @@ class WeekStripBar extends ConsumerWidget {
                   records: groupedRecords[dateKey(days[i])] ?? const [],
                   isSelected: _isSameDay(days[i], calState.selectedDay),
                   isToday: _isSameDay(days[i], DateTime.now()),
-                  onTap: () => notifier.selectDay(days[i]),
+                  onTap: () {
+                    final now = DateTime.now();
+                    final today = DateTime(now.year, now.month, now.day);
+                    if (days[i].isAfter(today)) return;
+                    notifier.selectDay(days[i]);
+                  },
                 ),
               ),
             ],
@@ -181,7 +186,16 @@ class _DayCell extends StatelessWidget {
     Color dateTextColor;
     List<BoxShadow>? shadow;
 
-    if (isSelected) {
+    final today = DateTime.now();
+    final todayNormalized = DateTime(today.year, today.month, today.day);
+    final isFuture = day.isAfter(todayNormalized);
+
+    if (isFuture) {
+      bgColor = AppColors.surface;
+      dayTextColor = AppColors.textTertiary.withValues(alpha: 0.5);
+      dateTextColor = AppColors.textTertiary.withValues(alpha: 0.5);
+      shadow = null;
+    } else if (isSelected) {
       bgColor = AppColors.primary;
       dayTextColor = Colors.white.withValues(alpha: 0.85);
       dateTextColor = Colors.white;

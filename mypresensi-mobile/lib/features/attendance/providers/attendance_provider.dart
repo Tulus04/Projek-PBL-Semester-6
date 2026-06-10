@@ -37,7 +37,15 @@ final activeSessionsProvider = FutureProvider.autoDispose<List<ActiveSession>>((
 final eligibleSessionsForLeaveProvider =
     FutureProvider.autoDispose<EligibleSessionsResponse>((ref) async {
   final repo = ref.watch(attendanceRepositoryProvider);
-  return repo.getEligibleSessionsForLeave();
+  try {
+    return await repo.getEligibleSessionsForLeave();
+  } catch (e) {
+    debugPrint('[ATTENDANCE] Failed to fetch eligible sessions, falling back to empty: $e');
+    return const EligibleSessionsResponse(
+      activeSessions: [],
+      recentSessions: [],
+    );
+  }
 });
 
 // === Attendance Submit State ===

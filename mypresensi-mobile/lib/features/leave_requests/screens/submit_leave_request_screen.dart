@@ -492,9 +492,9 @@ class _SubmitLeaveRequestScreenState
           scrolledUnderElevation: 0,
           leading: IconButton(
             icon: const Icon(
-              IconsaxPlusBold.arrow_left,
+              Icons.arrow_back,
               color: AppColors.textPrimary,
-              size: 22,
+              size: 24,
             ),
             onPressed: _state.isUploadingEvidence ? null : _handleGoBack,
           ),
@@ -1012,8 +1012,6 @@ class _StepPickSession extends ConsumerWidget {
       return ListView(
         padding: const EdgeInsets.fromLTRB(18, 8, 18, 16),
         children: [
-          _buildSectionHeading(),
-          const SizedBox(height: 16),
           _buildEmptyHint(),
         ],
       );
@@ -1100,29 +1098,48 @@ class _StepPickSession extends ConsumerWidget {
   }
 
   Widget _buildEmptyHint() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.infoTint,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.only(top: 60),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            IconsaxPlusBold.info_circle,
-            color: AppColors.info,
-            size: 18,
+          Container(
+            width: 120,
+            height: 120,
+            decoration: const BoxDecoration(
+              color: AppColors.surfaceSunken,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              IconsaxPlusBold.calendar_remove,
+              size: 56,
+              color: AppColors.textTertiary,
+            ),
           ),
-          const SizedBox(width: 10),
-          const Expanded(
+          const SizedBox(height: 24),
+          const Text(
+            'Tidak ada sesi yang aktif',
+            style: TextStyle(
+              fontFamily: 'Plus Jakarta Sans',
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+              color: AppColors.textPrimary,
+              letterSpacing: -0.2,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Sesi muncul di sini begitu dosen membukanya. Sesi yang sudah kamu hadiri atau lebih dari 7 hari tidak ditampilkan.',
+              'Sesi akan muncul di sini begitu dosen membukanya di kelas. Kamu tidak bisa mengajukan izin jika tidak ada sesi.',
               style: TextStyle(
-                fontSize: 11.5,
+                fontSize: 13,
                 color: AppColors.textSecondary,
                 height: 1.5,
               ),
+              textAlign: TextAlign.center,
             ),
           ),
         ],
@@ -2028,7 +2045,7 @@ class _WizardFooter extends StatelessWidget {
             child: Material(
               color: canTap
                   ? AppColors.primary
-                  : AppColors.primary.withValues(alpha: 0.6),
+                  : AppColors.surfaceSunken,
               borderRadius: BorderRadius.circular(999),
               child: InkWell(
                 onTap: canTap ? onTap : null,
@@ -2054,17 +2071,17 @@ class _WizardFooter extends StatelessWidget {
                       ],
                       Text(
                         label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'Plus Jakarta Sans',
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
                           letterSpacing: 0.14,
-                          color: Colors.white,
+                          color: canTap ? Colors.white : AppColors.textTertiary,
                         ),
                       ),
                       if (!loading && icon != null) ...[
                         const SizedBox(width: 8),
-                        Icon(icon, size: 18, color: Colors.white),
+                        Icon(icon, size: 18, color: canTap ? Colors.white : AppColors.textTertiary),
                       ],
                     ],
                   ),

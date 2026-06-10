@@ -32,7 +32,8 @@ export async function GET(req: NextRequest) {
       id, course_id, session_number, topic, mode,
       location_lat, location_lng, radius_meters,
       started_at,
-      course:courses!sessions_course_id_fkey(code, name)
+      course:courses!sessions_course_id_fkey(code, name),
+      dosen:profiles!sessions_dosen_id_fkey(full_name)
     `)
     .in('course_id', courseIds)
     .eq('is_active', true)
@@ -59,13 +60,15 @@ export async function GET(req: NextRequest) {
 
   // 4. Map ke response — TANPA session_code
   const result = (sessions ?? []).map((s) => {
-    const courseArr = s.course as unknown as Array<{ code: string; name: string }> | null
-    const course = courseArr?.[0]
+    // Supabase returns related one-to-one/many-to-one records as a single object, not an array
+    const course = s.course as unknown as { code: string; name: string } | null
+    const dosen = s.dosen as unknown as { full_name: string } | null
 
     return {
       id: s.id,
       course_code: course?.code ?? '-',
       course_name: course?.name ?? '-',
+      dosen_name: dosen?.full_name ?? null,
       session_number: s.session_number,
       topic: s.topic,
       mode: s.mode,

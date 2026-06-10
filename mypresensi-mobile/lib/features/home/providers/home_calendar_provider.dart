@@ -35,7 +35,7 @@ class HomeCalendarState {
 // ============================================================================
 
 class HomeCalendarNotifier extends Notifier<HomeCalendarState> {
-  // Range semester: Jan 2026 → akhir bulan ini.
+  // Range semester: Jan 2026 -> 4 minggu ke depan.
   static final DateTime _minWeek = weekStart(DateTime(2026, 1, 1));
 
   DateTime get _maxWeek {
@@ -54,7 +54,7 @@ class HomeCalendarNotifier extends Notifier<HomeCalendarState> {
   }
 
   /// Geser minggu sebanyak [delta] minggu (+1 maju, -1 mundur).
-  /// Klamping ke range semester.
+  /// Klamping ke range kalender.
   void shiftWeek(int delta) {
     final newWeek = addWeeks(state.selectedWeekStart, delta);
     final clamped = clampWeekStart(newWeek, min: _minWeek, max: _maxWeek);
@@ -102,5 +102,5 @@ class HomeCalendarNotifier extends Notifier<HomeCalendarState> {
 
 final homeCalendarProvider =
     NotifierProvider<HomeCalendarNotifier, HomeCalendarState>(
-  HomeCalendarNotifier.new,
-);
+      HomeCalendarNotifier.new,
+    );

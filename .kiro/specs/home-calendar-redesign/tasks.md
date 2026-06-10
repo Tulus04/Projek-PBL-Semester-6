@@ -17,55 +17,55 @@ Rencana implementasi redesign Beranda mobile menjadi format kalender riwayat (we
 - [ ] 2.1 Implementasi helper minggu
   - Tambah fungsi pure (mis. di `lib/features/home/data/week_utils.dart`): `weekStart(DateTime)` → Senin minggu itu; `addWeeks(DateTime weekStart, int delta)`; `clampWeekStart(DateTime, {min, max})`; `daysOfWeek(DateTime weekStart)` → 7 tanggal.
   - _Requirements: 3.1, 3.4, 3.5_
-- [~] 2.2 Unit test helper status + minggu (property-based)
+- [ ] 2.2 Unit test helper status + minggu (property-based)
   - Tulis `test/features/home/attendance_status_style_test.dart` dan `test/features/home/week_utils_test.dart`.
   - Cover Property 1 (dominantStatus prioritas terburuk), Property 2 (groupByLocalDate jaga jumlah + tanggal lokal), Property 3 (weekStart idempoten & Senin), Property 4 (navigasi maju-mundur konsisten & klamping), Property 6 (hari terpilih dalam minggu aktif).
   - Jalankan `flutter test` — semua hijau.
   - _Requirements: 1.1, 1.2, 1.4, 3.1, 3.4, 3.5, 6.3_
 
 - [ ] 3. Bangun widget `HomeHistoryCalendarCard`
-- [~] 3.1 Kerangka card + 3-state dari `historyProvider`
+- [ ] 3.1 Kerangka card + 3-state dari `historyProvider`
   - Buat `lib/features/home/widgets/home_history_calendar_card.dart` (`ConsumerStatefulWidget`) dengan state `_focusedWeekStart` + `_selectedDay`.
   - `ref.watch(historyProvider).when(...)`: loading → skeleton card; error → `ErrorState` + retry `ref.invalidate(historyProvider)`; data kosong total → empty state ramah ("Belum ada riwayat absen. Yuk mulai absen!").
   - _Requirements: 5.1, 5.2, 5.3_
-- [~] 3.2 Week strip + day pill
+- [ ] 3.2 Week strip + day pill
   - `_WeekStrip` (Row 7 `_DayPill`) memakai `daysOfWeek(_focusedWeekStart)` + `groupByLocalDate(records)`.
   - `_DayPill` varian: berdata (tint + dot status dominan), kosong (netral), hari ini (outline), masa depan (redup, tanpa status), terpilih (outline primary). Reuse `statusFg`/`statusTint`/`dominantStatus`.
   - Tambah legend status (Hadir/Izin-Sakit/Alpa; Terlambat bila dipakai).
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2.5_
-- [~] 3.3 Navigasi minggu
+- [ ] 3.3 Navigasi minggu
   - `_WeekNavRow`: label periode ("… · Minggu ini" atau rentang tanggal) + caret kiri/kanan; geser `_focusedWeekStart` ±7 hari dengan klamping (awal semester `DateTime(2026,1,1)` … minggu berjalan).
   - Saat pindah minggu set ulang `_selectedDay` (hari ini bila minggu berjalan → hari berdata terakhir → Senin).
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
-- [~] 3.4 Agenda hari terpilih
+- [ ] 3.4 Agenda hari terpilih
   - `_HomeAgendaList`: daftar record hari terpilih (MK + jam + pertemuan + status pill), reuse pola `_DayDetailItem`. Default hari terpilih = hari ini.
   - Empty state ramah bila hari terpilih tanpa record / hari depan ("Tidak ada kelas tercatat di hari ini").
   - Label tanggal Bahasa Indonesia ("Sabtu, 31 Mei").
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.6_
 
-- [~] 4. Bangun widget `HomeStatsRingCard`
+- [ ] 4. Bangun widget `HomeStatsRingCard`
   - Buat `lib/features/home/widgets/home_stats_ring_card.dart` (`StatelessWidget`) menerima `AttendanceSummary`.
   - Ring/donut persen `summary.percentage` via `CustomPaint` (tanpa package baru) + legend (Hadir/Izin-Sakit/Alpa; Terlambat bila > 0).
   - Tombol "Detail" → `onDetail` (setTab Riwayat). Sertakan skeleton `_StatsRingSkeleton` untuk state loading.
   - _Requirements: 4.1, 4.2, 7.2_
 
 - [ ] 5. Integrasikan ke `HomeScreen`
-- [~] 5.1 Susun ulang section + audit `_sectionCount`
+- [ ] 5.1 Susun ulang section + audit `_sectionCount`
   - Ganti `_animated(2, _TodaySummaryRow)` → `HomeStatsRingCard` (feed dari `historyProvider.summary`).
   - Ganti `_animated(4, _buildActivityFeedSection)` → struktur baru; urutan final: greeting(0) → hero(1) → `HomeHistoryCalendarCard`(2) → `HomeStatsRingCard`(3) → quick action(4).
   - Pastikan jumlah `_animated(i, ...)` == `_sectionCount` (audit eksplisit, cegah BUG-12 RangeError).
   - Cek referensi `recentActivitiesProvider` & `_TodaySummaryRow` di seluruh codebase sebelum menghapus; hapus/biarkan deprecate dengan aman.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
-- [~] 5.2 Wiring navigasi + pull-to-refresh
+- [ ] 5.2 Wiring navigasi + pull-to-refresh
   - `HomeHistoryCalendarCard.onOpenFullCalendar` & `HomeStatsRingCard.onDetail` → `currentTabProvider.setTab(2)` (verifikasi index tab Riwayat di `app_shell.dart`).
   - Tambah `ref.invalidate(historyProvider)` di `RefreshIndicator.onRefresh` Beranda (samping `activeSessionsProvider`).
   - _Requirements: 4.2, 4.3, 6.2_
 
-- [~] 6. Sinkronisasi data pasca-submit presensi
+- [ ] 6. Sinkronisasi data pasca-submit presensi
   - Pastikan handler "Kembali ke Beranda" di `attendance_result_screen.dart` memanggil `ref.invalidate(historyProvider)` (selain provider lain) agar week strip/agenda/statistik segar tanpa hot restart.
   - _Requirements: 6.1_
 
-- [~] 7. Verifikasi akhir + dokumentasi
+- [ ] 7. Verifikasi akhir + dokumentasi
   - `flutter analyze` 0 issues; `flutter test` hijau.
   - Verifikasi visual (rule 06 Law 4): screenshot Beranda — week strip, hari ini ter-outline, tint status, tap hari berdata/kosong/depan, navigasi minggu + klamping, "Kalender penuh" → tab Riwayat → back, submit presensi → record muncul tanpa hot restart, 3-state (loading/empty/error).
   - Update `CHANGELOG.md` (entri per file) + `dev-log.md` (keputusan redesign + cross-ref BUG-12/BUG-017).

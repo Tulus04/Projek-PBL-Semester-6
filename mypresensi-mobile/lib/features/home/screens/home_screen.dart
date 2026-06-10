@@ -16,7 +16,6 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_shell.dart';
 import '../../../shared/widgets/error_state.dart';
 import '../../../shared/widgets/hero_card.dart';
-import '../../../shared/widgets/kpi_icon_box.dart';
 import '../../attendance/data/attendance_models.dart';
 import '../../attendance/providers/attendance_provider.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -140,8 +139,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   /// Reset flag — panggil saat logout agar toast muncul lagi setelah login ulang.
   static void resetWelcome() => _hasShownWelcome = false;
 
-  // Stagger animation per section (greeting, hero, summary, quickActions, activityFeed).
-  static const _sectionCount = 5;
+  // Stagger animation per section (greeting, hero, historyCalendar, statsRing).
+  static const _sectionCount = 4;
   static const _staggerDelay = Duration(milliseconds: 90);
   static const _animDuration = Duration(milliseconds: 420);
 
@@ -289,8 +288,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   _animated(2, const HomeHistoryCalendarCard()),
                   const SizedBox(height: 18),
                   _animated(3, _buildStatsRingSection()),
-                  const SizedBox(height: 18),
-                  _animated(4, _buildQuickActionsSection(context, ref)),
                 ],
               ),
             ),
@@ -340,16 +337,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return historyAsync.maybeWhen(
       data: (res) => StatRingCard(summary: res.summary),
       orElse: () => const StatsRingSkeleton(),
-    );
-  }
-
-  // ===== Sub-builder: quick action grid =====
-  Widget _buildQuickActionsSection(BuildContext context, WidgetRef ref) {
-    return _QuickActionGrid(
-      onScanTap: () => context.push('/scan'),
-      onHistoryTap: () => ref.read(currentTabProvider.notifier).setTab(1),
-      onLeaveTap: () => ref.read(currentTabProvider.notifier).setTab(2),
-      onProfileTap: () => ref.read(currentTabProvider.notifier).setTab(4),
     );
   }
 }
@@ -984,131 +971,6 @@ class _HeroErrorBox extends StatelessWidget {
 }
 
 
-
-// ============================================================================
-// _QuickActionGrid — 4 quick actions (Scan QR featured / Riwayat / Izin / Profil)
-// ============================================================================
-
-class _QuickActionGrid extends StatelessWidget {
-  const _QuickActionGrid({
-    required this.onScanTap,
-    required this.onHistoryTap,
-    required this.onLeaveTap,
-    required this.onProfileTap,
-  });
-
-  final VoidCallback onScanTap;
-  final VoidCallback onHistoryTap;
-  final VoidCallback onLeaveTap;
-  final VoidCallback onProfileTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 2, bottom: 10),
-          child: Text(
-            'Aksi Cepat',
-            style: TextStyle(
-              fontFamily: 'Plus Jakarta Sans',
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: _QuickActionItem(
-                icon: IconsaxPlusBold.scan_barcode,
-                label: 'Scan QR',
-                variant: KpiColor.featured,
-                onTap: onScanTap,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _QuickActionItem(
-                icon: IconsaxPlusBold.clipboard_text,
-                label: 'Riwayat',
-                variant: KpiColor.success,
-                onTap: onHistoryTap,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _QuickActionItem(
-                icon: IconsaxPlusBold.note_2,
-                label: 'Izin',
-                variant: KpiColor.warning,
-                onTap: onLeaveTap,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _QuickActionItem(
-                icon: IconsaxPlusBold.user,
-                label: 'Profil',
-                variant: KpiColor.info,
-                onTap: onProfileTap,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _QuickActionItem extends StatelessWidget {
-  const _QuickActionItem({
-    required this.icon,
-    required this.label,
-    required this.variant,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final KpiColor variant;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      borderRadius: 14,
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          KpiIconBox(
-            icon: icon,
-            variant: variant,
-            size: 40,
-            borderRadius: 12,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Plus Jakarta Sans',
-              fontWeight: FontWeight.w600,
-              fontSize: 11,
-              color: AppColors.textPrimary,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // ============================================================================
 // _AiChatFab — floating bottom-right, gold gradient, AppShadows.fab

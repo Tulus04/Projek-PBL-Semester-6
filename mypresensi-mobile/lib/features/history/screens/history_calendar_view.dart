@@ -31,14 +31,38 @@ import '../data/history_models.dart';
 // ============================================================================
 
 const List<String> _idMonths = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
 ];
 
-const List<String> _idWeekdaysShort = ['Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb', 'Mg'];
+const List<String> _idWeekdaysShort = [
+  'Sn',
+  'Sl',
+  'Rb',
+  'Km',
+  'Jm',
+  'Sb',
+  'Mg',
+];
 
 const List<String> _idWeekdaysFull = [
-  'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu',
+  'Senin',
+  'Selasa',
+  'Rabu',
+  'Kamis',
+  'Jumat',
+  'Sabtu',
+  'Minggu',
 ];
 
 String _formatTimeOnly(String iso) {
@@ -75,12 +99,13 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
     super.initState();
     final now = DateTime.now();
     _focusedDay = DateTime.utc(now.year, now.month, now.day);
+    _selectedDay = _focusedDay;
   }
 
   DateTime get _lastDay {
     final now = DateTime.now();
-    // Bulan saat ini + 1 (untuk forward buffer kalau ada acara minggu depan)
-    return DateTime.utc(now.year, now.month + 1, 0); // last day of current month
+    // Sampai akhir bulan depan untuk forward buffer kalau ada acara minggu depan.
+    return DateTime.utc(now.year, now.month + 2, 0); // last day of next month
   }
 
   @override
@@ -114,9 +139,7 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
                   _focusedDay = focused;
                 });
                 final dayRecords = grouped[dateKey(selected)] ?? const [];
-                if (dayRecords.isNotEmpty) {
-                  _showDayDetailSheet(context, selected, dayRecords);
-                }
+                _showDayDetailSheet(context, selected, dayRecords);
               },
               onPageChanged: (focused) {
                 _focusedDay = focused;
@@ -185,11 +208,21 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
                 },
                 defaultBuilder: (context, day, focusedDay) {
                   final records = grouped[dateKey(day)] ?? const [];
-                  return _DayCell(day: day, records: records, isToday: false, isSelected: false);
+                  return _DayCell(
+                    day: day,
+                    records: records,
+                    isToday: false,
+                    isSelected: false,
+                  );
                 },
                 todayBuilder: (context, day, focusedDay) {
                   final records = grouped[dateKey(day)] ?? const [];
-                  return _DayCell(day: day, records: records, isToday: true, isSelected: false);
+                  return _DayCell(
+                    day: day,
+                    records: records,
+                    isToday: true,
+                    isSelected: false,
+                  );
                 },
                 selectedBuilder: (context, day, focusedDay) {
                   final records = grouped[dateKey(day)] ?? const [];
@@ -257,12 +290,18 @@ class _DayCell extends StatelessWidget {
     final dominant = dominantStatus(records);
     final hasRecord = records.isNotEmpty;
 
+    final today = DateTime.now();
+    final todayNormalized = DateTime.utc(today.year, today.month, today.day);
+    final isFuture = day.isAfter(todayNormalized);
+
     Color? bgColor;
     Color textColor = AppColors.textPrimary;
     BoxBorder? border;
     List<BoxShadow>? shadow;
 
-    if (isSelected) {
+    if (isFuture) {
+      textColor = AppColors.textTertiary.withValues(alpha: 0.5);
+    } else if (isSelected) {
       bgColor = AppColors.primary;
       textColor = Colors.white;
       shadow = AppShadows.button;

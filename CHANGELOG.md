@@ -5,6 +5,37 @@
 
 ---
 
+## [2026-06-10] — Sesi: Remove Quick Actions
+
+### Target Sesi: Menghapus bagian Aksi Cepat (Quick Actions) dari halaman beranda mobile sesuai permintaan.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| — | [FIX] | `mypresensi-mobile/lib/features/leave_requests/providers/leave_provider.dart` | Membungkus pengambilan data jarak jauh (remote request) dengan try-catch agar data dummy dapat dirender secara fallback ketika offline/tidak terhubung ke server. |
+| — | [FIX] | `mypresensi-mobile/lib/features/history/providers/history_provider.dart` | Membungkus pengambilan data jarak jauh (remote history) dengan try-catch agar data dummy dapat dirender secara fallback ketika offline/tidak terhubung ke server. |
+| — | [FIX] | `mypresensi-mobile/lib/features/history/screens/history_calendar_view.dart` | Memperbaiki bug kalender riwayat yang tidak mengarah ke hari ini secara otomatis di `initState`. Menambahkan `enabledDayPredicate` agar hari di masa depan otomatis abu-abu dan tidak bisa diklik. |
+| — | [FIX] | `mypresensi-mobile/lib/features/home/providers/home_calendar_provider.dart` | Mengembalikan batasan `_maxWeek` agar kalender beranda tidak bisa menavigasi melampaui minggu saat ini. |
+| — | [FIX] | `mypresensi-mobile/lib/features/home/widgets/week_strip_bar.dart` | Memblokir event `onTap` pada sel hari yang melewati tanggal hari ini agar tidak bisa diklik. |
+| — | [MOD] | `mypresensi-mobile/lib/features/home/widgets/home_history_calendar_card.dart` | Mengubah teks tombol menjadi "Selengkapnya" dengan ukuran font 11px agar lebih ringkas. Mengubah *routing* kliknya agar langsung membuka mode kalender di tab Riwayat. |
+| — | [MOD] | `mypresensi-mobile/lib/features/history/screens/history_screen.dart` | Mengubah subtitel riwayat menjadi "Catatan kehadiran semester" dan mengubah label validasi persentase menjadi informasi total pertemuan (contoh: "33.3 % dari 16 Sesi"). Mengekspos status `HistoryViewMode`. |
+| — | [MOD] | `mypresensi-mobile/lib/features/history/providers/history_provider.dart` | Memperbarui logika statis injeksi *dummy* agar ikut memperbarui statistik hero di header riwayat. |
+| — | [MOD] | `mypresensi-mobile/lib/features/home/widgets/week_strip_bar.dart` | Mengubah ikon tombol prev chevron dari `arrow_left_2` menjadi `arrow_left_3` agar konsisten secara visual dengan tombol next chevron (`arrow_right_3`). |
+| — | [MOD] | `mypresensi-mobile/lib/core/theme/app_colors.dart` | Mengubah skema `primaryGradient` dari biru-navy menjadi gradasi biru cerah penuh (`primaryLight` ke `primary`) untuk kesan yang lebih segar dan terang. |
+| — | [MOD] | `mypresensi-mobile/lib/shared/widgets/hero_card.dart` | Mengubah *background* HeroCard menjadi biru solid (`AppColors.primaryHover`) dan menghapus aksen kuning (*gold radial glow*) dari latar belakang. |
+| — | [FIX] | `mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart` | Memperbaiki *bug* visual kotak bayangan pada tombol FAB "Ajukan Izin" dengan menghapus *wrapper* `Container` dan menggunakan properti `elevation` bawaan FAB. |
+| — | [FIX] | `mypresensi-mobile/lib/shared/widgets/app_card.dart` | Memperbaiki struktur widget agar efek *ripple/splash* saat diklik (*onTap*) tidak tertutup oleh *background* solid Container. |
+| — | [FIX] | `mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart` | Mengubah ikon utama pada *card* pengajuan izin agar mencerminkan status pengajuan (Menunggu/Disetujui/Ditolak) bukan hanya berdasarkan jenis izin (Sakit/Izin). |
+| — | [MOD] | `mypresensi-mobile/lib/features/history/providers/history_provider.dart` | Menambahkan 5 data *dummy* statis yang mencakup kelima status (Hadir, Alpa, Sakit, Izin, Terlambat) untuk keperluan *testing* halaman Riwayat. |
+| — | [DEL] | `mypresensi-mobile/lib/features/home/screens/home_screen.dart` | Menghapus kode widget `_QuickActionGrid` dan `_QuickActionItem` serta menghapusnya dari layout list halaman beranda. Memperbarui `_sectionCount` animasi staggered menjadi 4. Menghapus unused import `KpiIconBox`. |
+
+### Verifikasi
+
+| Check | Result |
+|-------|--------|
+| `flutter analyze` | ✅ 0 issues |
+| `flutter test` | ✅ Passed |
+
+---
 ## [2026-06-10] — Sesi: Token Refresh Interceptor & Login Screen UI Revisions
 
 ### Target Sesi: Mengatasi bug token expired auto-logout setelah 1 jam dengan membuat endpoint refresh token di backend Next.js, mengimplementasikan silent token refresh interceptor di mobile (Dio), merapikan logo login (full bleed), dan menambahkan fitur Lupa Password.
@@ -1927,3 +1958,9 @@ User awal request "rolling 5 detik". Saya implement 30 detik (rekomendasi A3) ta
 
 | 22:30 | [MOD] | mypresensi-mobile/lib/features/attendance/screens/scan_qr_screen.dart | **BUG-019 REVERT iterasi 1-7**: stop in-place fix setelah 7 iterasi gagal di RMX5000. ScanQrScreen kembali ke state simple `final MobileScannerController` field, hapus tearDown/rebuild + conditional render + pop-and-restart. Komentar header file mark BUG-019 as known issue dengan reference ke spec `qr-scan-unify-camera-plugin`. BUG-018 dialog fix (Iconsax UI + markFaceRegistered + invalidate config) DIPERTAHANKAN. |
 | 22:30 | [ADD] | .kiro/specs/qr-scan-unify-camera-plugin/bugfix.md | **BUG-019 Path A spec — Phase 1 (Requirements)**. Bugfix spec terstruktur dengan 3 section: Current Behavior (defect, 4 klausa), Expected Behavior (correct, 6 klausa termasuk single plugin claim HAL + latency ≤1s + torch preserved), Unchanged Behavior (regression prevention, 14 klausa termasuk Stock Android/iOS unchanged + provider/server contract unchanged + minSdk 26 unchanged). Path forward: refactor unify ke `package:camera` + `google_mlkit_barcode_scanning`, hapus `mobile_scanner` total. User confirm Path A. Phase 2 (Design) pending. |
+
+### Fixed
+- Fixed inconsistent Back Button icon in Submit Leave Request Screen.
+- Fixed disabled color styling for wizard footer button (now uses surfaceSunken).
+- Redesigned the 'No Active Sessions' hint into a prominent, full-screen empty state validation message.
+- Added offline fallback for eligible sessions provider to prevent infinite skeleton loading when backend is unreachable.

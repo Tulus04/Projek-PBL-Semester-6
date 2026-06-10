@@ -66,7 +66,7 @@ class AppColors {
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF2D86FF), Color(0xFF0D2C5E)],
+    colors: [Color(0xFF5BA0FF), Color(0xFF2D86FF)], // primaryLight -> primary
   );
 
   // headerGradient: 3-stop dengan accent gold untuk hero summary mendalam.

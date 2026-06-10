@@ -19,7 +19,83 @@ final leaveRepositoryProvider = Provider<LeaveRepository>((ref) {
 final myLeaveRequestsProvider =
     FutureProvider.autoDispose<MyLeaveRequestsResponse>((ref) async {
   final repo = ref.read(leaveRepositoryProvider);
-  return repo.getMyRequests();
+  
+  List<LeaveRequestItem> remoteRequests = [];
+  try {
+    final response = await repo.getMyRequests();
+    remoteRequests = response.requests;
+  } catch (e) {
+    debugPrint('[LEAVE] Failed to fetch remote requests, using dummy only: $e');
+  }
+
+  // INJECT DUMMY DATA UNTUK DEMO (LEAVE REQUESTS)
+  final now = DateTime.now();
+  final dummy1 = LeaveRequestItem(
+    id: 'leave1',
+    type: LeaveType.sakit,
+    status: LeaveStatus.approved,
+    reason: 'Demam tinggi dan flu berat. Harus bed rest.',
+    evidenceUrl: 'https://dummy.url/surat-dokter.jpg',
+    createdAt: now.subtract(const Duration(days: 2)).toIso8601String(),
+    reviewedAt: now.subtract(const Duration(days: 1)).toIso8601String(),
+    reviewNote: 'Semoga lekas sembuh. Lampiran valid.',
+    session: LeaveRequestSession(
+      id: 'session1',
+      courseName: 'Pemrograman Web (Dummy)',
+      courseCode: 'TIF101',
+      sessionNumber: 3,
+      startedAt: now.subtract(const Duration(days: 2)).toIso8601String(),
+    ),
+  );
+
+  final dummy2 = LeaveRequestItem(
+    id: 'leave2',
+    type: LeaveType.izin,
+    status: LeaveStatus.pending,
+    reason: 'Ada acara keluarga (Pernikahan Kakak) di luar kota.',
+    evidenceUrl: 'https://dummy.url/undangan.jpg',
+    createdAt: now.subtract(const Duration(hours: 5)).toIso8601String(),
+    session: LeaveRequestSession(
+      id: 'session2',
+      courseName: 'Basis Data Lanjut (Dummy)',
+      courseCode: 'TIF102',
+      sessionNumber: 4,
+      startedAt: now.toIso8601String(),
+    ),
+  );
+
+  final dummy3 = LeaveRequestItem(
+    id: 'leave3',
+    type: LeaveType.izin,
+    status: LeaveStatus.rejected,
+    reason: 'Bangun kesiangan.',
+    evidenceUrl: null,
+    createdAt: now.subtract(const Duration(days: 5)).toIso8601String(),
+    reviewedAt: now.subtract(const Duration(days: 4)).toIso8601String(),
+    reviewNote: 'Alasan tidak dapat diterima secara akademik.',
+    session: LeaveRequestSession(
+      id: 'session3',
+      courseName: 'Jaringan Komputer (Dummy)',
+      courseCode: 'TIF103',
+      sessionNumber: 2,
+      startedAt: now.subtract(const Duration(days: 5)).toIso8601String(),
+    ),
+  );
+
+  final allRequests = [dummy1, dummy2, dummy3, ...remoteRequests];
+  final pendingCount = allRequests.where((r) => r.status == LeaveStatus.pending).length;
+  final approvedCount = allRequests.where((r) => r.status == LeaveStatus.approved).length;
+  final rejectedCount = allRequests.where((r) => r.status == LeaveStatus.rejected).length;
+
+  return MyLeaveRequestsResponse(
+    summary: LeaveSummary(
+      total: allRequests.length,
+      pending: pendingCount,
+      approved: approvedCount,
+      rejected: rejectedCount,
+    ),
+    requests: allRequests,
+  );
 });
 
 /// State submit pengajuan
