@@ -1011,18 +1011,31 @@ class _AiChatFab extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(999),
         child: Container(
-          width: 56,
-          height: 56,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: AppColors.aiGradient,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(999),
             boxShadow: AppShadows.fab,
           ),
-          alignment: Alignment.center,
-          child: const Icon(
-            Icons.smart_toy_rounded,
-            color: Colors.white,
-            size: 26,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(
+                Icons.smart_toy_outlined,
+                color: Colors.white,
+                size: 22,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'Asisten AI',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ),
       ),
