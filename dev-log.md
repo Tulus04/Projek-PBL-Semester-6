@@ -1463,3 +1463,31 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` â€” verifikasi otomati
 ### Verifikasi
 - Pengujian Flow UI berjalan lancar.
 - Git repository sync â€” âœ… Ter-apply secara lokal dan di-push ke branch `main`.
+
+---
+
+## 2026-06-11 — Sesi: Retro Bug FCM Push Notification (Vercel)
+
+**Konteks**: Notifikasi Firebase Cloud Messaging (FCM) tidak pernah masuk ke device ketika Sesi Presensi baru dimulai (klik "Mulai Sesi"), padahal tidak ada log error di console maupun di Next.js client, dan fungsi test berjalan lancar di lokal.
+
+### Masalah & Root Cause (Bug Retro)
+
+1. **Symptom**: Saat klik "Mulai Sesi", UI sukses memberikan _feedback_ berhasil, _database session_ dan udit_logs (start_session) terisi dengan benar. Namun notifikasi FCM gagal dikirim secara _silent_.
+   **Root Cause 1**: Bagian inisialisasi FCM (cm-admin.ts) yang menelan _error_ dmin.initializeApp dengan menggabungkannya ke dalam _outer_ catch, sehingga Vercel _silent-fail_ dan melewatinya.
+   **Root Cause 2**: Saat Vercel menerima konfigurasi _Environment Variable_ FIREBASE_SERVICE_ACCOUNT (teks JSON hasil copas pengguna), Vercel secara diam-diam memakan/merusak 2 karakter *newline* atau spasi tertentu sehingga _base64 payload_ kehilangan integritasnya.
+   **Why Slipped**: Di lingkungan lokal (.env.local), pembacaan string multiline via _Node filesystem_ tidak terganggu, sehingga Firebase Admin SDK bisa langsung memecah (*parse*) dan menginisialisasi dmin.credential.cert(). Namun _Environment variable manager_ Vercel terkadang mem-_flatten_ input tersebut menjadi \\n ganda atau menghilangkan spasi tertentu sehingga menyebabkan error:1E08010C:DECODER routines::unsupported.
+   **Prevention**: Membuat "Tukang Reparasi Kunci" khusus (obust PEM formatter) di dalam kode. Fungsi ini mengekstrak string _base64_ yang berada di antara -----BEGIN PRIVATE KEY----- dan -----END PRIVATE KEY-----, membuang SEMUA tipe spasi/newline (\s+), lalu memecahnya ulang persis 64 karakter per baris dan menggabungkannya dengan standard Javascript _newline_ (\n).
+
+### File yang diubah/dibuat
+
+`
+[MOD] mypresensi-web/app/lib/actions/sessions.ts
+      Menambahkan \wait logAudit({ action: 'fcm_push_fatal_error', details: { error: errMsg } })\ di dalam catch block \sendPushToMany\ agar tidak ada lagi silent-fail.
+[MOD] mypresensi-web/app/lib/fcm-admin.ts
+      Mengimplementasikan algoritma Robust PEM Re-formatter.
+`
+
+### Verifikasi
+- Vercel Deployment — ? Success
+- Push Notification — ? Masuk ke sistem operasi / HP User.
+- Git repository sync — ? Pushed to \main\ branch.
