@@ -448,7 +448,7 @@ class _HomeAppBar extends ConsumerWidget {
                         fit: BoxFit.cover,
                         width: 34,
                         height: 34,
-                        errorBuilder: (_, __, ___) => _buildInitials(),
+                        errorBuilder: (context, error, stackTrace) => _buildInitials(),
                         loadingBuilder: (ctx, child, progress) {
                           if (progress == null) return child;
                           return _buildInitials();
