@@ -18,7 +18,9 @@ import '../data/leave_models.dart';
 import '../providers/leave_provider.dart';
 
 /// Filter state — Notifier lokal screen ini (Riverpod 3 pattern).
-final _filterProvider = NotifierProvider<_FilterNotifier, _LeaveFilter>(_FilterNotifier.new);
+final _filterProvider = NotifierProvider<_FilterNotifier, _LeaveFilter>(
+  _FilterNotifier.new,
+);
 
 class _FilterNotifier extends Notifier<_LeaveFilter> {
   @override
@@ -58,19 +60,17 @@ class MyLeaveRequestsScreen extends ConsumerWidget {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 4,
-          icon: const Icon(IconsaxPlusBold.add_circle, size: 20),
-          label: const Text(
-            'Ajukan Izin',
-            style: TextStyle(
-              fontFamily: 'Plus Jakarta Sans',
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(999),
+        icon: const Icon(IconsaxPlusBold.add_circle, size: 20),
+        label: const Text(
+          'Ajukan Izin',
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
           ),
         ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           color: AppColors.primary,
@@ -111,8 +111,12 @@ class MyLeaveRequestsScreen extends ConsumerWidget {
     final filtered = _applyFilter(response.requests, activeFilter);
 
     // Group: pending di atas, selesai (approved+rejected) di bawah.
-    final pending = filtered.where((r) => r.status == LeaveStatus.pending).toList();
-    final selesai = filtered.where((r) => r.status != LeaveStatus.pending).toList();
+    final pending = filtered
+        .where((r) => r.status == LeaveStatus.pending)
+        .toList();
+    final selesai = filtered
+        .where((r) => r.status != LeaveStatus.pending)
+        .toList();
 
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -157,9 +161,7 @@ class MyLeaveRequestsScreen extends ConsumerWidget {
 
           // Section: Selesai
           if (selesai.isNotEmpty) ...[
-            const SliverToBoxAdapter(
-              child: _SectionHeader(label: 'Selesai'),
-            ),
+            const SliverToBoxAdapter(child: _SectionHeader(label: 'Selesai')),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),
               sliver: SliverList(
@@ -271,21 +273,21 @@ class MyLeaveRequestsScreen extends ConsumerWidget {
   Widget _buildFilterEmptyState(_LeaveFilter filter) {
     final (msg, icon) = switch (filter) {
       _LeaveFilter.pending => (
-          'Tidak ada pengajuan menunggu',
-          IconsaxPlusBold.clock,
-        ),
+        'Tidak ada pengajuan menunggu',
+        IconsaxPlusBold.clock,
+      ),
       _LeaveFilter.approved => (
-          'Belum ada pengajuan disetujui',
-          IconsaxPlusBold.tick_circle,
-        ),
+        'Belum ada pengajuan disetujui',
+        IconsaxPlusBold.tick_circle,
+      ),
       _LeaveFilter.rejected => (
-          'Tidak ada pengajuan ditolak',
-          IconsaxPlusBold.close_circle,
-        ),
+        'Tidak ada pengajuan ditolak',
+        IconsaxPlusBold.close_circle,
+      ),
       _LeaveFilter.all => (
-          'Tidak ada pengajuan',
-          IconsaxPlusBold.document_text_1,
-        ),
+        'Tidak ada pengajuan',
+        IconsaxPlusBold.document_text_1,
+      ),
     };
 
     return Padding(
@@ -368,28 +370,32 @@ class _FilterChipsRow extends ConsumerWidget {
               icon: IconsaxPlusBold.element_3,
               label: 'Semua',
               active: active == _LeaveFilter.all,
-              onTap: () => ref.read(_filterProvider.notifier).set(_LeaveFilter.all),
+              onTap: () =>
+                  ref.read(_filterProvider.notifier).set(_LeaveFilter.all),
             ),
             const SizedBox(width: 8),
             _FilterChip(
               icon: IconsaxPlusBold.clock,
               label: 'Menunggu',
               active: active == _LeaveFilter.pending,
-              onTap: () => ref.read(_filterProvider.notifier).set(_LeaveFilter.pending),
+              onTap: () =>
+                  ref.read(_filterProvider.notifier).set(_LeaveFilter.pending),
             ),
             const SizedBox(width: 8),
             _FilterChip(
               icon: IconsaxPlusBold.tick_circle,
               label: 'Disetujui',
               active: active == _LeaveFilter.approved,
-              onTap: () => ref.read(_filterProvider.notifier).set(_LeaveFilter.approved),
+              onTap: () =>
+                  ref.read(_filterProvider.notifier).set(_LeaveFilter.approved),
             ),
             const SizedBox(width: 8),
             _FilterChip(
               icon: IconsaxPlusBold.close_circle,
               label: 'Ditolak',
               active: active == _LeaveFilter.rejected,
-              onTap: () => ref.read(_filterProvider.notifier).set(_LeaveFilter.rejected),
+              onTap: () =>
+                  ref.read(_filterProvider.notifier).set(_LeaveFilter.rejected),
             ),
           ],
         ),
@@ -485,169 +491,201 @@ class _LeaveItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (iconBg, iconColor, iconData) = switch (item.status) {
-      LeaveStatus.pending => (AppColors.warningTint, AppColors.warning, IconsaxPlusBold.clock),
-      LeaveStatus.approved => (AppColors.successTint, AppColors.success, IconsaxPlusBold.tick_circle),
-      LeaveStatus.rejected => (AppColors.dangerTint, AppColors.danger, IconsaxPlusBold.close_circle),
-      LeaveStatus.unknown => (AppColors.surfaceSunken, AppColors.textTertiary, IconsaxPlusBold.minus_cirlce),
+      LeaveStatus.pending => (
+        AppColors.warningTint,
+        AppColors.warning,
+        IconsaxPlusBold.clock,
+      ),
+      LeaveStatus.approved => (
+        AppColors.successTint,
+        AppColors.success,
+        IconsaxPlusBold.tick_circle,
+      ),
+      LeaveStatus.rejected => (
+        AppColors.dangerTint,
+        AppColors.danger,
+        IconsaxPlusBold.close_circle,
+      ),
+      LeaveStatus.unknown => (
+        AppColors.surfaceSunken,
+        AppColors.textTertiary,
+        IconsaxPlusBold.minus_cirlce,
+      ),
     };
 
     return Container(
-      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: AppShadows.card,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Type icon (duotone)
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(iconData, color: iconColor, size: 21),
-          ),
-          const SizedBox(width: 12),
-          // Content
-          Expanded(
-            child: Column(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.push('/leave-request/detail', extra: item),
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Course name
-                Text(
-                  item.session?.courseName ?? '(Sesi tidak ditemukan)',
-                  style: const TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13.5,
-                    color: AppColors.textPrimary,
+                // Type icon (duotone)
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: iconBg,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  child: Icon(iconData, color: iconColor, size: 21),
                 ),
-                const SizedBox(height: 4),
-                // Meta: pertemuan + type
-                Row(
-                  children: [
-                    const Icon(
-                      IconsaxPlusBold.calendar_1,
-                      size: 11,
-                      color: AppColors.textTertiary,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        item.session != null
-                            ? 'Pertemuan ${item.session!.sessionNumber} · ${item.type.label}'
-                            : item.type.label,
+                const SizedBox(width: 12),
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Course name
+                      Text(
+                        item.session?.courseName ?? '(Sesi tidak ditemukan)',
                         style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textSecondary,
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13.5,
+                          color: AppColors.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                // Reason (clamped 2 lines)
-                Text(
-                  item.reason,
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    color: AppColors.textSecondary,
-                    height: 1.45,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                // Review note kalau ada (hanya rejected/approved dengan note)
-                if (item.reviewNote != null && item.reviewNote!.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: _statusColor(item.status).withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          IconsaxPlusBold.message_text,
-                          size: 11,
-                          color: _statusColor(item.status),
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            'Catatan: ${item.reviewNote}',
-                            style: const TextStyle(
-                              fontSize: 10.5,
-                              color: AppColors.textSecondary,
-                              height: 1.4,
+                      const SizedBox(height: 4),
+                      // Meta: pertemuan + type
+                      Row(
+                        children: [
+                          const Icon(
+                            IconsaxPlusBold.calendar_1,
+                            size: 11,
+                            color: AppColors.textTertiary,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              item.session != null
+                                  ? 'Pertemuan ${item.session!.sessionNumber} · ${item.type.label}'
+                                  : item.type.label,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textSecondary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      // Reason (clamped 2 lines)
+                      Text(
+                        item.reason,
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          color: AppColors.textSecondary,
+                          height: 1.45,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      // Review note kalau ada (hanya rejected/approved dengan note)
+                      if (item.reviewNote != null &&
+                          item.reviewNote!.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _statusColor(
+                              item.status,
+                            ).withValues(alpha: 0.06),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                IconsaxPlusBold.message_text,
+                                size: 11,
+                                color: _statusColor(item.status),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  'Catatan: ${item.reviewNote}',
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    color: AppColors.textSecondary,
+                                    height: 1.4,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 8),
-                // Status row: pill + lampiran tag + timestamp
-                Row(
-                  children: [
-                    _StatusPill(status: item.status),
-                    if (item.evidenceUrl != null && item.evidenceUrl!.isNotEmpty) ...[
-                      const SizedBox(width: 6),
-                      const Icon(
-                        IconsaxPlusBold.document_normal,
-                        size: 12,
-                        color: AppColors.success,
-                      ),
-                      const SizedBox(width: 3),
-                      const Text(
-                        'Lampiran',
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          color: AppColors.textTertiary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      const SizedBox(height: 8),
+                      // Status row: pill + lampiran tag + timestamp
+                      Row(
+                        children: [
+                          _StatusPill(status: item.status),
+                          if (item.evidenceUrl != null &&
+                              item.evidenceUrl!.isNotEmpty) ...[
+                            const SizedBox(width: 6),
+                            const Icon(
+                              IconsaxPlusBold.document_normal,
+                              size: 12,
+                              color: AppColors.success,
+                            ),
+                            const SizedBox(width: 3),
+                            const Text(
+                              'Lampiran',
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                color: AppColors.textTertiary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                          const Spacer(),
+                          Text(
+                            item.timeAgo,
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              color: AppColors.textTertiary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ],
-                    const Spacer(),
-                    Text(
-                      item.timeAgo,
-                      style: const TextStyle(
-                        fontSize: 10.5,
-                        color: AppColors.textTertiary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Color _statusColor(LeaveStatus status) => switch (status) {
-        LeaveStatus.pending => AppColors.warning,
-        LeaveStatus.approved => AppColors.success,
-        LeaveStatus.rejected => AppColors.danger,
-        LeaveStatus.unknown => AppColors.textTertiary,
-      };
+    LeaveStatus.pending => AppColors.warning,
+    LeaveStatus.approved => AppColors.success,
+    LeaveStatus.rejected => AppColors.danger,
+    LeaveStatus.unknown => AppColors.textTertiary,
+  };
 }
 
 /// Pill status — duotone tint bg + solid text.
@@ -659,29 +697,29 @@ class _StatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg, icon, label) = switch (status) {
       LeaveStatus.pending => (
-          AppColors.warningTint,
-          AppColors.warning,
-          IconsaxPlusBold.clock,
-          'MENUNGGU',
-        ),
+        AppColors.warningTint,
+        AppColors.warning,
+        IconsaxPlusBold.clock,
+        'MENUNGGU',
+      ),
       LeaveStatus.approved => (
-          AppColors.successTint,
-          AppColors.success,
-          IconsaxPlusBold.tick_circle,
-          'DISETUJUI',
-        ),
+        AppColors.successTint,
+        AppColors.success,
+        IconsaxPlusBold.tick_circle,
+        'DISETUJUI',
+      ),
       LeaveStatus.rejected => (
-          AppColors.dangerTint,
-          AppColors.danger,
-          IconsaxPlusBold.close_circle,
-          'DITOLAK',
-        ),
+        AppColors.dangerTint,
+        AppColors.danger,
+        IconsaxPlusBold.close_circle,
+        'DITOLAK',
+      ),
       LeaveStatus.unknown => (
-          AppColors.surfaceSunken,
-          AppColors.textTertiary,
-          IconsaxPlusBold.minus_cirlce,
-          'STATUS?',
-        ),
+        AppColors.surfaceSunken,
+        AppColors.textTertiary,
+        IconsaxPlusBold.minus_cirlce,
+        'STATUS?',
+      ),
     };
 
     return Container(

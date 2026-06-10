@@ -18,6 +18,8 @@ import '../../features/face/screens/face_registration_screen.dart';
 import '../../features/face/screens/face_verification_screen.dart';
 import '../../features/leave_requests/screens/my_leave_requests_screen.dart';
 import '../../features/leave_requests/screens/submit_leave_request_screen.dart';
+import '../../features/leave_requests/screens/leave_request_detail_screen.dart';
+import '../../features/leave_requests/data/leave_models.dart';
 import '../../features/ai/screens/ai_chat_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 
@@ -256,6 +258,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           state: state,
           child: const SubmitLeaveRequestScreen(),
         ),
+      ),
+      GoRoute(
+        path: '/leave-request/detail',
+        pageBuilder: (context, state) {
+          final item = state.extra as LeaveRequestItem;
+          return _slideTransition(
+            state: state,
+            child: LeaveRequestDetailScreen(item: item),
+          );
+        },
       ),
 
       // === AI Chat — slide from right ===

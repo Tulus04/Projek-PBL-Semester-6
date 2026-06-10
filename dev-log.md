@@ -1491,3 +1491,23 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` â€” verifikasi otomati
 - Vercel Deployment — ? Success
 - Push Notification — ? Masuk ke sistem operasi / HP User.
 - Git repository sync — ? Pushed to \main\ branch.
+
+---
+
+## 2026-06-11 — Sesi: Leave Request Detail Screen & UX Refinements
+
+**Konteks**: Modul pengajuan izin pada aplikasi mobile (Flutter) tidak memiliki layar khusus untuk menampilkan rincian dari riwayat yang diajukan. Semua data dikompres ke dalam satu UI *card* (kartu) kecil. Akibatnya, alasan yang panjang menjadi terpotong (truncated), dan lampiran (evidence image) tidak dapat ditinjau ulang oleh user.
+
+### Perubahan Utama
+1. **Layar Detail Spesifik (leave_request_detail_screen.dart)**
+   - Diimplementasikan dengan *Riverpod* GoRouter state-passing untuk meminimalisasi *network payload*. Objek LeaveRequestItem langsung dipassing melalui state.extra.
+   - Menggunakan InteractiveViewer yang dibungkus di dalam showDialog untuk kemampuan *Full Screen Image Pinch-to-Zoom* untuk file lampiran.
+   - Menambahkan utilitas pemformatan waktu asinkron _formatDateTime untuk merender string ISO 8601 eviewedAt ke dalam zona waktu lokal (WIB/WITA/WIT).
+2. **Koreksi Visual Ikon Status**
+   - Transisi dari *full-width pale rectangle banner* menjadi sebuah ikon *circular shape* di bagian *header* yang memberikan gaya visual lebih ringan dan estetis.
+3. **Card Ripple Effect (my_leave_requests_screen.dart)**
+   - Mengimplementasikan InkWell dengan menyelimuti Row menggunakan Material(color: Colors.transparent) untuk mempertahankan arsitektur *custom shadow box decoration* namun tetap mendapat efek *Material Ripple* yang interaktif.
+
+### Verifikasi
+- lutter analyze — ? 0 issues
+- UI & UX Test — ? Dikonfirmasi oleh User.
