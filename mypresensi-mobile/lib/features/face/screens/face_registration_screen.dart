@@ -53,7 +53,14 @@ class _FaceRegistrationScreenState
     final permissionOk = await _requestCameraPermission();
     if (!mounted || !permissionOk) return;
 
-    // 3. Init kamera + start face detection
+    // 3. Peringatan aksesoris (kacamata/masker)
+    final understood = await _showAccessoriesWarningDialog();
+    if (!mounted || understood != true) {
+      if (mounted) context.pop();
+      return;
+    }
+
+    // 4. Init kamera + start face detection
     await _initCamera();
   }
 
@@ -142,6 +149,103 @@ class _FaceRegistrationScreenState
                   ),
                   child: const Text(
                     'Setuju',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Dialog peringatan untuk melepas kacamata tebal, masker, atau aksesoris
+  /// yang menutupi wajah sebelum mulai memindai.
+  Future<bool?> _showAccessoriesWarningDialog() {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        title: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.warning_amber_rounded,
+                color: AppColors.warning,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Perhatian',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Mohon lepaskan kacamata tebal, masker, atau aksesoris lain yang menutupi wajah Anda sebelum mulai memindai.',
+          style: TextStyle(
+            fontSize: 14,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.border),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  child: const Text(
+                    'Batal',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  child: const Text(
+                    'Mengerti',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
@@ -428,7 +532,6 @@ class _FaceRegistrationScreenState
             progressLabel: progressLabel,
             hintLabel: hintLabel,
             hintSub: regState.livenessInstruction,
-            showAccessoriesWarning: regState.status == RegistrationStatus.detecting,
           ),
           
           // Overlay Error / Success Buttons
