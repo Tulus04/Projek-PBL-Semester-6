@@ -1115,8 +1115,9 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
   }
 
   Widget _buildScanOverlay(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
+    return IgnorePointer(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
         final scanAreaSize = constraints.maxWidth * 0.7;
         final top = (constraints.maxHeight - scanAreaSize) / 2 - 40;
 
@@ -1173,7 +1174,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
           ],
         );
       },
-    );
+    ));
   }
 
   Widget _buildBottomPanel(BuildContext context, AttendanceSubmitState state) {
