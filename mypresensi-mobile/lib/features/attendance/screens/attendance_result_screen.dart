@@ -170,37 +170,6 @@ class AttendanceResultScreen extends ConsumerWidget {
                 ),
               ),
 
-              // === Warning jika di luar radius ===
-              if (!isValid) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.warningSurface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: AppColors.warning.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.warning_amber_rounded,
-                          color: AppColors.warning, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Presensi Anda tercatat, namun lokasi di luar radius yang ditentukan. Dosen akan menerima notifikasi.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.warning,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-
               const SizedBox(height: 32),
 
               // === Buttons ===

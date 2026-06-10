@@ -212,6 +212,12 @@ export async function POST(req: NextRequest) {
       )
       distanceRounded = Math.round(distance)
       isLocationValid = distance <= session.radius_meters
+      
+      // REJECT jika lokasi di luar radius
+      if (!isLocationValid) {
+        // Jangan catat audit log pelanggaran berat karena ini wajar (hanya ditolak)
+        return errorResponse(`Lokasi Anda di luar radius presensi (jarak: ${distanceRounded}m, batas: ${session.radius_meters}m)`, 403)
+      }
     }
 
     // Flag mock location — REJECT presensi jika lokasi palsu terdeteksi
@@ -385,8 +391,6 @@ export async function POST(req: NextRequest) {
     let message: string
     if (attendanceStatus === 'terlambat') {
       message = `Presensi tercatat dengan status TERLAMBAT (${lateMinutes} menit dari mulai sesi).`
-    } else if (!isLocationValid) {
-      message = `Presensi tercatat, namun lokasi Anda di luar radius (jarak: ${distanceRounded}m, batas: ${session.radius_meters}m)`
     } else {
       message = `Presensi berhasil! Jarak: ${distanceRounded}m`
     }
