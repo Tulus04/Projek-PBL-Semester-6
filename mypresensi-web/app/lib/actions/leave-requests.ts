@@ -135,10 +135,11 @@ export async function approveLeaveRequest(requestId: string, reviewNote?: string
     // FCM push (tambahan; polling/notifications tetap jalan sebagai fallback — D12).
     // Privacy (R14.2): copy generik, tidak bocor detail sensitif.
     try {
+      const reqData = request as unknown as { session?: { session_number?: number } }
       await sendPushNotification({
-        studentId: req.student_id,
+        studentId: request.student_id,
         title: 'Izin Disetujui',
-        body: `Izin untuk ${courseName} pertemuan ${req.session.session_number} disetujui.`,
+        body: `Izin untuk ${courseName} pertemuan ${reqData.session?.session_number || ''} disetujui.`,
         route: `/dashboard`,
         type: 'leave_status',
         relatedId: requestId,
@@ -197,10 +198,11 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
     // FCM push (tambahan; polling tetap fallback — D12).
     // Privacy (R14.2): body generik tanpa detail sensitif (tidak sertakan reviewNote).
     try {
+      const reqData = request as unknown as { session?: { session_number?: number } }
       await sendPushNotification({
-        studentId: req.student_id,
+        studentId: request.student_id,
         title: 'Izin Ditolak',
-        body: `Izin untuk ${courseName} pertemuan ${req.session.session_number} ditolak.`,
+        body: `Izin untuk ${courseName} pertemuan ${reqData.session?.session_number || ''} ditolak.`,
         route: `/dashboard`,
         type: 'leave_status',
         relatedId: requestId,
