@@ -344,7 +344,7 @@ class _FaceVerificationScreenState
 
     double progress = 0.0;
     Color progressColor = AppColors.primary;
-    String hintLabel = 'Mencari Wajah...';
+    String hintLabel = 'Posisikan wajah di dalam oval';
     
     if (verifyState.status == VerificationStatus.matched) {
       progress = 1.0;
@@ -353,6 +353,9 @@ class _FaceVerificationScreenState
     } else if (verifyState.errorMessage != null) {
       hintLabel = verifyState.errorMessage!;
       progressColor = AppColors.warning;
+    } else if (verifyState.isProcessing) {
+      hintLabel = 'Mencocokkan Wajah...';
+      progressColor = AppColors.primary;
     }
 
     final confidencePercent = verifyState.confidence != null

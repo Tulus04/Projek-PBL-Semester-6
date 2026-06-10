@@ -579,12 +579,14 @@ class FaceVerificationState {
   final double? confidence;
   final bool isLivenessPassed;
   final String? errorMessage;
+  final bool isProcessing;
 
   const FaceVerificationState({
     this.status = VerificationStatus.idle,
     this.confidence,
     this.isLivenessPassed = false,
     this.errorMessage,
+    this.isProcessing = false,
   });
 
   FaceVerificationState copyWith({
@@ -592,12 +594,14 @@ class FaceVerificationState {
     double? confidence,
     bool? isLivenessPassed,
     String? errorMessage,
+    bool? isProcessing,
   }) {
     return FaceVerificationState(
       status: status ?? this.status,
       confidence: confidence ?? this.confidence,
       isLivenessPassed: isLivenessPassed ?? this.isLivenessPassed,
       errorMessage: errorMessage,
+      isProcessing: isProcessing ?? this.isProcessing,
     );
   }
 }
@@ -745,6 +749,10 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
     _lastVerifyAtMs = nowMs;
 
     _isExtracting = true;
+    state = state.copyWith(
+      isProcessing: true,
+      errorMessage: null,
+    );
 
     try {
       final embeddingService = ref.read(faceEmbeddingServiceProvider);
@@ -761,6 +769,7 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
       );
 
       if (liveEmbedding == null) {
+        state = state.copyWith(isProcessing: false);
         return;
       }
 
@@ -775,6 +784,7 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
         confidence: response.similarity,
         isLivenessPassed: true,
         errorMessage: null,
+        isProcessing: false,
       );
 
       if (response.match) {
@@ -785,6 +795,7 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
       }
     } catch (e, st) {
       debugPrint('[FACE VERIFY] Error: $e\n$st');
+      state = state.copyWith(isProcessing: false);
       // Network/server error — log saja, jangan flip state ke error.
       // Frame berikutnya akan retry otomatis. Kalau persistent, timeout
       // 15s di screen yang akan handle ke pop(null).
