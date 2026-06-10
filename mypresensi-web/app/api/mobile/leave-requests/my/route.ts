@@ -59,14 +59,8 @@ export async function GET(req: NextRequest) {
 
   // Map ke flat structure agar mobile lebih mudah konsumsi
   const result = (requests ?? []).map((r) => {
-    const sessionArr = r.session as unknown as Array<{
-      id: string
-      session_number: number
-      topic: string | null
-      started_at: string | null
-      course: Array<{ code: string; name: string }> | { code: string; name: string } | null
-    }> | null
-    const session = sessionArr?.[0]
+    const sessionData = r.session as any
+    const session = Array.isArray(sessionData) ? sessionData[0] : sessionData
     const courseData = session?.course
     const course = Array.isArray(courseData) ? courseData[0] : courseData
 

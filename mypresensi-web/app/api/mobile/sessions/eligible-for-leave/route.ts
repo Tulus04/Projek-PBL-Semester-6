@@ -38,11 +38,11 @@ interface SessionRow {
   started_at: string
   ended_at: string | null
   is_active: boolean
-  course: Array<{
+  course: {
     code: string
     name: string
-    dosen: Array<{ full_name: string }> | null
-  }> | null
+    dosen: { full_name: string } | null
+  } | null
 }
 
 interface EligibleSession {
@@ -57,8 +57,12 @@ interface EligibleSession {
 }
 
 function mapToEligibleSession(row: SessionRow): EligibleSession {
-  const course = row.course?.[0]
-  const dosen = course?.dosen?.[0]
+  const course = row.course as unknown as {
+    code: string
+    name: string
+    dosen: { full_name: string } | null
+  } | null
+  const dosen = course?.dosen
   return {
     id: row.id,
     course_code: course?.code ?? '-',
