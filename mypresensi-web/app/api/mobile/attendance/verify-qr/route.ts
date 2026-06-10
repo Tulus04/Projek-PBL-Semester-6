@@ -121,6 +121,7 @@ export async function POST(req: NextRequest) {
       message: 'QR valid, silakan lanjutkan',
     }, 200)
   } catch (err) {
+    console.error('[VerifyQR Error]', err)
     return errorResponse('Terjadi kesalahan server', 500)
   }
 }
