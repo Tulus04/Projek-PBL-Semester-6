@@ -33,6 +33,16 @@ class NotificationRepository {
     }
   }
 
+  /// Tandai notifikasi sebagai telah dibaca.
+  Future<void> markAsRead(String id) async {
+    try {
+      await _dio.patch('${ApiEndpoints.notifications}/$id');
+      debugPrint('[NOTIF] Marked as read: $id');
+    } on DioException catch (e) {
+      debugPrint('[NOTIF] Failed to mark as read: ${_handleError(e)}');
+    }
+  }
+
   String _handleError(DioException e) {
     if (e.response?.data is Map<String, dynamic>) {
       final msg = (e.response!.data as Map<String, dynamic>)['error'] as String?;

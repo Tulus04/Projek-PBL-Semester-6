@@ -357,7 +357,9 @@ class _NotifCard extends ConsumerWidget {
       child: InkWell(
         onTap: () {
           if (isUnread) {
-            ref.read(notificationProvider.notifier).markAsRead(notif.id);
+            ref.read(notificationRepositoryProvider).markAsRead(notif.id).then((_) {
+              ref.invalidate(notificationProvider);
+            });
           }
 
           if (notif.title.contains('Sesi Presensi Dimulai')) {
