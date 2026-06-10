@@ -43,7 +43,8 @@ function getMessaging(): admin.messaging.Messaging {
 
     let serviceAccount: Record<string, string>
     try {
-      serviceAccount = JSON.parse(raw) as Record<string, string>
+      const cleanRaw = raw.replace(/^['"]|['"]$/g, '')
+      serviceAccount = JSON.parse(cleanRaw) as Record<string, string>
       // Fix for Vercel env vars: replace literal \n with actual newlines
       if (serviceAccount.private_key) {
         serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n')
