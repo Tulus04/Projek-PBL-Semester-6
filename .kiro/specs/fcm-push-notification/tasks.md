@@ -29,129 +29,113 @@ Effort: **1-2 hari** realistis.
     - User SHALL: report ke chat saat setup selesai sebelum lanjut task implementasi
     - _Requirements: 3.2, 7.2, 7.4_
 
-- [ ] 1. DB Migration
+- [x] 1. DB Migration
 
-  - [ ] 1.1 Create migration `022_profiles_fcm_token.sql`
-    - File path: `mypresensi-web/supabase/migrations/022_profiles_fcm_token.sql`
+  - [x] 1.1 Create migration `023_profiles_fcm_token.sql`
+    - File path: `mypresensi-web/supabase/migrations/023_profiles_fcm_token.sql` (022 sudah dipakai rolling_qr_seed → naik ke 023)
     - SQL: ADD COLUMN fcm_token + fcm_token_updated_at + partial index
     - Idempotent guard
     - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-  - [ ] 1.2 Apply migration via MCP
-    - Verify via list_migrations + execute_sql cek `information_schema.columns`
+  - [x] 1.2 Apply migration via MCP
+    - Applied as `profiles_fcm_token`. Verified via information_schema: fcm_token (text, nullable), fcm_token_updated_at (timestamptz, nullable), index idx_profiles_fcm_token present.
     - _Requirements: 1.5_
 
-  - [ ] 1.3 Verify advisor security
-    - 0 issue baru
+  - [x] 1.3 Verify advisor security
+    - 0 issue baru (hanya pre-existing auth_leaked_password_protection WARN, tidak terkait).
     - _Requirements: 1.6, 16.1_
 
-- [ ] 2. Backend Implementation
+- [x] 2. Backend Implementation
 
-  - [ ] 2.1 Tambah `firebase-admin` di package.json
-    - cwd: `mypresensi-web/`
-    - `npm install firebase-admin`
+  - [x] 2.1 Tambah `firebase-admin` di package.json
+    - Installed firebase-admin v13.10.0 (cwd: mypresensi-web/)
     - _Requirements: 7.1_
 
-  - [ ] 2.2 Create `app/lib/fcm-admin.ts`
-    - Singleton init Firebase Admin SDK dari env var
-    - Export `sendPushNotification(opts)` function per Algorithm 1
-    - Handle token invalid: clear dari DB
-    - logAudit per outcome
+  - [x] 2.2 Create `app/lib/fcm-admin.ts`
+    - Singleton init Firebase Admin SDK dari env FIREBASE_SERVICE_ACCOUNT
+    - `sendPushNotification(opts)` per Algorithm 1 + `sendPushToMany()` batch (sendEachForMulticast, chunk 500)
+    - Token invalid (messaging/registration-token-not-registered) → clear dari DB
+    - logAudit per outcome (fcm_push_sent/skipped/failed/token_invalid). API diverifikasi via Context7.
     - _Requirements: 7.3, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 13.1, 13.2, 13.3_
 
-  - [ ] 2.3 Create endpoint `app/api/mobile/profile/fcm-token/route.ts`
-    - POST handler dengan auth + Zod parse + UPDATE profiles
-    - Audit log `mobile_fcm_token_register`
+  - [x] 2.3 Create endpoint `app/api/mobile/profile/fcm-token/route.ts`
+    - POST: authenticateRequest + Zod (fcm_token 1-1000 char) + UPDATE profiles (student_id dari auth, anti-IDOR)
+    - Audit log `mobile_fcm_token_register` (userId + ipAddress eksplisit per BUG-011)
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-  - [ ] 2.4 Add ApiEndpoints constant `profileFcmToken` di mobile
-    - File: `mypresensi-mobile/lib/core/network/api_endpoints.dart`
+  - [x] 2.4 Add ApiEndpoints constant `profileFcmToken` di mobile
+    - `/api/mobile/profile/fcm-token` di api_endpoints.dart
     - _Requirements: 2.1_
 
-  - [ ] 2.5 Verify backend — type-check + lint
-    - Expected: exit 0
+  - [x] 2.5 Verify backend — type-check + lint
+    - TYPECHECK_EXIT=0, LINT_EXIT=0 ("No ESLint warnings or errors")
     - _Requirements: 16.2_
 
-- [ ] 3. Mobile Implementation
+- [x] 3. Mobile Implementation
 
-  - [ ] 3.1 Add dependencies di pubspec.yaml
-    - `firebase_core`, `firebase_messaging`, `flutter_local_notifications`
-    - `flutter pub get`
+  - [x] 3.1 Add dependencies di pubspec.yaml
+    - firebase_core ^4.9.0, firebase_messaging ^16.2.2, flutter_local_notifications ^18.0.1 (resolved via flutter pub add)
     - _Requirements: 3.1_
 
-  - [ ] 3.2 Verify google-services.json placed correctly
-    - File path: `mypresensi-mobile/android/app/google-services.json`
-    - Verify Android Gradle plugin reads it (build.gradle.kts include `apply plugin: com.google.gms.google-services`)
+  - [x] 3.2 Verify google-services.json placed correctly
+    - File ada di android/app/google-services.json (project_id=mypresensi-pbl, package match). git-ignored.
     - _Requirements: 3.2_
 
-  - [ ] 3.3 Update `android/app/build.gradle.kts` + `android/build.gradle.kts`
-    - Add `com.google.gms:google-services` classpath
-    - Apply plugin di app-level
+  - [x] 3.3 Update `android/app/build.gradle.kts` + `settings.gradle.kts`
+    - google-services plugin v4.4.2 di settings.gradle.kts (apply false) + apply di app-level plugins block
     - _Requirements: 3.2_
 
-  - [ ] 3.4 Initialize Firebase di `main.dart`
-    - `await Firebase.initializeApp()` SEBELUM `runApp()`
-    - Register `FirebaseMessaging.onBackgroundMessage` top-level handler
+  - [x] 3.4 Initialize Firebase di `main.dart`
+    - Firebase.initializeApp() + FirebaseMessaging.onBackgroundMessage(top-level handler) SEBELUM runApp, dibungkus try/catch
     - _Requirements: 3.3, 3.4_
 
-  - [ ] 3.5 Create `lib/core/services/fcm_service.dart`
-    - Static methods: initialize, getCurrentToken, registerTokenWithBackend, clearToken
-    - Handle 3 lifecycle (foreground/background/terminated)
-    - Listen onTokenRefresh
-    - Use `flutter_local_notifications` untuk foreground banner
+  - [x] 3.5 Create `lib/core/services/fcm_service.dart`
+    - Static: initialize, getCurrentToken, registerTokenWithBackend, clearToken + setNavigationCallback
+    - 3 lifecycle (onMessage foreground banner via flutter_local_notifications, onMessageOpenedApp background, getInitialMessage terminated) + onTokenRefresh. API diverifikasi Context7.
     - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-  - [ ] 3.6 Permission flow Android 13+
-    - Lazy: minta saat first login OR first buka tab Notifikasi
-    - Pakai `permission_handler` package existing
-    - Dialog gentle saat denied
+  - [x] 3.6 Permission flow Android 13+
+    - Permission.notification.request() via permission_handler + POST_NOTIFICATIONS di AndroidManifest
     - _Requirements: 4.1, 4.2, 4.3_
 
-  - [ ] 3.7 Integrate FcmService ke auth flow
-    - LoginNotifier: setelah login sukses → FcmService.initialize() + register token
-    - LogoutNotifier: clear token via endpoint atau setNull lokal
+  - [x] 3.7 Integrate FcmService ke auth flow
+    - login sukses → FcmService.initialize() (non-blocking). logout → FcmService.clearToken() sebelum clear storage.
     - _Requirements: 6.1, 6.2, 6.3_
 
-  - [ ] 3.8 Deep link handler
-    - Parse `data.route` dari payload
-    - context.go(route) saat tap notif
-    - Default fallback /notifications kalau route absent
+  - [x] 3.8 Deep link handler
+    - main.dart setNavigationCallback: '/notifications' → setTab(3)+go('/') (bukan GoRoute), route lain → router.go(route). Fallback '/notifications'.
     - _Requirements: 11.1, 11.2, 11.3_
 
-  - [ ] 3.9 Verify mobile — flutter analyze
-    - Expected: "No issues found."
+  - [x] 3.9 Verify mobile — flutter analyze
+    - "No issues found! (ran in 21.1s)"
     - _Requirements: 16.3_
 
-- [ ] 4. Trigger Integration
+- [x] 4. Trigger Integration
 
-  - [ ] 4.1 Modify `app/lib/actions/leave-requests.ts`
-    - approveLeaveRequestAction: AFTER UPDATE status, call sendPushNotification(studentId, ...)
-    - rejectLeaveRequestAction: same
-    - Title: "Pengajuan Izin Disetujui/Ditolak", body MK + alasan singkat, route `/leave-requests`, type `leave_status`
+  - [x] 4.1 Modify `app/lib/actions/leave-requests.ts`
+    - approveLeaveRequest + rejectLeaveRequest: panggil sendPushNotification setelah createNotification (polling fallback tetap — D12)
+    - Title "Pengajuan Izin Disetujui/Ditolak", route `/leave-requests`, type `leave_status`. Reject TIDAK sertakan reviewNote di body (privacy R14.2).
     - _Requirements: 9.1, 9.2, 9.3, 14.2_
 
-  - [ ] 4.2 Modify `app/lib/actions/sessions.ts`
-    - toggleSessionAction: when is_active=true, fetch enrollments untuk MK tsb
-    - Use `admin.messaging().sendEachForMulticast()` BATCH max 500 token per call
-    - Title "Sesi Baru Dimulai", body "MK X · Pertemuan N", route `/scan`, type `session_start`
+  - [x] 4.2 Modify `app/lib/actions/sessions.ts`
+    - toggleSessionAction (is_active=true): sendPushToMany ke semua enrolled (sendEachForMulticast chunk 500)
+    - Title "Sesi Presensi Dimulai", route `/scan`, type `session_start`
     - _Requirements: 10.1, 10.2, 10.3, 14.2_
 
-  - [ ] 4.3 Verify backend trigger integration — type-check + lint
-    - Expected: exit 0
+  - [x] 4.3 Verify backend trigger integration — type-check + lint
+    - TYPECHECK_EXIT=0, LINT_EXIT=0 ("No ESLint warnings or errors")
     - _Requirements: 16.2_
 
-- [ ] 5. Final Verification
+- [x] 5. Final Verification
 
-  - [ ] 5.1 Build APK debug
-    - cwd: `mypresensi-mobile/`
-    - `flutter build apk --debug`
-    - Expected: success
+  - [x] 5.1 Build APK debug
+    - `flutter build apk --debug` → "Built build\app\outputs\flutter-apk\app-debug.apk" (228.6 MB debug)
+    - FIX-1: flutter_local_notifications v18 butuh core library desugaring → enable `isCoreLibraryDesugaringEnabled` + `coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")` di app build.gradle.kts
+    - FIX-2: JBR 21 (Android Studio baru) → "Inconsistent JVM-target" (tflite_flutter Java 11 vs Kotlin 17). Fix resmi Kotlin: `kotlin.jvm.target.validation.mode=warning` di gradle.properties (bytecode 11 & 17 interop aman di runtime JDK 21)
     - _Requirements: 16.4_
 
-  - [ ] 5.2 Web build verify
-    - cwd: `mypresensi-web/`
-    - `npm run build`
-    - Expected: exit 0
+  - [x] 5.2 Web build verify
+    - `npm run build` → compiled successfully, semua route ter-render, no error marker
     - _Requirements: 16.2_
 
 - [ ] 6. Manual Smoke Test (USER-ACTION HP FISIK)

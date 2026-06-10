@@ -25,6 +25,12 @@ update-mcp-token.ps1
 **/*.pem
 **/*.p12
 
+# Firebase secrets (FCM) — JANGAN PERNAH COMMIT
+# Service Account JSON = setara service_role key. Kalau bocor, rotate via Firebase Console.
+**/*firebase-adminsdk*.json
+**/google-services.json
+**/GoogleService-Info.plist
+
 # =========================================================
 # IDE & EDITOR
 # =========================================================

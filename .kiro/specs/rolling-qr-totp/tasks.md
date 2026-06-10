@@ -211,7 +211,7 @@ DAG implementation order untuk Phase 3 — ganti static QR 3-menit dengan TOTP-l
     - **requirements**: 18.2, 18.3
     - **dependencies**: 3.1, 4.1, 5.1, 5.2
 
-  - [~] 8.2 Run TOTP property test
+  - [ ] 8.2 Run TOTP property test
     - **id**: `8.2`
     - **text**: `cd mypresensi-web && npm test -- totp`. Expected exit 0 — semua property test pass.
     - **requirements**: 18.4
@@ -233,49 +233,49 @@ DAG implementation order untuk Phase 3 — ganti static QR 3-menit dengan TOTP-l
 
 - [ ] 10. Smoke Test (USER-ACTION manual)
 
-  - [~] 10.1 Test happy-path start session rolling
+  - [ ] 10.1 Test happy-path start session rolling
     - **id**: `10.1`
     - **text**: User login dosen → buat sesi baru → klik "Mulai Sesi". Verifikasi DB via SQL: `SELECT session_code, session_code_seed, session_code_expires_at, is_active FROM sessions WHERE id=...` — seed non-null 64-char hex, code 6-digit, expires_at ~24h ahead, is_active true.
     - **requirements**: 6.1-6.7
     - **dependencies**: 9.2
 
-  - [~] 10.2 Test web display polling
+  - [ ] 10.2 Test web display polling
     - **id**: `10.2`
     - **text**: User buka `/sesi/[id]/qr` (fullscreen projector) atau modal QR di `/sesi`. Buka DevTools Network → confirm polling GET `/api/admin/sessions/:id/current-code` setiap 5s. QR + OTP digit update otomatis tiap ~30 detik (window roll). Countdown bar OtpBlock turun 30→0→reset.
     - **requirements**: 8.1-8.12, 9.1-9.9
     - **dependencies**: 9.2
 
-  - [~] 10.3 Test submit happy path
+  - [ ] 10.3 Test submit happy path
     - **id**: `10.3`
     - **text**: HP mahasiswa scan QR aktif → submit presensi. Server return 201. Cek `audit_logs` — entry `mobile_attendance_submit` dengan `details.qr_verify_method = 'totp'` dan `qr_window_offset = 0`.
     - **requirements**: 4.2, 4.3, 4.9, 15.1
     - **dependencies**: 9.2
 
-  - [~] 10.4 Test screenshot expire (THREAT — PRIMARY)
+  - [ ] 10.4 Test screenshot expire (THREAT — PRIMARY)
     - **id**: `10.4`
     - **text**: User screenshot QR layar. Tunggu 90+ detik tanpa refresh. Tampilkan screenshot di layar lain. HP scan dari screenshot → submit. Expected: HTTP 400 dengan message "Kode QR sudah lewat, mohon scan ulang." Cek `audit_logs` — entry `qr_code_invalid_attempt`.
     - **requirements**: 11.1, 11.2, 17.1
     - **dependencies**: 9.2
 
-  - [~] 10.5 Test backward compat legacy session
+  - [ ] 10.5 Test backward compat legacy session
     - **id**: `10.5`
     - **text**: User SQL update manual `UPDATE sessions SET session_code_seed = NULL WHERE id = '<active_session>'`. HP submit dengan code current static — should still success (legacy fallback). Cek audit log entry `qr_verify_method = 'static_legacy'`.
     - **requirements**: 4.6, 4.7, 4.8, 14.1, 14.2, 14.3, 14.4, 15.2
     - **dependencies**: 9.2
 
-  - [~] 10.6 Test refresh code rotation
+  - [ ] 10.6 Test refresh code rotation
     - **id**: `10.6`
     - **text**: User klik "Refresh Kode" di session-list. Sebelum click: catat current `session_code_seed` via SQL. Setelah click: re-query — seed berubah. Polling next tick di display: code di QR + OTP berubah. Audit log entry `refresh_session_code` dengan `rotated: true`.
     - **requirements**: 7.1, 7.2, 7.3, 7.6, 15.5
     - **dependencies**: 9.2
 
-  - [~] 10.7 Test auth gate negative — mahasiswa role
+  - [ ] 10.7 Test auth gate negative — mahasiswa role
     - **id**: `10.7`
     - **text**: HP mahasiswa (Bearer JWT mahasiswa) coba GET `/api/admin/sessions/:id/current-code` via curl/Postman. Expected: 401 atau 403. Pastikan tidak return body apapun yang expose seed.
     - **requirements**: 5.5, 16.1, 16.3
     - **dependencies**: 9.2
 
-  - [~] 10.8 Document smoke result di dev-log.md
+  - [ ] 10.8 Document smoke result di dev-log.md
     - **id**: `10.8`
     - **text**: User append entry tanggal + result 7 sub-test (10.1 sd 10.7) ke `dev-log.md`. Format sesuai pattern existing.
     - **requirements**: 18.6

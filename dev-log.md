@@ -1150,3 +1150,160 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` — verifikasi otomati
 **Status**: automated layer ✅ siap di-merge ke main setelah user complete 2 runtime field test (rule 06 Law 4 — screenshot-as-proof untuk OEM HAL behavior tidak boleh diklaim tanpa bukti runtime). BUG-019 belum closed sampai 2 ⏳ row di atas terisi.
 
 ---
+
+---
+
+## SESSION — 2026-05-31 | FCM Push Notification (spec fcm-push-notification, Task 1-5)
+
+**Status:** ✅ Implementasi selesai (Task 1-5 verified). Task 6 = manual smoke test HP fisik (user-action, pending).
+**Konteks:** Setelah setup ulang laptop (Node/Git/Flutter/Android SDK/Supabase CLI fresh install) + Firebase project `mypresensi-pbl` dibuat user.
+
+### File baru
+```
+[ADD] mypresensi-web/supabase/migrations/023_profiles_fcm_token.sql
+      — fcm_token + fcm_token_updated_at + partial index. (022 sudah dipakai rolling_qr_seed → 023)
+[ADD] mypresensi-web/app/lib/fcm-admin.ts
+      — Firebase Admin singleton + sendPushNotification (Algoritma 1) + sendPushToMany (batch sendEachForMulticast chunk 500).
+        Token invalid → clear DB. logAudit per outcome. API diverifikasi via Context7.
+[ADD] mypresensi-web/app/api/mobile/profile/fcm-token/route.ts
+      — POST register token. authenticateRequest + Zod + UPDATE profiles (student_id dari auth, anti-IDOR).
+        Audit mobile_fcm_token_register (userId + ipAddress eksplisit per BUG-011).
+[ADD] mypresensi-mobile/lib/core/services/fcm_service.dart
+      — Permission (permission_handler) + 3 lifecycle (onMessage foreground banner via flutter_local_notifications,
+        onMessageOpenedApp, getInitialMessage) + onTokenRefresh + register/clear token. Navigasi via callback.
+```
+
+### File diubah
+```
+[MOD] mypresensi-web/app/types/database.ts — Profile + fcm_token, fcm_token_updated_at
+[MOD] mypresensi-web/app/lib/actions/leave-requests.ts — approve/reject: sendPushNotification (route /leave-requests, type leave_status). Polling tetap (D12).
+[MOD] mypresensi-web/app/lib/actions/sessions.ts — toggleSession is_active=true: sendPushToMany (route /scan, type session_start)
+[MOD] mypresensi-web/package.json — + firebase-admin ^13.10.0
+[MOD] mypresensi-mobile/pubspec.yaml — + firebase_core ^4.9.0, firebase_messaging ^16.2.2, flutter_local_notifications ^18.0.1
+[MOD] mypresensi-mobile/lib/main.dart — Firebase.initializeApp + onBackgroundMessage + setNavigationCallback (/notifications → tab 3)
+[MOD] mypresensi-mobile/lib/features/auth/providers/auth_provider.dart — login→FcmService.initialize(), logout→clearToken()
+[MOD] mypresensi-mobile/lib/core/network/api_endpoints.dart — + profileFcmToken
+[MOD] mypresensi-mobile/android/app/src/main/AndroidManifest.xml — + POST_NOTIFICATIONS
+[MOD] mypresensi-mobile/android/settings.gradle.kts — + google-services plugin 4.4.2 (apply false)
+[MOD] mypresensi-mobile/android/app/build.gradle.kts — apply google-services + core library desugaring
+[MOD] mypresensi-mobile/android/gradle.properties — kotlin.jvm.target.validation.mode=warning
+[MOD] .gitignore (root) — Firebase secrets (google-services.json, *firebase-adminsdk*.json, GoogleService-Info.plist)
+```
+
+### Verifikasi
+| Check | Result |
+|-------|--------|
+| migration 023 (MCP apply + columns + index) | ✅ |
+| get_advisors security | ✅ 0 issue baru |
+| web type-check + lint (x2: backend + trigger) | ✅ exit 0 |
+| flutter analyze | ✅ No issues found |
+| web build | ✅ compiled successfully |
+| flutter build apk --debug | ✅ Built app-debug.apk (228.6 MB) |
+
+### BUG — Build APK (2 blocker, 2026-05-31)
+
+**Symptom 1**: `:app:checkDebugAarMetadata` — "Dependency ':flutter_local_notifications' requires core library desugaring to be enabled".
+**Root cause**: flutter_local_notifications v18+ pakai Java 8+ API (java.time) yang butuh desugaring di minSdk < 26 path / metadata check.
+**Fix**: `isCoreLibraryDesugaringEnabled = true` + `coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")` di app build.gradle.kts.
+
+**Symptom 2**: `:tflite_flutter:compileDebugKotlin` — "Inconsistent JVM-target compatibility (Java 11 vs Kotlin 21/17)".
+**Root cause**: Android Studio install baru bundle JBR 21 → Kotlin compile target ikut tinggi, sedangkan plugin pihak ketiga (tflite_flutter) set Java compileOptions ke 11. AGP 8.11 menolak mismatch.
+**Why slipped past**: environment lama mungkin pakai JDK 17; setelah reinstall laptop → JBR 21. Tidak ke-catch analyze (ini Gradle-level, bukan Dart).
+**Fix yang GAGAL** (3x, dicatat untuk pelajaran): (a) configureEach JavaCompile/KotlinCompile di subprojects → Java tetap 11 (AGP baca compileOptions DSL, bukan task property); (b) afterEvaluate → konflik dengan evaluationDependsOn(":app") "already evaluated"; (c) configure BaseExtension compileOptions → "sourceCompatibility has been finalized". Semua gagal karena melawan timing finalisasi Gradle + plugin pihak ketiga tak bisa diedit.
+**Fix yang BENAR**: `kotlin.jvm.target.validation.mode=warning` di gradle.properties — mekanisme resmi Kotlin untuk kasus cross-module target berbeda yang disengaja. Bytecode 11 & 17 interop aman di runtime JDK 21.
+**Pelajaran (rule 02)**: setelah 2 fix gagal di area yang sama, STOP & cari mekanisme sanctioned, jangan stack patch melawan internal tool.
+
+### Pending (Task 6 — USER ACTION, HP fisik)
+- Install app-debug.apk ke HP Android API 26+ (BUKAN emulator — FCM unreliable)
+- Login → cek log "fcm_token registered" + verify profiles.fcm_token non-null
+- Web approve/reject izin → notif muncul + tap → /leave-requests
+- Dosen "Mulai Sesi" → semua enrolled dapat notif → tap → /scan
+- Test foreground/background/terminated
+
+---
+
+## 2026-05-31 — UI Consistency Review & Icon Fix Login Screen
+
+**Konteks**: User meminta review menyeluruh apakah layout dan styling aplikasi sudah proper untuk aplikasi kampus, dan memastikan konsistensi icon, CSS, dan komponen antar screen.
+
+**Scope review**: Seluruh design system (`AppColors`, `AppShadows`, `AppTheme`) + 5 screen utama (onboarding, login, home, history, profile) + 8 shared widgets.
+
+### Temuan Review
+
+**Positif** (sudah sangat baik):
+- Color tokens tersentralisasi di `AppColors` — primary, accent, status, neutrals, text hierarchy
+- Shadow tokens 7-level di `AppShadows` — anti-flat principle konsisten
+- Typography dual-font: Plus Jakarta Sans (heading) + Inter (body) via `AppTheme._textTheme`
+- Shared components (`HeroCard`, `AppCard`, `KpiIconBox`, `EmptyState`, `ErrorState`, `LoadingSkeleton`) dipakai konsisten
+- Micro-animations profesional: stagger (home), pulse (hero badge), float (onboarding logo)
+- UX campus-appropriate: Bahasa Indonesia, smart date grouping, UU PDP compliance
+
+**Inkonsistensi ditemukan**:
+- **Login screen** pakai 6 Material Icons (`Icons.email_outlined`, `Icons.lock_outline`, `Icons.fingerprint`, `Icons.visibility_off_outlined`, `Icons.visibility_outlined`, `Icons.error_outline`) — semua screen lain konsisten pakai Iconsax Plus
+
+### File yang diubah
+
+```
+[22:40] [MOD] mypresensi-mobile/lib/features/auth/screens/login_screen.dart
+        Tambah import `iconsax_plus/iconsax_plus.dart`.
+        6 icon diganti:
+          Icons.email_outlined     → IconsaxPlusLinear.sms       (email field prefix)
+          Icons.lock_outline       → IconsaxPlusLinear.lock_1    (password field prefix)
+          Icons.visibility_off_outlined → IconsaxPlusLinear.eye_slash (toggle hidden)
+          Icons.visibility_outlined     → IconsaxPlusLinear.eye       (toggle visible)
+          Icons.fingerprint        → IconsaxPlusBold.finger_scan  (logo branding)
+          Icons.error_outline      → IconsaxPlusBold.warning_2    (error snackbar)
+        Icons.bug_report_outlined di DEV Quick Login panel TIDAK diganti —
+        kDebugMode guard auto-strip di release build, tidak pengaruhi user final.
+```
+
+### Pelajaran
+
+1. **Konsistensi icon library** harus dicek saat onboarding screen baru ke project. Login screen dibuat di sesi awal (Session 002) sebelum Iconsax Plus diadopsi sebagai standard di Phase 5 — migration icon tertinggal.
+2. **Rule baru**: setelah sesi ini, dibuat skill `progressive-documentation.md` yang mewajibkan baca dokumentasi sebelum mulai task + catat setelah selesai. Tujuan: mencegah inkonsistensi akumulatif antar sesi.
+
+### Verifikasi
+
+- Tidak ada static build verification dilakukan di sesi ini (editor-only, belum run `flutter analyze`).
+- Pending user: verify visual icon di HP/emulator setelah `flutter run`.
+
+---
+
+## 2026-06-10 — Sesi: Home Calendar Redesign
+
+**Konteks**: Redesign halaman Beranda mobile untuk menampilkan Riwayat Kehadiran dalam format Kalender (week strip + agenda per hari) dan Kartu Statistik Ring, menggantikan section "Aktivitas Terakhir" dan "Ringkasan Hari Ini".
+
+**Struktur Layout Baru Beranda**:
+- GreetingHeader (indeks 0)
+- Hero session card (indeks 1)
+- HomeHistoryCalendarCard (indeks 2) [BARU]
+- HomeStatsRingCard (indeks 3) [BARU]
+- QuickActionGrid (indeks 4)
+
+### File yang diubah/dibuat
+
+```
+[ADD] mypresensi-mobile/lib/features/home/widgets/home_history_calendar_card.dart
+      Membuat container widget HomeHistoryCalendarCard yang mengamati historyProvider
+      dan homeCalendarProvider, menangani loading (skeleton), error (ErrorState),
+      dan data (WeekStripBar + DayAgendaList).
+[MOD] mypresensi-mobile/lib/features/home/widgets/stat_ring_card.dart
+      Menambahkan StatsRingSkeleton class untuk loading state donut chart.
+[MOD] mypresensi-mobile/lib/features/home/screens/home_screen.dart
+      Mengintegrasikan HomeHistoryCalendarCard dan HomeStatsRingCard ke ListView,
+      memperbarui pull-to-refresh untuk invalidate historyProvider dan resetToToday(),
+      serta menghapus sub-widget _TodaySummaryRow, _TodayStatCard, dan _ActivityFeedSection.
+[MOD] mypresensi-mobile/lib/features/attendance/screens/attendance_result_screen.dart
+      Menghapus invalidasi recentActivitiesProvider karena Activity Feed digantikan Kalender.
+```
+
+### Pelajaran
+
+1. **Cegah RangeError BUG-12**: Staggered animation indices harus dijaga agar net jumlah section sama dengan `_sectionCount`. Dengan menggantikan Activity Feed dan Today Summary menjadi Calendar dan Donut chart, total section tetap 5.
+2. **Cegah Cache Stale BUG-017**: Invalidation `historyProvider` setelah mencatat kehadiran dan saat pull-to-refresh sangat penting agar UI selalu sinkron dengan state DB.
+
+### Verifikasi
+
+- `flutter analyze` — ✅ 0 issues
+- `flutter test test/features/home/` — ✅ 37/37 tests passed
+

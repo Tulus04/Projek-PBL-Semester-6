@@ -28,6 +28,19 @@
 // Exit code 0 = semua test pass, 1 = ada yang gagal.
 // Script idempotent — selalu cleanup state DB ke baseline awal.
 
+import dns from 'node:dns'
+const originalLookup = dns.lookup
+dns.lookup = function(hostname, options, callback) {
+  if (hostname === 'ibnzsitiqgmrntkaqool.supabase.co') {
+    if (typeof options === 'function') {
+      callback = options
+      options = {}
+    }
+    return callback(null, '172.64.149.246', 4)
+  }
+  return originalLookup.call(dns, hostname, options, callback)
+}
+
 import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'

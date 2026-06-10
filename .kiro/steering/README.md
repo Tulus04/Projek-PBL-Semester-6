@@ -30,6 +30,9 @@ Setiap file `.md` di folder ini diatur via frontmatter:
 | `04-security-and-privacy.md` | Data classification, biometric handling, threat model checklist, anti-pattern |
 | `05-testing-and-release.md` | Strategi testing, manual QA checklist, commit convention, branch workflow |
 | `06-runtime-verification.md` | Protokol runtime verification — paksa AI tidak klaim "selesai" sampai bukti runtime sukses (build/screenshot/smoke). Komplemen 02 dengan fokus E2E. |
+| `07-context7-documentation.md` | Protokol Context7 MCP — wajib konsultasi dokumentasi resmi sebelum tulis kode API library eksternal. Cegah halusinasi API + signature usang + pola deprecated. |
+| `08-documentation-discipline.md` | Protokol dokumentasi progresif — wajib baca docs (CHANGELOG/dev-log/spec/kode) sebelum kerja/jawab status, wajib catat setelah selesai. Cegah kerja ulang + klaim keliru soal status fitur lintas-sesi. |
+| `09-ux-writing-voice.md` | Voice & tone copywriting — teks user-facing wajib manusiawi, ringkas, hangat ala super-app Indonesia (Gojek/Shopee/Tokopedia). Bukan teknis/padat/kaku. Perluas rule 03 Section A ke semua teks (judul/body/onboarding/empty state). |
 
 ### Web-scoped (`mypresensi-web/**`)
 

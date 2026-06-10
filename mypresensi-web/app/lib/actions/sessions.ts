@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/server'
 import { logAudit } from '@/lib/audit-logger'
 import { createBulkNotifications } from '@/lib/actions/notifications'
+import { sendPushToMany } from '@/lib/fcm-admin'
 import { getCurrentUserProfile, canAccessCourse } from '@/lib/auth-guard'
 import { generateCode, getCurrentWindow } from '@/lib/utils/totp'
 import crypto from 'crypto'
@@ -287,6 +288,20 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
             type: 'warning' as const,
             href: '/dashboard',
           }))
+        )
+
+        // FCM push batch (tambahan; polling/notifications tetap fallback — D12).
+        // sendEachForMulticast chunk 500 di-handle dalam sendPushToMany.
+        // Route mobile '/scan' (bukan /dashboard web). Privacy: copy generik.
+        await sendPushToMany(
+          enrollments.map((e) => e.student_id),
+          {
+            title: 'Sesi Presensi Dimulai',
+            body: `${courseName}: ${topic} — segera lakukan absensi.`,
+            route: '/scan',
+            type: 'session_start',
+            relatedId: sessionId,
+          },
         )
       }
     }

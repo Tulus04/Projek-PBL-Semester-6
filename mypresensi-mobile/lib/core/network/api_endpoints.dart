@@ -11,6 +11,7 @@ class ApiEndpoints {
   // Profile
   static const String profile = '/api/mobile/profile';
   static const String profileAvatar = '/api/mobile/profile/avatar';
+  static const String profileFcmToken = '/api/mobile/profile/fcm-token';
 
   // Sessions
   static const String activeSessions = '/api/mobile/sessions/active';

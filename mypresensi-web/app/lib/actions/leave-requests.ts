@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { logAudit } from '@/lib/audit-logger'
 import { createNotification } from '@/lib/actions/notifications'
+import { sendPushNotification } from '@/lib/fcm-admin'
 
 export async function getLeaveRequests({
   status,
@@ -130,6 +131,17 @@ export async function approveLeaveRequest(requestId: string, reviewNote?: string
       type: 'success',
       href: '/izin',
     })
+
+    // FCM push (tambahan; polling/notifications tetap jalan sebagai fallback — D12).
+    // Privacy (R14.2): copy generik, tidak bocor detail sensitif.
+    await sendPushNotification({
+      studentId: request.student_id,
+      title: 'Pengajuan Izin Disetujui',
+      body: `Pengajuan ${request.type} Anda untuk ${courseName} telah disetujui.`,
+      route: '/leave-requests',
+      type: 'leave_status',
+      relatedId: requestId,
+    })
   }
 
   revalidatePath('/izin')
@@ -177,6 +189,17 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
       message: `Pengajuan ${request.type} Anda untuk ${courseName} ditolak.${reviewNote ? ` Catatan: ${reviewNote}` : ''}`,
       type: 'danger',
       href: '/izin',
+    })
+
+    // FCM push (tambahan; polling tetap fallback — D12).
+    // Privacy (R14.2): body generik tanpa detail sensitif (tidak sertakan reviewNote).
+    await sendPushNotification({
+      studentId: request.student_id,
+      title: 'Pengajuan Izin Ditolak',
+      body: `Pengajuan ${request.type} Anda untuk ${courseName} ditolak.`,
+      route: '/leave-requests',
+      type: 'leave_status',
+      relatedId: requestId,
     })
   }
 

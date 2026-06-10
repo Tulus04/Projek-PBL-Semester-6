@@ -14,11 +14,6 @@ class AppConfig {
   static const String appVersion = '1.0.0';
   static const String orgName = 'TRPL · Politani Samarinda';
 
-  // IP LAN laptop — ganti sesuai jaringan lokal kamu.
-  // Cek IP saat ini dengan: ipconfig (Windows) atau ifconfig (Mac/Linux).
-  // Wi-Fi adapter biasanya 192.168.x.x atau 10.x.x.x (tergantung router).
-  static const String _lanIp = '192.168.1.18';
-
   /// Cache emulator status agar tidak perlu check berulang
   static bool? _isEmulatorCached;
 
@@ -49,16 +44,8 @@ class AppConfig {
     const envUrl = String.fromEnvironment('API_BASE_URL');
     if (envUrl.isNotEmpty) return envUrl;
 
-    // Priority 2: Auto-detect based on device type
-    if (Platform.isAndroid) {
-      final isEmulator = _isEmulatorCached ?? false;
-      return isEmulator
-          ? 'http://10.0.2.2:3000'
-          : 'http://$_lanIp:3000';
-    }
-
-    // Fallback: desktop/iOS development
-    return 'http://localhost:3000';
+    // Default: Vercel production deployment
+    return 'https://projek-pbl-semester-6.vercel.app';
   }
 
   /// Apakah running di emulator

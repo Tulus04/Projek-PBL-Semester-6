@@ -5,6 +5,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/auth_repository.dart';
+import '../../../core/services/fcm_service.dart';
 import '../../../shared/models/user_model.dart';
 import '../../../shared/utils/error_mapper.dart';
 import '../../home/screens/home_screen.dart';
@@ -114,6 +115,11 @@ class AuthNotifier extends Notifier<AuthState> {
         user: user,
         splashCompleted: true,
       );
+
+      // FCM: init + register token setelah login sukses (silent fail di dalam).
+      // Tidak di-await — jangan blok transisi ke home.
+      FcmService.initialize();
+
       return true;
     } on ForceChangePasswordException catch (e) {
       // User harus ganti password — tapi tetap simpan user data untuk ChangePasswordScreen
@@ -148,6 +154,8 @@ class AuthNotifier extends Notifier<AuthState> {
 
   /// Logout — hapus semua data, kembali ke login
   Future<void> logout() async {
+    // FCM: hapus token device dulu supaya tidak terima push setelah logout.
+    await FcmService.clearToken();
     await _repository.logout();
     HomeScreen.resetWelcome();
     // Reset tab ke Beranda agar re-login tidak menampilkan tab terakhir

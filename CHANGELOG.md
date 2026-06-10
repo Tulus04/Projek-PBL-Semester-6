@@ -5,6 +5,86 @@
 
 ---
 
+## [2026-06-10] — Sesi: Home Calendar Redesign
+
+### Target Sesi: Redesign Beranda mobile mahasiswa dengan format kalender riwayat (week strip + agenda per hari) dan donut chart statistik kehadiran, menggantikan linear Activity Feed dan Today Summary card.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| — | [ADD] | `mypresensi-mobile/lib/features/home/widgets/home_history_calendar_card.dart` | Membuat container widget HomeHistoryCalendarCard yang mengintegrasikan week strip dan agenda, menangani loading/error/empty state dengan skeleton visual yang halus. |
+| — | [MOD] | `mypresensi-mobile/lib/features/home/widgets/stat_ring_card.dart` | Menambahkan class `StatsRingSkeleton` dan mengimpor `loading_skeleton.dart` untuk menampilkan placeholder chart. |
+| — | [MOD] | `mypresensi-mobile/lib/features/home/screens/home_screen.dart` | Mengintegrasikan `HomeHistoryCalendarCard` dan `HomeStatsRingCard` ke tata letak ListView utama, merapikan layout list, memperbarui pull-to-refresh untuk invalidate `historyProvider` dan mereset provider kalender, serta menghapus widgets/helpers lama yang didepresiasi. |
+| — | [MOD] | `mypresensi-mobile/lib/features/attendance/screens/attendance_result_screen.dart` | Menghapus invalidasi cache provider lama `recentActivitiesProvider` pasca-absen karena telah sepenuhnya digantikan oleh Kalender Riwayat. |
+
+### Verifikasi
+
+| Check | Result |
+|-------|--------|
+| `flutter analyze` | ✅ 0 issues |
+| `flutter test test/features/home/` | ✅ 37/37 tests passed |
+| **Runtime visual (USER)** | ⏳ Mohon screenshot/hot restart untuk konfirmasi tampilan visual baru |
+
+### Catatan
+* Indeks navigasi untuk tab Riwayat disesuaikan dengan tab index `1` sesuai dengan data [app_shell.dart](file:///d:/file_perkuliahan/Semester-6/Projek-PBL-Semester-6/mypresensi-mobile/lib/shared/widgets/app_shell.dart).
+* Jumlah child `_animated(i, ...)` di Beranda tetap berjumlah 5 (`_sectionCount = 5`) untuk mencegah terulangnya BUG-12 RangeError.
+
+---
+
+## [2026-05-31] — Sesi: UI Consistency Review & Icon Fix Login Screen
+
+### Target Sesi: Review menyeluruh design system dan konsistensi UI antar screen mobile (onboarding, login, home, history, profile). Fix inkonsistensi icon library di login screen.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| 22:40 | [MOD] | `mypresensi-mobile/lib/features/auth/screens/login_screen.dart` | Ganti 6 Material Icons → Iconsax Plus untuk konsistensi 100% dengan screen lain. `Icons.email_outlined` → `IconsaxPlusLinear.sms`, `Icons.lock_outline` → `IconsaxPlusLinear.lock_1`, `Icons.visibility_off_outlined` → `IconsaxPlusLinear.eye_slash`, `Icons.visibility_outlined` → `IconsaxPlusLinear.eye`, `Icons.fingerprint` → `IconsaxPlusBold.finger_scan`, `Icons.error_outline` → `IconsaxPlusBold.warning_2`. Tambah import `iconsax_plus`. `Icons.bug_report_outlined` di DEV panel dibiarkan (auto-strip di release build) |
+
+### Review Findings
+
+| Kategori | Score | Catatan |
+|----------|-------|---------|
+| Visual Design | ⭐⭐⭐⭐⭐ | Premium, modern, dual-font PJS+Inter |
+| Konsistensi Token | ⭐⭐⭐⭐⭐ | Tersentralisasi di AppColors/AppShadows/AppTheme |
+| Konsistensi Antar Screen | ⭐⭐⭐⭐ → ⭐⭐⭐⭐⭐ | Fixed: login screen icon inconsistency |
+| Typography System | ⭐⭐⭐⭐⭐ | Dual-font, hierarki jelas |
+| Animation & Polish | ⭐⭐⭐⭐⭐ | Stagger, pulse, float |
+| UX Campus Context | ⭐⭐⭐⭐⭐ | Bahasa ID, privacy-aware |
+
+### Minor Notes (Acceptable, Tidak Perlu Fix)
+- Horizontal padding bervariasi (28px onboarding/login, 18px home, 16px history, 20px profile) — OK karena density konten berbeda
+- Button border radius 2-tier (pill 999 untuk CTA utama, rounded 14 untuk form) — OK sebagai convention
+- Hardcoded fontFamily vs Theme textTheme mixing — OK karena font sama
+
+### Catatan
+- Review artifact: `C:\Users\arzit\.gemini\antigravity-ide\brain\2f1a8c9b-2f0b-4ed1-bd3f-f1790f2ce3f7\ui_design_review.md`
+- Keputusan: `Icons.bug_report_outlined` di DEV Quick Login panel TIDAK diganti karena panel ini hanya muncul saat `kDebugMode == true` dan otomatis di-strip dari release build — tidak mempengaruhi pengalaman user final
+- **Rule baru diterapkan**: Progressive Documentation skill (`c:\Users\arzit\.gemini\config\skills\progressive-documentation.md`) — baca dulu sebelum mulai, catat setelah selesai
+
+---
+
+## [2026-05-31] — Sesi: FCM Push Notification (spec fcm-push-notification, Task 1-5)
+
+### Target Sesi: Implementasi push notification FCM end-to-end setelah setup ulang laptop + Firebase project `mypresensi-pbl` (Android-only, iOS out-of-scope per R18.2). 3 trigger: izin approve/reject + sesi dimulai. Polling lama tetap sebagai fallback (D12). Steering sebagai pedoman: Context7 doc-before-code, verifikasi runtime, security-first (anti-IDOR, audit, payload tanpa data sensitif), library lock.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| — | [ADD] | `supabase/migrations/023_profiles_fcm_token.sql` | Kolom fcm_token + fcm_token_updated_at + partial index (applied via MCP, advisor 0 issue) |
+| — | [ADD] | `app/lib/fcm-admin.ts` | Firebase Admin singleton + sendPushNotification (Algoritma 1) + sendPushToMany batch 500 |
+| — | [ADD] | `app/api/mobile/profile/fcm-token/route.ts` | Endpoint register token (auth + Zod + anti-IDOR + audit) |
+| — | [ADD] | `mypresensi-mobile/lib/core/services/fcm_service.dart` | Permission + 3 lifecycle + token register/clear + deep-link callback |
+| — | [MOD] | `app/lib/actions/leave-requests.ts` | Trigger push approve/reject izin (route /leave-requests) |
+| — | [MOD] | `app/lib/actions/sessions.ts` | Trigger push batch sesi dimulai (route /scan) |
+| — | [MOD] | `app/types/database.ts` | Profile + fcm_token fields |
+| — | [MOD] | `mypresensi-mobile/lib/main.dart` | Firebase.initializeApp + onBackgroundMessage + nav callback |
+| — | [MOD] | `mypresensi-mobile/lib/features/auth/providers/auth_provider.dart` | login→FCM init, logout→clearToken |
+| — | [CFG] | `android/{settings,app/build}.gradle.kts`, `gradle.properties`, `AndroidManifest.xml` | google-services plugin, desugaring, POST_NOTIFICATIONS, kotlin jvm-target validation=warning |
+| — | [SEC] | `.gitignore` (root) | Ignore google-services.json + *firebase-adminsdk*.json + GoogleService-Info.plist |
+| — | [FIX] | gradle (APK build) | FIX desugaring (flutter_local_notifications v18) + FIX inconsistent JVM-target (JBR 21 vs tflite_flutter Java 11) |
+| — | [DOC] | `dev-log.md` | Catatan teknis sesi + bug retro 2 blocker build |
+
+### Verifikasi: web type-check+lint exit 0 · flutter analyze clean · web build OK · APK debug built (228.6 MB). Task 6 (smoke test HP fisik) = pending user-action.
+
+---
+
 ## [2026-05-18] — Sesi: Onboarding Mobile (Phase B3) — Welcome Flow 3-Step
 
 ### Target Sesi: Onboarding 3-step (Welcome → Cara Pakai → Get Started) untuk first-time install. Mockup baru karena annotation mockup lama eksplisit bilang "tidak perlu onboarding". User decision: bikin mockup HTML dulu, baru implement Flutter (workflow mockup-driven konsisten). Decision visual: Iconsax Bold + #2D86FF gradient (sesuai design system mobile). Decision content: 3 step tanpa consent UU PDP formal (consent face tetap di Face Register existing).

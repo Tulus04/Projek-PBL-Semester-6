@@ -22,6 +22,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../data/attendance_status_style.dart';
 import '../data/history_models.dart';
 
 // ============================================================================
@@ -47,132 +48,6 @@ String _formatTimeOnly(String iso) {
   } catch (_) {
     return '--:--';
   }
-}
-
-// ============================================================================
-// Status priority — pilih status dominan untuk tinted background day cell.
-// Order: alpa (paling buruk, prioritas tertinggi) → telat → izin/sakit → hadir.
-// ============================================================================
-
-int _statusPriority(String status) {
-  switch (status) {
-    case 'alpa':
-      return 4;
-    case 'terlambat':
-      return 3;
-    case 'izin':
-    case 'sakit':
-      return 2;
-    case 'hadir':
-      return 1;
-    default:
-      return 0;
-  }
-}
-
-String _dominantStatus(List<AttendanceRecord> records) {
-  if (records.isEmpty) return '';
-  return records.reduce(
-    (a, b) => _statusPriority(a.status) >= _statusPriority(b.status) ? a : b,
-  ).status;
-}
-
-// ============================================================================
-// Color helpers (sinkron dengan history_screen.dart status mapping).
-// ============================================================================
-
-Color _statusFg(String status) {
-  switch (status) {
-    case 'hadir':
-      return AppColors.success;
-    case 'terlambat':
-      return AppColors.info;
-    case 'izin':
-    case 'sakit':
-      return AppColors.warning;
-    case 'alpa':
-      return AppColors.danger;
-    default:
-      return AppColors.textSecondary;
-  }
-}
-
-Color _statusTint(String status) {
-  switch (status) {
-    case 'hadir':
-      return AppColors.successTint;
-    case 'terlambat':
-      return AppColors.infoTint;
-    case 'izin':
-    case 'sakit':
-      return AppColors.warningTint;
-    case 'alpa':
-      return AppColors.dangerTint;
-    default:
-      return AppColors.surfaceSunken;
-  }
-}
-
-IconData _statusIcon(String status) {
-  switch (status) {
-    case 'hadir':
-      return IconsaxPlusBold.tick_circle;
-    case 'terlambat':
-      return IconsaxPlusBold.clock;
-    case 'izin':
-      return IconsaxPlusBold.note_2;
-    case 'sakit':
-      return IconsaxPlusBold.health;
-    case 'alpa':
-      return IconsaxPlusBold.close_circle;
-    default:
-      return IconsaxPlusBold.clock;
-  }
-}
-
-String _statusLabel(String status) {
-  switch (status) {
-    case 'hadir':
-      return 'HADIR';
-    case 'terlambat':
-      return 'TELAT';
-    case 'izin':
-      return 'IZIN';
-    case 'sakit':
-      return 'SAKIT';
-    case 'alpa':
-      return 'ALPA';
-    default:
-      return status.toUpperCase();
-  }
-}
-
-// ============================================================================
-// Algoritma — group records by local-date key
-// ============================================================================
-
-/// Key untuk peta per-tanggal: pakai DateTime UTC midnight tanggal lokal,
-/// supaya gampang dibandingkan dengan `isSameDay` dari table_calendar.
-DateTime _dateKey(DateTime localDt) =>
-    DateTime.utc(localDt.year, localDt.month, localDt.day);
-
-/// Group records berdasarkan tanggal LOKAL `scannedAt` —
-/// menghasilkan map `<tanggal, list record>`.
-Map<DateTime, List<AttendanceRecord>> _groupByDate(
-  List<AttendanceRecord> records,
-) {
-  final result = <DateTime, List<AttendanceRecord>>{};
-  for (final r in records) {
-    DateTime dt;
-    try {
-      dt = DateTime.parse(r.scannedAt).toLocal();
-    } catch (_) {
-      continue;
-    }
-    final key = _dateKey(dt);
-    (result[key] ??= <AttendanceRecord>[]).add(r);
-  }
-  return result;
 }
 
 // ============================================================================
@@ -210,7 +85,7 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
 
   @override
   Widget build(BuildContext context) {
-    final grouped = _groupByDate(widget.records);
+    final grouped = groupByLocalDate(widget.records);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
@@ -228,7 +103,7 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
               startingDayOfWeek: StartingDayOfWeek.monday,
               calendarFormat: CalendarFormat.month,
               availableGestures: AvailableGestures.horizontalSwipe,
-              eventLoader: (day) => grouped[_dateKey(day)] ?? const [],
+              eventLoader: (day) => grouped[dateKey(day)] ?? const [],
               selectedDayPredicate: (day) {
                 if (_selectedDay == null) return false;
                 return isSameDay(_selectedDay, day);
@@ -238,7 +113,7 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
                   _selectedDay = selected;
                   _focusedDay = focused;
                 });
-                final dayRecords = grouped[_dateKey(selected)] ?? const [];
+                final dayRecords = grouped[dateKey(selected)] ?? const [];
                 if (dayRecords.isNotEmpty) {
                   _showDayDetailSheet(context, selected, dayRecords);
                 }
@@ -309,15 +184,15 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
                   );
                 },
                 defaultBuilder: (context, day, focusedDay) {
-                  final records = grouped[_dateKey(day)] ?? const [];
+                  final records = grouped[dateKey(day)] ?? const [];
                   return _DayCell(day: day, records: records, isToday: false, isSelected: false);
                 },
                 todayBuilder: (context, day, focusedDay) {
-                  final records = grouped[_dateKey(day)] ?? const [];
+                  final records = grouped[dateKey(day)] ?? const [];
                   return _DayCell(day: day, records: records, isToday: true, isSelected: false);
                 },
                 selectedBuilder: (context, day, focusedDay) {
-                  final records = grouped[_dateKey(day)] ?? const [];
+                  final records = grouped[dateKey(day)] ?? const [];
                   return _DayCell(
                     day: day,
                     records: records,
@@ -379,7 +254,7 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dominant = _dominantStatus(records);
+    final dominant = dominantStatus(records);
     final hasRecord = records.isNotEmpty;
 
     Color? bgColor;
@@ -392,8 +267,8 @@ class _DayCell extends StatelessWidget {
       textColor = Colors.white;
       shadow = AppShadows.button;
     } else if (hasRecord) {
-      bgColor = _statusTint(dominant);
-      textColor = _statusFg(dominant);
+      bgColor = statusTint(dominant);
+      textColor = statusFg(dominant);
     }
 
     if (isToday && !isSelected) {
@@ -442,7 +317,7 @@ class _DayCell extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? Colors.white.withValues(alpha: 0.85)
-                            : _statusFg(dots[i].status),
+                            : statusFg(dots[i].status),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -594,8 +469,8 @@ class _DayDetailItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = _statusFg(record.status);
-    final tint = _statusTint(record.status);
+    final fg = statusFg(record.status);
+    final tint = statusTint(record.status);
     final time = _formatTimeOnly(record.scannedAt);
 
     return Container(
@@ -615,7 +490,7 @@ class _DayDetailItem extends StatelessWidget {
               color: tint,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(_statusIcon(record.status), color: fg, size: 20),
+            child: Icon(statusIcon(record.status), color: fg, size: 20),
           ),
           const SizedBox(width: 12),
 
@@ -676,7 +551,7 @@ class _DayDetailItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
-              _statusLabel(record.status),
+              statusLabel(record.status),
               style: TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
                 fontSize: 10,

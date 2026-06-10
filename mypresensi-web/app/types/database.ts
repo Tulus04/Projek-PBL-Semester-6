@@ -20,6 +20,8 @@ export interface Profile {
   is_face_registered: boolean
   is_active: boolean
   must_change_password: boolean
+  fcm_token: string | null
+  fcm_token_updated_at: string | null
   created_at: string
   updated_at: string
 }

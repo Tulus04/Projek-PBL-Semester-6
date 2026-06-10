@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../history/providers/history_provider.dart';
-import '../../home/providers/activity_provider.dart';
 import '../providers/attendance_provider.dart';
 
 class AttendanceResultScreen extends ConsumerWidget {
@@ -181,11 +180,9 @@ class AttendanceResultScreen extends ConsumerWidget {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Invalidate provider cache supaya Beranda (Aktivitas
-                    // Terakhir) + tab Riwayat refetch data presensi terbaru
-                    // dari server. Tanpa ini, Riverpod kadang serve cache
-                    // pre-submit → user kira presensi tidak masuk riwayat.
-                    ref.invalidate(recentActivitiesProvider);
+                    // Invalidate provider cache supaya Beranda (Kalender)
+                    // + tab Riwayat refetch data presensi terbaru dari server.
+                    // Tanpa ini, Riverpod kadang serve cache pre-submit.
                     ref.invalidate(historyProvider);
                     context.go('/');
                   },
@@ -201,7 +198,6 @@ class AttendanceResultScreen extends ConsumerWidget {
                     ref.read(attendanceSubmitProvider.notifier).reset();
                     // Sama: invalidate juga di branch Scan Lagi karena user
                     // mungkin balik ke Beranda lewat back button setelah scan.
-                    ref.invalidate(recentActivitiesProvider);
                     ref.invalidate(historyProvider);
                     context.go('/scan');
                   },

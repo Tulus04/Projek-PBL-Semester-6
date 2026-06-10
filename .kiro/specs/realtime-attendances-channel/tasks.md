@@ -93,7 +93,7 @@ Bahasa: SQL (migration) + TypeScript / TSX (Next.js 14). Setiap task WAJIB lulus
 
 - [ ] 5. Manual Smoke Test
 
-  - [~] 5.1 Smoke test 2-window interaction (user-action)
+  - [ ] 5.1 Smoke test 2-window interaction (user-action)
     - **NOTE**: Task ini dilakukan oleh user manual, BUKAN coding agent.
     - Prerequisite: dev server `npm run dev` running di `mypresensi-web/`. Minimal 1 sesi aktif di salah satu MK.
     - Per Requirement 13.1 acceptance criteria:

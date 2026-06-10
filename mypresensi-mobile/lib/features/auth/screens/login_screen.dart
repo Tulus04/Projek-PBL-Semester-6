@@ -6,6 +6,7 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
@@ -121,7 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.error_outline, color: Colors.white, size: 20),
+            const Icon(IconsaxPlusBold.warning_2, color: Colors.white, size: 20),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -220,7 +221,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               decoration: const InputDecoration(
                                 hintText: 'nama@politani.ac.id',
                                 prefixIcon:
-                                    Icon(Icons.email_outlined, size: 20),
+                                    Icon(IconsaxPlusLinear.sms, size: 20),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
@@ -249,13 +250,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               autofillHints: const [AutofillHints.password],
                               decoration: InputDecoration(
                                 hintText: 'Masukkan password',
-                                prefixIcon: const Icon(Icons.lock_outline,
+                                prefixIcon: const Icon(IconsaxPlusLinear.lock_1,
                                     size: 20),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined,
+                                        ? IconsaxPlusLinear.eye_slash
+                                        : IconsaxPlusLinear.eye,
                                     size: 20,
                                     color: AppColors.textTertiary,
                                   ),
@@ -354,7 +355,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ],
           ),
           child: const Icon(
-            Icons.fingerprint,
+            IconsaxPlusBold.finger_scan,
             color: Colors.white,
             size: 36,
           ),

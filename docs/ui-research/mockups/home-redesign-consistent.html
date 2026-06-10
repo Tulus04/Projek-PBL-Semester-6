@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Beranda Redesign v3 — MyPresensi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  :root {
+    --primary: #2D86FF; --primary-hover: #1E70E0; --primary-dark: #0D2C5E; --primary-surface: #EAF3FF;
+    --accent: #F4B400; --accent-soft: rgba(244,180,0,0.30);
+    --success: #1A7F37; --success-tint: rgba(26,127,55,0.10);
+    --warning: #9A6700; --warning-tint: rgba(154,103,0,0.10);
+    --danger: #CF222E; --danger-tint: rgba(207,34,46,0.10);
+    --info: #0969DA; --info-tint: rgba(9,105,218,0.10);
+    --bg: #F4F6F8; --surface: #FFFFFF; --surface-sunken: #F0F2F4;
+    --border: #E2E6EA; --border-strong: #D1D7DE;
+    --text-primary: #1C2024; --text-secondary: #636C76; --text-tertiary: #757B82;
+    --ff-head: 'Plus Jakarta Sans', sans-serif; --ff-body: 'Inter', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--ff-body); background: #0a0e1a; color: #e6edf3; padding: 40px 24px 64px; min-height: 100vh; }
+
+  .page-head { max-width: 1280px; margin: 0 auto 28px; text-align: center; }
+  .page-head h1 { font-family: var(--ff-head); font-weight: 800; font-size: 26px; letter-spacing: -0.5px; background: linear-gradient(90deg, #5BA0FF, #F4B400); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .page-head p { color: #8b94a3; font-size: 14px; margin-top: 8px; line-height: 1.6; }
+
+  .layout { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 360px; gap: 36px; align-items: start; }
+  @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } }
+  .frames { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
+
+  .phone { width: 318px; height: 690px; background: var(--bg); border-radius: 40px; border: 9px solid #11161f; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .phone-label { text-align: center; margin-top: 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.4px; color: #6b7686; text-transform: uppercase; }
+  .frame-wrap { display: flex; flex-direction: column; }
+  .scroll { flex: 1; overflow-y: auto; padding: 12px 16px 70px; }
+  .scroll::-webkit-scrollbar { width: 0; }
+
+  .appbar { display: flex; align-items: center; padding: 6px 0 2px; }
+  .brand { flex: 1; font-family: var(--ff-head); font-weight: 800; font-size: 17px; color: var(--primary); letter-spacing: -0.3px; }
+  .ab-btn { width: 38px; height: 38px; border-radius: 12px; background: var(--surface); box-shadow: 0 1px 2px rgba(15,23,42,0.05), 0 0 0 1px rgba(15,23,42,0.04); display: flex; align-items: center; justify-content: center; position: relative; }
+  .ab-btn iconify-icon { font-size: 19px; color: var(--text-secondary); }
+  .ab-dot { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 2px solid var(--surface); }
+  .avatar { width: 34px; height: 34px; margin-left: 8px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; font-family: var(--ff-head); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+
+  .greet { margin-top: 12px; }
+  .greet h2 { font-family: var(--ff-head); font-weight: 800; font-size: 21px; letter-spacing: -0.5px; color: var(--text-primary); }
+  .greet .date { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 12.5px; color: var(--text-secondary); }
+  .greet .date iconify-icon { font-size: 15px; color: var(--accent); }
+
+  .hero { margin-top: 14px; border-radius: 18px; padding: 18px; position: relative; overflow: hidden; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); box-shadow: 0 18px 30px -12px rgba(13,44,94,0.5); }
+  .hero::after { content: ''; position: absolute; top: -80px; right: -40px; width: 200px; height: 200px; background: radial-gradient(circle, var(--accent-soft) 0%, transparent 65%); pointer-events: none; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.2); font-family: var(--ff-head); font-weight: 700; font-size: 10px; letter-spacing: 0.5px; color: #fff; }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.4);opacity:0.5;} }
+  .hero h3 { font-family: var(--ff-head); font-weight: 800; font-size: 17px; color: #fff; margin-top: 12px; line-height: 1.25; letter-spacing: -0.3px; position: relative; z-index: 1; }
+  .hero .meta { display: flex; align-items: center; gap: 6px; margin-top: 7px; font-size: 11.5px; color: rgba(255,255,255,0.85); position: relative; z-index: 1; }
+  .hero .meta iconify-icon { font-size: 13px; }
+  /* countdown sesi (alur auto-close) */
+  .hero-countdown { margin-top: 14px; position: relative; z-index: 1; }
+  .hero-countdown .cd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .hero-countdown .cd-label { display: flex; align-items: center; gap: 5px; font-size: 11px; color: rgba(255,255,255,0.85); }
+  .hero-countdown .cd-label iconify-icon { font-size: 13px; }
+  .hero-countdown .cd-time { font-family: var(--ff-head); font-weight: 700; font-size: 12px; color: #fff; }
+  .hero-countdown .cd-track { height: 5px; border-radius: 999px; background: rgba(255,255,255,0.25); overflow: hidden; }
+  .hero-countdown .cd-fill { height: 100%; border-radius: 999px; background: #fff; }
+  .hero-cta { margin-top: 14px; width: 100%; height: 44px; border: none; border-radius: 12px; background: #fff; color: var(--primary); font-family: var(--ff-head); font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; position: relative; z-index: 1; }
+  .hero-cta iconify-icon { font-size: 18px; }
+
+  .hero-empty { margin-top: 14px; border-radius: 18px; padding: 22px 18px; background: var(--surface); border: 1.5px dashed var(--border-strong); text-align: center; }
+  .hero-empty .ic { width: 54px; height: 54px; margin: 0 auto; border-radius: 16px; background: var(--primary-surface); display: flex; align-items: center; justify-content: center; }
+  .hero-empty .ic iconify-icon { font-size: 26px; color: var(--primary); }
+  .hero-empty h3 { font-family: var(--ff-head); font-weight: 700; font-size: 15px; color: var(--text-primary); margin-top: 12px; }
+  .hero-empty p { font-size: 12.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; max-width: 220px; margin-left: auto; margin-right: auto; }
+  /* tombol Ajukan Izin kontekstual (hanya di empty state) */
+  .izin-link { margin-top: 16px; display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 999px; background: var(--warning-tint); color: var(--warning); font-family: var(--ff-head); font-weight: 700; font-size: 12.5px; }
+  .izin-link iconify-icon { font-size: 16px; }
+
+  .sec-title { font-family: var(--ff-head); font-weight: 700; font-size: 14.5px; color: var(--text-primary); margin: 18px 2px 10px; }
+  .sec-head { display: flex; align-items: center; margin: 18px 2px 12px; }
+  .sec-head .t { flex: 1; font-family: var(--ff-head); font-weight: 700; font-size: 15px; color: var(--text-primary); }
+  .sec-head .more { display: flex; align-items: center; gap: 3px; font-family: var(--ff-head); font-weight: 600; font-size: 12px; color: var(--primary); }
+  .sec-head .more iconify-icon { font-size: 14px; }
+
+  .stats { display: flex; gap: 8px; }
+  .stat { flex: 1; background: var(--surface); border-radius: 14px; padding: 11px 8px; text-align: center; box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 0 0 1px rgba(15,23,42,0.04); }
+  .stat .v { font-family: var(--ff-head); font-weight: 800; font-size: 19px; letter-spacing: -0.5px; }
+  .stat .l { font-family: var(--ff-head); font-weight: 600; font-size: 10.5px; color: var(--text-secondary); margin-top: 2px; }
+  .v-green { color: var(--success); } .v-blue { color: var(--primary); } .v-red { color: var(--danger); }
+
+  .chart-card { background: var(--surface); border-radius: 16px; padding: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 0 0 1px rgba(15,23,42,0.04); }
+  .chart-top { display: flex; align-items: center; gap: 16px; }
+  .ring { width: 92px; height: 92px; border-radius: 50%; flex-shrink: 0; position: relative; background: conic-gradient(var(--success) 0% 85%, var(--surface-sunken) 85% 100%); }
+  .ring::after { content: ''; position: absolute; inset: 11px; background: var(--surface); border-radius: 50%; }
+  .ring .val { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; }
+  .ring .val b { font-family: var(--ff-head); font-weight: 800; font-size: 21px; color: var(--text-primary); letter-spacing: -0.5px; }
+  .ring .val span { font-size: 9px; font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.3px; }
+  .legend { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+  .lg { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .lg .dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .lg .lbl { flex: 1; color: var(--text-secondary); }
+  .lg .num { font-family: var(--ff-head); font-weight: 700; color: var(--text-primary); }
+  .d-green { background: var(--success); } .d-amber { background: var(--warning); } .d-red { background: var(--danger); }
+  .weekly { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .weekly .wt { font-size: 10.5px; font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.3px; margin-bottom: 10px; }
+  .bars { display: flex; align-items: flex-end; justify-content: space-between; height: 52px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+  .bar { width: 15px; border-radius: 5px 5px 2px 2px; }
+  .bar-col span { font-size: 8.5px; color: var(--text-tertiary); font-weight: 600; }
+
+  .act { background: var(--surface); border-radius: 14px; padding: 11px; box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 0 0 1px rgba(15,23,42,0.04); display: flex; gap: 11px; margin-bottom: 8px; }
+  .act-ic { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .act-ic iconify-icon { font-size: 18px; }
+  .act-txt b { font-family: var(--ff-head); font-weight: 700; font-size: 12.5px; color: var(--text-primary); display: block; line-height: 1.3; }
+  .act-txt .m { display: flex; align-items: center; gap: 4px; margin-top: 3px; font-size: 10.5px; color: var(--text-secondary); }
+  .act-txt .m iconify-icon { font-size: 11px; color: var(--text-tertiary); }
+  .a-green { background: var(--success-tint); } .a-green iconify-icon { color: var(--success); }
+  .a-warn { background: var(--warning-tint); } .a-warn iconify-icon { color: var(--warning); }
+  .a-info { background: var(--info-tint); } .a-info iconify-icon { color: var(--info); }
+
+  /* ===== MINI-STRIP SESI AKTIF (sticky di atas nav) ===== */
+  .mini-strip { position: absolute; left: 12px; right: 12px; bottom: 70px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); box-shadow: 0 8px 18px -4px rgba(45,134,255,0.55); display: flex; align-items: center; padding: 0 8px 0 14px; gap: 10px; z-index: 5; }
+  .mini-strip .pulse { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
+  .mini-strip .ms-txt { flex: 1; min-width: 0; }
+  .mini-strip .ms-txt b { font-family: var(--ff-head); font-weight: 700; font-size: 12px; color: #fff; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mini-strip .ms-txt span { font-size: 10px; color: rgba(255,255,255,0.8); }
+  .mini-strip .ms-btn { background: #fff; color: var(--primary); font-family: var(--ff-head); font-weight: 700; font-size: 11.5px; padding: 7px 13px; border-radius: 999px; display: flex; align-items: center; gap: 5px; }
+  .mini-strip .ms-btn iconify-icon { font-size: 14px; }
+
+  /* ===== KARTU JADWAL KULIAH (week strip + agenda hari ini) ===== */
+  .sched-card { background: var(--surface); border-radius: 16px; padding: 14px; box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 0 0 1px rgba(15,23,42,0.04); }
+  .week-strip { display: flex; gap: 6px; }
+  .day-pill { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0 7px; border-radius: 12px; position: relative; }
+  .day-pill .dn { font-size: 9.5px; font-weight: 600; color: var(--text-tertiary); font-family: var(--ff-head); letter-spacing: 0.2px; }
+  .day-pill .dd { font-family: var(--ff-head); font-weight: 700; font-size: 14px; color: var(--text-primary); }
+  .day-pill .dotmark { width: 5px; height: 5px; border-radius: 50%; background: var(--primary); position: absolute; bottom: 2px; }
+  .day-pill.today { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); }
+  .day-pill.today .dn, .day-pill.today .dd { color: #fff; }
+  .day-pill.today .dotmark { background: #fff; }
+  .day-pill.muted .dn, .day-pill.muted .dd { color: var(--text-tertiary); opacity: 0.55; }
+  .agenda { margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 9px; }
+  .agenda-row { display: flex; align-items: center; gap: 11px; }
+  .agenda-time { width: 42px; flex-shrink: 0; text-align: center; }
+  .agenda-time b { font-family: var(--ff-head); font-weight: 700; font-size: 12px; color: var(--text-primary); display: block; line-height: 1.1; }
+  .agenda-time span { font-size: 9px; color: var(--text-tertiary); }
+  .agenda-line { width: 3px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
+  .l-now { background: var(--success); } .l-next { background: var(--primary); } .l-done { background: var(--border-strong); }
+  .agenda-body { flex: 1; min-width: 0; }
+  .agenda-body b { font-family: var(--ff-head); font-weight: 700; font-size: 12.5px; color: var(--text-primary); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .agenda-body .sub { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 10.5px; color: var(--text-secondary); }
+  .agenda-body .sub iconify-icon { font-size: 11px; }
+  .agenda-tag { font-family: var(--ff-head); font-weight: 700; font-size: 8.5px; letter-spacing: 0.3px; padding: 3px 7px; border-radius: 999px; flex-shrink: 0; }
+  .tag-now { background: var(--success-tint); color: var(--success); }
+  .tag-next { background: var(--primary-surface); color: var(--primary); }
+  .tag-done { background: var(--surface-sunken); color: var(--text-tertiary); }
+  .sched-empty { text-align: center; padding: 8px 0 4px; }
+  .sched-empty iconify-icon { font-size: 26px; color: var(--success); }
+  .sched-empty p { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+  .nav { position: absolute; bottom: 0; left: 0; right: 0; height: 64px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; padding-bottom: 4px; z-index: 6; }
+  .nav-i { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9.5px; font-weight: 600; color: var(--text-tertiary); font-family: var(--ff-head); flex: 1; }
+  .nav-i iconify-icon { font-size: 21px; }
+  .nav-i.active { color: var(--primary); }
+
+  .fab { position: absolute; bottom: 124px; right: 16px; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #FFD75E); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 18px -4px rgba(244,180,0,0.6); z-index: 5; }
+  .fab.no-strip { bottom: 78px; }
+  .fab iconify-icon { font-size: 23px; color: #fff; }
+
+  .notes { background: #121826; border: 1px solid #1e2638; border-radius: 18px; padding: 22px 22px 8px; position: sticky; top: 24px; }
+  .notes h2 { font-family: var(--ff-head); font-size: 15px; color: #e6edf3; margin-bottom: 4px; }
+  .notes .sub { font-size: 12px; color: #6b7686; margin-bottom: 18px; }
+  .fix { margin-bottom: 15px; padding-left: 26px; position: relative; }
+  .fix::before { content: ''; position: absolute; left: 0; top: 2px; width: 16px; height: 16px; border-radius: 5px; background: rgba(26,127,55,0.2);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: center; }
+  .fix.skip::before { background: rgba(207,34,46,0.18); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23f87171' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E"); }
+  .fix.warn::before { background: rgba(244,180,0,0.2); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23f4b400' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4M12 17h.01'/%3E%3Cpath d='M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/%3E%3C/svg%3E"); }
+  .fix b { font-family: var(--ff-head); font-size: 12.5px; color: #cdd5e1; display: block; margin-bottom: 3px; }
+  .fix p { font-size: 11.5px; line-height: 1.55; color: #8b94a3; }
+  .fix code { background: #1e2638; padding: 1px 5px; border-radius: 4px; font-size: 10.5px; color: #f4b400; }
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>Beranda Redesign v4</h1>
+    <p>+ Jadwal Kuliah (week strip + agenda hari ini). State A = sesi aktif, B = belum ada sesi, C = dengan jadwal kuliah.</p>
+  </div>
+
+  <div class="layout">
+    <div class="frames" style="align-items:flex-start;">
+      <aside class="notes" style="position:static;width:340px;align-self:flex-start;">
+      <h2>Kartu Jadwal Kuliah (State C)</h2>
+      <div class="sub">Bentuk kalender ringkas, bukan bulanan penuh</div>
+      <div class="fix">
+        <b>Week strip horizontal</b>
+        <p>7 hari (Sen-Min), hari ini di-highlight biru, titik = ada kelas. Hemat ruang, "calendar-rasa" tanpa kalender bulanan (itu sudah ada di Riwayat).</p>
+      </div>
+      <div class="fix">
+        <b>Agenda hari ini</b>
+        <p>List kelas hari ini + jam + ruang + dosen + status (Selesai / Berlangsung / Nanti). Menjawab "kuliah saya berikutnya apa".</p>
+      </div>
+      <div class="fix warn">
+        <b>⚠ Butuh fitur jadwal (besar)</b>
+        <p>Perlu tabel <code>schedules</code> + admin input jadwal + endpoint. Lintas-layer. Direkomendasikan jadi <b>spec terpisah</b>. Tanpa data jadwal, kartu ini kosong.</p>
+      </div>
+      <div class="fix">
+        <b>Bonus integrasi</b>
+        <p>Kalau jadwal ada, "kelas berlangsung" bisa otomatis ketahuan & timer auto-close bisa terhubung ke slot jadwal.</p>
+      </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="frames">
+
+      <!-- ====== STATE A: Sesi aktif (+ mini-strip) ====== -->
+      <div class="frame-wrap">
+        <div class="phone">
+          <div class="scroll">
+            <div class="appbar">
+              <div class="brand">MyPresensi</div>
+              <div class="ab-btn"><iconify-icon icon="ph:bell-fill"></iconify-icon><span class="ab-dot"></span></div>
+              <div class="avatar">RA</div>
+            </div>
+            <div class="greet">
+              <h2>Halo, Riki</h2>
+              <div class="date"><iconify-icon icon="ph:sun-fill"></iconify-icon>Selamat siang, Sabtu 31 Mei</div>
+            </div>
+
+            <div class="hero">
+              <span class="hero-badge"><span class="pulse"></span>SESI BERLANGSUNG</span>
+              <h3>Pemrograman Mobile</h3>
+              <div class="meta"><iconify-icon icon="ph:user-fill"></iconify-icon>Pak Andi Wijaya</div>
+              <div class="meta"><iconify-icon icon="ph:map-pin-fill"></iconify-icon>Di kelas · Lab RPL 2</div>
+              <div class="hero-countdown">
+                <div class="cd-row">
+                  <span class="cd-label"><iconify-icon icon="ph:timer-fill"></iconify-icon>Sesi berakhir dalam</span>
+                  <span class="cd-time">23:14</span>
+                </div>
+                <div class="cd-track"><div class="cd-fill" style="width:62%;"></div></div>
+              </div>
+              <button class="hero-cta"><iconify-icon icon="ph:qr-code-fill"></iconify-icon>Absen Sekarang</button>
+            </div>
+
+            <div class="sec-title">Hari Ini</div>
+            <div class="stats">
+              <div class="stat"><div class="v v-green">1/3</div><div class="l">Hadir</div></div>
+              <div class="stat"><div class="v v-blue">2</div><div class="l">Belum</div></div>
+              <div class="stat"><div class="v v-red">0</div><div class="l">Alpa</div></div>
+            </div>
+
+            <div class="sec-head"><div class="t">Statistik Kehadiran</div><div class="more">Detail<iconify-icon icon="ph:arrow-right-bold"></iconify-icon></div></div>
+            <div class="chart-card">
+              <div class="chart-top">
+                <div class="ring"><div class="val"><b>85%</b><span>HADIR</span></div></div>
+                <div class="legend">
+                  <div class="lg"><span class="dot d-green"></span><span class="lbl">Hadir</span><span class="num">34</span></div>
+                  <div class="lg"><span class="dot d-amber"></span><span class="lbl">Izin / Sakit</span><span class="num">4</span></div>
+                  <div class="lg"><span class="dot d-red"></span><span class="lbl">Alpa</span><span class="num">2</span></div>
+                </div>
+              </div>
+              <div class="weekly">
+                <div class="wt">8 PEKAN TERAKHIR</div>
+                <div class="bars">
+                  <div class="bar-col"><div class="bar" style="height:70%;background:var(--success);"></div><span>P1</span></div>
+                  <div class="bar-col"><div class="bar" style="height:100%;background:var(--success);"></div><span>P2</span></div>
+                  <div class="bar-col"><div class="bar" style="height:50%;background:var(--warning);"></div><span>P3</span></div>
+                  <div class="bar-col"><div class="bar" style="height:100%;background:var(--success);"></div><span>P4</span></div>
+                  <div class="bar-col"><div class="bar" style="height:100%;background:var(--success);"></div><span>P5</span></div>
+                  <div class="bar-col"><div class="bar" style="height:30%;background:var(--danger);"></div><span>P6</span></div>
+                  <div class="bar-col"><div class="bar" style="height:100%;background:var(--success);"></div><span>P7</span></div>
+                  <div class="bar-col"><div class="bar" style="height:85%;background:var(--success);"></div><span>P8</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec-head"><div class="t">Aktivitas Terakhir</div><div class="more">Lihat semua<iconify-icon icon="ph:arrow-right-bold"></iconify-icon></div></div>
+            <div class="act">
+              <div class="act-ic a-green"><iconify-icon icon="ph:check-circle-fill"></iconify-icon></div>
+              <div class="act-txt"><b>Hadir · Basis Data</b><div class="m"><iconify-icon icon="ph:clock-fill"></iconify-icon>2 jam lalu</div></div>
+            </div>
+          </div>
+          <div class="fab"><iconify-icon icon="ph:chat-circle-dots-fill"></iconify-icon></div>
+          <!-- MINI STRIP: muncul karena ada sesi aktif -->
+          <div class="mini-strip">
+            <span class="pulse"></span>
+            <div class="ms-txt"><b>Pemrograman Mobile</b><span>Berakhir dalam 23 menit</span></div>
+            <div class="ms-btn"><iconify-icon icon="ph:qr-code-fill"></iconify-icon>Absen</div>
+          </div>
+          <div class="nav">
+            <div class="nav-i active"><iconify-icon icon="ph:house-fill"></iconify-icon>Beranda</div>
+            <div class="nav-i"><iconify-icon icon="ph:clock-counter-clockwise"></iconify-icon>Riwayat</div>
+            <div class="nav-i"><iconify-icon icon="ph:note"></iconify-icon>Izin</div>
+            <div class="nav-i"><iconify-icon icon="ph:bell"></iconify-icon>Notif</div>
+            <div class="nav-i"><iconify-icon icon="ph:user"></iconify-icon>Profil</div>
+          </div>
+        </div>
+        <div class="phone-label">State A · Sesi Aktif + Mini-Strip</div>
+      </div>
+
+      <!-- ====== STATE B: Belum ada sesi (+ tombol Ajukan Izin) ====== -->
+      <div class="frame-wrap">
+        <div class="phone">
+          <div class="scroll">
+            <div class="appbar">
+              <div class="brand">MyPresensi</div>
+              <div class="ab-btn"><iconify-icon icon="ph:bell-fill"></iconify-icon></div>
+              <div class="avatar">RA</div>
+            </div>
+            <div class="greet">
+              <h2>Halo, Riki</h2>
+              <div class="date"><iconify-icon icon="ph:cloud-sun-fill"></iconify-icon>Selamat pagi, Sabtu 31 Mei</div>
+            </div>
+
+            <div class="hero-empty">
+              <div class="ic"><iconify-icon icon="ph:calendar-blank-fill"></iconify-icon></div>
+              <h3>Belum ada sesi aktif</h3>
+              <p>Santai dulu. Kami kabari kalau dosen mulai sesi.</p>
+            </div>
+
+            <div class="sec-title">Hari Ini</div>
+            <div class="stats">
+              <div class="stat"><div class="v v-green">0/0</div><div class="l">Hadir</div></div>
+              <div class="stat"><div class="v v-blue">0</div><div class="l">Belum</div></div>
+              <div class="stat"><div class="v v-red">0</div><div class="l">Alpa</div></div>
+            </div>
+
+            <div class="sec-head"><div class="t">Statistik Kehadiran</div><div class="more">Detail<iconify-icon icon="ph:arrow-right-bold"></iconify-icon></div></div>
+            <div class="chart-card">
+              <div class="chart-top">
+                <div class="ring" style="background:conic-gradient(var(--success) 0% 92%, var(--surface-sunken) 92% 100%);"><div class="val"><b>92%</b><span>HADIR</span></div></div>
+                <div class="legend">
+                  <div class="lg"><span class="dot d-green"></span><span class="lbl">Hadir</span><span class="num">42</span></div>
+                  <div class="lg"><span class="dot d-amber"></span><span class="lbl">Izin / Sakit</span><span class="num">3</span></div>
+                  <div class="lg"><span class="dot d-red"></span><span class="lbl">Alpa</span><span class="num">1</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec-head"><div class="t">Aktivitas Terakhir</div></div>
+            <div class="act" style="flex-direction:column;align-items:center;text-align:center;padding:22px 16px;gap:10px;">
+              <div class="act-ic a-info" style="width:46px;height:46px;border-radius:12px;"><iconify-icon icon="ph:clock-fill" style="font-size:23px;"></iconify-icon></div>
+              <div class="act-txt"><b style="font-size:13px;">Belum ada aktivitas</b><span style="font-size:11px;color:var(--text-secondary);">Riwayat absen kamu muncul di sini.</span></div>
+            </div>
+          </div>
+          <!-- TIDAK ada mini-strip (tidak ada sesi). FAB turun ke posisi normal -->
+          <div class="fab no-strip"><iconify-icon icon="ph:chat-circle-dots-fill"></iconify-icon></div>
+          <div class="nav">
+            <div class="nav-i active"><iconify-icon icon="ph:house-fill"></iconify-icon>Beranda</div>
+            <div class="nav-i"><iconify-icon icon="ph:clock-counter-clockwise"></iconify-icon>Riwayat</div>
+            <div class="nav-i"><iconify-icon icon="ph:note"></iconify-icon>Izin</div>
+            <div class="nav-i"><iconify-icon icon="ph:bell"></iconify-icon>Notif</div>
+            <div class="nav-i"><iconify-icon icon="ph:user"></iconify-icon>Profil</div>
+          </div>
+        </div>
+        <div class="phone-label">State B · Belum Ada Sesi</div>
+      </div>
+
+      <!-- ====== STATE C: Jadwal Kuliah (week strip + agenda) ====== -->
+      <div class="frame-wrap">
+        <div class="phone">
+          <div class="scroll">
+            <div class="appbar">
+              <div class="brand">MyPresensi</div>
+              <div class="ab-btn"><iconify-icon icon="ph:bell-fill"></iconify-icon><span class="ab-dot"></span></div>
+              <div class="avatar">RA</div>
+            </div>
+            <div class="greet">
+              <h2>Halo, Riki</h2>
+              <div class="date"><iconify-icon icon="ph:sun-fill"></iconify-icon>Selamat siang, Sabtu 31 Mei</div>
+            </div>
+
+            <div class="hero">
+              <span class="hero-badge"><span class="pulse"></span>SESI BERLANGSUNG</span>
+              <h3>Pemrograman Mobile</h3>
+              <div class="meta"><iconify-icon icon="ph:map-pin-fill"></iconify-icon>Di kelas · Lab RPL 2</div>
+              <div class="hero-countdown">
+                <div class="cd-row">
+                  <span class="cd-label"><iconify-icon icon="ph:timer-fill"></iconify-icon>Sesi berakhir dalam</span>
+                  <span class="cd-time">23:14</span>
+                </div>
+                <div class="cd-track"><div class="cd-fill" style="width:62%;"></div></div>
+              </div>
+              <button class="hero-cta"><iconify-icon icon="ph:qr-code-fill"></iconify-icon>Absen Sekarang</button>
+            </div>
+
+            <!-- ===== KARTU JADWAL KULIAH ===== -->
+            <div class="sec-head"><div class="t">Jadwal Kuliah</div><div class="more">Lihat semua<iconify-icon icon="ph:arrow-right-bold"></iconify-icon></div></div>
+            <div class="sched-card">
+              <div class="week-strip">
+                <div class="day-pill muted"><span class="dn">SEN</span><span class="dd">26</span></div>
+                <div class="day-pill"><span class="dn">SEL</span><span class="dd">27</span><span class="dotmark"></span></div>
+                <div class="day-pill"><span class="dn">RAB</span><span class="dd">28</span></div>
+                <div class="day-pill"><span class="dn">KAM</span><span class="dd">29</span><span class="dotmark"></span></div>
+                <div class="day-pill"><span class="dn">JUM</span><span class="dd">30</span></div>
+                <div class="day-pill today"><span class="dn">SAB</span><span class="dd">31</span><span class="dotmark"></span></div>
+                <div class="day-pill muted"><span class="dn">MIN</span><span class="dd">1</span></div>
+              </div>
+              <div class="agenda">
+                <div class="agenda-row">
+                  <div class="agenda-time"><b>08.00</b><span>90 mnt</span></div>
+                  <div class="agenda-line l-done"></div>
+                  <div class="agenda-body"><b>Basis Data</b><div class="sub"><iconify-icon icon="ph:map-pin-fill"></iconify-icon>Lab RPL 1 · Pak Andi</div></div>
+                  <span class="agenda-tag tag-done">SELESAI</span>
+                </div>
+                <div class="agenda-row">
+                  <div class="agenda-time"><b>13.00</b><span>90 mnt</span></div>
+                  <div class="agenda-line l-now"></div>
+                  <div class="agenda-body"><b>Pemrograman Mobile</b><div class="sub"><iconify-icon icon="ph:map-pin-fill"></iconify-icon>Lab RPL 2 · Pak Andi</div></div>
+                  <span class="agenda-tag tag-now">BERLANGSUNG</span>
+                </div>
+                <div class="agenda-row">
+                  <div class="agenda-time"><b>15.30</b><span>60 mnt</span></div>
+                  <div class="agenda-line l-next"></div>
+                  <div class="agenda-body"><b>Jaringan Komputer</b><div class="sub"><iconify-icon icon="ph:map-pin-fill"></iconify-icon>Ruang 304 · Bu Sinta</div></div>
+                  <span class="agenda-tag tag-next">NANTI</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec-head"><div class="t">Statistik Kehadiran</div><div class="more">Detail<iconify-icon icon="ph:arrow-right-bold"></iconify-icon></div></div>
+            <div class="chart-card">
+              <div class="chart-top">
+                <div class="ring"><div class="val"><b>85%</b><span>HADIR</span></div></div>
+                <div class="legend">
+                  <div class="lg"><span class="dot d-green"></span><span class="lbl">Hadir</span><span class="num">34</span></div>
+                  <div class="lg"><span class="dot d-amber"></span><span class="lbl">Izin / Sakit</span><span class="num">4</span></div>
+                  <div class="lg"><span class="dot d-red"></span><span class="lbl">Alpa</span><span class="num">2</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fab"><iconify-icon icon="ph:chat-circle-dots-fill"></iconify-icon></div>
+          <div class="mini-strip">
+            <span class="pulse"></span>
+            <div class="ms-txt"><b>Pemrograman Mobile</b><span>Berakhir dalam 23 menit</span></div>
+            <div class="ms-btn"><iconify-icon icon="ph:qr-code-fill"></iconify-icon>Absen</div>
+          </div>
+          <div class="nav">
+            <div class="nav-i active"><iconify-icon icon="ph:house-fill"></iconify-icon>Beranda</div>
+            <div class="nav-i"><iconify-icon icon="ph:clock-counter-clockwise"></iconify-icon>Riwayat</div>
+            <div class="nav-i"><iconify-icon icon="ph:note"></iconify-icon>Izin</div>
+            <div class="nav-i"><iconify-icon icon="ph:bell"></iconify-icon>Notif</div>
+            <div class="nav-i"><iconify-icon icon="ph:user"></iconify-icon>Profil</div>
+          </div>
+        </div>
+        <div class="phone-label">State C · + Jadwal Kuliah (week strip)</div>
+      </div>
+
+    </div>
+
+    <!-- ===== Annotation ===== -->
+    <aside class="notes">
+      <h2>Ide yang Masuk v3</h2>
+      <div class="sub">Hasil brainstorm bersama</div>
+
+      <div class="fix">
+        <b>Statistik Kehadiran</b>
+        <p>Ring % + breakdown (Hadir / Izin-Sakit / Alpa) + mini bar 8 pekan. Data dari <code>AttendanceSummary</code>.</p>
+      </div>
+      <div class="fix">
+        <b>Timer hitung mundur sesi (alur baru)</b>
+        <p>Hero State A: "Sesi berakhir dalam 23:14" + progress bar. Mini-strip juga tampilkan "Berakhir dalam 23 menit". Mengganti "Mulai 13.00" statis.</p>
+      </div>
+      <div class="fix">
+        <b>Mini-strip sesi aktif (pola Spotify)</b>
+        <p>State A: strip biru sticky di atas nav — "Pemrograman Mobile · Absen". Muncul HANYA saat ada sesi. Tap → langsung scan. Pembunuh friction utama.</p>
+      </div>
+
+      <div style="height:1px;background:#1e2638;margin:16px 0;"></div>
+      <div class="sub" style="margin-bottom:12px;">Keputusan desain</div>
+      <div class="fix skip">
+        <b>Tombol "Ajukan Izin" di empty state DIHAPUS</b>
+        <p>Atas keputusan user: empty hero lebih bersih tanpa tombol izin. Aksi ajukan izin tetap lewat tab nav "Izin".</p>
+      </div>
+      <div class="fix skip">
+        <b>Streak di-SKIP</b>
+        <p>Riset kamu sendiri (<code>mobile-premium-references.md</code> §8) wanti-wanti over-gamifikasi tone-deaf untuk akademik Indonesia. Saya setuju skip.</p>
+      </div>
+      <div class="fix skip">
+        <b>Jadwal berikutnya di-SKIP</b>
+        <p>Endpoint cuma return sesi aktif, tidak ada tabel jadwal. Tidak feasible tanpa fitur jadwal baru (effort besar).</p>
+      </div>
+      <div class="fix skip">
+        <b>Quick action grid TIDAK kembali</b>
+        <p>Redundan dengan bottom nav (Riwayat/Izin/Profil sudah ada). Diganti aksi kontekstual yang punya nilai tambah.</p>
+      </div>
+
+      <div style="height:1px;background:#1e2638;margin:16px 0;"></div>
+      <div class="sub" style="margin-bottom:12px;">⚠ Bergantung alur baru (auto-close sesi)</div>
+      <div class="fix warn">
+        <b>Timer butuh perubahan lintas-layer</b>
+        <p>Dosen pilih durasi saat buat sesi → <code>ended_at</code> diisi di awal → sesi auto-tutup saat waktu habis. Sentuh DB + web + backend + mobile. Direkomendasikan jadi <b>spec terpisah</b>.</p>
+      </div>
+      <div class="fix warn">
+        <b>Tetap sediakan tombol "Tutup Sesi" manual</b>
+        <p>Auto-close = jaring pengaman, BUKAN ganti kontrol dosen. Dosen tetap bisa tutup lebih awal. Pertimbangkan "perpanjang" untuk kelas molor.</p>
+      </div>
+
+      <div style="height:1px;background:#1e2638;margin:16px 0;"></div>
+      <div class="sub" style="margin-bottom:12px;">Catatan implementasi</div>
+      <div class="fix warn">
+        <b>Mini bar 8 pekan — perlu agregasi</b>
+        <p>Ring + breakdown: data langsung. Bar mingguan: hitung dari list riwayat per pekan di app. Mau dipakai atau cukup ring + breakdown?</p>
+      </div>
+      <div class="fix warn">
+        <b>Grafik = CustomPainter native</b>
+        <p>Tanpa dependency baru (rule 03 lock). Bukan fl_chart.</p>
+      </div>
+      <div class="fix warn">
+        <b>1 fetch tambahan</b>
+        <p>Beranda perlu ambil ringkasan riwayat (sekarang cuma sesi aktif). Sedikit nambah loading awal.</p>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>
