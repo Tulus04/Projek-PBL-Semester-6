@@ -65,6 +65,7 @@ dependencies:
   firebase_core: ^4.9.0                 # Inisialisasi Firebase
   firebase_messaging: ^16.2.2           # FCM token + lifecycle handler
   flutter_local_notifications: ^18.0.1  # Banner notif saat foreground
+  image_cropper: ^12.2.1
 
 dev_dependencies:
   flutter_test:

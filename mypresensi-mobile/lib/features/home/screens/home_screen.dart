@@ -1015,16 +1015,12 @@ class _AiChatFab extends StatelessWidget {
           height: 56,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.accent, AppColors.accentSoft],
-            ),
+            gradient: AppColors.aiGradient,
             boxShadow: AppShadows.fab,
           ),
           alignment: Alignment.center,
           child: const Icon(
-            IconsaxPlusBold.message_question,
+            IconsaxPlusBold.magic_star,
             color: Colors.white,
             size: 24,
           ),
