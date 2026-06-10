@@ -134,14 +134,18 @@ export async function approveLeaveRequest(requestId: string, reviewNote?: string
 
     // FCM push (tambahan; polling/notifications tetap jalan sebagai fallback — D12).
     // Privacy (R14.2): copy generik, tidak bocor detail sensitif.
-    await sendPushNotification({
-      studentId: request.student_id,
-      title: 'Pengajuan Izin Disetujui',
-      body: `Pengajuan ${request.type} Anda untuk ${courseName} telah disetujui.`,
-      route: '/leave-requests',
-      type: 'leave_status',
-      relatedId: requestId,
-    })
+    try {
+      await sendPushNotification({
+        studentId: req.student_id,
+        title: 'Izin Disetujui',
+        body: `Izin untuk ${courseName} pertemuan ${req.session.session_number} disetujui.`,
+        route: `/dashboard`,
+        type: 'leave_status',
+        relatedId: requestId,
+      })
+    } catch (e: any) {
+      console.error('[FCM] Failed to send push on leave approve:', e.message)
+    }
   }
 
   revalidatePath('/izin')
@@ -157,7 +161,7 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
   // Ambil detail untuk notifikasi
   const { data: request } = await adminClient
     .from('leave_requests')
-    .select('student_id, type, session:sessions!session_id(topic, course:courses!course_id(name))')
+    .select('student_id, type, session:sessions!session_id(session_number, topic, course:courses!course_id(name))')
     .eq('id', requestId)
     .single()
 
@@ -180,9 +184,8 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
 
   // Kirim notifikasi ke mahasiswa
   if (request?.student_id) {
-    const sessionArr = request.session as unknown as Array<{ topic?: string; course?: Array<{ name?: string }> }> | null
-    const session = sessionArr?.[0]
-    const courseName = session?.course?.[0]?.name ?? 'Mata Kuliah'
+    const req = request as any
+    const courseName = req.session?.course?.name ?? 'Mata Kuliah'
     await createNotification({
       userId: request.student_id,
       title: 'Pengajuan Izin Ditolak',
@@ -193,14 +196,18 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
 
     // FCM push (tambahan; polling tetap fallback — D12).
     // Privacy (R14.2): body generik tanpa detail sensitif (tidak sertakan reviewNote).
-    await sendPushNotification({
-      studentId: request.student_id,
-      title: 'Pengajuan Izin Ditolak',
-      body: `Pengajuan ${request.type} Anda untuk ${courseName} ditolak.`,
-      route: '/leave-requests',
-      type: 'leave_status',
-      relatedId: requestId,
-    })
+    try {
+      await sendPushNotification({
+        studentId: req.student_id,
+        title: 'Izin Ditolak',
+        body: `Izin untuk ${courseName} pertemuan ${req.session.session_number} ditolak.`,
+        route: `/dashboard`,
+        type: 'leave_status',
+        relatedId: requestId,
+      })
+    } catch (e: any) {
+      console.error('[FCM] Failed to send push on leave reject:', e.message)
+    }
   }
 
   revalidatePath('/izin')

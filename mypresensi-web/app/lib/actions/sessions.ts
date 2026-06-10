@@ -293,16 +293,20 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
         // FCM push batch (tambahan; polling/notifications tetap fallback — D12).
         // sendEachForMulticast chunk 500 di-handle dalam sendPushToMany.
         // Route mobile '/scan' (bukan /dashboard web). Privacy: copy generik.
-        await sendPushToMany(
-          enrollments.map((e) => e.student_id),
-          {
-            title: 'Sesi Presensi Dimulai',
-            body: `${courseName}: ${topic} — segera lakukan absensi.`,
-            route: '/scan',
-            type: 'session_start',
-            relatedId: sessionId,
-          },
-        )
+        try {
+          await sendPushToMany(
+            enrollments.map((e) => e.student_id),
+            {
+              title: 'Sesi Presensi Dimulai',
+              body: `${courseName}: ${topic} — segera lakukan absensi.`,
+              route: '/scan',
+              type: 'session_start',
+              relatedId: sessionId,
+            },
+          )
+        } catch (e: any) {
+          console.error('[FCM] Failed to send push on session start:', e.message)
+        }
       }
     }
 

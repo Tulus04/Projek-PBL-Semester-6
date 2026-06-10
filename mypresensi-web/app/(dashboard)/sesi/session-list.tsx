@@ -313,17 +313,22 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
     }
 
     setActionLoading(session.id)
-    const result = await toggleSessionAction(session.id, !session.is_active)
-    if (result.error) {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
-    } else {
-      toast.fire({
-        icon: 'success',
-        title: session.is_active ? 'Sesi diakhiri' : 'Sesi dimulai — kode presensi aktif',
-      })
-      router.refresh()
+    try {
+      const result = await toggleSessionAction(session.id, !session.is_active)
+      if (result.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
+      } else {
+        toast.fire({
+          icon: 'success',
+          title: session.is_active ? 'Sesi diakhiri' : 'Sesi dimulai — kode presensi aktif',
+        })
+        router.refresh()
+      }
+    } catch (err: any) {
+      swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', text: err.message || 'Gagal menghubungi server.' })
+    } finally {
+      setActionLoading(null)
     }
-    setActionLoading(null)
   }
 
   const handleDelete = async (session: Session) => {
