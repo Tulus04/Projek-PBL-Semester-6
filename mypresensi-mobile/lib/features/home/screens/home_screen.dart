@@ -321,13 +321,130 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         final session = pending.first;
         return _HeroSessionActive(
           session: session,
-          onScanTap: () => context.push('/scan'),
+          onScanTap: _checkGpsAndScan,
         );
       },
       loading: () => const _HeroSkeleton(),
       error: (error, _) => _HeroErrorBox(
         message: friendlyErrorMessage(error),
         onRetry: () => ref.invalidate(activeSessionsProvider),
+      ),
+    );
+  }
+
+  // ===== Fake GPS pre-flight check =====
+  Future<void> _checkGpsAndScan() async {
+    // Tampilkan loading overlay
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Center(
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const CircularProgressIndicator(color: AppColors.primary),
+        ),
+      ),
+    );
+
+    try {
+      final locService = ref.read(locationServiceProvider);
+      final loc = await locService.getCurrentPosition();
+
+      if (!mounted) return;
+      context.pop(); // Tutup loading
+
+      // Jika fake GPS terdeteksi, block akses ke kamera dan tampilkan dialog
+      if (loc.isMockLocation) {
+        await _showMockLocationDialog();
+        return;
+      }
+
+      // Aman, lanjut ke scan
+      context.push('/scan');
+    } catch (e) {
+      if (!mounted) return;
+      context.pop(); // Tutup loading
+
+      // Biarkan error (GPS mati / denied) di-handle ulang oleh ScanQrScreen
+      // atau tampilkan snackbar di sini.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _showMockLocationDialog() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: AppColors.dangerTint,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Icon(
+            Icons.location_off_rounded,
+            color: AppColors.danger,
+            size: 32,
+          ),
+        ),
+        title: const Text(
+          'Lokasi Palsu Terdeteksi',
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        content: const Text(
+          'Sistem mendeteksi penggunaan aplikasi Fake GPS. Silakan matikan lokasi palsu untuk bisa melakukan presensi.',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            height: 1.5,
+            color: AppColors.textSecondary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: const TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              child: const Text('Mengerti'),
+            ),
+          ),
+        ],
       ),
     );
   }
