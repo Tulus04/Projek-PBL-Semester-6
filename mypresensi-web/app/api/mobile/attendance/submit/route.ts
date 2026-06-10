@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
       }
 
       if (new Date(tokenRow.expires_at) < new Date()) {
-        return errorResponse('Waktu pemindaian wajah & lokasi sudah habis (lebih dari 5 menit)', 400)
+        return errorResponse('Waktu pemindaian wajah & lokasi sudah habis (lebih dari 1 menit)', 400)
       }
     } else if (input.session_code) {
       // Backward compatibility untuk versi app lama
