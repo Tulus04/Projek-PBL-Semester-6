@@ -38,9 +38,9 @@ class SecureStorage {
     return _storage.read(key: _accessTokenKey);
   }
 
-  // Refresh token tetap disimpan via saveTokens() untuk future silent refresh.
-  // Getter sengaja dihapus karena belum ada konsumer — tambahkan kembali saat
-  // silent refresh flow diimplementasi (lihat roadmap pasca T1-#3).
+  static Future<String?> getRefreshToken() async {
+    return _storage.read(key: _refreshTokenKey);
+  }
 
   // === User Data ===
   static Future<void> saveUserData(String jsonString) async {

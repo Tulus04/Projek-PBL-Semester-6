@@ -107,18 +107,53 @@ class _AuthInterceptor extends Interceptor {
   }
 }
 
-/// Interceptor untuk handle error global — terutama 401 auto-logout
+/// Interceptor untuk handle error global — terutama 401 auto-logout & token refresh
 class _ErrorInterceptor extends Interceptor {
+  static Future<void>? _refreshTokenFuture;
+
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     switch (err.response?.statusCode) {
       case 401:
-        // Token expired — trigger auto-logout jika bukan dari login endpoint
-        final isLoginRequest =
-            err.requestOptions.path.contains('/auth/login');
-        if (!isLoginRequest && DioClient._logoutCallback != null) {
-          debugPrint('[AUTH] Token expired — triggering auto-logout');
-          DioClient._logoutCallback!();
+        final requestOptions = err.requestOptions;
+        final isLoginRequest = requestOptions.path.contains('/auth/login');
+        final isRefreshRequest = requestOptions.path.contains('/auth/refresh');
+
+        if (!isLoginRequest && !isRefreshRequest) {
+          debugPrint('[AUTH] Token expired (401) on: ${requestOptions.path}');
+          try {
+            // Gunakan future caching untuk mencegah request refresh ganda secara paralel
+            _refreshTokenFuture ??= _performTokenRefresh();
+            
+            await _refreshTokenFuture;
+            _refreshTokenFuture = null; // reset setelah selesai
+
+            // Ambil token baru dan retry request asli
+            final newAccessToken = await SecureStorage.getAccessToken();
+            if (newAccessToken != null && newAccessToken.isNotEmpty) {
+              requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+              
+              final options = Options(
+                method: requestOptions.method,
+                headers: requestOptions.headers,
+              );
+              
+              final cloneReq = await DioClient.instance.request(
+                requestOptions.path,
+                options: options,
+                data: requestOptions.data,
+                queryParameters: requestOptions.queryParameters,
+              );
+              
+              return handler.resolve(cloneReq);
+            }
+          } catch (refreshErr) {
+            _refreshTokenFuture = null;
+            debugPrint('[AUTH] Token refresh failed: $refreshErr — triggering logout');
+            if (DioClient._logoutCallback != null) {
+              await DioClient._logoutCallback!();
+            }
+          }
         }
         break;
       case 429:
@@ -130,5 +165,34 @@ class _ErrorInterceptor extends Interceptor {
     }
 
     return handler.next(err);
+  }
+
+  Future<void> _performTokenRefresh() async {
+    final refreshToken = await SecureStorage.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) {
+      throw Exception('No refresh token stored');
+    }
+
+    debugPrint('[AUTH] Performing token refresh...');
+    final refreshDio = Dio(BaseOptions(
+      baseUrl: AppConfig.baseUrl,
+      connectTimeout: AppConfig.connectTimeout,
+      receiveTimeout: AppConfig.receiveTimeout,
+    ));
+
+    final response = await refreshDio.post(
+      '/api/mobile/auth/refresh',
+      data: {'refresh_token': refreshToken},
+    );
+
+    final data = response.data;
+    final newAccessToken = data['access_token'] as String;
+    final newRefreshToken = data['refresh_token'] as String;
+
+    await SecureStorage.saveTokens(
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    );
+    debugPrint('[AUTH] Token refreshed successfully!');
   }
 }

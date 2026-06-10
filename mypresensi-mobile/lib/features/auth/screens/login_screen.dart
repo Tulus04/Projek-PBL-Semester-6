@@ -277,7 +277,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 return null;
                               },
                             ),
-                            const SizedBox(height: 28),
+                             const SizedBox(height: 12),
+
+                             // Lupa Password Link
+                             Align(
+                               alignment: Alignment.centerRight,
+                               child: TextButton(
+                                 onPressed: () => _showForgotPasswordDialog(context),
+                                 style: TextButton.styleFrom(
+                                   padding: EdgeInsets.zero,
+                                   minimumSize: Size.zero,
+                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                 ),
+                                 child: const Text(
+                                   'Lupa password?',
+                                   style: TextStyle(
+                                     fontSize: 13,
+                                     fontWeight: FontWeight.w600,
+                                     color: AppColors.primary,
+                                   ),
+                                 ),
+                               ),
+                             ),
+                             const SizedBox(height: 20),
 
                             // Login Button
                             SizedBox(
@@ -344,22 +366,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           width: 72,
           height: 72,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
             ],
           ),
-          padding: const EdgeInsets.all(8),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: Image.asset(
               'assets/images/trpl_logo.jpg',
-              fit: BoxFit.contain,
+              fit: BoxFit.cover,
             ),
           ),
         ),
@@ -380,6 +400,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
         ),
       ],
+    );
+  }
+
+  void _showForgotPasswordDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(IconsaxPlusBold.info_circle, color: AppColors.primary, size: 24),
+            SizedBox(width: 8),
+            Text(
+              'Lupa Password',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Untuk mereset password Anda, silakan hubungi Admin Program Studi (Prodi) TRPL di Gedung Direktorat untuk bantuan verifikasi identitas.',
+          style: TextStyle(fontSize: 14, height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Mengerti'),
+          ),
+        ],
+      ),
     );
   }
 
