@@ -1,13 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
+import '../../../shared/widgets/error_state.dart';
 import '../data/leave_models.dart';
+import '../providers/leave_provider.dart';
 
-class LeaveRequestDetailScreen extends StatelessWidget {
+class LeaveRequestDetailScreen extends ConsumerWidget {
+  final LeaveRequestItem? item;
+  final String? id;
+
+  const LeaveRequestDetailScreen({super.key, this.item, this.id});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (item != null) {
+      return _LeaveRequestDetailContentView(item: item!);
+    }
+
+    if (id != null) {
+      final asyncData = ref.watch(myLeaveRequestsProvider);
+      return asyncData.when(
+        data: (data) {
+          final foundItem = data.requests.where((r) => r.id == id).firstOrNull;
+          if (foundItem == null) {
+            return const Scaffold(
+              backgroundColor: AppColors.bg,
+              body: Center(child: Text('Pengajuan tidak ditemukan')),
+            );
+          }
+          return _LeaveRequestDetailContentView(item: foundItem);
+        },
+        loading: () => const Scaffold(
+          backgroundColor: AppColors.bg,
+          body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        ),
+        error: (e, st) => Scaffold(
+          backgroundColor: AppColors.bg,
+          body: ErrorState(
+            title: 'Gagal memuat pengajuan',
+            message: e.toString(),
+            onRetry: () => ref.invalidate(myLeaveRequestsProvider),
+          ),
+        ),
+      );
+    }
+
+    return const Scaffold(
+      backgroundColor: AppColors.bg,
+      body: Center(child: Text('Data tidak valid')),
+    );
+  }
+}
+
+class _LeaveRequestDetailContentView extends StatelessWidget {
   final LeaveRequestItem item;
 
-  const LeaveRequestDetailScreen({super.key, required this.item});
+  const _LeaveRequestDetailContentView({required this.item});
 
   @override
   Widget build(BuildContext context) {

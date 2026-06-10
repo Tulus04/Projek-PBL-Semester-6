@@ -129,7 +129,7 @@ export async function approveLeaveRequest(requestId: string, reviewNote?: string
       title: 'Pengajuan Izin Disetujui',
       message: `Pengajuan ${request.type} Anda untuk ${courseName} telah disetujui.`,
       type: 'success',
-      href: '/izin',
+      href: `/izin?id=${requestId}`,
     })
 
     // FCM push (tambahan; polling/notifications tetap jalan sebagai fallback — D12).
@@ -140,7 +140,7 @@ export async function approveLeaveRequest(requestId: string, reviewNote?: string
         studentId: request.student_id,
         title: 'Izin Disetujui',
         body: `Izin untuk ${courseName} pertemuan ${reqData.session?.session_number || ''} disetujui.`,
-        route: `/dashboard`,
+        route: `/leave-request/detail?id=${requestId}`,
         type: 'leave_status',
         relatedId: requestId,
       })
@@ -192,7 +192,7 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
       title: 'Pengajuan Izin Ditolak',
       message: `Pengajuan ${request.type} Anda untuk ${courseName} ditolak.${reviewNote ? ` Catatan: ${reviewNote}` : ''}`,
       type: 'danger',
-      href: '/izin',
+      href: `/izin?id=${requestId}`,
     })
 
     // FCM push (tambahan; polling tetap fallback — D12).
@@ -203,7 +203,7 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
         studentId: request.student_id,
         title: 'Izin Ditolak',
         body: `Izin untuk ${courseName} pertemuan ${reqData.session?.session_number || ''} ditolak.`,
-        route: `/dashboard`,
+        route: `/leave-request/detail?id=${requestId}`,
         type: 'leave_status',
         relatedId: requestId,
       })

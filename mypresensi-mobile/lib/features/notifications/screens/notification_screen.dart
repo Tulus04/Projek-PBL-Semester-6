@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -342,16 +343,39 @@ class _TabItem extends StatelessWidget {
 }
 
 /// Card item notifikasi — duotone icon + title + body + meta + unread dot.
-class _NotifCard extends StatelessWidget {
+class _NotifCard extends ConsumerWidget {
   const _NotifCard({required this.notif});
   final AppNotification notif;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isUnread = !notif.isRead;
     final (iconColor, iconBg, icon) = _resolveTypeStyle(notif.type);
 
-    return Container(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          if (isUnread) {
+            ref.read(notificationProvider.notifier).markAsRead(notif.id);
+          }
+
+          if (notif.title.contains('Sesi Presensi Dimulai')) {
+            _showSessionBottomSheet(context);
+            return;
+          }
+
+          if (notif.href != null && notif.href!.isNotEmpty) {
+            if (notif.href!.startsWith('/izin?id=')) {
+              final id = notif.href!.split('id=')[1];
+              context.push('/leave-request/detail?id=$id');
+            } else {
+              context.push(notif.href!);
+            }
+          }
+        },
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
@@ -457,6 +481,118 @@ class _NotifCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
+      ),
+    );
+  }
+
+  void _showSessionBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          decoration: const BoxDecoration(
+            color: AppColors.bg,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                width: 64,
+                height: 64,
+                decoration: const BoxDecoration(
+                  color: AppColors.warningTint,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(IconsaxPlusBold.clock, size: 32, color: AppColors.warning),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Sesi Presensi Dimulai',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: FontWeight.w800,
+                  fontSize: 20,
+                  color: AppColors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                notif.message,
+                style: const TextStyle(
+                  fontSize: 14.5,
+                  color: AppColors.textSecondary,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.pop();
+                    context.push('/scan');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Scan QR Sekarang',
+                    style: TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => context.pop(),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    'Nanti Saja',
+                    style: TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

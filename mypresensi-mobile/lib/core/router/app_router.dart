@@ -262,10 +262,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/leave-request/detail',
         pageBuilder: (context, state) {
-          final item = state.extra as LeaveRequestItem;
+          final item = state.extra as LeaveRequestItem?;
+          final id = state.uri.queryParameters['id'];
           return _slideTransition(
             state: state,
-            child: LeaveRequestDetailScreen(item: item),
+            child: LeaveRequestDetailScreen(item: item, id: id),
           );
         },
       ),
