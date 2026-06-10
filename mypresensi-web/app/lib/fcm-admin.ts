@@ -45,17 +45,36 @@ function getMessaging(): admin.messaging.Messaging {
     try {
       const cleanRaw = raw.replace(/^['"]|['"]$/g, '')
       serviceAccount = JSON.parse(cleanRaw) as Record<string, string>
-      // Fix for Vercel env vars: replace literal \n with actual newlines
+      // Fix for Vercel env vars: rebuild the PEM string to ensure 100% correct newlines
       if (serviceAccount.private_key) {
-        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n')
+        let pk = serviceAccount.private_key
+        // Remove literal \n and \r
+        pk = pk.replace(/\\n/g, '').replace(/\\r/g, '')
+        // Extract the base64 payload
+        const header = '-----BEGIN PRIVATE KEY-----'
+        const footer = '-----END PRIVATE KEY-----'
+        if (pk.includes(header) && pk.includes(footer)) {
+          let b64 = pk.split(header)[1].split(footer)[0]
+          // Remove all whitespaces from base64 (spaces, newlines, tabs)
+          b64 = b64.replace(/\s+/g, '')
+          // Rebuild with proper newlines (64 chars per line)
+          const chunks = b64.match(/.{1,64}/g) || []
+          serviceAccount.private_key = `${header}\n${chunks.join('\n')}\n${footer}\n`
+        }
       }
     } catch {
       throw new Error('FIREBASE_SERVICE_ACCOUNT tidak parseable sebagai JSON')
     }
 
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount as unknown as admin.ServiceAccount),
-    })
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount as unknown as admin.ServiceAccount),
+      })
+    } catch (initErr) {
+      const pk = serviceAccount.private_key || ''
+      const pkDebug = `Length: ${pk.length}, Starts: ${pk.substring(0, 30)}, Ends: ${pk.substring(Math.max(0, pk.length - 30))}, HasNewlines: ${pk.includes('\n')}, HasLiteral: ${pk.includes('\\n')}`
+      throw new Error(`Firebase Init Failed: ${(initErr as Error).message}. Debug PK: ${pkDebug}`)
+    }
   }
   return admin.messaging()
 }
