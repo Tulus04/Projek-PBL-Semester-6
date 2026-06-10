@@ -597,7 +597,7 @@ class _SubmitLeaveRequestScreenState
   String _footerLabel(WizardStep step) {
     switch (step) {
       case WizardStep.pickSession:
-        return 'Lanjut ke Tipe Izin';
+        return 'Lanjut ke Kategori';
       case WizardStep.typeAndReason:
         return 'Lanjut ke Lampiran';
       case WizardStep.evidence:
@@ -629,7 +629,7 @@ class _StepBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const labels = ['Sesi', 'Jenis', 'Bukti', 'Review'];
+    const labels = ['Sesi', 'Kategori', 'Bukti', 'Review'];
     final steps = WizardStep.values;
     final currentIndex = currentStep.index;
 
@@ -1338,7 +1338,7 @@ class _SelectedSessionBadge extends StatelessWidget {
 }
 
 // ============================================================================
-// _TypeTile — pilihan jenis (Sakit / Izin)
+// _TypeTile — pilihan kategori (Sakit / Izin)
 // ============================================================================
 
 class _TypeTile extends StatelessWidget {
@@ -1435,7 +1435,7 @@ class _StepTypeAndReason extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 8, 18, 16),
       children: [
         const Text(
-          'Tipe & Alasan',
+          'Kategori & Alasan',
           style: TextStyle(
             fontFamily: 'Plus Jakarta Sans',
             fontWeight: FontWeight.w800,
@@ -1458,7 +1458,7 @@ class _StepTypeAndReason extends StatelessWidget {
         _SelectedSessionBadge(session: session),
         const SizedBox(height: 20),
 
-        const _FieldLabel('Jenis Izin'),
+        const _FieldLabel('Kategori'),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -1896,7 +1896,7 @@ class _StepReview extends StatelessWidget {
                 icon: type == LeaveType.sakit
                     ? IconsaxPlusBold.health
                     : IconsaxPlusBold.note_2,
-                label: 'JENIS',
+                label: 'KATEGORI',
                 value: type.label,
               ),
               _ReviewRow(
