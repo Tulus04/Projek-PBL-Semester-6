@@ -218,27 +218,6 @@ class AttendanceResultScreen extends ConsumerWidget {
                   child: const Text('Kembali ke Beranda'),
                 ),
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: OutlinedButton(
-                  onPressed: () {
-                    ref.read(attendanceSubmitProvider.notifier).reset();
-                    // Sama: invalidate juga di branch Scan Lagi karena user
-                    // mungkin balik ke Beranda lewat back button setelah scan.
-                    ref.invalidate(historyProvider);
-                    context.go('/scan');
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.border),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text('Scan QR Lagi'),
-                ),
-              ),
             ],
           ),
         ),
