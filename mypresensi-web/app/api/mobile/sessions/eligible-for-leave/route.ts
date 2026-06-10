@@ -57,9 +57,10 @@ interface EligibleSession {
 }
 
 function mapToEligibleSession(row: SessionRow): EligibleSession {
-  const courseData = row.course as any
+  const courseData = row.course as unknown
   const course = Array.isArray(courseData) ? courseData[0] : courseData
-  const dosenData = course?.dosen
+  const safeCourse = course as Record<string, unknown> | undefined
+  const dosenData = safeCourse?.dosen
   const dosen = Array.isArray(dosenData) ? dosenData[0] : dosenData
   return {
     id: row.id,

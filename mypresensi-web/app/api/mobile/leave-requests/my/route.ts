@@ -59,10 +59,12 @@ export async function GET(req: NextRequest) {
 
   // Map ke flat structure agar mobile lebih mudah konsumsi
   const result = (requests ?? []).map((r) => {
-    const sessionData = r.session as any
+    const sessionData = r.session as unknown
     const session = Array.isArray(sessionData) ? sessionData[0] : sessionData
-    const courseData = session?.course
+    const safeSession = session as Record<string, unknown> | undefined
+    const courseData = safeSession?.course
     const course = Array.isArray(courseData) ? courseData[0] : courseData
+    const safeCourse = course as Record<string, unknown> | undefined
 
     return {
       id: r.id,
@@ -73,14 +75,14 @@ export async function GET(req: NextRequest) {
       review_note: r.review_note,
       created_at: r.created_at,
       reviewed_at: r.reviewed_at,
-      session: session
+      session: safeSession
         ? {
-            id: session.id,
-            session_number: session.session_number,
-            topic: session.topic,
-            started_at: session.started_at,
-            course_code: course?.code ?? '-',
-            course_name: course?.name ?? '-',
+            id: safeSession.id,
+            session_number: safeSession.session_number,
+            topic: safeSession.topic,
+            started_at: safeSession.started_at,
+            course_code: safeCourse?.code ?? '-',
+            course_name: safeCourse?.name ?? '-',
           }
         : null,
     }
