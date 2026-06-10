@@ -1199,35 +1199,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Zoom Slider
-              if (_maxZoom > _minZoom) ...[
-                Row(
-                  children: [
-                    Icon(Icons.zoom_out, color: AppColors.textTertiary, size: 20),
-                    Expanded(
-                      child: SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: AppColors.primary,
-                          inactiveTrackColor: AppColors.surfaceSunken,
-                          thumbColor: AppColors.primary,
-                          overlayColor: AppColors.primary.withValues(alpha: 0.1),
-                          trackHeight: 4.0,
-                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
-                          overlayShape: const RoundSliderOverlayShape(overlayRadius: 16.0),
-                        ),
-                        child: Slider(
-                          value: _currentZoom,
-                          min: _minZoom,
-                          max: _maxZoom,
-                          onChanged: _setZoom,
-                        ),
-                      ),
-                    ),
-                    Icon(Icons.zoom_in, color: AppColors.textTertiary, size: 20),
-                  ],
-                ),
-                const SizedBox(height: 12),
-              ],
+
               const Icon(
                 Icons.qr_code_2,
                 size: 32,
