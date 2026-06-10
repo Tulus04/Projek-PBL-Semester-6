@@ -139,6 +139,12 @@ class AuthRepository {
     }
   }
 
+  /// Update data user di local storage (misal setelah upload avatar)
+  Future<void> updateSavedUser(UserModel user) async {
+    await SecureStorage.saveUserData(user.toJsonString());
+    debugPrint('[AUTH] Local user data updated');
+  }
+
   /// Cek apakah token sudah tersimpan
   Future<bool> isLoggedIn() async {
     return SecureStorage.hasToken();

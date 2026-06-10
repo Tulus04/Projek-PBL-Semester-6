@@ -195,7 +195,8 @@ class AuthNotifier extends Notifier<AuthState> {
       isFaceRegistered: true,
     );
     state = state.copyWith(user: updatedUser);
-    debugPrint('[AUTH] markFaceRegistered: updated locally');
+    _repository.updateSavedUser(updatedUser);
+    debugPrint('[AUTH] markFaceRegistered: updated locally and saved');
   }
 
   /// Update avatar URL lokal setelah upload berhasil. Tidak mereset auth state
@@ -217,7 +218,8 @@ class AuthNotifier extends Notifier<AuthState> {
       isFaceRegistered: currentUser.isFaceRegistered,
     );
     state = state.copyWith(user: updatedUser);
-    debugPrint('[AUTH] markAvatarUpdated: $newAvatarUrl');
+    _repository.updateSavedUser(updatedUser);
+    debugPrint('[AUTH] markAvatarUpdated: $newAvatarUrl and saved');
   }
 
   /// Update local flag isFaceRegistered = false setelah user hapus data wajah
@@ -239,7 +241,8 @@ class AuthNotifier extends Notifier<AuthState> {
       isFaceRegistered: false,
     );
     state = state.copyWith(user: updatedUser);
-    debugPrint('[AUTH] markFaceUnregistered: updated locally');
+    _repository.updateSavedUser(updatedUser);
+    debugPrint('[AUTH] markFaceUnregistered: updated locally and saved');
   }
 
   /// Ganti password — dipanggil dari ChangePasswordScreen
