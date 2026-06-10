@@ -832,6 +832,27 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
     super.dispose();
   }
 
+  Future<bool?> _showExitConfirmation(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Batalkan Presensi?'),
+        content: const Text('Apakah Anda yakin ingin membatalkan proses presensi ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Lanjutkan'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+            child: const Text('Batalkan'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final submitState = ref.watch(attendanceSubmitProvider);
@@ -852,23 +873,33 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
     // peralihan smooth (mis. setelah pop dari face-verify cancel, kamera
     // re-init ~500ms). Tanpa AnimatedSwitcher, frame transisi terlihat
     // "blink" hitam → langsung preview.
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            child: cameraReady
-                ? _buildCameraStack(context, submitState)
-                : _buildLoadingScaffold(),
-          ),
-          
-          // === Loading overlay dipindah ke level Scaffold root ===
-          // Memastikan overlay tetap muncul bahkan ketika kamera tidak ready (sedang di-dispose).
-          if (isLoading) _buildLoadingOverlay(submitState),
-        ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final confirm = await _showExitConfirmation(context);
+        if (confirm == true && context.mounted) {
+          context.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: cameraReady
+                  ? _buildCameraStack(context, submitState)
+                  : _buildLoadingScaffold(),
+            ),
+            
+            // === Loading overlay dipindah ke level Scaffold root ===
+            // Memastikan overlay tetap muncul bahkan ketika kamera tidak ready (sedang di-dispose).
+            if (isLoading) _buildLoadingOverlay(submitState),
+          ],
+        ),
       ),
     );
   }
@@ -1068,7 +1099,12 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
                 color: Colors.black.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
-                  onTap: () => context.pop(),
+                  onTap: () async {
+                    final confirm = await _showExitConfirmation(context);
+                    if (confirm == true && context.mounted) {
+                      context.pop();
+                    }
+                  },
                   borderRadius: BorderRadius.circular(12),
                   child: const Padding(
                     padding: EdgeInsets.all(10),

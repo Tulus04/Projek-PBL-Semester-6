@@ -292,6 +292,27 @@ class _FaceVerificationScreenState
     }
   }
 
+  Future<bool?> _showExitConfirmation(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Batalkan Presensi?'),
+        content: const Text('Apakah Anda yakin ingin membatalkan proses presensi ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Lanjutkan'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+            child: const Text('Batalkan'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final verifyState = ref.watch(faceVerificationProvider);
@@ -352,13 +373,27 @@ class _FaceVerificationScreenState
       ),
     );
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          FaceCameraOverlay(
-            title: 'Verifikasi Wajah',
-            onBack: () => _disposeAndPop(),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final confirm = await _showExitConfirmation(context);
+        if (confirm == true && context.mounted) {
+          _disposeAndPop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            FaceCameraOverlay(
+              title: 'Verifikasi Wajah',
+              onBack: () async {
+                final confirm = await _showExitConfirmation(context);
+                if (confirm == true && context.mounted) {
+                  _disposeAndPop();
+                }
+              },
             cameraPreview: cameraWidget,
             progress: progress,
             progressColor: progressColor,
@@ -383,7 +418,7 @@ class _FaceVerificationScreenState
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildSkipButtonIfOptional() {
