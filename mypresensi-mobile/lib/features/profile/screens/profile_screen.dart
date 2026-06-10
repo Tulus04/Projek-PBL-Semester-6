@@ -127,7 +127,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   iconColor: AppColors.warning,
                   iconBg: AppColors.warningTint,
                   title: 'Hapus Data Wajah',
-                  subtitle: 'Hak hapus data biometrik (UU PDP)',
+                  subtitle: 'Hapus data biometrik',
                   onTap: () => _confirmDeleteFaceData(context, ref),
                 ),
             ],
