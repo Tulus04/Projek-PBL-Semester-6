@@ -398,7 +398,9 @@ export async function POST(req: NextRequest) {
       late_by_seconds: lateBySeconds,
       scanned_at: nowIso,
       message,
-      course_name: session.courses ? `${(session.courses as { code: string; name: string }).code} - ${(session.courses as { code: string; name: string }).name}` : null,
+      course_name: session.courses 
+        ? `${(Array.isArray(session.courses) ? session.courses[0] : session.courses as unknown as { code: string; name: string }).code} - ${(Array.isArray(session.courses) ? session.courses[0] : session.courses as unknown as { code: string; name: string }).name}` 
+        : null,
       session_topic: session.topic,
       session_number: session.session_number,
     }, 201)
