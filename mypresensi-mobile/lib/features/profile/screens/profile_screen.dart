@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -703,10 +704,45 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (picked == null) return;
     if (!mounted) return;
 
+    CroppedFile? croppedFile;
+    try {
+      croppedFile = await ImageCropper().cropImage(
+        sourcePath: picked.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Sesuaikan Foto',
+            toolbarColor: AppColors.surface,
+            toolbarWidgetColor: AppColors.primary,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+            hideBottomControls: false,
+          ),
+          IOSUiSettings(
+            title: 'Sesuaikan Foto',
+            aspectRatioLockEnabled: true,
+            resetAspectRatioEnabled: false,
+          ),
+        ],
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal memotong gambar: ${e.toString()}'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    if (croppedFile == null) return;
+    if (!mounted) return;
+
     final messenger = ScaffoldMessenger.of(context);
     final notifier = ref.read(avatarUploadProvider.notifier);
 
-    final success = await notifier.upload(File(picked.path));
+    final success = await notifier.upload(File(croppedFile.path));
 
     if (!mounted) return;
 

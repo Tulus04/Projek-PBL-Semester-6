@@ -271,6 +271,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 children: [
                   _HomeAppBar(
                     userInitials: initials,
+                    avatarUrl: user?.avatarUrl,
                     unreadBadge: false,
                   ),
                   const SizedBox(height: 6),
@@ -348,10 +349,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 class _HomeAppBar extends ConsumerWidget {
   const _HomeAppBar({
     required this.userInitials,
+    this.avatarUrl,
     this.unreadBadge = false,
   });
 
   final String userInitials;
+  final String? avatarUrl;
   final bool unreadBadge;
 
   @override
@@ -426,28 +429,48 @@ class _HomeAppBar extends ConsumerWidget {
               child: Container(
                 width: 34,
                 height: 34,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.primary, AppColors.primaryHover],
-                  ),
+                  color: avatarUrl != null ? AppColors.surface : null,
+                  gradient: avatarUrl == null
+                      ? const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [AppColors.primary, AppColors.primaryHover],
+                        )
+                      : null,
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  userInitials,
-                  style: const TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                    color: Colors.white,
-                  ),
-                ),
+                clipBehavior: Clip.antiAlias,
+                child: avatarUrl != null
+                    ? Image.network(
+                        avatarUrl!,
+                        fit: BoxFit.cover,
+                        width: 34,
+                        height: 34,
+                        errorBuilder: (_, __, ___) => _buildInitials(),
+                        loadingBuilder: (ctx, child, progress) {
+                          if (progress == null) return child;
+                          return _buildInitials();
+                        },
+                      )
+                    : _buildInitials(),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildInitials() {
+    return Text(
+      userInitials,
+      style: const TextStyle(
+        fontFamily: 'Plus Jakarta Sans',
+        fontWeight: FontWeight.w700,
+        fontSize: 13,
+        color: Colors.white,
       ),
     );
   }
