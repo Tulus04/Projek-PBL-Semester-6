@@ -57,12 +57,10 @@ interface EligibleSession {
 }
 
 function mapToEligibleSession(row: SessionRow): EligibleSession {
-  const course = row.course as unknown as {
-    code: string
-    name: string
-    dosen: { full_name: string } | null
-  } | null
-  const dosen = course?.dosen
+  const courseData = row.course as any
+  const course = Array.isArray(courseData) ? courseData[0] : courseData
+  const dosenData = course?.dosen
+  const dosen = Array.isArray(dosenData) ? dosenData[0] : dosenData
   return {
     id: row.id,
     course_code: course?.code ?? '-',
