@@ -88,7 +88,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 iconColor: AppColors.info,
                 iconBg: AppColors.infoTint,
                 title: 'Ubah Kata Sandi',
-                subtitle: 'Ganti password akun secara berkala',
+                subtitle: 'Ganti kata sandi secara berkala',
                 onTap: () => context.push('/change-password'),
               ),
             ],
@@ -102,10 +102,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 icon: IconsaxPlusBold.user_octagon,
                 iconColor: isFaceRegistered ? AppColors.success : AppColors.warning,
                 iconBg: isFaceRegistered ? AppColors.successTint : AppColors.warningTint,
-                title: 'Wajah Terdaftar',
+                title: 'Data Wajah',
                 subtitle: isFaceRegistered
-                    ? 'Wajahmu sudah aktif untuk verifikasi'
-                    : 'Daftarkan wajah dulu untuk presensi',
+                    ? 'Wajah sudah terdaftar'
+                    : 'Belum terdaftar, tap untuk mendaftar',
                 onTap: () async {
                   final result = await context.push<bool>('/face-register');
                   if (result == true) {
@@ -117,8 +117,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 icon: IconsaxPlusBold.location,
                 iconColor: AppColors.warning,
                 iconBg: AppColors.accentSoft,
-                title: 'Izin Lokasi',
-                subtitle: 'Atur izin lokasi di pengaturan sistem',
+                title: 'Akses Lokasi',
+                subtitle: 'Kelola izin GPS di pengaturan sistem',
                 onTap: _showLocationPermissionSheet,
               ),
               if (isFaceRegistered)
@@ -142,27 +142,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 iconColor: AppColors.primary,
                 iconBg: AppColors.primarySurface,
                 title: 'Asisten AI',
-                subtitle: 'Tanya kehadiran, izin, atau cara pakai aplikasi',
+                subtitle: 'Tanya seputar presensi atau aplikasi',
                 onTap: () => context.push('/ai-chat'),
-              ),
-              _SettingsItem(
-                icon: IconsaxPlusBold.note_2,
-                iconColor: AppColors.warning,
-                iconBg: AppColors.warningTint,
-                title: 'Pengajuan Izin / Sakit',
-                subtitle: 'Lihat riwayat & ajukan izin baru',
-                // Switch ke tab Izin (index 2) di bottom nav, BUKAN push.
-                // Konsisten dengan Quick Actions di Beranda (setTab(2)).
-                onTap: () {
-                  ref.read(currentTabProvider.notifier).setTab(2);
-                },
               ),
               _SettingsItem(
                 icon: IconsaxPlusBold.info_circle,
                 iconColor: AppColors.info,
                 iconBg: AppColors.infoTint,
                 title: 'Tentang',
-                subtitle: 'Versi aplikasi & info pengembang',
+                subtitle: 'Versi aplikasi dan pengembang',
                 onTap: _showAboutSheet,
               ),
             ],
@@ -180,7 +168,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 iconBg: AppColors.dangerTint,
                 title: 'Keluar dari Akun',
                 titleColor: AppColors.danger,
-                subtitle: 'Kembali ke halaman login',
+                subtitle: 'Akhiri sesi dan kembali ke login',
                 onTap: () => _confirmLogout(context, ref),
               ),
             ],
