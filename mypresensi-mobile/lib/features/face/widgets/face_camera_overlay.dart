@@ -79,11 +79,15 @@ class FaceOvalPainter extends CustomPainter {
   final double progress; // 0.0 to 1.0
   final Color progressColor;
   final bool isVerifying; // Jika true, progress bar mungkin dibuat putus-putus atau animasi
+  final bool isProcessing;
+  final double spinAnimation;
 
   FaceOvalPainter({
     required this.progress,
     required this.progressColor,
     this.isVerifying = false,
+    this.isProcessing = false,
+    this.spinAnimation = 0.0,
   });
 
   @override
@@ -115,8 +119,19 @@ class FaceOvalPainter extends CustomPainter {
       ..strokeWidth = 4.0;
     canvas.drawOval(ovalRect, trackPaint);
 
-    // 3. Gambar garis progress
-    if (progress > 0) {
+    // 3. Gambar garis progress atau animasi loading
+    if (isProcessing) {
+      final activePaint = Paint()
+        ..color = progressColor
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = 5.0;
+
+      final startAngle = -math.pi / 2 + (spinAnimation * 2 * math.pi);
+      final sweepAngle = 0.5 * math.pi; // 90 degrees length
+
+      canvas.drawArc(ovalRect, startAngle, sweepAngle, false, activePaint);
+    } else if (progress > 0) {
       final activePaint = Paint()
         ..color = progressColor
         ..style = PaintingStyle.stroke
@@ -135,12 +150,14 @@ class FaceOvalPainter extends CustomPainter {
   bool shouldRepaint(covariant FaceOvalPainter oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.progressColor != progressColor ||
-        oldDelegate.isVerifying != isVerifying;
+        oldDelegate.isVerifying != isVerifying ||
+        oldDelegate.isProcessing != isProcessing ||
+        oldDelegate.spinAnimation != spinAnimation;
   }
 }
 
 /// Widget pembungkus untuk seluruh layar wajah.
-class FaceCameraOverlay extends StatelessWidget {
+class FaceCameraOverlay extends StatefulWidget {
   final String title;
   final VoidCallback onBack;
   final VoidCallback? onInfo;
@@ -156,6 +173,7 @@ class FaceCameraOverlay extends StatelessWidget {
   
   // Jika ini verifikasi, kita ganti progress indicator menjadi status success/verifying.
   final bool isVerifying;
+  final bool isProcessing;
 
   const FaceCameraOverlay({
     super.key,
@@ -170,7 +188,43 @@ class FaceCameraOverlay extends StatelessWidget {
     this.hintLabel,
     this.hintSub,
     this.isVerifying = false,
+    this.isProcessing = false,
   });
+
+  @override
+  State<FaceCameraOverlay> createState() => _FaceCameraOverlayState();
+}
+
+class _FaceCameraOverlayState extends State<FaceCameraOverlay> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    if (widget.isProcessing) {
+      _controller.repeat();
+    }
+  }
+
+  @override
+  void didUpdateWidget(FaceCameraOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isProcessing && !oldWidget.isProcessing) {
+      _controller.repeat();
+    } else if (!widget.isProcessing && oldWidget.isProcessing) {
+      _controller.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,17 +232,24 @@ class FaceCameraOverlay extends StatelessWidget {
       children: [
         // 1. Fullscreen Camera (pastikan aspect ratio terjaga)
         Positioned.fill(
-          child: cameraPreview,
+          child: widget.cameraPreview,
         ),
 
         // 2. Dim Radial Overlay & Oval Cutout
         Positioned.fill(
-          child: CustomPaint(
-            painter: FaceOvalPainter(
-              progress: progress,
-              progressColor: progressColor,
-              isVerifying: isVerifying,
-            ),
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return CustomPaint(
+                painter: FaceOvalPainter(
+                  progress: widget.progress,
+                  progressColor: widget.progressColor,
+                  isVerifying: widget.isVerifying,
+                  isProcessing: widget.isProcessing,
+                  spinAnimation: _controller.value,
+                ),
+              );
+            },
           ),
         ),
 
@@ -200,12 +261,12 @@ class FaceCameraOverlay extends StatelessWidget {
           child: Column(
             children: [
               FaceAppBar(
-                title: title,
-                onBack: onBack,
-                onInfo: onInfo,
-                trailing: trailingAppBar,
+                title: widget.title,
+                onBack: widget.onBack,
+                onInfo: widget.onInfo,
+                trailing: widget.trailingAppBar,
               ),
-              if (progressLabel != null) ...[
+              if (widget.progressLabel != null) ...[
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -215,7 +276,7 @@ class FaceCameraOverlay extends StatelessWidget {
                     border: Border.all(color: Colors.white12),
                   ),
                   child: Text(
-                    progressLabel!,
+                    widget.progressLabel!,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -226,9 +287,10 @@ class FaceCameraOverlay extends StatelessWidget {
               ],
               
               // Instruksi pindah ke atas agar lebih jelas dan tidak tertutup tombol
-              if (hintLabel != null) ...[
+              if (widget.hintLabel != null) ...[
                 const SizedBox(height: 12),
                 Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.7),
@@ -246,19 +308,22 @@ class FaceCameraOverlay extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isVerifying && progress == 1.0 
+                        widget.isVerifying && widget.progress == 1.0 
                           ? IconsaxPlusBold.verify
                           : IconsaxPlusBold.scan_barcode, 
-                        color: progressColor, 
+                        color: widget.progressColor, 
                         size: 24
                       ),
                       const SizedBox(width: 12),
-                      Text(
-                        hintLabel!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
+                      Flexible(
+                        child: Text(
+                          widget.hintLabel!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],
@@ -270,7 +335,7 @@ class FaceCameraOverlay extends StatelessWidget {
         ),
 
         // 4. Bottom Hint (hintSub)
-        if (hintSub != null)
+        if (widget.hintSub != null)
           Positioned(
             left: 0,
             right: 0,
@@ -278,7 +343,7 @@ class FaceCameraOverlay extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                hintSub!,
+                widget.hintSub!,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white,

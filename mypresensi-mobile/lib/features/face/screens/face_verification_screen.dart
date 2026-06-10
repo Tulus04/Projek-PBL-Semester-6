@@ -301,12 +301,12 @@ class _FaceVerificationScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Lanjutkan'),
+            child: const Text('Batal'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: const Text('Batalkan'),
+            child: const Text('Ya, Keluar'),
           ),
         ],
       ),
@@ -401,6 +401,7 @@ class _FaceVerificationScreenState
             progress: progress,
             progressColor: progressColor,
             isVerifying: true,
+            isProcessing: verifyState.isProcessing,
             hintLabel: hintLabel,
             hintSub: verifyState.status == VerificationStatus.matched 
                 ? 'Kemiripan: $confidencePercent% — Menyimpan presensi...'

@@ -841,12 +841,12 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Lanjutkan'),
+            child: const Text('Batal'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: const Text('Batalkan'),
+            child: const Text('Ya, Keluar'),
           ),
         ],
       ),
