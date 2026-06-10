@@ -262,10 +262,13 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
   void _setZoom(double zoom) {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
     final clampedZoom = zoom.clamp(_minZoom, _maxZoom);
-    setState(() {
-      _currentZoom = clampedZoom;
-    });
-    _cameraController!.setZoomLevel(clampedZoom);
+    if ((_currentZoom - clampedZoom).abs() < 0.02) return;
+    _currentZoom = clampedZoom;
+    try {
+      _cameraController!.setZoomLevel(clampedZoom);
+    } catch (e) {
+      debugPrint('[SCAN QR] setZoomLevel error (ignored): $e');
+    }
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
