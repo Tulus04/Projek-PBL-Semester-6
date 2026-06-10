@@ -51,6 +51,7 @@ final eligibleSessionsForLeaveProvider =
 // === Attendance Submit State ===
 enum SubmitStatus {
   idle,
+  verifyingQr,
   gettingLocation,
   verifyingFace,
   submitting,
@@ -105,6 +106,11 @@ final attendanceSubmitProvider =
 class AttendanceSubmitNotifier extends Notifier<AttendanceSubmitState> {
   @override
   AttendanceSubmitState build() => const AttendanceSubmitState();
+
+  /// Setter status manual untuk di-call dari UI sebelum gateway flow
+  void setStatus(SubmitStatus newStatus) {
+    state = state.copyWith(status: newStatus);
+  }
 
   /// Parse QR code raw string ke QrCodeData
   /// Return null jika format tidak valid

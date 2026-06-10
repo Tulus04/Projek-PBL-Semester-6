@@ -213,6 +213,7 @@ class AttendanceResultScreen extends ConsumerWidget {
                     // + tab Riwayat refetch data presensi terbaru dari server.
                     // Tanpa ini, Riverpod kadang serve cache pre-submit.
                     ref.invalidate(historyProvider);
+                    ref.invalidate(activeSessionsProvider); // Hapus sesi aktif dari cache
                     context.go('/');
                   },
                   child: const Text('Kembali ke Beranda'),

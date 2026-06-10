@@ -211,12 +211,13 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
       orElse: () => cameras.first,
     );
 
-    // 3. Construct controller. ResolutionPreset.medium cukup untuk QR
-    // (static target), hemat CPU vs `high` yang dipakai face.
+    // 3. Construct controller. ResolutionPreset.veryHigh (1080p) agar tangkapan 
+    // kamera tajam sehingga ML Kit bisa memindai QR code proyektor dari jarak jauh 
+    // tanpa delay pencarian autofokus yang lama.
     // imageFormatGroup NV21 = standar Android, didukung ML Kit.
     _cameraController = CameraController(
       _camera!,
-      ResolutionPreset.medium,
+      ResolutionPreset.veryHigh,
       imageFormatGroup: ImageFormatGroup.nv21,
       enableAudio: false,
     );
@@ -300,6 +301,9 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
   }
 
   Future<void> _processSubmit(QrCodeData qrData) async {
+    // Tampilkan loading overlay validasi QR sebelum freeze UI network call
+    ref.read(attendanceSubmitProvider.notifier).setStatus(SubmitStatus.verifyingQr);
+
     // === QR GATING: Pintu Masuk ===
     // Sesuai implementasi baru (Phase 3 QR Gating), QR divalidasi DI DEPAN secara instan!
     String? qrToken;
@@ -309,6 +313,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
       // Jika QR expired / tidak valid, proses berhenti di sini, tidak lanjut face verify
       _showError(e.toString());
       if (mounted) {
+        ref.read(attendanceSubmitProvider.notifier).setStatus(SubmitStatus.idle);
         setState(() => _isProcessing = false);
         // Re-init kamera supaya user bisa scan ulang
         if (_cameraController == null || !_cameraController!.value.isInitialized) {
@@ -342,6 +347,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
           await _disposeCamera();
           await _showFaceNotRegisteredDialog();
           if (mounted) {
+            ref.read(attendanceSubmitProvider.notifier).setStatus(SubmitStatus.idle);
             setState(() => _isProcessing = false);
             // Re-init kamera setelah dialog selesai.
             await _initCamera();
@@ -350,6 +356,9 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
         }
 
         // Push face verification screen, tunggu result.
+        // Update status UI (meskipun push screen menimpa layar, berguna saat pop balik sebelum transisi).
+        ref.read(attendanceSubmitProvider.notifier).setStatus(SubmitStatus.verifyingFace);
+
         // FIX BUG-019: dispose kamera back DULU sebelum push ke face
         // verify (yang akan claim front camera). CameraX max 1 kamera
         // open — kalau back camera tidak di-dispose explicit, sistem
@@ -380,6 +389,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
           // user yang cancel sendiri tidak butuh error feedback. Cukup
           // silent re-init kamera supaya user bisa scan ulang. Smooth UX
           // priority over informational notice.
+          ref.read(attendanceSubmitProvider.notifier).setStatus(SubmitStatus.idle);
           setState(() => _isProcessing = false);
           await _initCamera();
           return;
@@ -425,6 +435,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
     }
 
     if (mounted) {
+      ref.read(attendanceSubmitProvider.notifier).setStatus(SubmitStatus.idle);
       setState(() => _isProcessing = false);
       // Re-init kamera setelah error supaya user bisa scan ulang
       // (kalau kamera sudah di-dispose di phase verify push).
@@ -788,6 +799,8 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
   Widget build(BuildContext context) {
     final submitState = ref.watch(attendanceSubmitProvider);
     final isLoading = submitState.status == SubmitStatus.gettingLocation ||
+        submitState.status == SubmitStatus.verifyingQr ||
+        submitState.status == SubmitStatus.verifyingFace ||
         submitState.status == SubmitStatus.submitting;
 
     if (_permissionDenied) {
@@ -804,13 +817,21 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
     // "blink" hitam → langsung preview.
     return Scaffold(
       backgroundColor: Colors.black,
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
-        switchInCurve: Curves.easeOut,
-        switchOutCurve: Curves.easeIn,
-        child: cameraReady
-            ? _buildCameraStack(context, submitState, isLoading)
-            : _buildLoadingScaffold(),
+      body: Stack(
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: cameraReady
+                ? _buildCameraStack(context, submitState)
+                : _buildLoadingScaffold(),
+          ),
+          
+          // === Loading overlay dipindah ke level Scaffold root ===
+          // Memastikan overlay tetap muncul bahkan ketika kamera tidak ready (sedang di-dispose).
+          if (isLoading) _buildLoadingOverlay(submitState),
+        ],
       ),
     );
   }
@@ -818,7 +839,6 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
   Widget _buildCameraStack(
     BuildContext context,
     AttendanceSubmitState submitState,
-    bool isLoading,
   ) {
     // Key memastikan AnimatedSwitcher treat as different child saat
     // controller berubah identity (post re-init).
@@ -850,9 +870,6 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
 
         // === Bottom Instructions ===
         _buildBottomPanel(context, submitState),
-
-        // === Loading overlay ===
-        if (isLoading) _buildLoadingOverlay(submitState),
       ],
     );
   }
@@ -1175,9 +1192,23 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
   }
 
   Widget _buildLoadingOverlay(AttendanceSubmitState state) {
-    final isGps = state.status == SubmitStatus.gettingLocation;
-    final label = isGps ? 'Mengambil lokasi GPS...' : 'Mengirim presensi...';
-    final icon = isGps ? Icons.location_searching : Icons.cloud_upload;
+    final status = state.status;
+    String label = 'Memproses...';
+    IconData icon = Icons.hourglass_empty;
+
+    if (status == SubmitStatus.verifyingQr) {
+      label = 'Memverifikasi QR...';
+      icon = Icons.qr_code_scanner;
+    } else if (status == SubmitStatus.verifyingFace) {
+      label = 'Memverifikasi Wajah...';
+      icon = Icons.face;
+    } else if (status == SubmitStatus.gettingLocation) {
+      label = 'Mengambil lokasi GPS...';
+      icon = Icons.location_searching;
+    } else if (status == SubmitStatus.submitting) {
+      label = 'Mengirim presensi...';
+      icon = Icons.cloud_upload;
+    }
 
     return Positioned.fill(
       child: Container(
