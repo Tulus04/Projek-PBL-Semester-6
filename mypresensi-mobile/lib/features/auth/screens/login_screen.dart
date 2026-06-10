@@ -339,25 +339,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget _buildLogo() {
     return Column(
       children: [
-        // Logo icon
+        // Logo image
         Container(
           width: 72,
           height: 72,
           decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
             ],
           ),
-          child: const Icon(
-            IconsaxPlusBold.finger_scan,
-            color: Colors.white,
-            size: 36,
+          padding: const EdgeInsets.all(8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.asset(
+              'assets/images/trpl_logo.jpg',
+              fit: BoxFit.contain,
+            ),
           ),
         ),
         const SizedBox(height: 16),
