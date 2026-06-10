@@ -128,9 +128,16 @@ class FaceDetectionService {
         height: box.height,
       );
 
-      final faceWidthRatio = box.width / image.width;
-      final faceCenterXRatio = (box.left + box.width / 2) / image.width;
-      final faceCenterYRatio = (box.top + box.height / 2) / image.height;
+      final rotation = _getInputImageRotation(camera);
+      final isPortrait = rotation == InputImageRotation.rotation90deg || 
+                         rotation == InputImageRotation.rotation270deg;
+      
+      final logicalWidth = isPortrait ? image.height.toDouble() : image.width.toDouble();
+      final logicalHeight = isPortrait ? image.width.toDouble() : image.height.toDouble();
+
+      final faceWidthRatio = box.width / logicalWidth;
+      final faceCenterXRatio = (box.left + box.width / 2) / logicalWidth;
+      final faceCenterYRatio = (box.top + box.height / 2) / logicalHeight;
 
       return FaceDetectionResult(
         faceDetected: true,
