@@ -5,6 +5,28 @@
 
 ---
 
+## [2026-06-10] — Sesi: Token Refresh Interceptor & Login Screen UI Revisions
+
+### Target Sesi: Mengatasi bug token expired auto-logout setelah 1 jam dengan membuat endpoint refresh token di backend Next.js, mengimplementasikan silent token refresh interceptor di mobile (Dio), merapikan logo login (full bleed), dan menambahkan fitur Lupa Password.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| — | [ADD] | `mypresensi-web/app/api/mobile/auth/refresh/route.ts` | Membuat Next.js API route untuk merotasi Supabase refresh token dan memvalidasi keaktifan profil siswa. |
+| — | [MOD] | `mypresensi-mobile/lib/core/storage/secure_storage.dart` | Mengembalikan getter `getRefreshToken()` yang sebelumnya didepresiasi untuk silent refresh. |
+| — | [MOD] | `mypresensi-mobile/lib/core/network/dio_client.dart` | Mengimplementasikan `_ErrorInterceptor` baru yang menangkap error 401, melakukan call refresh token asinkron dengan async lock, meng-update token baru, dan mengulangi request asli secara otomatis. |
+| — | [MOD] | `mypresensi-mobile/lib/features/auth/screens/login_screen.dart` | Merapikan layout logo login (full bleed 16px border-radius, tanpa padding putih), menambahkan tombol "Lupa password?", dan dialog petunjuk bantuan admin prodi. |
+
+### Verifikasi
+
+| Check | Result |
+|-------|--------|
+| `flutter analyze` | ✅ 0 issues |
+| `flutter test` | ✅ 54/54 passed (seluruh test suite lulus) |
+| Next.js Type Check | ✅ Success (0 issues) |
+| Git Sync | ✅ Pushed to `main` |
+
+---
+
 ## [2026-06-10] — Sesi: Vercel Deployment & Login Screen Logo Revision
 
 ### Target Sesi: Mendeploy server web Next.js ke Vercel agar dapat diakses 24/7, memperbarui Base URL pada aplikasi mobile, serta mengganti icon logo halaman login mobile dengan Logo TRPL resmi.
