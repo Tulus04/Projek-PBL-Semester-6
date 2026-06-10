@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Map ke flat structure agar mobile lebih mudah konsumsi
-  const result = (requests ?? []).map((r) => {
+  const result = await Promise.all((requests ?? []).map(async (r) => {
     const sessionData = r.session as unknown
     const session = Array.isArray(sessionData) ? sessionData[0] : sessionData
     const safeSession = session as Record<string, unknown> | undefined
@@ -66,11 +66,23 @@ export async function GET(req: NextRequest) {
     const course = Array.isArray(courseData) ? courseData[0] : courseData
     const safeCourse = course as Record<string, unknown> | undefined
 
+    let finalEvidenceUrl = r.evidence_url as string | null
+    if (finalEvidenceUrl && !finalEvidenceUrl.startsWith('http')) {
+      // Bucket private, gunakan signed URL
+      const { data: signedUrlData } = await adminClient.storage
+        .from('leave-evidence')
+        .createSignedUrl(finalEvidenceUrl, 60 * 60) // 1 jam TTL
+      
+      if (signedUrlData) {
+        finalEvidenceUrl = signedUrlData.signedUrl
+      }
+    }
+
     return {
       id: r.id,
       type: r.type,
       reason: r.reason,
-      evidence_url: r.evidence_url,
+      evidence_url: finalEvidenceUrl,
       status: r.status,
       review_note: r.review_note,
       created_at: r.created_at,
@@ -86,7 +98,7 @@ export async function GET(req: NextRequest) {
           }
         : null,
     }
-  })
+  }))
 
   return successResponse({
     requests: result,
