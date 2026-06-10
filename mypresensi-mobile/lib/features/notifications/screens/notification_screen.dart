@@ -343,36 +343,52 @@ class _TabItem extends StatelessWidget {
 }
 
 /// Card item notifikasi — duotone icon + title + body + meta + unread dot.
-class _NotifCard extends ConsumerWidget {
+class _NotifCard extends ConsumerStatefulWidget {
   const _NotifCard({required this.notif});
   final AppNotification notif;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isUnread = !notif.isRead;
-    final (iconColor, iconBg, icon) = _resolveTypeStyle(notif.type);
+  ConsumerState<_NotifCard> createState() => _NotifCardState();
+}
+
+class _NotifCardState extends ConsumerState<_NotifCard> {
+  late bool _isRead;
+
+  @override
+  void initState() {
+    super.initState();
+    _isRead = widget.notif.isRead;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isUnread = !_isRead;
+    final (iconColor, iconBg, icon) = _resolveTypeStyle(widget.notif.type);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
           if (isUnread) {
-            ref.read(notificationRepositoryProvider).markAsRead(notif.id).then((_) {
-              ref.invalidate(notificationProvider);
+            // Optimistic update: langsung matikan titik biru
+            setState(() {
+              _isRead = true;
             });
+            // Jalankan API call di background (fire & forget)
+            ref.read(notificationRepositoryProvider).markAsRead(widget.notif.id);
           }
 
-          if (notif.title.contains('Sesi Presensi Dimulai')) {
+          if (widget.notif.title.contains('Sesi Presensi Dimulai')) {
             _showSessionBottomSheet(context);
             return;
           }
 
-          if (notif.href != null && notif.href!.isNotEmpty) {
-            if (notif.href!.startsWith('/izin?id=')) {
-              final id = notif.href!.split('id=')[1];
+          if (widget.notif.href != null && widget.notif.href!.isNotEmpty) {
+            if (widget.notif.href!.startsWith('/izin?id=')) {
+              final id = widget.notif.href!.split('id=')[1];
               context.push('/leave-request/detail?id=$id');
             } else {
-              context.push(notif.href!);
+              context.push(widget.notif.href!);
             }
           }
         },
@@ -428,7 +444,7 @@ class _NotifCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  notif.title,
+                  widget.notif.title,
                   style: TextStyle(
                     fontFamily: 'Plus Jakarta Sans',
                     fontWeight: isUnread ? FontWeight.w800 : FontWeight.w700,
@@ -441,7 +457,7 @@ class _NotifCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  notif.message,
+                  widget.notif.message,
                   style: const TextStyle(
                     fontSize: 12.5,
                     color: AppColors.textSecondary,
@@ -468,7 +484,7 @@ class _NotifCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: 3),
                       Text(
-                        notif.timeAgo,
+                        widget.notif.timeAgo,
                         style: const TextStyle(
                           fontSize: 10.5,
                           color: AppColors.textTertiary,
@@ -534,7 +550,7 @@ class _NotifCard extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                notif.message,
+                widget.notif.message,
                 style: const TextStyle(
                   fontSize: 14.5,
                   color: AppColors.textSecondary,
