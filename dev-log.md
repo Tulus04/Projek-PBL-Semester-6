@@ -1307,3 +1307,31 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` — verifikasi otomati
 - `flutter analyze` — ✅ 0 issues
 - `flutter test test/features/home/` — ✅ 37/37 tests passed
 
+---
+
+## 2026-06-10 — Sesi: Vercel Deployment & Mobile API Configuration
+
+**Konteks**: Mendeploy Next.js web application ke Vercel agar backend server berjalan secara cloud-native 24/7, serta memperbarui Base URL pada aplikasi mobile (Flutter) agar menunjuk ke alamat server produksi yang baru.
+
+### File yang diubah/dibuat
+
+```
+[MOD] mypresensi-mobile/lib/core/config/app_config.dart
+      Memperbarui default baseUrl untuk mengembalikan URL produksi Vercel ('https://projek-pbl-semester-6.vercel.app')
+      secara default, serta menghapus variabel lokal unused_field '_lanIp'.
+```
+
+### Konfigurasi Vercel Environment Variables
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `GOOGLE_GENERATIVE_AI_API_KEY`
+- `FIREBASE_SERVICE_ACCOUNT`
+
+### Verifikasi
+- Vercel deployment dashboard — ✅ Success (Live di https://projek-pbl-semester-6.vercel.app/login)
+- `flutter analyze` — ✅ 0 issues (bersih dari warning _lanIp)
+- `flutter test` — ✅ 54/54 tests passed (semua unit test di project lulus)
+- Git repository sync — ✅ Pushed to `main` branch
+
+
