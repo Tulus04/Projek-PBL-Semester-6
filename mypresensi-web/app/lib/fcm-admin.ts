@@ -41,9 +41,9 @@ function getMessaging(): admin.messaging.Messaging {
       throw new Error('FIREBASE_SERVICE_ACCOUNT env var tidak di-set')
     }
 
-    let serviceAccount: admin.ServiceAccount
+    let serviceAccount: Record<string, string>
     try {
-      serviceAccount = JSON.parse(raw) as admin.ServiceAccount
+      serviceAccount = JSON.parse(raw) as Record<string, string>
       // Fix for Vercel env vars: replace literal \n with actual newlines
       if (serviceAccount.private_key) {
         serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n')
@@ -53,7 +53,7 @@ function getMessaging(): admin.messaging.Messaging {
     }
 
     admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
+      credential: admin.credential.cert(serviceAccount as unknown as admin.ServiceAccount),
     })
   }
   return admin.messaging()
