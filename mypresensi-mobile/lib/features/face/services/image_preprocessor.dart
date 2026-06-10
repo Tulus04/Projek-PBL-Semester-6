@@ -33,12 +33,12 @@ class ImagePreprocessor {
   ///
   /// Throws [Exception] jika konversi gagal.
   static Float32List preprocessForMobileFaceNet({
-    required CameraImage cameraImage,
+    required IsolateCameraImage cameraImage,
     required FaceBoundingBox boundingBox,
     required int sensorOrientation,
     required bool isFrontCamera,
   }) {
-    // 1. CameraImage → img.Image RGB
+    // 1. IsolateCameraImage → img.Image RGB
     final rgbImage = _cameraImageToRgb(cameraImage);
 
     // 2. Rotate sesuai sensor orientation
@@ -63,11 +63,11 @@ class ImagePreprocessor {
   }
 
   // ============================================================
-  // STEP 1: CameraImage → img.Image RGB
+  // STEP 1: IsolateCameraImage → img.Image RGB
   // ============================================================
 
-  static img.Image _cameraImageToRgb(CameraImage image) {
-    switch (image.format.group) {
+  static img.Image _cameraImageToRgb(IsolateCameraImage image) {
+    switch (image.formatGroup) {
       case ImageFormatGroup.yuv420:
         return _yuv420ToRgb(image);
       case ImageFormatGroup.nv21:
@@ -76,14 +76,14 @@ class ImagePreprocessor {
         return _bgra8888ToRgb(image);
       default:
         throw Exception(
-          'Format kamera ${image.format.group} tidak didukung. '
+          'Format kamera ${image.formatGroup} tidak didukung. '
           'Pakai ImageFormatGroup.nv21 atau .yuv420.',
         );
     }
   }
 
   /// YUV420 (3 plane terpisah) → RGB
-  static img.Image _yuv420ToRgb(CameraImage image) {
+  static img.Image _yuv420ToRgb(IsolateCameraImage image) {
     final width = image.width;
     final height = image.height;
     final yPlane = image.planes[0];
@@ -128,7 +128,7 @@ class ImagePreprocessor {
   ///     MediaTek + ColorOS saat pakai ImageFormatGroup.nv21 di Flutter camera)
   ///
   /// Code di bawah handle keduanya — fallback ke layout (b) kalau planes.length == 1.
-  static img.Image _nv21ToRgb(CameraImage image) {
+  static img.Image _nv21ToRgb(IsolateCameraImage image) {
     final width = image.width;
     final height = image.height;
 
@@ -206,7 +206,7 @@ class ImagePreprocessor {
   }
 
   /// BGRA8888 (iOS) → RGB
-  static img.Image _bgra8888ToRgb(CameraImage image) {
+  static img.Image _bgra8888ToRgb(IsolateCameraImage image) {
     final width = image.width;
     final height = image.height;
     final plane = image.planes[0];
@@ -345,9 +345,64 @@ class FaceBoundingBox {
   String toString() => 'FaceBoundingBox($left, $top, $width x $height)';
 }
 
+/// Data class untuk CameraImage yang aman dikirim ke Isolate.
+class IsolateCameraImage {
+  final int width;
+  final int height;
+  final ImageFormatGroup formatGroup;
+  final List<IsolatePlane> planes;
+
+  IsolateCameraImage({
+    required this.width,
+    required this.height,
+    required this.formatGroup,
+    required this.planes,
+  });
+
+  factory IsolateCameraImage.fromCameraImage(CameraImage image) {
+    return IsolateCameraImage(
+      width: image.width,
+      height: image.height,
+      formatGroup: image.format.group,
+      planes: image.planes.map((p) => IsolatePlane(
+        // Salin byte array supaya aman dipindah antar-Isolate
+        bytes: Uint8List.fromList(p.bytes),
+        bytesPerRow: p.bytesPerRow,
+        bytesPerPixel: p.bytesPerPixel,
+      )).toList(),
+    );
+  }
+}
+
+class IsolatePlane {
+  final Uint8List bytes;
+  final int bytesPerRow;
+  final int? bytesPerPixel;
+
+  IsolatePlane({
+    required this.bytes,
+    required this.bytesPerRow,
+    this.bytesPerPixel,
+  });
+}
+
+class PreprocessMessage {
+  final IsolateCameraImage cameraImage;
+  final FaceBoundingBox boundingBox;
+  final int sensorOrientation;
+  final bool isFrontCamera;
+
+  PreprocessMessage({
+    required this.cameraImage,
+    required this.boundingBox,
+    required this.sensorOrientation,
+    required this.isFrontCamera,
+  });
+}
+
 /// Wrapper buat dipakai dari luar (test-friendly).
 class FacePreprocessor {
-  /// Lihat docstring `ImagePreprocessor.preprocessForMobileFaceNet`.
+  /// Versi sinkronus (di-keep untuk compatibilitas/test).
   static Float32List run({
     required CameraImage cameraImage,
     required FaceBoundingBox boundingBox,
@@ -355,8 +410,9 @@ class FacePreprocessor {
     required bool isFrontCamera,
   }) {
     try {
+      final isolateImage = IsolateCameraImage.fromCameraImage(cameraImage);
       return ImagePreprocessor.preprocessForMobileFaceNet(
-        cameraImage: cameraImage,
+        cameraImage: isolateImage,
         boundingBox: boundingBox,
         sensorOrientation: sensorOrientation,
         isFrontCamera: isFrontCamera,
@@ -365,5 +421,33 @@ class FacePreprocessor {
       debugPrint('[PREPROCESS] Error: $e\n$st');
       rethrow;
     }
+  }
+
+  /// Jalankan image preprocessing di background Isolate via `compute`
+  /// supaya UI tidak freeze (jank) saat mengekstrak pixel dari CameraImage.
+  static Future<Float32List> runAsync({
+    required CameraImage cameraImage,
+    required FaceBoundingBox boundingBox,
+    required int sensorOrientation,
+    required bool isFrontCamera,
+  }) async {
+    final isolateImage = IsolateCameraImage.fromCameraImage(cameraImage);
+    final msg = PreprocessMessage(
+      cameraImage: isolateImage,
+      boundingBox: boundingBox,
+      sensorOrientation: sensorOrientation,
+      isFrontCamera: isFrontCamera,
+    );
+
+    return compute(_preprocessInIsolate, msg);
+  }
+
+  static Float32List _preprocessInIsolate(PreprocessMessage msg) {
+    return ImagePreprocessor.preprocessForMobileFaceNet(
+      cameraImage: msg.cameraImage,
+      boundingBox: msg.boundingBox,
+      sensorOrientation: msg.sensorOrientation,
+      isFrontCamera: msg.isFrontCamera,
+    );
   }
 }

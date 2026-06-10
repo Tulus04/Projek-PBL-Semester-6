@@ -96,7 +96,7 @@ class FaceEmbeddingService {
 
     try {
       // 1. Preprocess
-      final input = FacePreprocessor.run(
+      final input = await FacePreprocessor.runAsync(
         cameraImage: cameraImage,
         boundingBox: boundingBox,
         sensorOrientation: sensorOrientation,
