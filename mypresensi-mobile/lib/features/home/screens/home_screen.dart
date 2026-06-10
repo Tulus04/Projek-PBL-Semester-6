@@ -1020,9 +1020,9 @@ class _AiChatFab extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: const Icon(
-            IconsaxPlusBold.magic_star,
+            Icons.smart_toy_rounded,
             color: Colors.white,
-            size: 24,
+            size: 26,
           ),
         ),
       ),

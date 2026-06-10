@@ -76,10 +76,10 @@ class AppColors {
     colors: [Color(0xFF2D86FF), Color(0xFF1E70E0), Color(0xFF0D2C5E)],
   );
 
-  // aiGradient: ungu/indigo khas fitur AI modern
+  // aiGradient: profesional biru ke cyan (menyatu dengan tema)
   static const LinearGradient aiGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)], // Violet -> Indigo
+    colors: [Color(0xFF00B4D8), Color(0xFF0D2C5E)], // Cyan -> Navy
   );
 }
