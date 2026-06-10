@@ -143,8 +143,8 @@ export async function approveLeaveRequest(requestId: string, reviewNote?: string
         type: 'leave_status',
         relatedId: requestId,
       })
-    } catch (e: any) {
-      console.error('[FCM] Failed to send push on leave approve:', e.message)
+    } catch (e) {
+      console.error('[FCM] Failed to send push on leave approve:', (e as Error).message)
     }
   }
 
@@ -184,7 +184,7 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
 
   // Kirim notifikasi ke mahasiswa
   if (request?.student_id) {
-    const req = request as any
+    const req = request as unknown as { session?: { course?: { name?: string } } }
     const courseName = req.session?.course?.name ?? 'Mata Kuliah'
     await createNotification({
       userId: request.student_id,
@@ -205,8 +205,8 @@ export async function rejectLeaveRequest(requestId: string, reviewNote?: string)
         type: 'leave_status',
         relatedId: requestId,
       })
-    } catch (e: any) {
-      console.error('[FCM] Failed to send push on leave reject:', e.message)
+    } catch (e) {
+      console.error('[FCM] Failed to send push on leave reject:', (e as Error).message)
     }
   }
 

@@ -324,8 +324,8 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
         })
         router.refresh()
       }
-    } catch (err: any) {
-      swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', text: err.message || 'Gagal menghubungi server.' })
+    } catch (err) {
+      swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', text: (err as Error).message || 'Gagal menghubungi server.' })
     } finally {
       setActionLoading(null)
     }

@@ -304,8 +304,8 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
               relatedId: sessionId,
             },
           )
-        } catch (e: any) {
-          console.error('[FCM] Failed to send push on session start:', e.message)
+        } catch (e) {
+          console.error('[FCM] Failed to send push on session start:', (e as Error).message)
         }
       }
     }
