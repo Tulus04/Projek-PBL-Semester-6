@@ -537,7 +537,7 @@ class _FaceRegistrationScreenState
           // Overlay Error / Success Buttons
           if (regState.status == RegistrationStatus.success || regState.status == RegistrationStatus.error || regState.status == RegistrationStatus.uploading)
             Positioned(
-              bottom: 40,
+              bottom: MediaQuery.paddingOf(context).bottom + 40,
               left: 24,
               right: 24,
               child: _buildResultPanel(regState),
