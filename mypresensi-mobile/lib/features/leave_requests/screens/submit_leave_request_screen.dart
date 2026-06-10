@@ -597,7 +597,7 @@ class _SubmitLeaveRequestScreenState
   String _footerLabel(WizardStep step) {
     switch (step) {
       case WizardStep.pickSession:
-        return 'Lanjut ke Kategori';
+        return 'Lanjut ke Keterangan';
       case WizardStep.typeAndReason:
         return 'Lanjut ke Lampiran';
       case WizardStep.evidence:
@@ -629,7 +629,7 @@ class _StepBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const labels = ['Sesi', 'Kategori', 'Bukti', 'Review'];
+    const labels = ['Sesi', 'Keterangan', 'Bukti', 'Review'];
     final steps = WizardStep.values;
     final currentIndex = currentStep.index;
 
@@ -1435,7 +1435,7 @@ class _StepTypeAndReason extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 8, 18, 16),
       children: [
         const Text(
-          'Kategori & Alasan',
+          'Keterangan & Alasan',
           style: TextStyle(
             fontFamily: 'Plus Jakarta Sans',
             fontWeight: FontWeight.w800,
@@ -1446,7 +1446,7 @@ class _StepTypeAndReason extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Text(
-          'Pilih kategori pengajuan dan tuliskan alasan ketidakhadiran Anda.',
+          'Pilih keterangan absensi dan tuliskan alasannya.',
           style: TextStyle(
             fontSize: 12.5,
             color: AppColors.textSecondary,
@@ -1458,7 +1458,7 @@ class _StepTypeAndReason extends StatelessWidget {
         _SelectedSessionBadge(session: session),
         const SizedBox(height: 20),
 
-        const _FieldLabel('Kategori'),
+        const _FieldLabel('Keterangan'),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -1498,7 +1498,7 @@ class _StepTypeAndReason extends StatelessWidget {
           ),
           decoration: InputDecoration(
             hintText:
-                'Tuliskan alasan ketidakhadiran Anda di sini...',
+                'Tuliskan alasan Anda di sini...',
             hintStyle: const TextStyle(
               fontSize: 13,
               color: AppColors.textTertiary,
@@ -1896,7 +1896,7 @@ class _StepReview extends StatelessWidget {
                 icon: type == LeaveType.sakit
                     ? IconsaxPlusBold.health
                     : IconsaxPlusBold.note_2,
-                label: 'KATEGORI',
+                label: 'KETERANGAN',
                 value: type.label,
               ),
               _ReviewRow(
