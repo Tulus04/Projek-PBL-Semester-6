@@ -1334,4 +1334,24 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` — verifikasi otomati
 - `flutter test` — ✅ 54/54 tests passed (semua unit test di project lulus)
 - Git repository sync — ✅ Pushed to `main` branch
 
+---
+
+## 2026-06-10 — Sesi: Login Screen Logo Revision (Mobile)
+
+**Konteks**: Mengubah visual logo pada bagian atas halaman login aplikasi mobile (mahasiswa) dari yang sebelumnya menggunakan icon `finger_scan` menjadi gambar Logo resmi TRPL (`assets/images/trpl_logo.jpg`) untuk menyelaraskan identitas instansi.
+
+### File yang diubah/dibuat
+
+```
+[MOD] mypresensi-mobile/lib/features/auth/screens/login_screen.dart
+      Mengganti Container icon finger_scan dengan ClipRRect image assets/images/trpl_logo.jpg
+      pada method _buildLogo().
+```
+
+### Verifikasi
+- `flutter analyze` — ✅ 0 issues
+- `flutter test` — ✅ 54/54 tests passed
+- Git repository sync — ✅ Pushed to `main` branch
+
+
 
