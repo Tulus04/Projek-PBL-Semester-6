@@ -69,7 +69,7 @@ class AttendanceRepository {
         },
       );
       final data = response.data as Map<String, dynamic>;
-      final qrToken = data['data']['qr_token'] as String;
+      final qrToken = data['qr_token'] as String;
       
       debugPrint('[ATTENDANCE] QR verified, token: $qrToken');
       return qrToken;
