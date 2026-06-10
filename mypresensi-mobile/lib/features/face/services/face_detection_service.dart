@@ -26,6 +26,8 @@ class FaceDetectionResult {
   final double? headAngleY; // Yaw (kiri-kanan)
   final double? headAngleZ; // Roll
   final double? faceWidthRatio; // Rasio lebar wajah vs lebar frame (0.0-1.0)
+  final double? faceCenterXRatio; // Rasio posisi X tengah wajah
+  final double? faceCenterYRatio; // Rasio posisi Y tengah wajah
   final String? errorMessage;
 
   const FaceDetectionResult({
@@ -37,6 +39,8 @@ class FaceDetectionResult {
     this.headAngleY,
     this.headAngleZ,
     this.faceWidthRatio,
+    this.faceCenterXRatio,
+    this.faceCenterYRatio,
     this.errorMessage,
   });
 }
@@ -125,6 +129,8 @@ class FaceDetectionService {
       );
 
       final faceWidthRatio = box.width / image.width;
+      final faceCenterXRatio = (box.left + box.width / 2) / image.width;
+      final faceCenterYRatio = (box.top + box.height / 2) / image.height;
 
       return FaceDetectionResult(
         faceDetected: true,
@@ -134,6 +140,8 @@ class FaceDetectionService {
         headAngleY: face.headEulerAngleY,
         headAngleZ: face.headEulerAngleZ,
         faceWidthRatio: faceWidthRatio,
+        faceCenterXRatio: faceCenterXRatio,
+        faceCenterYRatio: faceCenterYRatio,
       );
     } catch (e) {
       debugPrint('[FACE DETECT] Process error: $e');

@@ -133,6 +133,15 @@ class _FaceVerificationScreenState
 
       if (_remainingSeconds <= 0) {
         timer.cancel();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Wajah gagal dideteksi, waktu habis.'),
+              backgroundColor: AppColors.danger,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
         _disposeAndPop();
       }
     });

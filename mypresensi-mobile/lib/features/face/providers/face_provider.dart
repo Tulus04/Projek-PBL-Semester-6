@@ -384,6 +384,14 @@ class FaceRegistrationNotifier extends Notifier<FaceRegistrationState> {
       );
     }
 
+    // Pengecekan posisi wajah (harus berada di dalam area oval frame)
+    final cx = result.faceCenterXRatio ?? 0.5;
+    final cy = result.faceCenterYRatio ?? 0.5;
+    if (cx < 0.3 || cx > 0.7 || cy < 0.3 || cy > 0.7) {
+      state = state.copyWith(errorMessage: 'Posisikan wajah di dalam oval');
+      return;
+    }
+
     // Hindari overlap inference (TFLite tidak thread-safe untuk single instance)
     if (_isExtractingEmbedding) return;
     _isExtractingEmbedding = true;
@@ -731,6 +739,18 @@ class FaceVerificationNotifier extends Notifier<FaceVerificationState> {
       state = state.copyWith(
         status: VerificationStatus.verifying,
         errorMessage: 'Dekatkan wajah',
+      );
+      return;
+    }
+
+    // Pengecekan posisi wajah (harus berada di dalam area oval frame)
+    // Asumsi pusat layar adalah 0.5. Kita izinkan deviasi +/- 0.2 (0.3 - 0.7)
+    final cx = result.faceCenterXRatio ?? 0.5;
+    final cy = result.faceCenterYRatio ?? 0.5;
+    if (cx < 0.3 || cx > 0.7 || cy < 0.3 || cy > 0.7) {
+      state = state.copyWith(
+        status: VerificationStatus.verifying,
+        errorMessage: 'Posisikan wajah di dalam oval',
       );
       return;
     }
