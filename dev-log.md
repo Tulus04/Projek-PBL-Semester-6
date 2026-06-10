@@ -1353,5 +1353,35 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` — verifikasi otomati
 - `flutter test` — ✅ 54/54 tests passed
 - Git repository sync — ✅ Pushed to `main` branch
 
+---
+
+## 2026-06-10 — Sesi: Token Refresh Interceptor & Login Screen UI Revisions
+
+**Konteks**: Mengatasi bug auto-logout tiba-tiba saat membuka aplikasi (token JWT Supabase kedaluwarsa setelah 1 jam) dengan mengimplementasikan mekanisme Silent Token Refresh berbasis refresh token di client-side. Serta merevisi logo login (full-bleed square tanpa margin putih) dan menambahkan fitur dialog Lupa Password.
+
+### File yang diubah/dibuat
+
+```
+[ADD] mypresensi-web/app/api/mobile/auth/refresh/route.ts
+      Membuat endpoint API refresh token untuk memvalidasi refresh_token via Supabase Auth.
+[MOD] mypresensi-mobile/lib/core/storage/secure_storage.dart
+      Mengembalikan getter getRefreshToken() yang sebelumnya didepresiasi.
+[MOD] mypresensi-mobile/lib/core/network/dio_client.dart
+      Mengubah _ErrorInterceptor untuk mendeteksi error 401 (unauthorized), memicu refresh token secara asinkron dengan async lock, mengupdate Authorization header, dan me-retry request asli secara transparan.
+[MOD] mypresensi-mobile/lib/features/auth/screens/login_screen.dart
+      - Mengubah ClipRRect pada logo agar menutupi container 72x72 secara penuh (fit: BoxFit.cover, tanpa padding/margin putih).
+      - Menambahkan tombol "Lupa password?" di bawah kolom password.
+      - Menambahkan dialog _showForgotPasswordDialog yang mengarahkan user menghubungi Admin Prodi.
+[MOD] .kiro/settings/mcp.json
+      Menambahkan project_ref dan placeholder token (tanpa secret riil untuk mencegah git push protection failure).
+```
+
+### Verifikasi
+- `flutter analyze` — ✅ 0 issues
+- `flutter test` — ✅ 54/54 tests passed
+- Next.js Type Check — ✅ Success (0 issues)
+- Git repository sync — ✅ Pushed to `main` branch
+
+
 
 
