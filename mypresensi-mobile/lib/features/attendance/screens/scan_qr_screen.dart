@@ -58,6 +58,12 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
   /// Flag siap render `CameraPreview` — false saat init / re-init.
   bool _isCameraReady = false;
 
+  /// Zoom State
+  double _minZoom = 1.0;
+  double _maxZoom = 1.0;
+  double _currentZoom = 1.0;
+  double _baseZoom = 1.0; // untuk kalkulasi pinch-to-zoom
+
   /// Status flash back camera. Plain `setState` (tidak pakai
   /// `ValueListenableBuilder` seperti `mobile_scanner` lama).
   bool _isTorchOn = false;
@@ -228,6 +234,16 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
       return;
     }
 
+    // Ambil batas level zoom device
+    try {
+      _minZoom = await _cameraController!.getMinZoomLevel();
+      _maxZoom = await _cameraController!.getMaxZoomLevel();
+      _currentZoom = _minZoom;
+      _baseZoom = _minZoom;
+    } catch (e) {
+      debugPrint('[SCAN QR] Failed to get zoom levels: $e');
+    }
+
     // 4. Init ML Kit barcode scanner (idempotent).
     _qrDecoder.initialize();
 
@@ -240,6 +256,24 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
     }
 
     setState(() => _isCameraReady = true);
+  }
+
+  /// Helper untuk menyetel level zoom (slider maupun pinch)
+  void _setZoom(double zoom) {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
+    final clampedZoom = zoom.clamp(_minZoom, _maxZoom);
+    setState(() {
+      _currentZoom = clampedZoom;
+    });
+    _cameraController!.setZoomLevel(clampedZoom);
+  }
+
+  void _handleScaleStart(ScaleStartDetails details) {
+    _baseZoom = _currentZoom;
+  }
+
+  void _handleScaleUpdate(ScaleUpdateDetails details) {
+    _setZoom(_baseZoom * details.scale);
   }
 
   /// Callback per frame — decode QR via ML Kit, parse, submit.
@@ -855,7 +889,11 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
                 child: SizedBox(
                   width: _cameraController!.value.previewSize?.height ?? 1,
                   height: _cameraController!.value.previewSize?.width ?? 1,
-                  child: CameraPreview(_cameraController!),
+                  child: GestureDetector(
+                    onScaleStart: _handleScaleStart,
+                    onScaleUpdate: _handleScaleUpdate,
+                    child: CameraPreview(_cameraController!),
+                  ),
                 ),
               ),
             ),
@@ -868,7 +906,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
         // === Top Bar ===
         _buildTopBar(context),
 
-        // === Bottom Instructions ===
+        // === Bottom Instructions & Slider Zoom ===
         _buildBottomPanel(context, submitState),
       ],
     );
@@ -1161,6 +1199,35 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Zoom Slider
+              if (_maxZoom > _minZoom) ...[
+                Row(
+                  children: [
+                    Icon(Icons.zoom_out, color: AppColors.textTertiary, size: 20),
+                    Expanded(
+                      child: SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: AppColors.primary,
+                          inactiveTrackColor: AppColors.surfaceSunken,
+                          thumbColor: AppColors.primary,
+                          overlayColor: AppColors.primary.withValues(alpha: 0.1),
+                          trackHeight: 4.0,
+                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
+                          overlayShape: const RoundSliderOverlayShape(overlayRadius: 16.0),
+                        ),
+                        child: Slider(
+                          value: _currentZoom,
+                          min: _minZoom,
+                          max: _maxZoom,
+                          onChanged: _setZoom,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.zoom_in, color: AppColors.textTertiary, size: 20),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
               const Icon(
                 Icons.qr_code_2,
                 size: 32,

@@ -1990,6 +1990,7 @@ User awal request "rolling 5 detik". Saya implement 30 detik (rekomendasi A3) ta
 - Added offline fallback for eligible sessions provider to prevent infinite skeleton loading when backend is unreachable.
 
 ### UX Improvements (QR & State Sync)
+- **Camera Zoom Controls**: Added pinch-to-zoom and a hardware zoom slider to the QR scanner screen, allowing students to easily scan distant QR codes projected in large classrooms.
 - **Camera Resolution Increased**: Changed `ResolutionPreset.medium` to `ResolutionPreset.veryHigh` in `scan_qr_screen.dart` to fix slow QR code detection. The scanner now instantly detects codes displayed far away on projectors.
 - **Consistent Validation Overlay**: Lifted `_buildLoadingOverlay` to the root `Scaffold` in `scan_qr_screen.dart` and added a `verifyingQr` state. This eliminates the "frozen camera" delay during API verification and prevents the default black screen spinner from showing after `FaceVerification` when the camera is disposed.
 - **Active Session State Sync**: Added `ref.invalidate(activeSessionsProvider)` to the "Kembali ke Beranda" button in `attendance_result_screen.dart` to clear the cached active session immediately after successful attendance.
