@@ -5,6 +5,28 @@
 
 ---
 
+## [2026-06-10] — Sesi: Vercel Deployment & Login Screen Logo Revision
+
+### Target Sesi: Mendeploy server web Next.js ke Vercel agar dapat diakses 24/7, memperbarui Base URL pada aplikasi mobile, serta mengganti icon logo halaman login mobile dengan Logo TRPL resmi.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| — | [CFG] | `mypresensi-mobile/lib/core/config/app_config.dart` | Memperbarui default `baseUrl` ke URL produksi Vercel ('https://projek-pbl-semester-6.vercel.app') dan menghapus variabel unused `_lanIp`. |
+| — | [MOD] | `mypresensi-mobile/lib/features/auth/screens/login_screen.dart` | Mengganti icon `finger_scan` lama pada logo bagian atas halaman login dengan gambar logo resmi TRPL (`assets/images/trpl_logo.jpg`) ber-container putih dan bayangan lembut. |
+| — | [CFG] | `.kiro/settings/mcp.json` | Menambahkan Project Ref dan authorization token Bearer untuk Supabase MCP server. |
+| — | [CFG] | `c:/Users/arzit/.gemini/antigravity/mcp_config.json` | Menyelaraskan konfigurasi Supabase MCP server di config global agent. |
+
+### Verifikasi
+
+| Check | Result |
+|-------|--------|
+| `flutter analyze` | ✅ 0 issues |
+| `flutter test` | ✅ 54/54 passed (seluruh test suite lulus) |
+| Vercel Deployment | ✅ Success (Live) |
+| Git Sync | ✅ Pushed to `main` |
+
+---
+
 ## [2026-06-10] — Sesi: Home Calendar Redesign
 
 ### Target Sesi: Redesign Beranda mobile mahasiswa dengan format kalender riwayat (week strip + agenda per hari) dan donut chart statistik kehadiran, menggantikan linear Activity Feed dan Today Summary card.
