@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/face_provider.dart';
+import '../widgets/face_camera_overlay.dart';
 
 class FaceRegistrationScreen extends ConsumerStatefulWidget {
   const FaceRegistrationScreen({super.key});
@@ -337,291 +338,162 @@ class _FaceRegistrationScreenState
   Widget build(BuildContext context) {
     final regState = ref.watch(faceRegistrationProvider);
 
-    // Auto-upload saat fase finalizing dimulai (semua liveness selesai)
+    // Auto-upload saat fase finalizing dimulai
     ref.listen<FaceRegistrationState>(faceRegistrationProvider, (prev, next) {
       if (prev?.status != RegistrationStatus.finalizing &&
           next.status == RegistrationStatus.finalizing) {
-        // Stop camera stream dulu (tidak butuh frame lagi).
-        // Guard sama: cek isStreamingImages dulu — kalau race sudah
-        // berhenti di tempat lain, JANGAN call stop lagi.
         final controller = _cameraController;
         if (controller != null && controller.value.isStreamingImages) {
           controller.stopImageStream();
         }
-        // Trigger upload — provider yang average + L2 normalize + POST
         ref.read(faceRegistrationProvider.notifier).uploadEmbedding();
       }
     });
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: const Text('Registrasi Wajah'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => _disposeAndPop(),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Camera preview
-          Expanded(
-            flex: 3,
-            child: _buildCameraPreview(regState),
-          ),
-
-          // Bottom panel
-          Expanded(
-            flex: 1,
-            child: _buildBottomPanel(context, regState),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCameraPreview(FaceRegistrationState regState) {
     if (!_isCameraInitialized || _cameraController == null) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: Colors.white),
-            SizedBox(height: 16),
-            Text(
-              'Menyiapkan kamera...',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-          ],
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
         ),
       );
     }
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // Camera feed
-        ClipRect(
-          child: OverflowBox(
-            alignment: Alignment.center,
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: SizedBox(
-                width: _cameraController!.value.previewSize?.height ?? 0,
-                height: _cameraController!.value.previewSize?.width ?? 0,
-                child: CameraPreview(_cameraController!),
-              ),
-            ),
+    // Kalkulasi Progress (0.0 - 1.0)
+    double progress = 0.0;
+    String? progressLabel;
+    
+    if (regState.status == RegistrationStatus.capturingPose) {
+      progress = (regState.embeddingsCollected / 7.0) * 0.4;
+      progressLabel = 'Sampel ${regState.embeddingsCollected} dari 7';
+    } else if (regState.status == RegistrationStatus.livenessCheck) {
+      // livenessStepsCompleted start from 1 (after lookStraight)
+      int currentLiveness = (regState.livenessStepsCompleted - 1).clamp(0, 3);
+      progress = 0.4 + (currentLiveness / 3.0) * 0.6;
+      progressLabel = 'Verifikasi ${currentLiveness + 1} dari 3';
+    } else if (regState.status == RegistrationStatus.finalizing ||
+               regState.status == RegistrationStatus.uploading ||
+               regState.status == RegistrationStatus.success) {
+      progress = 1.0;
+    }
+
+    Color progressColor = AppColors.primary;
+    if (regState.status == RegistrationStatus.success) {
+      progressColor = AppColors.success;
+    } else if (regState.status == RegistrationStatus.error) {
+      progressColor = AppColors.danger;
+    } else if (regState.errorMessage != null && regState.status != RegistrationStatus.uploading) {
+      progressColor = AppColors.warning;
+    }
+
+    // Tentukan Hint Utama
+    String hintLabel = 'Posisikan Wajah';
+    if (regState.status == RegistrationStatus.success) {
+      hintLabel = 'Berhasil';
+    } else if (regState.status == RegistrationStatus.error) {
+      hintLabel = 'Gagal';
+    } else if (regState.status == RegistrationStatus.uploading || regState.status == RegistrationStatus.finalizing) {
+      hintLabel = 'Memproses';
+    } else if (regState.status == RegistrationStatus.livenessCheck) {
+      hintLabel = 'Ikuti Instruksi';
+    } else if (regState.status == RegistrationStatus.capturingPose) {
+      hintLabel = 'Tahan Posisi';
+    }
+
+    // Widget kamera
+    final cameraWidget = ClipRect(
+      child: OverflowBox(
+        alignment: Alignment.center,
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: _cameraController!.value.previewSize?.height ?? 0,
+            height: _cameraController!.value.previewSize?.width ?? 0,
+            child: CameraPreview(_cameraController!),
           ),
         ),
-
-        // Oval guide overlay
-        _buildOvalOverlay(regState),
-
-        // Instruksi di atas
-        Positioned(
-          top: 20,
-          left: 20,
-          right: 20,
-          child: _buildInstructionBanner(regState),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOvalOverlay(FaceRegistrationState regState) {
-    Color borderColor;
-    switch (regState.status) {
-      case RegistrationStatus.success:
-        borderColor = AppColors.success;
-        break;
-      case RegistrationStatus.livenessCheck:
-        borderColor = AppColors.primary;
-        break;
-      case RegistrationStatus.error:
-        borderColor = AppColors.danger;
-        break;
-      default:
-        borderColor = Colors.white54;
-    }
-
-    return Container(
-      width: 250,
-      height: 330,
-      decoration: BoxDecoration(
-        border: Border.all(color: borderColor, width: 3),
-        borderRadius: BorderRadius.circular(125),
       ),
     );
-  }
 
-  Widget _buildInstructionBanner(FaceRegistrationState regState) {
-    String text;
-    Color bgColor;
-
-    // Pakai instruksi terpusat dari state — sudah handle semua case.
-    text = regState.livenessInstruction;
-    switch (regState.status) {
-      case RegistrationStatus.detecting:
-        bgColor = regState.errorMessage != null
-            ? AppColors.warning.withAlpha(200)
-            : Colors.black54;
-        break;
-      case RegistrationStatus.capturingPose:
-        bgColor = AppColors.success.withAlpha(200);
-        break;
-      case RegistrationStatus.livenessCheck:
-        bgColor = AppColors.primary.withAlpha(200);
-        break;
-      case RegistrationStatus.finalizing:
-      case RegistrationStatus.uploading:
-        bgColor = AppColors.warning.withAlpha(200);
-        break;
-      case RegistrationStatus.success:
-        bgColor = AppColors.success.withAlpha(200);
-        break;
-      case RegistrationStatus.error:
-        bgColor = AppColors.danger.withAlpha(200);
-        break;
-      default:
-        bgColor = Colors.black54;
-    }
-
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
-      transitionBuilder: (child, animation) {
-        return FadeTransition(opacity: animation, child: child);
-      },
-      child: AnimatedContainer(
-        key: ValueKey<String>(text),
-        duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            if (regState.livenessHint != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                regState.livenessHint!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.85),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomPanel(BuildContext context, FaceRegistrationState regState) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      color: Colors.black,
-      child: Column(
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
         children: [
-          // Liveness progress indicator
-          if (regState.status == RegistrationStatus.livenessCheck ||
-              regState.status == RegistrationStatus.detecting)
-            _buildLivenessProgress(regState),
-
-          const Spacer(),
-
-          // Bottom buttons
-          if (regState.status == RegistrationStatus.success)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => _disposeAndPop(true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.success,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Selesai',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-
-          if (regState.status == RegistrationStatus.error)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  ref.read(faceRegistrationProvider.notifier).reset();
-                  ref.read(faceRegistrationProvider.notifier).startRegistration();
-                  _cameraController?.startImageStream(_onCameraFrame);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Coba Lagi',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-
-          if (regState.status == RegistrationStatus.uploading)
-            const Center(
-              child: CircularProgressIndicator(color: Colors.white),
+          FaceCameraOverlay(
+            title: 'Daftar Wajah',
+            onBack: () => _disposeAndPop(),
+            cameraPreview: cameraWidget,
+            progress: progress,
+            progressColor: progressColor,
+            progressLabel: progressLabel,
+            hintLabel: hintLabel,
+            hintSub: regState.livenessInstruction,
+            showAccessoriesWarning: regState.status == RegistrationStatus.detecting,
+          ),
+          
+          // Overlay Error / Success Buttons
+          if (regState.status == RegistrationStatus.success || regState.status == RegistrationStatus.error || regState.status == RegistrationStatus.uploading)
+            Positioned(
+              bottom: 40,
+              left: 24,
+              right: 24,
+              child: _buildResultPanel(regState),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildLivenessProgress(FaceRegistrationState regState) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(4, (index) {
-        final isCompleted = index < regState.livenessStepsCompleted;
-        final isCurrent = index == regState.livenessStepsCompleted;
-
-        return Container(
-          width: 60,
-          height: 6,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            color: isCompleted
-                ? AppColors.success
-                : isCurrent
-                    ? AppColors.primary
-                    : Colors.white24,
-            borderRadius: BorderRadius.circular(3),
+  Widget _buildResultPanel(FaceRegistrationState regState) {
+    if (regState.status == RegistrationStatus.uploading) {
+      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+    }
+    
+    if (regState.status == RegistrationStatus.success) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () => _disposeAndPop(true),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.success,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-        );
-      }),
-    );
+          child: const Text(
+            'Selesai',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+        ),
+      );
+    }
+    
+    if (regState.status == RegistrationStatus.error) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            ref.read(faceRegistrationProvider.notifier).reset();
+            ref.read(faceRegistrationProvider.notifier).startRegistration();
+            _cameraController?.startImageStream(_onCameraFrame);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text(
+            'Coba Lagi',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 }
