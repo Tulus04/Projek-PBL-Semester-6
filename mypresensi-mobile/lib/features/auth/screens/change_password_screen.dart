@@ -1,7 +1,6 @@
 // lib/features/auth/screens/change_password_screen.dart
-// Halaman force change password — ditampilkan saat mahasiswa login pertama kali.
+// Halaman ganti kata sandi — ditampilkan saat force-change atau via profil.
 // Validasi real-time: min 8 karakter, huruf kapital, angka.
-// Setelah berhasil ganti, redirect otomatis ke home via auth state.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,7 +80,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
 
       if (!success) {
         setState(() {
-          _errorMessage = 'Gagal mengubah password. Silakan coba lagi.';
+          _errorMessage = 'Gagal mengubah kata sandi. Silakan coba lagi.';
         });
       }
       // Jika success, GoRouter akan auto-redirect ke home karena
@@ -158,7 +157,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Silakan ubah password Anda sebelum melanjutkan.',
+                            'Silakan ubah kata sandi Anda untuk melanjutkan.',
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
@@ -183,7 +182,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'Ini adalah login pertama Anda. Password baru harus memenuhi syarat keamanan di bawah.',
+                                    'Kata sandi baru harus memenuhi kriteria keamanan sistem.',
                                     style: TextStyle(
                                         fontSize: 12, color: AppColors.info),
                                   ),
@@ -226,7 +225,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                           ],
 
                           // New Password
-                          _buildLabel('Password Baru'),
+                          _buildLabel('Kata Sandi Baru'),
                           const SizedBox(height: 6),
                           TextFormField(
                             controller: _newPasswordController,
@@ -239,7 +238,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             autofillHints: const [AutofillHints.newPassword],
                             onChanged: (_) => setState(() {}),
                             decoration: InputDecoration(
-                              hintText: 'Masukkan password baru',
+                              hintText: 'Masukkan kata sandi baru',
                               prefixIcon:
                                   const Icon(Icons.lock_outline, size: 20),
                               suffixIcon: IconButton(
@@ -256,33 +255,31 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Password baru tidak boleh kosong';
+                                return 'Kata sandi baru tidak boleh kosong';
                               }
                               if (value.length < 8) {
-                                return 'Password minimal 8 karakter';
+                                return 'Kata sandi minimal 8 karakter';
                               }
                               return null;
                             },
                           ),
 
-                          // Strength indicators
-                          if (_newPasswordController.text.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            _buildStrengthItem(_hasMinLength, 'Minimal 8 karakter'),
-                            const SizedBox(height: 4),
-                            _buildStrengthItem(
-                                _hasUppercase, 'Mengandung huruf kapital (A-Z)'),
-                            const SizedBox(height: 4),
-                            _buildStrengthItem(
-                                _hasLowercase, 'Mengandung huruf kecil (a-z)'),
-                            const SizedBox(height: 4),
-                            _buildStrengthItem(
-                                _hasNumber, 'Mengandung angka (0-9)'),
-                          ],
+                          // Strength indicators selalu tampil agar user tahu syaratnya
+                          const SizedBox(height: 12),
+                          _buildStrengthItem(_hasMinLength, 'Minimal 8 karakter'),
+                          const SizedBox(height: 4),
+                          _buildStrengthItem(
+                              _hasUppercase, 'Mengandung huruf besar (A-Z)'),
+                          const SizedBox(height: 4),
+                          _buildStrengthItem(
+                              _hasLowercase, 'Mengandung huruf kecil (a-z)'),
+                          const SizedBox(height: 4),
+                          _buildStrengthItem(
+                              _hasNumber, 'Mengandung angka (0-9)'),
                           const SizedBox(height: 18),
 
                           // Confirm Password
-                          _buildLabel('Konfirmasi Password'),
+                          _buildLabel('Konfirmasi Kata Sandi'),
                           const SizedBox(height: 6),
                           TextFormField(
                             controller: _confirmPasswordController,
@@ -295,7 +292,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             autofillHints: const [AutofillHints.newPassword],
                             onFieldSubmitted: (_) => _handleSubmit(),
                             decoration: InputDecoration(
-                              hintText: 'Ketik ulang password baru',
+                              hintText: 'Ketik ulang kata sandi baru',
                               prefixIcon:
                                   const Icon(Icons.lock_outline, size: 20),
                               suffixIcon: IconButton(
@@ -312,10 +309,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Konfirmasi password tidak boleh kosong';
+                                return 'Konfirmasi kata sandi tidak boleh kosong';
                               }
                               if (value != _newPasswordController.text) {
-                                return 'Password tidak cocok';
+                                return 'Kata sandi tidak cocok';
                               }
                               return null;
                             },
@@ -346,7 +343,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
                                         SizedBox(width: 8),
                                         Flexible(
                                           child: Text(
-                                            'Simpan',
+                                            'Perbarui Kata Sandi',
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
                                           ),
@@ -409,7 +406,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
         ),
         const SizedBox(height: 12),
         Text(
-          'Ubah Password',
+          'Perbarui Kata Sandi',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w700,
               ),

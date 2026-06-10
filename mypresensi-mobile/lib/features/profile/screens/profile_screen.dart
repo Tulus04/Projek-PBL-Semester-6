@@ -17,7 +17,6 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
-import '../../../shared/widgets/app_shell.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../face/providers/face_provider.dart';
 import '../providers/profile_provider.dart';
