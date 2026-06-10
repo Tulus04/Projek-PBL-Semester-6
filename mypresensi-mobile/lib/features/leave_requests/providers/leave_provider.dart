@@ -83,6 +83,13 @@ final myLeaveRequestsProvider =
   );
 
   final allRequests = [dummy1, dummy2, dummy3, ...remoteRequests];
+  
+  // Urutkan berdasarkan waktu pembuatan terbaru (descending)
+  allRequests.sort((a, b) {
+    final dateA = DateTime.tryParse(a.createdAt) ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final dateB = DateTime.tryParse(b.createdAt) ?? DateTime.fromMillisecondsSinceEpoch(0);
+    return dateB.compareTo(dateA);
+  });
   final pendingCount = allRequests.where((r) => r.status == LeaveStatus.pending).length;
   final approvedCount = allRequests.where((r) => r.status == LeaveStatus.approved).length;
   final rejectedCount = allRequests.where((r) => r.status == LeaveStatus.rejected).length;
