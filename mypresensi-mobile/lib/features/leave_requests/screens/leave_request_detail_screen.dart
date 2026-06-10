@@ -45,11 +45,9 @@ class LeaveRequestDetailScreen extends StatelessWidget {
                 _buildSectionHeader('CATATAN DOSEN'),
                 _buildReviewNoteBox(),
               ],
-              if (item.evidenceUrl != null && item.evidenceUrl!.isNotEmpty) ...[
-                const SizedBox(height: 24),
-                _buildSectionHeader('LAMPIRAN'),
-                _buildEvidence(context),
-              ],
+              const SizedBox(height: 24),
+              _buildSectionHeader('LAMPIRAN'),
+              _buildEvidence(context),
               const SizedBox(height: 40),
               _buildTimeline(),
               const SizedBox(height: 40),
@@ -301,6 +299,32 @@ class LeaveRequestDetailScreen extends StatelessWidget {
   }
 
   Widget _buildEvidence(BuildContext context) {
+    if (item.evidenceUrl == null || item.evidenceUrl!.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: const Column(
+          children: [
+            Icon(IconsaxPlusBold.document_1, size: 28, color: AppColors.textTertiary),
+            SizedBox(height: 8),
+            Text(
+              'Tidak ada lampiran',
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     // If we have an evidenceUrl, we assume it's a full signed URL or path.
     // For MVP, we use Image.network
     return GestureDetector(
