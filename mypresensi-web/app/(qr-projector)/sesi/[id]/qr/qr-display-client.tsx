@@ -311,7 +311,13 @@ export function QrDisplayClient(props: QrDisplayClientProps) {
         }
 
         if (!cancelled) {
-          timeoutId = setTimeout(pollCurrentCode, 5000)
+          // Sinkronisasi polling dengan sisa TTL window dari server!
+          // Jika rolling, tunggu sesuai sisa TTL + 50ms padding agar request
+          // persis jatuh di window berikutnya. Jika tidak, fallback 5 detik.
+          const nextPollDelay = data.is_rolling && data.ttl_ms_until_next > 0
+            ? data.ttl_ms_until_next + 50
+            : 5000
+          timeoutId = setTimeout(pollCurrentCode, nextPollDelay)
         }
       } catch (err) {
         if (cancelled) return
