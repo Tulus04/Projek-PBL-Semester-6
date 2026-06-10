@@ -854,7 +854,7 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                                       <span className="text-xs text-text-secondary">{attCount} presensi</span>
                                     )}
                                     {s.started_at && (
-                                      <span className="text-xs text-text-secondary">
+                                      <span className="text-xs text-text-secondary" suppressHydrationWarning>
                                         · {new Date(s.started_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
                                       </span>
                                     )}
