@@ -1431,3 +1431,35 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` — verifikasi otomati
 - Standardized the disabled color state of _WizardFooter to use AppColors.surfaceSunken instead of an active-looking light blue.
 - Converted the small 'Empty Session' hint box into a prominent validation empty state.
 - Added a \	ry-catch\ offline fallback block to eligibleSessionsForLeaveProvider to gracefully render the empty state instead of getting stuck on skeletons.
+
+---
+
+## 2026-06-10 — Sesi: Retro UX QR Scanner & Validasi State
+
+**Konteks**: Menyelesaikan tiga keluhan UX (User Experience) terkait flow pemindaian QR code dan state management setelah presensi sukses.
+
+### Masalah & Root Cause (Bug Retro)
+
+1. **Symptom**: Kamera terasa sangat lambat (delay) dalam mendeteksi QR code saat diarahkan ke proyektor kelas.
+   **Root Cause**: `ResolutionPreset` pada kamera diatur ke `medium` (480p). Resolusi ini terlalu rendah/blur bagi Google ML Kit untuk mengenali pola QR dari kejauhan, sehingga ML Kit butuh waktu lama untuk fokus dan mendapatkan frame yang bisa dibaca.
+   **Fix**: Ditingkatkan menjadi `ResolutionPreset.veryHigh` (1080p).
+
+2. **Symptom**: Saat memvalidasi QR, kamera freeze tanpa UI loading. Lalu terkadang muncul *black screen* dengan spinner default alih-alih overlay GPS yang konsisten.
+   **Root Cause**: Proses network `verifyQr` dijalankan tanpa merubah status menjadi loading. Selain itu, UI `_buildLoadingOverlay` yang cantik terjebak di dalam tree `_buildCameraStack` yang tidak akan dirender saat kamera sedang di-dispose (mis. saat kembali dari layar face verification).
+   **Fix**: Menambahkan state `verifyingQr`, memindahkan `_buildLoadingOverlay` ke root `Scaffold` menggunakan `Stack`, agar overlay menimpa apapun (termasuk black screen fallback).
+
+3. **Symptom**: Setelah sukses presensi, jika kembali ke beranda, sesi tersebut masih muncul di daftar "Sesi Aktif Sekarang".
+   **Root Cause**: Tombol "Kembali ke Beranda" hanya memanggil `ref.invalidate(historyProvider)` tetapi lupa memanggil `ref.invalidate(activeSessionsProvider)`.
+   **Fix**: Tambahkan invalidasi untuk provider sesi aktif.
+
+### File yang diubah/dibuat
+
+```
+[MOD] mypresensi-mobile/lib/features/attendance/screens/scan_qr_screen.dart
+[MOD] mypresensi-mobile/lib/features/attendance/providers/attendance_provider.dart
+[MOD] mypresensi-mobile/lib/features/attendance/screens/attendance_result_screen.dart
+```
+
+### Verifikasi
+- Pengujian Flow UI berjalan lancar.
+- Git repository sync — ✅ Ter-apply secara lokal dan di-push ke branch `main`.
