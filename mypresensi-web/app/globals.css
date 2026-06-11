@@ -192,6 +192,12 @@
     box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.15);
   }
 
+  /* Hilangkan native reveal password icon bawaan Edge/Chrome */
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none;
+  }
+
   /* Label */
   .form-label {
     @apply block text-sm font-semibold mb-1.5;
