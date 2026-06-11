@@ -6,6 +6,7 @@
 //   - Navigasi deep link via callback yang di-inject dari UI layer (main.dart),
 //     supaya service ini tidak perlu tahu detail GoRouter/tab.
 
+import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -43,6 +44,11 @@ class FcmService {
 
   static FcmNavigationCallback? _onNavigate;
   static bool _handlersReady = false;
+
+  /// Stream untuk memancarkan pesan masuk saat aplikasi berada di foreground.
+  /// Memungkinkan Riverpod/UI (seperti HomeScreen) merespons secara real-time
+  /// (misalnya untuk me-refresh data tanpa harus pull-to-refresh).
+  static final StreamController<RemoteMessage> onMessageStream = StreamController<RemoteMessage>.broadcast();
 
   /// Register callback navigasi (dipanggil dari main.dart setelah router siap).
   static void setNavigationCallback(FcmNavigationCallback cb) {
@@ -100,6 +106,9 @@ class FcmService {
 
     // Foreground — FCM tidak auto-show, jadi tampilkan banner via local notif.
     FirebaseMessaging.onMessage.listen((message) {
+      // Broadcast pesan ke UI listener (seperti HomeScreen)
+      onMessageStream.add(message);
+
       final notif = message.notification;
       if (notif == null) return;
       final route = message.data['route'];

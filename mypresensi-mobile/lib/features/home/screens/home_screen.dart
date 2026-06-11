@@ -20,9 +20,11 @@ import '../../attendance/data/attendance_models.dart';
 import '../../attendance/providers/attendance_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../history/providers/history_provider.dart';
+import '../../../core/services/fcm_service.dart';
 import '../providers/home_calendar_provider.dart';
 import '../widgets/home_history_calendar_card.dart';
 import '../widgets/stat_ring_card.dart';
+import 'dart:async';
 
 // ============================================================================
 // Pure helpers — date label, weather icon, today summary.
@@ -148,6 +150,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   late final List<Animation<double>> _fadeAnims;
   late final List<Animation<Offset>> _slideAnims;
 
+  StreamSubscription? _fcmSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -205,10 +209,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         );
       }
     });
+
+    // Dengarkan pesan FCM yang masuk saat aplikasi di foreground
+    // untuk melakukan auto-refresh pada activeSessionsProvider
+    _fcmSubscription = FcmService.onMessageStream.stream.listen((message) {
+      if (message.data['type'] == 'session_start') {
+        debugPrint('[HomeScreen] Auto-refresh active sessions karena FCM masuk');
+        if (mounted) {
+          ref.invalidate(activeSessionsProvider);
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
+    _fcmSubscription?.cancel();
     for (final c in _controllers) {
       c.dispose();
     }
