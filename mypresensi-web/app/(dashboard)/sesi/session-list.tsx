@@ -655,7 +655,7 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                           <select name="target_kelas" className="input-field w-full">
                             <option value="">Semua Kelas</option>
                             {(availableClassesByCourse[course.id] || []).map(kelas => (
-                              <option key={kelas} value={kelas}>Kelas {course.semester}{kelas}</option>
+                              <option key={kelas} value={kelas}>Kelas {kelas}</option>
                             ))}
                           </select>
                         </div>
@@ -840,7 +840,7 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-text-primary truncate">
-                                    {s.topic || 'Tidak ada topik'} {s.target_kelas && <span className="ml-2 text-xs font-bold text-primary">Kelas {course.semester}{s.target_kelas}</span>}
+                                    {s.topic || 'Tidak ada topik'} {s.target_kelas && <span className="ml-2 text-xs font-bold text-primary">Kelas {s.target_kelas}</span>}
                                   </p>
                                   <div className="flex items-center gap-2 mt-0.5">
                                     <span className={s.mode === 'offline' ? 'badge badge-success' : 'badge badge-warning'}>

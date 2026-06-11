@@ -72,7 +72,7 @@ export default async function SesiPage({
   const supabase = createAdminClient()
   const { data: enrollments } = await supabase
     .from('enrollments')
-    .select('course_id, profiles!inner(kelas)')
+    .select('course_id, profiles!inner(kelas, semester)')
     .in('course_id', (courses as CourseInfo[]).map(c => c.id))
 
   const courseClasses = new Map<string, Set<string>>()
@@ -80,7 +80,8 @@ export default async function SesiPage({
   enrollments?.forEach((e: any) => {
     if (e.profiles?.kelas) {
       if (!courseClasses.has(e.course_id)) courseClasses.set(e.course_id, new Set())
-      courseClasses.get(e.course_id)!.add(e.profiles.kelas)
+      const combinedKelas = `${e.profiles.semester ?? ''}${e.profiles.kelas}`
+      courseClasses.get(e.course_id)!.add(combinedKelas)
     }
   })
 

@@ -84,7 +84,7 @@ export async function getAllSessions({
     if (kelas === 'Semua') {
       query = query.is('target_kelas', null)
     } else {
-      query = query.eq('target_kelas', kelas)
+      query = query.ilike('target_kelas', `%${kelas}`)
     }
   }
 
