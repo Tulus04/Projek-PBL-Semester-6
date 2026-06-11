@@ -103,8 +103,11 @@ export async function POST(req: NextRequest) {
       return errorResponse('Sesi sudah berakhir', 400)
     }
 
-    if (session.target_kelas && session.target_kelas !== user.kelas) {
-      return errorResponse('Sesi ini bukan untuk kelas Anda', 403)
+    if (session.target_kelas) {
+      const combinedKelas = `${user.semester ?? ''}${user.kelas ?? ''}`.toLowerCase()
+      if (session.target_kelas.toLowerCase() !== combinedKelas) {
+        return errorResponse('Sesi ini bukan untuk kelas Anda', 403)
+      }
     }
 
     // 5. LAYER 2: Validasi session_code atau qr_token (QR Gating Phase)

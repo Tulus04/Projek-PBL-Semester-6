@@ -37,14 +37,19 @@ export async function GET(req: NextRequest) {
     `)
     .in('course_id', courseIds)
     .eq('is_active', true)
-    .or(`target_kelas.is.null,target_kelas.eq.${user.kelas ?? ''}`)
 
   if (error) {
     return errorResponse('Gagal mengambil data sesi', 500)
   }
 
+  const combinedKelas = `${user.semester ?? ''}${user.kelas ?? ''}`.toLowerCase()
+  const filteredSessions = sessions?.filter((s) => {
+    if (!s.target_kelas) return true
+    return s.target_kelas.toLowerCase() === combinedKelas
+  }) || []
+
   // 3. Cek mana yang sudah di-submit
-  const sessionIds = (sessions ?? []).map((s) => s.id)
+  const sessionIds = filteredSessions.map((s) => s.id)
   let submittedSet = new Set<string>()
 
   if (sessionIds.length > 0) {
@@ -60,7 +65,7 @@ export async function GET(req: NextRequest) {
   }
 
   // 4. Map ke response — TANPA session_code
-  const result = (sessions ?? []).map((s) => {
+  const result = filteredSessions.map((s) => {
     // Supabase returns related one-to-one/many-to-one records as a single object, not an array
     const course = s.course as unknown as { code: string; name: string } | null
     const dosen = s.dosen as unknown as { full_name: string } | null
