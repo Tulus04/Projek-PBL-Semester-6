@@ -209,155 +209,156 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
         </div>
       </div>
 
-      {/* 3. Insight Row — At-Risk Widget (2/3) + Recent Activity Feed (1/3) */}
+      {/* 3. Masonry Layout — Kiri (AtRisk + Tren + Bar), Kanan (Aktivitas + Donut) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2">
+        
+        {/* Kolom Kiri (2/3) */}
+        <div className="lg:col-span-2 flex flex-col gap-4">
           <AtRiskWidget summary={atRiskSummary} />
+
+          {/* Area Chart — Trend 7 Hari */}
+          <div className="card p-6">
+            <div className="mb-4">
+              <h3 className="text-base font-bold font-heading text-text-primary">
+                Tren Kehadiran 7 Hari Terakhir
+              </h3>
+              <p className="text-xs text-text-secondary mt-0.5">
+                Pergerakan presensi seluruh kelas secara global
+              </p>
+            </div>
+            {data.weeklyTrend.every(d => d.hadir === 0 && d.izin === 0 && d.alpa === 0) ? (
+              <div className="flex items-center justify-center h-[240px]">
+                <p className="text-text-secondary text-sm">Belum ada data presensi minggu ini.</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={240}>
+                <AreaChart data={data.weeklyTrend} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
+                  <defs>
+                    <linearGradient id="adminGradHadir" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={STATUS_COLORS.hadir} stopOpacity={0.15} />
+                      <stop offset="95%" stopColor={STATUS_COLORS.hadir} stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="adminGradIzin" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={STATUS_COLORS.izin} stopOpacity={0.15} />
+                      <stop offset="95%" stopColor={STATUS_COLORS.izin} stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="adminGradAlpa" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={STATUS_COLORS.alpa} stopOpacity={0.15} />
+                      <stop offset="95%" stopColor={STATUS_COLORS.alpa} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,230,234,0.6)" />
+                  <XAxis dataKey="day" tick={{ fontSize: 12, fill: BRAND_COLORS.textSecondary }} axisLine={{ stroke: BRAND_COLORS.border }} tickLine={false} />
+                  <YAxis tick={{ fontSize: 12, fill: BRAND_COLORS.textSecondary }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip content={<TrendTooltip />} />
+                  <Area type="monotone" dataKey="hadir" name="Hadir" stroke={STATUS_COLORS.hadir} strokeWidth={2} fill="url(#adminGradHadir)" />
+                  <Area type="monotone" dataKey="izin" name="Izin/Sakit" stroke={STATUS_COLORS.izin} strokeWidth={2} fill="url(#adminGradIzin)" />
+                  <Area type="monotone" dataKey="alpa" name="Alpa" stroke={STATUS_COLORS.alpa} strokeWidth={2} fill="url(#adminGradAlpa)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          {/* Bar Chart — Kehadiran per Mata Kuliah */}
+          {data.courseOverview.length > 0 && (
+            <div className="card p-6">
+              <div className="mb-4">
+                <h3 className="text-base font-bold font-heading text-text-primary">
+                  Kehadiran per Mata Kuliah
+                </h3>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  Distribusi status presensi berdasarkan mata kuliah
+                </p>
+              </div>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={data.courseOverview} margin={{ top: 5, right: 5, bottom: 5, left: -10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,230,234,0.6)" />
+                  <XAxis
+                    dataKey="code"
+                    tick={{ fontSize: 11, fill: BRAND_COLORS.textSecondary }}
+                    axisLine={{ stroke: BRAND_COLORS.border }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12, fill: BRAND_COLORS.textSecondary }}
+                    axisLine={false}
+                    tickLine={false}
+                    allowDecimals={false}
+                  />
+                  <Tooltip content={<BarTooltip />} />
+                  <Legend
+                    verticalAlign="top"
+                    align="right"
+                    iconType="square"
+                    iconSize={10}
+                    formatter={(value: string) => (
+                      <span style={{ fontSize: '12px', color: BRAND_COLORS.textSecondary }}>{value}</span>
+                    )}
+                  />
+                  <Bar dataKey="totalHadir" name="Hadir" fill={STATUS_COLORS.hadir} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="totalIzin" name="Izin/Sakit" fill={STATUS_COLORS.izin} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="totalAlpa" name="Alpa" fill={STATUS_COLORS.alpa} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
-        <div className="lg:col-span-1">
+
+        {/* Kolom Kanan (1/3) */}
+        <div className="lg:col-span-1 flex flex-col gap-4">
           <RecentActivityFeed activities={recentActivities} />
+
+          {/* Donut Chart — Rasio Kehadiran */}
+          <div className="card p-6">
+            <div className="mb-4">
+              <h3 className="text-base font-bold font-heading text-text-primary">
+                Rasio Kehadiran
+              </h3>
+              <p className="text-xs text-text-secondary mt-0.5">
+                Distribusi status 30 hari terakhir
+              </p>
+            </div>
+            {totalRatio === 0 ? (
+              <div className="flex items-center justify-center h-[240px]">
+                <p className="text-text-secondary text-sm">Belum ada data presensi.</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={240}>
+                <PieChart>
+                  <Pie
+                    data={data.attendanceRatio}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={85}
+                    paddingAngle={3}
+                    dataKey="value"
+                    strokeWidth={0}
+                  >
+                    {data.attendanceRatio.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name) => [
+                      `${value} (${totalRatio > 0 ? Math.round((Number(value) / totalRatio) * 100) : 0}%)`,
+                      name,
+                    ]}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    iconType="circle"
+                    iconSize={8}
+                    formatter={(value: string) => (
+                      <span style={{ fontSize: '12px', color: BRAND_COLORS.textSecondary }}>{value}</span>
+                    )}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* 4. Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Area Chart — Trend 7 Hari */}
-        <div className="card p-6 lg:col-span-2">
-          <div className="mb-4">
-            <h3 className="text-base font-bold font-heading text-text-primary">
-              Tren Kehadiran 7 Hari Terakhir
-            </h3>
-            <p className="text-xs text-text-secondary mt-0.5">
-              Pergerakan presensi seluruh kelas secara global
-            </p>
-          </div>
-          {data.weeklyTrend.every(d => d.hadir === 0 && d.izin === 0 && d.alpa === 0) ? (
-            <div className="flex items-center justify-center h-[240px]">
-              <p className="text-text-secondary text-sm">Belum ada data presensi minggu ini.</p>
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={data.weeklyTrend} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
-                <defs>
-                  <linearGradient id="adminGradHadir" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={STATUS_COLORS.hadir} stopOpacity={0.15} />
-                    <stop offset="95%" stopColor={STATUS_COLORS.hadir} stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="adminGradIzin" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={STATUS_COLORS.izin} stopOpacity={0.15} />
-                    <stop offset="95%" stopColor={STATUS_COLORS.izin} stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="adminGradAlpa" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={STATUS_COLORS.alpa} stopOpacity={0.15} />
-                    <stop offset="95%" stopColor={STATUS_COLORS.alpa} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,230,234,0.6)" />
-                <XAxis dataKey="day" tick={{ fontSize: 12, fill: BRAND_COLORS.textSecondary }} axisLine={{ stroke: BRAND_COLORS.border }} tickLine={false} />
-                <YAxis tick={{ fontSize: 12, fill: BRAND_COLORS.textSecondary }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip content={<TrendTooltip />} />
-                <Area type="monotone" dataKey="hadir" name="Hadir" stroke={STATUS_COLORS.hadir} strokeWidth={2} fill="url(#adminGradHadir)" />
-                <Area type="monotone" dataKey="izin" name="Izin/Sakit" stroke={STATUS_COLORS.izin} strokeWidth={2} fill="url(#adminGradIzin)" />
-                <Area type="monotone" dataKey="alpa" name="Alpa" stroke={STATUS_COLORS.alpa} strokeWidth={2} fill="url(#adminGradAlpa)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-
-        {/* Donut Chart — Rasio Kehadiran */}
-        <div className="card p-6">
-          <div className="mb-4">
-            <h3 className="text-base font-bold font-heading text-text-primary">
-              Rasio Kehadiran
-            </h3>
-            <p className="text-xs text-text-secondary mt-0.5">
-              Distribusi status 30 hari terakhir
-            </p>
-          </div>
-          {totalRatio === 0 ? (
-            <div className="flex items-center justify-center h-[240px]">
-              <p className="text-text-secondary text-sm">Belum ada data presensi.</p>
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={240}>
-              <PieChart>
-                <Pie
-                  data={data.attendanceRatio}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={3}
-                  dataKey="value"
-                  strokeWidth={0}
-                >
-                  {data.attendanceRatio.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value, name) => [
-                    `${value} (${totalRatio > 0 ? Math.round((Number(value) / totalRatio) * 100) : 0}%)`,
-                    name,
-                  ]}
-                />
-                <Legend
-                  verticalAlign="bottom"
-                  iconType="circle"
-                  iconSize={8}
-                  formatter={(value: string) => (
-                    <span style={{ fontSize: '12px', color: BRAND_COLORS.textSecondary }}>{value}</span>
-                  )}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      {/* 4. Bar Chart — Kehadiran per Mata Kuliah */}
-      {data.courseOverview.length > 0 && (
-        <div className="card p-6">
-          <div className="mb-4">
-            <h3 className="text-base font-bold font-heading text-text-primary">
-              Kehadiran per Mata Kuliah
-            </h3>
-            <p className="text-xs text-text-secondary mt-0.5">
-              Distribusi status presensi berdasarkan mata kuliah
-            </p>
-          </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={data.courseOverview} margin={{ top: 5, right: 5, bottom: 5, left: -10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,230,234,0.6)" />
-              <XAxis
-                dataKey="code"
-                tick={{ fontSize: 11, fill: BRAND_COLORS.textSecondary }}
-                axisLine={{ stroke: BRAND_COLORS.border }}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 12, fill: BRAND_COLORS.textSecondary }}
-                axisLine={false}
-                tickLine={false}
-                allowDecimals={false}
-              />
-              <Tooltip content={<BarTooltip />} />
-              <Legend
-                verticalAlign="top"
-                align="right"
-                iconType="square"
-                iconSize={10}
-                formatter={(value: string) => (
-                  <span style={{ fontSize: '12px', color: BRAND_COLORS.textSecondary }}>{value}</span>
-                )}
-              />
-              <Bar dataKey="totalHadir" name="Hadir" fill={STATUS_COLORS.hadir} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="totalIzin" name="Izin/Sakit" fill={STATUS_COLORS.izin} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="totalAlpa" name="Alpa" fill={STATUS_COLORS.alpa} radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
 
       {/* 5. Tabel Absensi Terkini */}
       <div className="card overflow-hidden">
