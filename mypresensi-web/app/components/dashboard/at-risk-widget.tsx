@@ -69,9 +69,9 @@ function StudentRow({ student }: { student: AtRiskStudent }) {
         </div>
         <p className="text-xs text-text-secondary mb-1">
           {student.nimNip}
-          {student.kelas && ` · ${student.kelas}`}
+          {student.kelas && ` · Kelas ${student.kelas}`}
           {' · '}
-          {student.attendedSessions} dari {student.expectedSessions} sesi
+          Hadir {student.attendedSessions} dari {student.expectedSessions} sesi
         </p>
         <AttendanceBar pct={student.attendancePct} tier={student.tier} />
       </div>
@@ -127,7 +127,7 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
               Evaluasi Kehadiran
             </h3>
             <p className="text-xs text-text-secondary">
-              Kehadiran &lt; {settings.thresholdPct}% dalam {settings.windowDays} hari terakhir
+              Tingkat kehadiran di bawah {settings.thresholdPct}% dalam {settings.windowDays} hari terakhir
             </p>
           </div>
         </div>
@@ -144,12 +144,12 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
         <div className="rounded-xl bg-danger/5 border border-danger/15 p-3">
           <p className="text-[10px] uppercase tracking-widest font-bold text-danger mb-1">Tindakan Lanjut</p>
           <p className="text-xl font-bold font-heading text-danger leading-tight">{criticalCount}</p>
-          <p className="text-[10px] text-text-secondary">&lt; {settings.criticalPct}% kehadiran</p>
+          <p className="text-[10px] text-text-secondary">Tingkat kehadiran &lt; {settings.criticalPct}%</p>
         </div>
         <div className="rounded-xl bg-warning/5 border border-warning/15 p-3">
           <p className="text-[10px] uppercase tracking-widest font-bold text-warning mb-1">Peringatan Dini</p>
           <p className="text-xl font-bold font-heading text-warning leading-tight">{warningCount}</p>
-          <p className="text-[10px] text-text-secondary">{settings.criticalPct}% – {settings.thresholdPct - 0.1}%</p>
+          <p className="text-[10px] text-text-secondary">Tingkat kehadiran {settings.criticalPct}% – {settings.thresholdPct - 0.1}%</p>
         </div>
       </div>
 
@@ -157,7 +157,7 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
       {topStudents.length > 0 && (
         <>
           <p className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-2">
-            Top {topStudents.length} prioritas
+            3 Prioritas Utama
           </p>
           <div className="mb-3">
             {topStudents.map(s => (
@@ -172,7 +172,7 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
         href="/at-risk"
         className="flex items-center justify-between rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors px-4 py-2.5 text-sm font-semibold text-primary group"
       >
-        <span>Lihat semua evaluasi kehadiran ({totalCount})</span>
+        <span>Lihat semua riwayat evaluasi ({totalCount} mahasiswa)</span>
         <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
       </Link>
     </div>
