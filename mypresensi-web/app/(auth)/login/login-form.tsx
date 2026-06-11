@@ -33,7 +33,7 @@ const DEV_ACCOUNTS: DevAccount[] = [
   {
     label: 'Dr. Ahmad (Dosen)',
     subtitle: 'NIP 199001012015011002',
-    email: 'dosen.test@politani.ac.id',
+    email: 'dosen.test@Politani.ac.id',
     password: 'DosenTest123!',
     variant: 'dosen',
   },

@@ -87,7 +87,7 @@ export default function ImportCSVModal() {
                   Nama,NIM,Email,Semester,Kelas,NoHP
                 </code>
                 <p className="mt-1">
-                  Kolom Semester, Kelas, NoHP bersifat opsional. Password default: NIM@politani
+                  Kolom Semester, Kelas, NoHP bersifat opsional. Password default: NIM@Politani
                 </p>
               </div>
 

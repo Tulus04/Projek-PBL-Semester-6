@@ -139,7 +139,7 @@ export default function AddStudentModal() {
               </div>
 
               <div className="p-3 rounded-lg bg-primary/5 border border-primary/15 text-xs text-text-secondary">
-                <strong>Password default:</strong> NIM@politani (contoh: P2100001@politani).
+                <strong>Password default:</strong> NIM@Politani (contoh: P2100001@Politani).
                 <br />Mahasiswa wajib ganti password saat login pertama.
               </div>
 

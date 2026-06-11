@@ -34,7 +34,7 @@ export async function getEnrollmentsByCourse(courseId: string) {
   return { enrollments: data ?? [], error: error?.message ?? null }
 }
 
-// Ambil mahasiswa yang BELUM terdaftar di suatu MK (untuk dropdown tambah)
+// Ambil mahasiswa yang BELUM terdaftar di suatu MK (untuk dropdown tambah), difilter berdasarkan semester MK
 export async function getAvailableStudents(courseId: string) {
   // SECURITY: Validasi akses
   let user
@@ -51,6 +51,19 @@ export async function getAvailableStudents(courseId: string) {
 
   const supabase = createAdminClient()
 
+  // Ambil data semester dari mata kuliah
+  const { data: courseData, error: courseError } = await supabase
+    .from('courses')
+    .select('semester')
+    .eq('id', courseId)
+    .single()
+
+  if (courseError || !courseData) {
+    return { students: [], error: 'Gagal mendapatkan data mata kuliah.' }
+  }
+  
+  const courseSemester = courseData.semester
+
   // Get already enrolled student IDs
   const { data: enrolled } = await supabase
     .from('enrollments')
@@ -59,12 +72,13 @@ export async function getAvailableStudents(courseId: string) {
 
   const enrolledIds = (enrolled ?? []).map((e: { student_id: string }) => e.student_id)
 
-  // Get all active mahasiswa
+  // Get all active mahasiswa from the same semester
   const query = supabase
     .from('profiles')
     .select('id, full_name, nim_nip, kelas, semester')
     .eq('role', 'mahasiswa')
     .eq('is_active', true)
+    .eq('semester', courseSemester)
     .order('full_name')
 
   const { data: allStudents, error } = await query

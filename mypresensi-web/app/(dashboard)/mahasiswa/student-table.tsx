@@ -47,7 +47,7 @@ export default function StudentTable({ students }: { students: Student[] }) {
     const result = await swal.fire({
       title: 'Reset Password',
       html: `Password <b>${s.full_name}</b> akan direset menjadi:<br/><br/>
-             <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${s.nim_nip}@politani</code>`,
+             <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${s.nim_nip}@Politani</code>`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Reset Password',
@@ -68,7 +68,7 @@ export default function StudentTable({ students }: { students: Student[] }) {
           icon: 'success',
           title: 'Berhasil!',
           html: `Password <b>${s.full_name}</b> berhasil direset menjadi:<br/><br/>
-                 <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${s.nim_nip}@politani</code>`,
+                 <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${s.nim_nip}@Politani</code>`,
         })
       }
     }

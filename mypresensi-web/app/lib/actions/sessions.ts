@@ -306,7 +306,11 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
       let targetStudents = enrolled || []
       if (sessionData.target_kelas) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        targetStudents = targetStudents.filter((e: any) => (e.profiles as any).kelas === sessionData.target_kelas)
+        targetStudents = targetStudents.filter((e: any) => {
+          const p = e.profiles as { kelas?: string | null; semester?: number | string | null }
+          const combined = `${p.semester ?? ''}${p.kelas ?? ''}`
+          return combined === sessionData.target_kelas
+        })
       }
 
       if (targetStudents.length > 0) {
@@ -387,7 +391,11 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
       let targetStudents = enrollments || []
       if (sessionData?.target_kelas) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        targetStudents = targetStudents.filter((e: any) => (e.profiles as any).kelas === sessionData.target_kelas)
+        targetStudents = targetStudents.filter((e: any) => {
+          const p = e.profiles as { kelas?: string | null; semester?: number | string | null }
+          const combined = `${p.semester ?? ''}${p.kelas ?? ''}`
+          return combined === sessionData?.target_kelas
+        })
       }
 
       const { data: attendances } = await supabase
@@ -552,7 +560,7 @@ export async function getSessionDetail(sessionId: string): Promise<{
   // 1. Ambil data sesi
   const { data: session, error: sessionError } = await supabase
     .from('sessions')
-    .select('id, session_number, topic, mode, session_code, session_code_expires_at, is_active, started_at, ended_at, course_id')
+    .select('id, session_number, topic, mode, session_code, session_code_expires_at, is_active, started_at, ended_at, course_id, target_kelas')
     .eq('id', sessionId)
     .single()
 
@@ -563,10 +571,19 @@ export async function getSessionDetail(sessionId: string): Promise<{
   // 2. Ambil daftar mahasiswa yang enrolled di course ini
   const { data: enrollments } = await supabase
     .from('enrollments')
-    .select('student_id, student:profiles!enrollments_student_id_fkey(id, full_name, nim_nip)')
+    .select('student_id, student:profiles!enrollments_student_id_fkey(id, full_name, nim_nip, kelas, semester)')
     .eq('course_id', session.course_id)
 
-  const enrolledStudents = (enrollments ?? []).map((e) => {
+  let filteredEnrollments = enrollments || []
+  if (session.target_kelas) {
+    filteredEnrollments = filteredEnrollments.filter((e) => {
+      const p = e.student as { kelas?: string | null; semester?: number | string | null }
+      const combined = `${p.semester ?? ''}${p.kelas ?? ''}`
+      return combined === session.target_kelas
+    })
+  }
+
+  const enrolledStudents = filteredEnrollments.map((e) => {
     const student = e.student as unknown as { id: string; full_name: string; nim_nip: string }
     return {
       id: student.id,
