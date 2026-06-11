@@ -161,8 +161,8 @@ export async function addDosenAction(
     return { error: `NIP ${parsed.data.nim_nip} sudah terdaftar.`, success: false }
   }
 
-  // Buat user di Supabase Auth (password default: NIP@politani)
-  const defaultPassword = `${parsed.data.nim_nip}@politani`
+  // Buat user di Supabase Auth (password default: NIP@Politani)
+  const defaultPassword = `${parsed.data.nim_nip}@Politani`
 
   const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
     email: parsed.data.email,
@@ -317,7 +317,7 @@ export async function toggleDosenStatusAction(
 
 export async function resetDosenPasswordAction(dosenId: string, nimNip: string) {
   const supabase = createAdminClient()
-  const defaultPassword = `${nimNip}@politani`
+  const defaultPassword = `${nimNip}@Politani`
 
   const { error } = await supabase.auth.admin.updateUserById(dosenId, {
     password: defaultPassword,

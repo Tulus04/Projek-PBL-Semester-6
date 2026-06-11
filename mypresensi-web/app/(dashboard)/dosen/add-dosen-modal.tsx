@@ -102,13 +102,13 @@ export default function AddDosenModal() {
 
               <div>
                 <label className="form-label">Email *</label>
-                <input name="email" type="email" className="input-field w-full" required placeholder="ahmad.rizki@politani.ac.id" />
+                <input name="email" type="email" className="input-field w-full" required placeholder="ahmad.rizki@Politani.ac.id" />
                 {state.fieldErrors?.email && <p className="text-xs text-red-500 mt-1">{state.fieldErrors.email[0]}</p>}
               </div>
 
               <div className="bg-primary/10 rounded-lg p-3">
-                <p className="text-xs text-primary">
-                  Password default: <strong>NIP@politani</strong> — Dosen akan diminta ganti password saat login pertama.
+                <p className="text-xs text-gray-500 mt-2">
+                  Password default: <strong>NIP@Politani</strong> — Dosen akan diminta ganti password saat login pertama.
                 </p>
               </div>
 

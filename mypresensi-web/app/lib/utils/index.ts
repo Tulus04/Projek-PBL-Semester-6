@@ -113,5 +113,5 @@ export function isValidNim(nim: string): boolean {
 
 // Generate default password dari NIM
 export function generateDefaultPassword(nim: string): string {
-  return `${nim}@politani`
+  return `${nim}@Politani`
 }

@@ -64,8 +64,8 @@ export default function DosenTable({ dosen }: { dosen: Dosen[] }) {
         swal.fire({
           icon: 'success',
           title: 'Berhasil!',
-          html: `Password <b>${d.full_name}</b> berhasil direset menjadi:<br/><br/>
-                 <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${d.nim_nip}@politani</code>`,
+          html: `Yakin ingin mereset password untuk <strong>${d.full_name}</strong>?<br/>Password akan direset menjadi: 
+             <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${d.nim_nip}@Politani</code>`,
         })
       }
     }

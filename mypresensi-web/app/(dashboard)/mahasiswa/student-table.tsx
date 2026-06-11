@@ -163,7 +163,7 @@ export default function StudentTable({ students }: { students: Student[] }) {
                 </td>
                 <td className="text-sm font-mono">{s.nim_nip}</td>
                 <td className="text-sm text-center">{s.semester ?? '-'}</td>
-                <td className="text-sm text-center">{s.kelas ?? '-'}</td>
+                <td className="text-sm text-center">{s.kelas ? `${s.semester ?? ''}${s.kelas}` : '-'}</td>
                 <td className="text-sm text-text-secondary">{s.phone ?? '-'}</td>
                 <td>
                   <span className={s.is_face_registered ? 'badge badge-success' : 'badge badge-neutral'}>

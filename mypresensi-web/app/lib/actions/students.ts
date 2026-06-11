@@ -137,8 +137,8 @@ export async function addStudentAction(
     return { error: `NIM ${parsed.data.nim_nip} sudah terdaftar.`, success: false }
   }
 
-  // Buat user di Supabase Auth (password default: NIM@politani)
-  const defaultPassword = `${parsed.data.nim_nip}@politani`
+  // Buat user di Supabase Auth (password default: NIM@Politani)
+  const defaultPassword = `${parsed.data.nim_nip}@Politani`
 
   const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
     email: parsed.data.email,
@@ -298,7 +298,7 @@ export async function toggleStudentStatusAction(
 
 export async function resetStudentPasswordAction(studentId: string, nimNip: string) {
   const supabase = createAdminClient()
-  const defaultPassword = `${nimNip}@politani`
+  const defaultPassword = `${nimNip}@Politani`
 
   const { error } = await supabase.auth.admin.updateUserById(studentId, {
     password: defaultPassword,
@@ -373,7 +373,7 @@ export async function importStudentsCSVAction(
     }
 
     // Buat user
-    const defaultPassword = `${nim_nip}@politani`
+    const defaultPassword = `${nim_nip}@Politani`
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
       email,
       password: defaultPassword,

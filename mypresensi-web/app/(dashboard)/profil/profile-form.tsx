@@ -313,7 +313,7 @@ export default function ProfileForm({ profile, email }: Props) {
                   <label className="form-label">Kelas</label>
                   <input
                     type="text"
-                    value={profile.kelas ?? '-'}
+                    value={profile.kelas ? `${profile.semester ?? ''}${profile.kelas}` : '-'}
                     disabled
                     className="input-field w-full bg-gray-50 text-text-secondary cursor-not-allowed"
                   />
