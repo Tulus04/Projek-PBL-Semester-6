@@ -319,7 +319,13 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
     revalidatePath('/sesi')
     return { error: null, sessionCode: initialCode, expiresAt }
   } else {
-    // AKHIRI SESI → Hapus kode, set ended_at
+    // AKHIRI SESI → Hapus kode, set ended_at, & GENERATE ALPA otomatis
+
+    // 1. Ambil course_id untuk sesi ini jika belum punya (defense)
+    const sessionIdTarget = sessionId
+    const courseIdTarget = sessionCheck?.course_id
+
+    // 2. Akhiri sesi
     const { error } = await supabase
       .from('sessions')
       .update({
@@ -328,13 +334,51 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
         session_code_expires_at: null,
         ended_at: new Date().toISOString(),
       })
-      .eq('id', sessionId)
+      .eq('id', sessionIdTarget)
 
     if (error) return { error: error.message, sessionCode: null }
 
+    // 3. Generate Alpa untuk mahasiswa yang belum absen
+    if (courseIdTarget) {
+      const { data: enrollments } = await supabase
+        .from('enrollments')
+        .select('student_id')
+        .eq('course_id', courseIdTarget)
+
+      const { data: attendances } = await supabase
+        .from('attendances')
+        .select('student_id')
+        .eq('session_id', sessionIdTarget)
+
+      const enrolledIds = (enrollments ?? []).map(e => e.student_id)
+      const attendedIds = new Set((attendances ?? []).map(a => a.student_id))
+
+      const alpaIds = enrolledIds.filter(id => !attendedIds.has(id))
+
+      if (alpaIds.length > 0) {
+        const alpaRecords = alpaIds.map(studentId => ({
+          session_id: sessionIdTarget,
+          student_id: studentId,
+          status: 'alpa',
+          scanned_at: new Date().toISOString(),
+          is_location_valid: null,
+          distance_meters: null,
+          face_confidence: null,
+        }))
+
+        // Insert semua record alpa
+        await supabase.from('attendances').insert(alpaRecords)
+
+        await logAudit({
+          action: 'auto_generate_alpa',
+          details: { session_id: sessionIdTarget, count: alpaIds.length },
+        })
+      }
+    }
+
     await logAudit({
       action: 'end_session',
-      details: { session_id: sessionId },
+      details: { session_id: sessionIdTarget },
     })
 
     revalidatePath('/matakuliah')

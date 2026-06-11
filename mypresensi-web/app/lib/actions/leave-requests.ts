@@ -105,13 +105,30 @@ export async function approveLeaveRequest(requestId: string, reviewNote?: string
 
   if (error) return { error: error.message }
 
-  // Update attendance status if exists
+  // Update attendance status if exists, or insert if not exists
   if (request) {
-    await adminClient
+    const { data: existingAtt } = await adminClient
       .from('attendances')
-      .update({ status: request.type }) // 'izin' or 'sakit'
+      .select('id')
       .eq('student_id', request.student_id)
       .eq('session_id', request.session_id)
+      .single()
+
+    if (existingAtt) {
+      await adminClient
+        .from('attendances')
+        .update({ status: request.type }) // 'izin' or 'sakit'
+        .eq('id', existingAtt.id)
+    } else {
+      await adminClient
+        .from('attendances')
+        .insert({
+          student_id: request.student_id,
+          session_id: request.session_id,
+          status: request.type, // 'izin' or 'sakit'
+          scanned_at: new Date().toISOString(),
+        })
+    }
   }
 
   await logAudit({
