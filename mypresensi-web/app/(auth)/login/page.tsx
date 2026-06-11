@@ -55,7 +55,7 @@ export default function LoginPage() {
             <span className="text-amber-300">akurat</span>.
           </h2>
           <p className="text-sm xl:text-base text-white/85 leading-relaxed mb-8 max-w-md">
-            Sistem absensi mahasiswa Prodi TRPL Politani Samarinda dengan tiga lapisan verifikasi: kode sesi, geofence GPS, dan pengenalan wajah.
+            Sistem absensi mahasiswa Prodi TRPL Politani Samarinda dengan tiga lapisan verifikasi: QR Dinamis, geofence GPS, dan pengenalan wajah.
           </p>
 
           {/* Feature highlights — stagger fade-up untuk premium feel */}
@@ -65,8 +65,8 @@ export default function LoginPage() {
                 <Fingerprint size={16} className="text-amber-300" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Kode Sesi 6-digit</p>
-                <p className="text-xs text-white/70">Refresh otomatis setiap 3 menit untuk cegah duplikasi.</p>
+                <p className="text-sm font-semibold text-white">QR Dinamis</p>
+                <p className="text-xs text-white/70">Refresh otomatis setiap 5 detik untuk keamanan dan cegah duplikasi.</p>
               </div>
             </li>
             <li className="flex items-start gap-3 animate-stagger-in" style={{ animationDelay: '360ms' }}>
@@ -123,10 +123,10 @@ export default function LoginPage() {
           {/* Form heading */}
           <div className="mb-6">
             <h2 className="text-2xl font-bold font-heading text-text-primary mb-1.5">
-              Selamat datang kembali
+              Portal Akses MyPresensi
             </h2>
             <p className="text-sm text-text-secondary">
-              Masuk dengan akun yang diberikan oleh admin prodi.
+              Silakan masuk menggunakan kredensial Admin atau Dosen.
             </p>
           </div>
 
