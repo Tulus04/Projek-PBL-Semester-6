@@ -142,7 +142,7 @@ export async function addSessionAction(
   const targetKelas = parsed.data.target_kelas || null
 
   // Check duplicate session number for the same class
-  let checkQuery = supabase
+  const checkQuery = supabase
     .from('sessions')
     .select('id, target_kelas')
     .eq('course_id', courseId)
@@ -305,6 +305,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
 
       let targetStudents = enrolled || []
       if (sessionData.target_kelas) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         targetStudents = targetStudents.filter((e: any) => (e.profiles as any).kelas === sessionData.target_kelas)
       }
 
@@ -314,6 +315,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
         const topic = sessionData.topic ?? `Pertemuan ${sessionData.session_number}`
 
         await createBulkNotifications(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           targetStudents.map((e: any) => ({
             userId: e.student_id,
             title: 'Sesi Presensi Dimulai',
@@ -325,6 +327,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
 
         try {
           await sendPushToMany(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             targetStudents.map((e: any) => e.student_id),
             {
               title: 'Sesi Presensi Dimulai',
@@ -383,6 +386,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
       // Filter pendaftar berdasarkan target_kelas sesi
       let targetStudents = enrollments || []
       if (sessionData?.target_kelas) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         targetStudents = targetStudents.filter((e: any) => (e.profiles as any).kelas === sessionData.target_kelas)
       }
 
@@ -391,6 +395,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
         .select('student_id')
         .eq('session_id', sessionIdTarget)
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const targetIds = targetStudents.map((e: any) => e.student_id)
       const attendedIds = new Set((attendances ?? []).map(a => a.student_id))
       const alpaIds = targetIds.filter((id: string) => !attendedIds.has(id))

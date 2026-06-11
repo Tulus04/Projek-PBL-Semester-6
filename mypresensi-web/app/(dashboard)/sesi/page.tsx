@@ -76,6 +76,7 @@ export default async function SesiPage({
     .in('course_id', (courses as CourseInfo[]).map(c => c.id))
 
   const courseClasses = new Map<string, Set<string>>()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   enrollments?.forEach((e: any) => {
     if (e.profiles?.kelas) {
       if (!courseClasses.has(e.course_id)) courseClasses.set(e.course_id, new Set())

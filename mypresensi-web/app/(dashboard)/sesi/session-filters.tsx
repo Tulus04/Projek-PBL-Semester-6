@@ -125,7 +125,7 @@ export default function SessionFilters({
             className="input-field w-full"
           >
             <option value="">Semua Filter</option>
-            <option value="Semua">Khusus "Semua Kelas"</option>
+            <option value="Semua">Khusus &quot;Semua Kelas&quot;</option>
             <option value="A">Kelas A</option>
             <option value="B">Kelas B</option>
             <option value="C">Kelas C</option>
