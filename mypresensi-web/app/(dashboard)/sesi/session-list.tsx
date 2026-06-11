@@ -63,7 +63,6 @@ interface Props {
   userRole: string
   userId: string
   campusLocations: CampusLocation[]
-  availableClassesByCourse: Record<string, string[]>
 }
 
 // Helper: status lifecycle sesi
@@ -73,7 +72,7 @@ function getSessionStatus(s: Session): 'active' | 'ended' | 'pending' {
   return 'pending'
 }
 
-export default function SessionList({ groupedSessions, userRole, userId, campusLocations, availableClassesByCourse }: Props) {
+export default function SessionList({ groupedSessions, userRole, userId, campusLocations }: Props) {
   const router = useRouter()
   const isAdmin = userRole === 'admin'
 
@@ -654,7 +653,7 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                           <label className="form-label">Target Kelas</label>
                           <select name="target_kelas" className="input-field w-full">
                             <option value="">Semua Kelas</option>
-                            {(availableClassesByCourse[course.id] || []).map(kelas => (
+                            {['A', 'B', 'C'].map(kelas => (
                               <option key={kelas} value={kelas}>Kelas {kelas}</option>
                             ))}
                           </select>
