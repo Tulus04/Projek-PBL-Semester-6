@@ -589,55 +589,94 @@ function QrCard({
   startedAt: string | null
   mode: string
 }) {
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
   return (
-    <div
-      className="relative rounded-3xl bg-white p-6"
-      style={{
-        boxShadow:
-          '0 0 0 6px rgba(255, 255, 255, 0.08), 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(244, 180, 0, 0.20)',
-      }}
-    >
-      {/* Gradient blur halo */}
+    <>
       <div
-        className="pointer-events-none absolute -inset-0.5 -z-10 rounded-[26px] opacity-50"
+        className="relative rounded-3xl bg-white p-6 cursor-pointer group"
+        onClick={() => setIsFullscreen(true)}
         style={{
-          background: 'linear-gradient(135deg, #F4B400 0%, #2D86FF 100%)',
-          filter: 'blur(20px)',
+          boxShadow:
+            '0 0 0 6px rgba(255, 255, 255, 0.08), 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(244, 180, 0, 0.20)',
         }}
-      />
+      >
+        {/* Fullscreen icon overlay on hover */}
+        <div className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-black/5 opacity-0 backdrop-blur-[1px] transition-opacity duration-300 group-hover:opacity-100">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-xl">
+            <Maximize2 className="h-6 w-6 text-slate-700" />
+          </div>
+        </div>
 
-      {qrPayload ? (
-        <QRCodeSVG
-          value={qrPayload}
-          size={332}
-          level="M"
-          marginSize={0}
-          className="block aspect-square w-full"
+        {/* Gradient blur halo */}
+        <div
+          className="pointer-events-none absolute -inset-0.5 -z-10 rounded-[26px] opacity-50"
+          style={{
+            background: 'linear-gradient(135deg, #F4B400 0%, #2D86FF 100%)',
+            filter: 'blur(20px)',
+          }}
         />
-      ) : (
-        <div className="flex aspect-square w-full items-center justify-center text-center text-sm text-slate-400">
-          Sesi belum aktif
-          <br />
-          atau kode tidak tersedia
-        </div>
-      )}
 
-      {/* Bottom info row dashed border */}
-      <div className="mt-3.5 flex justify-between border-t border-dashed border-slate-300 pt-3.5">
-        <div className="flex items-center gap-1.5 font-mono text-xs text-slate-500">
-          <Clock className="h-3.5 w-3.5 text-[#2D86FF]" />
-          {formatStartTime(startedAt)}
-        </div>
-        <div className="flex items-center gap-1.5 font-mono text-xs text-slate-500">
-          {mode === 'online' ? (
-            <Wifi className="h-3.5 w-3.5 text-[#2D86FF]" />
-          ) : (
-            <MapPin className="h-3.5 w-3.5 text-[#2D86FF]" />
-          )}
-          {mode === 'online' ? 'Online' : 'Offline'}
+        {qrPayload ? (
+          <QRCodeSVG
+            value={qrPayload}
+            size={332}
+            level="M"
+            marginSize={0}
+            className="block aspect-square w-full"
+          />
+        ) : (
+          <div className="flex aspect-square w-full items-center justify-center text-center text-sm text-slate-400">
+            Sesi belum aktif
+            <br />
+            atau kode tidak tersedia
+          </div>
+        )}
+
+        {/* Bottom info row dashed border */}
+        <div className="mt-3.5 flex justify-between border-t border-dashed border-slate-300 pt-3.5">
+          <div className="flex items-center gap-1.5 font-mono text-xs text-slate-500">
+            <Clock className="h-3.5 w-3.5 text-[#2D86FF]" />
+            {formatStartTime(startedAt)}
+          </div>
+          <div className="flex items-center gap-1.5 font-mono text-xs text-slate-500">
+            {mode === 'online' ? (
+              <Wifi className="h-3.5 w-3.5 text-[#2D86FF]" />
+            ) : (
+              <MapPin className="h-3.5 w-3.5 text-[#2D86FF]" />
+            )}
+            {mode === 'online' ? 'Online' : 'Offline'}
+          </div>
         </div>
       </div>
-    </div>
+
+      {isFullscreen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-md"
+          onClick={() => setIsFullscreen(false)}
+        >
+          <div className="absolute right-6 top-6">
+            <button
+              onClick={() => setIsFullscreen(false)}
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+          {qrPayload ? (
+            <div className="rounded-3xl bg-white p-8 shadow-2xl">
+              <QRCodeSVG
+                value={qrPayload}
+                size={800}
+                level="M"
+                marginSize={0}
+                className="block h-[70vh] max-h-[800px] w-[70vh] max-w-[800px]"
+              />
+            </div>
+          ) : null}
+        </div>
+      )}
+    </>
   )
 }
 
