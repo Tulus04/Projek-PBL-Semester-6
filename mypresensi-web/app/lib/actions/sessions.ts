@@ -393,8 +393,8 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         targetStudents = targetStudents.filter((e: any) => {
           const p = e.profiles as { kelas?: string | null; semester?: number | string | null }
-          const combined = `${p.semester ?? ''}${p.kelas ?? ''}`
-          return combined === sessionData?.target_kelas
+          const combined = `${p.semester ?? ''}${p.kelas ?? ''}`.toLowerCase()
+          return combined === sessionData?.target_kelas?.toLowerCase()
         })
       }
 
@@ -578,8 +578,8 @@ export async function getSessionDetail(sessionId: string): Promise<{
   if (session.target_kelas) {
     filteredEnrollments = filteredEnrollments.filter((e) => {
       const p = e.student as { kelas?: string | null; semester?: number | string | null }
-      const combined = `${p.semester ?? ''}${p.kelas ?? ''}`
-      return combined === session.target_kelas
+      const combined = `${p.semester ?? ''}${p.kelas ?? ''}`.toLowerCase()
+      return combined === session.target_kelas?.toLowerCase()
     })
   }
 
