@@ -364,7 +364,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
         <div className="px-6 py-4 border-b border-border flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold font-heading text-text-primary">
-              Absensi Terkini
+              Presensi Terkini
             </h3>
             <p className="text-xs text-text-secondary mt-0.5">
               Riwayat absensi hari ini secara langsung

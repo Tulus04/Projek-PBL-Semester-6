@@ -26,14 +26,14 @@ export default function QuickActions({ pendingLeaveCount }: QuickActionsProps) {
     {
       icon: UserPlus,
       title: 'Tambah Mahasiswa',
-      description: 'Daftarkan mahasiswa baru',
+      description: 'Daftarkan akun mahasiswa',
       href: '/mahasiswa',
       variant: 'primary',
     },
     {
       icon: Users,
       title: 'Tambah Dosen',
-      description: 'Daftarkan pengajar',
+      description: 'Daftarkan akun pengajar',
       href: '/dosen',
       variant: 'primary',
     },

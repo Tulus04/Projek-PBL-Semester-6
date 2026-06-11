@@ -36,7 +36,7 @@ function AttendanceBar({ pct, tier }: { pct: number; tier: 'critical' | 'warning
 
 // Row mahasiswa di list top
 function StudentRow({ student }: { student: AtRiskStudent }) {
-  const tierLabel = student.tier === 'critical' ? 'Kritis' : 'Perhatian'
+  const tierLabel = student.tier === 'critical' ? 'Tindakan Lanjut' : 'Peringatan Dini'
   const tierBadgeClass = student.tier === 'critical'
     ? 'bg-danger/10 text-danger'
     : 'bg-warning/10 text-warning'
@@ -107,7 +107,7 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
         </div>
         <div className="text-center py-4">
           <p className="text-sm text-text-secondary">
-            Tidak ada mahasiswa berisiko saat ini. Seluruh mahasiswa memenuhi threshold kehadiran. 🎉
+            Tidak ada evaluasi kehadiran saat ini. Seluruh mahasiswa memenuhi threshold kehadiran. 🎉
           </p>
         </div>
       </div>
@@ -124,7 +124,7 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
           </div>
           <div>
             <h3 className="text-base font-bold font-heading text-text-primary">
-              Mahasiswa Berisiko
+              Evaluasi Kehadiran
             </h3>
             <p className="text-xs text-text-secondary">
               Kehadiran &lt; {settings.thresholdPct}% dalam {settings.windowDays} hari terakhir
@@ -142,12 +142,12 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
       {/* Tier breakdown */}
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="rounded-xl bg-danger/5 border border-danger/15 p-3">
-          <p className="text-[10px] uppercase tracking-widest font-bold text-danger mb-1">Kritis</p>
+          <p className="text-[10px] uppercase tracking-widest font-bold text-danger mb-1">Tindakan Lanjut</p>
           <p className="text-xl font-bold font-heading text-danger leading-tight">{criticalCount}</p>
           <p className="text-[10px] text-text-secondary">&lt; {settings.criticalPct}% kehadiran</p>
         </div>
         <div className="rounded-xl bg-warning/5 border border-warning/15 p-3">
-          <p className="text-[10px] uppercase tracking-widest font-bold text-warning mb-1">Perhatian</p>
+          <p className="text-[10px] uppercase tracking-widest font-bold text-warning mb-1">Peringatan Dini</p>
           <p className="text-xl font-bold font-heading text-warning leading-tight">{warningCount}</p>
           <p className="text-[10px] text-text-secondary">{settings.criticalPct}% – {settings.thresholdPct - 0.1}%</p>
         </div>
@@ -172,7 +172,7 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
         href="/at-risk"
         className="flex items-center justify-between rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors px-4 py-2.5 text-sm font-semibold text-primary group"
       >
-        <span>Lihat semua mahasiswa berisiko ({totalCount})</span>
+        <span>Lihat semua evaluasi kehadiran ({totalCount})</span>
         <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
       </Link>
     </div>
