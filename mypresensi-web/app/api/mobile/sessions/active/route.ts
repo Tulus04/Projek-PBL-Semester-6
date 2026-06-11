@@ -44,7 +44,10 @@ export async function GET(req: NextRequest) {
 
   const combinedKelas = `${user.semester ?? ''}${user.kelas ?? ''}`.toLowerCase()
   const filteredSessions = sessions?.filter((s) => {
-    if (!s.target_kelas) return true
+    // Jika tidak ada target kelas, atau diset "Semua Kelas", maka izinkan
+    if (!s.target_kelas || s.target_kelas.toLowerCase().includes('semua')) return true
+    
+    // Jika target kelas sesuai dengan profil mahasiswa
     return s.target_kelas.toLowerCase() === combinedKelas
   }) || []
 
