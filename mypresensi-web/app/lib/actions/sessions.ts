@@ -21,9 +21,12 @@ const sessionSchema = z.object({
   session_number: z.coerce.number().min(1, 'Nomor pertemuan minimal 1').max(16, 'Nomor pertemuan maksimal 16'),
   topic: z.string().min(1, 'Topik wajib diisi').max(200, 'Topik maksimal 200 karakter'),
   mode: z.enum(['offline', 'online']),
-  // Lokasi — opsional, hanya relevan untuk mode offline
+  target_kelas: z.string().optional().or(z.literal('')),
   campus_location_id: z.string().uuid().optional().or(z.literal('')),
-  radius_meters: z.coerce.number().int().min(50).max(500).optional(),
+  radius_meters: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : Number(val),
+    z.number().int().min(50).max(500).optional()
+  ),
 })
 
 export type SessionFormState = {
@@ -39,10 +42,12 @@ export async function getAllSessions({
   dosenId,
   courseId,
   status,
+  kelas,
 }: {
   dosenId?: string
   courseId?: string
   status?: string
+  kelas?: string
 } = {}) {
   const supabase = createAdminClient()
 
@@ -72,6 +77,15 @@ export async function getAllSessions({
     query = query.eq('is_active', false).not('started_at', 'is', null)
   } else if (status === 'pending') {
     query = query.eq('is_active', false).is('started_at', null)
+  }
+
+  // Filter kelas
+  if (kelas) {
+    if (kelas === 'Semua') {
+      query = query.is('target_kelas', null)
+    } else {
+      query = query.eq('target_kelas', kelas)
+    }
   }
 
   const { data, error } = await query
@@ -112,6 +126,7 @@ export async function addSessionAction(
     session_number: formData.get('session_number') as string,
     topic: formData.get('topic') as string,
     mode: formData.get('mode') as string,
+    target_kelas: formData.get('target_kelas') as string,
     campus_location_id: formData.get('campus_location_id') as string,
     radius_meters: formData.get('radius_meters') as string,
   }
@@ -124,16 +139,26 @@ export async function addSessionAction(
 
   const supabase = createAdminClient()
 
-  // Check duplicate session number
-  const { data: existing } = await supabase
+  const targetKelas = parsed.data.target_kelas || null
+
+  // Check duplicate session number for the same class
+  let checkQuery = supabase
     .from('sessions')
-    .select('id')
+    .select('id, target_kelas')
     .eq('course_id', courseId)
     .eq('session_number', parsed.data.session_number)
-    .single()
 
-  if (existing) {
-    return { error: `Pertemuan ${parsed.data.session_number} sudah ada.`, success: false }
+  const { data: existingSessions } = await checkQuery
+
+  if (existingSessions && existingSessions.length > 0) {
+    if (targetKelas === null) {
+      return { error: `Pertemuan ${parsed.data.session_number} sudah ada (Semua Kelas/Kelas Lain). Tidak dapat menimpa dengan 'Semua Kelas'.`, success: false }
+    } else {
+      const conflict = existingSessions.find(s => s.target_kelas === targetKelas || s.target_kelas === null)
+      if (conflict) {
+        return { error: `Pertemuan ${parsed.data.session_number} sudah dibuat untuk kelas ${conflict.target_kelas || 'Semua Kelas'}.`, success: false }
+      }
+    }
   }
 
   // Resolve lokasi berdasarkan mode
@@ -183,6 +208,7 @@ export async function addSessionAction(
     session_number: parsed.data.session_number,
     topic: parsed.data.topic,
     mode: parsed.data.mode,
+    target_kelas: targetKelas,
     location_lat: locationLat,
     location_lng: locationLng,
     radius_meters: radiusMeters,
@@ -262,26 +288,33 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
       },
     })
 
-    // Kirim notifikasi ke semua mahasiswa enrolled
+    // 1. Ambil course_id dan target_kelas untuk sesi ini jika belum punya (defense)
+    const sessionIdTarget = sessionId
     const { data: sessionData } = await supabase
       .from('sessions')
-      .select('course_id, topic, session_number, course:courses!course_id(name)')
-      .eq('id', sessionId)
+      .select('course_id, topic, session_number, target_kelas, course:courses!course_id(name)')
+      .eq('id', sessionIdTarget)
       .single()
 
-    if (sessionData?.course_id) {
-      const { data: enrollments } = await supabase
+    if (sessionData && sessionData.course_id) {
+      // 2. Ambil semua pendaftar di MK tersebut
+      const { data: enrolled } = await supabase
         .from('enrollments')
-        .select('student_id')
+        .select('student_id, profiles!inner(kelas)')
         .eq('course_id', sessionData.course_id)
 
-      if (enrollments && enrollments.length > 0) {
+      let targetStudents = enrolled || []
+      if (sessionData.target_kelas) {
+        targetStudents = targetStudents.filter((e: any) => (e.profiles as any).kelas === sessionData.target_kelas)
+      }
+
+      if (targetStudents.length > 0) {
         const courseArr = sessionData.course as unknown as Array<{ name?: string }> | null
         const courseName = courseArr?.[0]?.name ?? 'Mata Kuliah'
         const topic = sessionData.topic ?? `Pertemuan ${sessionData.session_number}`
 
         await createBulkNotifications(
-          enrollments.map((e) => ({
+          targetStudents.map((e: any) => ({
             userId: e.student_id,
             title: 'Sesi Presensi Dimulai',
             message: `${courseName}: ${topic} — segera lakukan absensi.`,
@@ -290,12 +323,9 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
           }))
         )
 
-        // FCM push batch (tambahan; polling/notifications tetap fallback — D12).
-        // sendEachForMulticast chunk 500 di-handle dalam sendPushToMany.
-        // Route mobile '/scan' (bukan /dashboard web). Privacy: copy generik.
         try {
           await sendPushToMany(
-            enrollments.map((e) => e.student_id),
+            targetStudents.map((e: any) => e.student_id),
             {
               title: 'Sesi Presensi Dimulai',
               body: `${courseName}: ${topic} — segera lakukan absensi.`,
@@ -321,11 +351,16 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
   } else {
     // AKHIRI SESI → Hapus kode, set ended_at, & GENERATE ALPA otomatis
 
-    // 1. Ambil course_id untuk sesi ini jika belum punya (defense)
     const sessionIdTarget = sessionId
     const courseIdTarget = sessionCheck?.course_id
 
-    // 2. Akhiri sesi
+    // 1. Ambil info sesi untuk menentukan target mahasiswa
+    const { data: sessionData } = await supabase
+      .from('sessions')
+      .select('target_kelas')
+      .eq('id', sessionIdTarget)
+      .single()
+
     const { error } = await supabase
       .from('sessions')
       .update({
@@ -342,21 +377,26 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
     if (courseIdTarget) {
       const { data: enrollments } = await supabase
         .from('enrollments')
-        .select('student_id')
+        .select('student_id, profiles!inner(kelas)')
         .eq('course_id', courseIdTarget)
+
+      // Filter pendaftar berdasarkan target_kelas sesi
+      let targetStudents = enrollments || []
+      if (sessionData?.target_kelas) {
+        targetStudents = targetStudents.filter((e: any) => (e.profiles as any).kelas === sessionData.target_kelas)
+      }
 
       const { data: attendances } = await supabase
         .from('attendances')
         .select('student_id')
         .eq('session_id', sessionIdTarget)
 
-      const enrolledIds = (enrollments ?? []).map(e => e.student_id)
+      const targetIds = targetStudents.map((e: any) => e.student_id)
       const attendedIds = new Set((attendances ?? []).map(a => a.student_id))
-
-      const alpaIds = enrolledIds.filter(id => !attendedIds.has(id))
+      const alpaIds = targetIds.filter((id: string) => !attendedIds.has(id))
 
       if (alpaIds.length > 0) {
-        const alpaRecords = alpaIds.map(studentId => ({
+        const alpaRecords = alpaIds.map((studentId: string) => ({
           session_id: sessionIdTarget,
           student_id: studentId,
           status: 'alpa',

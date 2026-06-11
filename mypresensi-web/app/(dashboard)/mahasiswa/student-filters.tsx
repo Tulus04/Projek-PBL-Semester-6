@@ -71,7 +71,7 @@ export default function StudentFilters() {
         onChange={(e) => updateFilter('kelas', e.target.value)}
       >
         <option value="">Semua Kelas</option>
-        {['A', 'B', 'C', 'D'].map((k) => (
+        {['A', 'B', 'C'].map((k) => (
           <option key={k} value={k}>
             Kelas {k}
           </option>

@@ -17,23 +17,27 @@ interface Props {
   courses: CourseOption[]
   currentCourseId?: string
   currentStatus?: string
+  currentKelas?: string
 }
 
 export default function SessionFilters({
   courses,
   currentCourseId,
   currentStatus,
+  currentKelas,
 }: Props) {
   const router = useRouter()
   const [courseId, setCourseId] = useState(currentCourseId || '')
   const [status, setStatus] = useState(currentStatus || '')
+  const [kelas, setKelas] = useState(currentKelas || '')
 
   // Debounced auto-apply
   const applyFilter = useCallback(
-    (newCourseId: string, newStatus: string) => {
+    (newCourseId: string, newStatus: string, newKelas: string) => {
       const params = new URLSearchParams()
       if (newCourseId) params.set('course_id', newCourseId)
       if (newStatus) params.set('status', newStatus)
+      if (newKelas) params.set('kelas', newKelas)
       const qs = params.toString()
       router.push(qs ? `/sesi?${qs}` : '/sesi')
     },
@@ -42,17 +46,23 @@ export default function SessionFilters({
 
   const handleCourseChange = (value: string) => {
     setCourseId(value)
-    applyFilter(value, status)
+    applyFilter(value, status, kelas)
   }
 
   const handleStatusChange = (value: string) => {
     setStatus(value)
-    applyFilter(courseId, value)
+    applyFilter(courseId, value, kelas)
+  }
+
+  const handleKelasChange = (value: string) => {
+    setKelas(value)
+    applyFilter(courseId, status, value)
   }
 
   const handleReset = () => {
     setCourseId('')
     setStatus('')
+    setKelas('')
     router.push('/sesi')
   }
 
@@ -60,9 +70,10 @@ export default function SessionFilters({
   useEffect(() => {
     setCourseId(currentCourseId || '')
     setStatus(currentStatus || '')
-  }, [currentCourseId, currentStatus])
+    setKelas(currentKelas || '')
+  }, [currentCourseId, currentStatus, currentKelas])
 
-  const hasFilter = courseId || status
+  const hasFilter = courseId || status || kelas
 
   return (
     <div className="card p-4">
@@ -102,6 +113,22 @@ export default function SessionFilters({
             <option value="active">Sedang Berlangsung</option>
             <option value="ended">Sudah Selesai</option>
             <option value="pending">Belum Dimulai</option>
+          </select>
+        </div>
+
+        {/* Filter Kelas */}
+        <div className="flex-1 min-w-[120px]">
+          <label className="form-label">Target Kelas</label>
+          <select
+            value={kelas}
+            onChange={(e) => handleKelasChange(e.target.value)}
+            className="input-field w-full"
+          >
+            <option value="">Semua Filter</option>
+            <option value="Semua">Khusus "Semua Kelas"</option>
+            <option value="A">Kelas A</option>
+            <option value="B">Kelas B</option>
+            <option value="C">Kelas C</option>
           </select>
         </div>
 

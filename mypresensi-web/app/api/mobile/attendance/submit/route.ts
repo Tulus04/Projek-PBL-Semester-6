@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     // 4. LAYER 1: Validasi sesi exists & aktif
     const { data: session, error: sessionError } = await adminClient
       .from('sessions')
-      .select('id, course_id, is_active, session_code, session_code_seed, session_code_expires_at, location_lat, location_lng, radius_meters, mode, session_number, topic, started_at, courses(code, name)')
+      .select('id, course_id, is_active, session_code, session_code_seed, session_code_expires_at, location_lat, location_lng, radius_meters, mode, session_number, topic, started_at, target_kelas, courses(code, name)')
       .eq('id', input.session_id)
       .single()
 
@@ -101,6 +101,10 @@ export async function POST(req: NextRequest) {
 
     if (!session.is_active) {
       return errorResponse('Sesi sudah berakhir', 400)
+    }
+
+    if (session.target_kelas && session.target_kelas !== user.kelas) {
+      return errorResponse('Sesi ini bukan untuk kelas Anda', 403)
     }
 
     // 5. LAYER 2: Validasi session_code atau qr_token (QR Gating Phase)

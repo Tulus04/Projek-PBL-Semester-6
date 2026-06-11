@@ -127,7 +127,7 @@ export default function AddStudentModal() {
                   <label htmlFor="add-kelas" className="form-label">Kelas</label>
                   <select id="add-kelas" name="kelas" className="input-field w-full">
                     <option value="">-</option>
-                    {['A', 'B', 'C', 'D'].map((k) => (
+                    {['A', 'B', 'C'].map((k) => (
                       <option key={k} value={k}>{k}</option>
                     ))}
                   </select>

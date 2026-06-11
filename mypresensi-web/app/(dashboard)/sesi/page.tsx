@@ -10,6 +10,7 @@ import { getCourses } from '@/lib/actions/courses'
 import { getCampusLocations } from '@/lib/actions/campus-locations'
 import { getCurrentUserProfile } from '@/lib/auth-guard'
 import { redirect } from 'next/navigation'
+import { createAdminClient } from '@/lib/supabase/server'
 import SessionList from './session-list'
 import SessionFilters from './session-filters'
 
@@ -33,6 +34,7 @@ interface SessionWithCourse {
   is_active: boolean
   started_at: string | null
   ended_at: string | null
+  target_kelas: string | null
   attendance_count: { count: number }[]
   course: CourseInfo
 }
@@ -44,7 +46,7 @@ export const metadata: Metadata = {
 export default async function SesiPage({
   searchParams,
 }: {
-  searchParams: { course_id?: string; status?: string }
+  searchParams: { course_id?: string; status?: string; kelas?: string }
 }) {
   const currentUser = await getCurrentUserProfile()
   if (!currentUser) redirect('/login')
@@ -57,6 +59,7 @@ export default async function SesiPage({
     dosenId,
     courseId: searchParams.course_id,
     status: searchParams.status,
+    kelas: searchParams.kelas,
   })
 
   // Fetch daftar MK untuk filter dropdown
@@ -64,6 +67,26 @@ export default async function SesiPage({
 
   // Fetch preset lokasi kampus untuk form tambah sesi
   const campusLocations = await getCampusLocations()
+
+  // Fetch kelas unik per mata kuliah berdasarkan mahasiswa yang terdaftar
+  const supabase = createAdminClient()
+  const { data: enrollments } = await supabase
+    .from('enrollments')
+    .select('course_id, profiles!inner(kelas)')
+    .in('course_id', (courses as CourseInfo[]).map(c => c.id))
+
+  const courseClasses = new Map<string, Set<string>>()
+  enrollments?.forEach((e: any) => {
+    if (e.profiles?.kelas) {
+      if (!courseClasses.has(e.course_id)) courseClasses.set(e.course_id, new Set())
+      courseClasses.get(e.course_id)!.add(e.profiles.kelas)
+    }
+  })
+
+  const availableClassesByCourse: Record<string, string[]> = {}
+  ;(courses as CourseInfo[]).forEach(c => {
+    availableClassesByCourse[c.id] = Array.from(courseClasses.get(c.id) || []).sort()
+  })
 
   // Group sessions by course
   const groupedSessions = new Map<string, { course: CourseInfo; sessions: SessionWithCourse[] }>()
@@ -140,6 +163,7 @@ export default async function SesiPage({
         courses={courses}
         currentCourseId={searchParams.course_id}
         currentStatus={searchParams.status}
+        currentKelas={searchParams.kelas}
       />
 
       {/* Session List — grouped by course */}
@@ -148,6 +172,7 @@ export default async function SesiPage({
         userRole={currentUser.role}
         userId={currentUser.id}
         campusLocations={campusLocations}
+        availableClassesByCourse={availableClassesByCourse}
       />
     </div>
   )

@@ -31,12 +31,13 @@ export async function GET(req: NextRequest) {
     .select(`
       id, course_id, session_number, topic, mode,
       location_lat, location_lng, radius_meters,
-      started_at,
+      started_at, target_kelas,
       course:courses!sessions_course_id_fkey(code, name),
       dosen:profiles!sessions_dosen_id_fkey(full_name)
     `)
     .in('course_id', courseIds)
     .eq('is_active', true)
+    .or(`target_kelas.is.null,target_kelas.eq.${user.kelas ?? ''}`)
 
   if (error) {
     return errorResponse('Gagal mengambil data sesi', 500)

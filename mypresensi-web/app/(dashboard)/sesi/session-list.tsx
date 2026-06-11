@@ -45,6 +45,7 @@ interface Session {
   is_active: boolean
   started_at: string | null
   ended_at: string | null
+  target_kelas: string | null
   attendance_count: { count: number }[]
 }
 
@@ -62,6 +63,7 @@ interface Props {
   userRole: string
   userId: string
   campusLocations: CampusLocation[]
+  availableClassesByCourse: Record<string, string[]>
 }
 
 // Helper: status lifecycle sesi
@@ -71,7 +73,7 @@ function getSessionStatus(s: Session): 'active' | 'ended' | 'pending' {
   return 'pending'
 }
 
-export default function SessionList({ groupedSessions, userRole, userId, campusLocations }: Props) {
+export default function SessionList({ groupedSessions, userRole, userId, campusLocations, availableClassesByCourse }: Props) {
   const router = useRouter()
   const isAdmin = userRole === 'admin'
 
@@ -531,7 +533,7 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                             style={{ animation: 'pulse 2s infinite' }}
                           />
                           <span className="text-xs font-semibold uppercase tracking-wider text-success">
-                            Sesi {activeSession.session_number} — Sedang Berlangsung
+                            Sesi {activeSession.session_number} — Sedang Berlangsung {activeSession.target_kelas && `(Kelas ${activeSession.target_kelas})`}
                           </span>
                         </div>
                         <span className="text-xs text-text-secondary">{activeSession.topic}</span>
@@ -635,7 +637,7 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                       className="border border-primary/20 bg-primary/5 rounded-lg p-4 mb-4"
                     >
                       <h4 className="text-sm font-semibold text-text-primary mb-3">Sesi Baru</h4>
-                      <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
                         <div>
                           <label className="form-label">Pertemuan Ke</label>
                           <input
@@ -647,6 +649,15 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                             className="input-field w-full"
                             required
                           />
+                        </div>
+                        <div>
+                          <label className="form-label">Target Kelas</label>
+                          <select name="target_kelas" className="input-field w-full">
+                            <option value="">Semua Kelas</option>
+                            {(availableClassesByCourse[course.id] || []).map(kelas => (
+                              <option key={kelas} value={kelas}>Kelas {kelas}</option>
+                            ))}
+                          </select>
                         </div>
                         <div>
                           <label className="form-label">Mode</label>
@@ -829,7 +840,7 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-text-primary truncate">
-                                    {s.topic || 'Tidak ada topik'}
+                                    {s.topic || 'Tidak ada topik'} {s.target_kelas && <span className="ml-2 text-xs font-bold text-primary">Kelas {s.target_kelas}</span>}
                                   </p>
                                   <div className="flex items-center gap-2 mt-0.5">
                                     <span className={s.mode === 'offline' ? 'badge badge-success' : 'badge badge-warning'}>

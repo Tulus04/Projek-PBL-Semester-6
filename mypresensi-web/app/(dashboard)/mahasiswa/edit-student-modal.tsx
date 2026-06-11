@@ -131,7 +131,7 @@ export default function EditStudentModal({ student, onClose }: Props) {
               <label htmlFor="edit-kelas" className="form-label">Kelas</label>
               <select id="edit-kelas" name="kelas" defaultValue={student.kelas ?? ''} className="input-field w-full">
                 <option value="">-</option>
-                {['A', 'B', 'C', 'D'].map((k) => (
+                {['A', 'B', 'C'].map((k) => (
                   <option key={k} value={k}>{k}</option>
                 ))}
               </select>
