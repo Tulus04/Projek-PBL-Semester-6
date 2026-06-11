@@ -47,7 +47,7 @@ export default function QuickActions({ pendingLeaveCount }: QuickActionsProps) {
     },
     {
       icon: Download,
-      title: 'Export Rekap',
+      title: 'Unduh Rekap',
       description: 'Unduh laporan PDF/CSV',
       href: '/export',
       variant: 'success',

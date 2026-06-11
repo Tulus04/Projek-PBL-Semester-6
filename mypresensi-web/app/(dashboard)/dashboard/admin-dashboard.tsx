@@ -102,7 +102,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-300"></span>
             </span>
-            <span className="text-xs font-semibold text-white">Real-time</span>
+            <span className="text-xs font-semibold text-white">Terkini</span>
           </div>
         </div>
       </div>
@@ -194,7 +194,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
 
         <div className="kpi-card animate-stagger-in" style={{ animationDelay: '300ms' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="summary-card-label">Menunggu Review</span>
+            <span className="summary-card-label">Menunggu Tinjauan</span>
             <span className="kpi-icon-box accent">
               <FileText size={18} />
             </span>
@@ -367,7 +367,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
               Absensi Terkini
             </h3>
             <p className="text-xs text-text-secondary mt-0.5">
-              Riwayat absensi hari ini secara real-time
+              Riwayat absensi hari ini secara langsung
             </p>
           </div>
         </div>
