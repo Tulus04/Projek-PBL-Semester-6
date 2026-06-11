@@ -93,7 +93,7 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
   // Empty state — tidak ada mhs at-risk
   if (totalCount === 0) {
     return (
-      <div className="card p-5">
+      <div className="card p-5 h-full flex flex-col justify-center">
         <div className="flex items-center gap-3 mb-3">
           <div className="kpi-icon-box success">
             <GraduationCap size={18} />
@@ -115,7 +115,7 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
   }
 
   return (
-    <div className="card p-5">
+    <div className="card p-5 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
@@ -170,7 +170,7 @@ export default function AtRiskWidget({ summary }: AtRiskWidgetProps) {
       {/* CTA Lihat Semua */}
       <Link
         href="/at-risk"
-        className="flex items-center justify-between rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors px-4 py-2.5 text-sm font-semibold text-primary group"
+        className="mt-auto flex items-center justify-between rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors px-4 py-2.5 text-sm font-semibold text-primary group"
       >
         <span>Lihat semua riwayat evaluasi ({totalCount} mahasiswa)</span>
         <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
