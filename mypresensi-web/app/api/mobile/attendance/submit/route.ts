@@ -414,6 +414,7 @@ export async function POST(req: NextRequest) {
         : null,
       session_topic: session.topic,
       session_number: session.session_number,
+      session_mode: session.mode,
     }, 201)
   } catch {
     return errorResponse('Terjadi kesalahan server', 500)

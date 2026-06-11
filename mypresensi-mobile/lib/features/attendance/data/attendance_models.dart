@@ -120,6 +120,7 @@ class AttendanceSubmitResponse {
   final String? courseName;
   final String? sessionTopic;
   final int? sessionNumber;
+  final String? sessionMode;
 
   const AttendanceSubmitResponse({
     required this.status,
@@ -130,6 +131,7 @@ class AttendanceSubmitResponse {
     this.courseName,
     this.sessionTopic,
     this.sessionNumber,
+    this.sessionMode,
   });
 
   factory AttendanceSubmitResponse.fromJson(Map<String, dynamic> json) {
@@ -142,6 +144,7 @@ class AttendanceSubmitResponse {
       courseName: json['course_name'] as String?,
       sessionTopic: json['session_topic'] as String?,
       sessionNumber: json['session_number'] as int?,
+      sessionMode: json['session_mode'] as String?,
     );
   }
 }

@@ -107,6 +107,22 @@ class AttendanceResultScreen extends ConsumerWidget {
                       ),
                       const Divider(height: 24),
                     ],
+                    if (response.sessionMode != null) ...[
+                      _buildDetailRow(
+                        context,
+                        icon: response.sessionMode == 'online'
+                            ? Icons.wifi_outlined
+                            : Icons.groups_outlined,
+                        label: 'Mode',
+                        value: response.sessionMode == 'online'
+                            ? 'Daring (Online)'
+                            : 'Tatap Muka',
+                        valueColor: response.sessionMode == 'online'
+                            ? AppColors.primary
+                            : AppColors.textPrimary,
+                      ),
+                      const Divider(height: 24),
+                    ],
 
                     // Session name (Legacy, tetap dibiarkan untuk fallback)
                     if (submitState.sessionName != null && response.courseName == null) ...[
