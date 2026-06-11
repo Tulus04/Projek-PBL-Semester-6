@@ -197,7 +197,7 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
                 <div className="border border-primary/20 bg-primary/5 rounded-lg p-4 mt-4">
                   <h4 className="text-sm font-semibold text-text-primary mb-3">Tambah Mahasiswa</h4>
 
-                  <div className="flex gap-2 mb-3">
+                  <div className="flex gap-3 mb-3">
                     <div className="relative flex-1">
                       <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
                       <input
@@ -211,7 +211,7 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
                     <select
                       value={selectedKelasFilter}
                       onChange={(e) => setSelectedKelasFilter(e.target.value)}
-                      className="input-field text-sm min-w-[120px]"
+                      className="input-field text-sm w-[140px] shrink-0"
                     >
                       <option value="">Semua Kelas</option>
                       {uniqueAvailableClasses.map(k => (
