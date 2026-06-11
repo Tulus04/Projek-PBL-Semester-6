@@ -87,6 +87,10 @@ class AuthNotifier extends Notifier<AuthState> {
             user: savedUser,
           );
           debugPrint('[AUTH] Loaded from storage: ${savedUser.fullName}');
+          
+          // FCM: Wajib inisialisasi setiap kali app start dan terautentikasi
+          FcmService.initialize();
+          
           return;
         }
       }
