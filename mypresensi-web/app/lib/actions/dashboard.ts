@@ -65,6 +65,42 @@ export interface DosenDashboardData {
 }
 
 // ==========================================
+// HELPER TREND & TIMEZONE
+// ==========================================
+
+/** Hitung TrendData dari current & previous count. */
+function computeTrend(current: number, previous: number, periodLabel: string): TrendData {
+  const deltaAbs = current - previous
+  let deltaPct: number | null = null
+  if (previous === 0) {
+    deltaPct = current > 0 ? null : 0  // null = "baru" (no baseline)
+  } else {
+    deltaPct = Math.round(((current - previous) / previous) * 100 * 10) / 10
+  }
+  return { current, previous, deltaAbs, deltaPct, periodLabel }
+}
+
+/** Hitung batas UTC awal dan akhir untuk suatu hari berdasarkan offset timezone (misal WITA = 8) */
+function getDayBoundsUTC(offsetHours: number, daysAgo: number = 0) {
+  const now = new Date();
+  const localTime = now.getTime() + (offsetHours * 60 * 60 * 1000);
+  const targetDate = new Date(localTime);
+  targetDate.setUTCDate(targetDate.getUTCDate() - daysAgo);
+  
+  const year = targetDate.getUTCFullYear();
+  const month = targetDate.getUTCMonth();
+  const date = targetDate.getUTCDate();
+  
+  const start = new Date(Date.UTC(year, month, date, 0, 0, 0, 0));
+  start.setTime(start.getTime() - (offsetHours * 60 * 60 * 1000));
+  
+  const end = new Date(Date.UTC(year, month, date, 23, 59, 59, 999));
+  end.setTime(end.getTime() - (offsetHours * 60 * 60 * 1000));
+  
+  return { start: start.toISOString(), end: end.toISOString(), targetDate };
+}
+
+// ==========================================
 // DATA FETCHING DOSEN
 // ==========================================
 
@@ -188,20 +224,19 @@ export async function getDosenDashboardData(): Promise<DosenDashboardData> {
     }
   })
 
-  // Weekly trend (7 hari terakhir)
+  // Weekly trend (7 hari terakhir) - Sesuaikan dengan WITA (UTC+8)
+  const WITA_OFFSET = 8
   const dayLabels = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+  const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des']
   const weeklyTrend: WeeklyTrendItem[] = []
 
   for (let i = 6; i >= 0; i--) {
-    const date = new Date()
-    date.setDate(date.getDate() - i)
-    const dateStr = date.toISOString().split('T')[0]
-    const dayAttendances = allAttendances.filter(a => a.scanned_at?.startsWith(dateStr))
+    const bounds = getDayBoundsUTC(WITA_OFFSET, i)
+    const dayAttendances = allAttendances.filter(a => a.scanned_at >= bounds.start && a.scanned_at <= bounds.end)
 
     weeklyTrend.push({
-      day: dayLabels[date.getDay()],
-      date: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }),
-      // hadir bar inklusif terlambat (sub-variant hadir)
+      day: dayLabels[bounds.targetDate.getUTCDay()],
+      date: `${bounds.targetDate.getUTCDate().toString().padStart(2, '0')} ${monthLabels[bounds.targetDate.getUTCMonth()]}`,
       hadir: dayAttendances.filter(a => a.status === 'hadir' || a.status === 'terlambat').length,
       izin: dayAttendances.filter(a => a.status === 'izin' || a.status === 'sakit').length,
       alpa: dayAttendances.filter(a => a.status === 'alpa').length,
@@ -296,21 +331,7 @@ export interface AdminDashboardData {
   recentAttendances: Record<string, unknown>[]
 }
 
-// ==========================================
-// HELPER TREND
-// ==========================================
 
-/** Hitung TrendData dari current & previous count. */
-function computeTrend(current: number, previous: number, periodLabel: string): TrendData {
-  const deltaAbs = current - previous
-  let deltaPct: number | null = null
-  if (previous === 0) {
-    deltaPct = current > 0 ? null : 0  // null = "baru" (no baseline)
-  } else {
-    deltaPct = Math.round(((current - previous) / previous) * 100 * 10) / 10
-  }
-  return { current, previous, deltaAbs, deltaPct, periodLabel }
-}
 
 // ==========================================
 // DATA FETCHING ADMIN
@@ -318,18 +339,17 @@ function computeTrend(current: number, previous: number, periodLabel: string): T
 
 export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const adminClient = createAdminClient()
-  const today = new Date().toISOString().split('T')[0]
+  const WITA_OFFSET = 8
 
   // 1. Summary counts (current period)
-  // Window pembanding untuk attendance: hari yang sama 7 hari lalu (00:00–23:59).
-  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
-  const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999)
-  const lastWeekStart = new Date(todayStart); lastWeekStart.setDate(lastWeekStart.getDate() - 7)
-  const lastWeekEnd = new Date(todayEnd); lastWeekEnd.setDate(lastWeekEnd.getDate() - 7)
+  // Window pembanding untuk attendance: hari yang sama 7 hari lalu dengan batas UTC dari WITA.
+  const todayBounds = getDayBoundsUTC(WITA_OFFSET, 0)
+  const lastWeekBounds = getDayBoundsUTC(WITA_OFFSET, 7)
+  
   // Window pembanding untuk count user: 7 hari lalu cutoff.
-  const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const sevenDaysAgo = new Date(); sevenDaysAgo.setTime(sevenDaysAgo.getTime() - (7 * 24 * 60 * 60 * 1000))
   // Window pembanding untuk leave_requests pending: rate masuk minggu ini vs minggu lalu.
-  const fourteenDaysAgo = new Date(); fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14)
+  const fourteenDaysAgo = new Date(); fourteenDaysAgo.setTime(fourteenDaysAgo.getTime() - (14 * 24 * 60 * 60 * 1000))
 
   // totalHadir inklusif terlambat (per migration 013) — pakai .in() untuk match multiple status
   const [
@@ -350,16 +370,16 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     // Current
     adminClient.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'mahasiswa').eq('is_active', true),
     adminClient.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'dosen').eq('is_active', true),
-    adminClient.from('attendances').select('*', { count: 'exact', head: true }).in('status', ['hadir', 'terlambat']).gte('scanned_at', todayStart.toISOString()).lte('scanned_at', todayEnd.toISOString()),
-    adminClient.from('attendances').select('*', { count: 'exact', head: true }).eq('status', 'alpa').gte('scanned_at', todayStart.toISOString()).lte('scanned_at', todayEnd.toISOString()),
-    adminClient.from('attendances').select('*', { count: 'exact', head: true }).in('status', ['izin', 'sakit']).gte('scanned_at', todayStart.toISOString()).lte('scanned_at', todayEnd.toISOString()),
+    adminClient.from('attendances').select('*', { count: 'exact', head: true }).in('status', ['hadir', 'terlambat']).gte('scanned_at', todayBounds.start).lte('scanned_at', todayBounds.end),
+    adminClient.from('attendances').select('*', { count: 'exact', head: true }).eq('status', 'alpa').gte('scanned_at', todayBounds.start).lte('scanned_at', todayBounds.end),
+    adminClient.from('attendances').select('*', { count: 'exact', head: true }).in('status', ['izin', 'sakit']).gte('scanned_at', todayBounds.start).lte('scanned_at', todayBounds.end),
     adminClient.from('leave_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     // Previous (untuk trend)
     adminClient.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'mahasiswa').eq('is_active', true).lt('created_at', sevenDaysAgo.toISOString()),
     adminClient.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'dosen').eq('is_active', true).lt('created_at', sevenDaysAgo.toISOString()),
-    adminClient.from('attendances').select('*', { count: 'exact', head: true }).in('status', ['hadir', 'terlambat']).gte('scanned_at', lastWeekStart.toISOString()).lte('scanned_at', lastWeekEnd.toISOString()),
-    adminClient.from('attendances').select('*', { count: 'exact', head: true }).eq('status', 'alpa').gte('scanned_at', lastWeekStart.toISOString()).lte('scanned_at', lastWeekEnd.toISOString()),
-    adminClient.from('attendances').select('*', { count: 'exact', head: true }).in('status', ['izin', 'sakit']).gte('scanned_at', lastWeekStart.toISOString()).lte('scanned_at', lastWeekEnd.toISOString()),
+    adminClient.from('attendances').select('*', { count: 'exact', head: true }).in('status', ['hadir', 'terlambat']).gte('scanned_at', lastWeekBounds.start).lte('scanned_at', lastWeekBounds.end),
+    adminClient.from('attendances').select('*', { count: 'exact', head: true }).eq('status', 'alpa').gte('scanned_at', lastWeekBounds.start).lte('scanned_at', lastWeekBounds.end),
+    adminClient.from('attendances').select('*', { count: 'exact', head: true }).in('status', ['izin', 'sakit']).gte('scanned_at', lastWeekBounds.start).lte('scanned_at', lastWeekBounds.end),
     adminClient.from('leave_requests').select('*', { count: 'exact', head: true }).gte('created_at', fourteenDaysAgo.toISOString()).lt('created_at', sevenDaysAgo.toISOString()),
   ])
 
@@ -386,17 +406,16 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
 
   // 3. Weekly trend (7 hari terakhir)
   const dayLabels = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+  const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des']
   const weeklyTrend: WeeklyTrendItem[] = []
 
   for (let i = 6; i >= 0; i--) {
-    const date = new Date()
-    date.setDate(date.getDate() - i)
-    const dateStr = date.toISOString().split('T')[0]
-    const dayAtt = attendanceList.filter(a => a.scanned_at?.startsWith(dateStr))
+    const bounds = getDayBoundsUTC(WITA_OFFSET, i)
+    const dayAtt = attendanceList.filter(a => a.scanned_at >= bounds.start && a.scanned_at <= bounds.end)
 
     weeklyTrend.push({
-      day: dayLabels[date.getDay()],
-      date: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }),
+      day: dayLabels[bounds.targetDate.getUTCDay()],
+      date: `${bounds.targetDate.getUTCDate().toString().padStart(2, '0')} ${monthLabels[bounds.targetDate.getUTCMonth()]}`,
       // hadir bar inklusif terlambat
       hadir: dayAtt.filter(a => a.status === 'hadir' || a.status === 'terlambat').length,
       izin: dayAtt.filter(a => a.status === 'izin' || a.status === 'sakit').length,
@@ -453,7 +472,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       student:profiles!student_id(full_name, nim_nip),
       session:sessions!session_id(topic, course:courses!course_id(name))
     `)
-    .gte('scanned_at', today)
+    .gte('scanned_at', todayBounds.start)
     .order('scanned_at', { ascending: false })
     .limit(8)
 
