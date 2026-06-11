@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
@@ -82,9 +83,33 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen>
         setState(() {
           _errorMessage = 'Gagal mengubah kata sandi. Silakan coba lagi.';
         });
+      } else {
+        // Tampilkan pesan sukses dan redirect
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text('Kata sandi berhasil diubah', style: TextStyle(fontSize: 13)),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/');
+        }
       }
-      // Jika success, GoRouter akan auto-redirect ke home karena
-      // auth state berubah ke AuthStatus.authenticated
     } catch (e) {
       if (!mounted) return;
       setState(() {
