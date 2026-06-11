@@ -74,7 +74,15 @@ const ACTION_MAP: Record<string, ActionConfig> = {
     label: 'Mock GPS Terdeteksi', icon: 'security', tier: 'danger',
     describe: (_, name) => `${name} terdeteksi memakai mock GPS — presensi ditolak`,
   },
+  qr_gate_passed: {
+    label: 'Pemindaian QR', icon: 'attendance', tier: 'info',
+    describe: (_, name) => `${name} berhasil memindai kode QR`,
+  },
   // Face
+  mobile_face_verify: {
+    label: 'Verifikasi Wajah', icon: 'face', tier: 'info',
+    describe: (_, name) => `${name} berhasil melakukan verifikasi wajah`,
+  },
   mobile_face_register: {
     label: 'Daftar Wajah', icon: 'face', tier: 'success',
     describe: (_, name) => `${name} mendaftarkan data wajah`,

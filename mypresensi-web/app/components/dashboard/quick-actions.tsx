@@ -39,7 +39,7 @@ export default function QuickActions({ pendingLeaveCount }: QuickActionsProps) {
     },
     {
       icon: FileText,
-      title: 'Approve Izin',
+      title: 'Persetujuan Izin',
       description: 'Pengajuan menunggu',
       href: '/izin?status=pending',
       variant: 'warning',
