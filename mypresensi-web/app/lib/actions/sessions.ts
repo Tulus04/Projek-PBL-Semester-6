@@ -123,12 +123,12 @@ export async function addSessionAction(
   const hasAccess = await canAccessCourse(currentUser.id, currentUser.role, courseId)
   if (!hasAccess) return { error: 'Akses ditolak: Anda tidak mengampu mata kuliah ini.', success: false }
   const raw = {
-    session_number: formData.get('session_number') as string,
-    topic: formData.get('topic') as string,
-    mode: formData.get('mode') as string,
-    target_kelas: formData.get('target_kelas') as string,
-    campus_location_id: formData.get('campus_location_id') as string,
-    radius_meters: formData.get('radius_meters') as string,
+    session_number: formData.get('session_number'),
+    topic: formData.get('topic'),
+    mode: formData.get('mode'),
+    target_kelas: formData.get('target_kelas') || '',
+    campus_location_id: formData.get('campus_location_id') || '',
+    radius_meters: formData.get('radius_meters') || undefined,
   }
 
   const parsed = sessionSchema.safeParse(raw)
