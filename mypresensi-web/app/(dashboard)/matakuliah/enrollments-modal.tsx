@@ -35,6 +35,7 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
   const [showAddPanel, setShowAddPanel] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [searchAdd, setSearchAdd] = useState('')
+  const [selectedKelasFilter, setSelectedKelasFilter] = useState('')
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -103,8 +104,14 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
     })
   }
 
+  const uniqueAvailableClasses = Array.from(new Set(available.map(s => s.kelas).filter(Boolean))).sort() as string[]
+
   const filteredAvailable = available.filter(
-    (s) => !searchAdd || s.full_name.toLowerCase().includes(searchAdd.toLowerCase()) || s.nim_nip.toLowerCase().includes(searchAdd.toLowerCase())
+    (s) => {
+      const matchSearch = !searchAdd || s.full_name.toLowerCase().includes(searchAdd.toLowerCase()) || s.nim_nip.toLowerCase().includes(searchAdd.toLowerCase())
+      const matchKelas = !selectedKelasFilter || s.kelas === selectedKelasFilter
+      return matchSearch && matchKelas
+    }
   )
 
   return (
@@ -190,15 +197,27 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
                 <div className="border border-primary/20 bg-primary/5 rounded-lg p-4 mt-4">
                   <h4 className="text-sm font-semibold text-text-primary mb-3">Tambah Mahasiswa</h4>
 
-                  <div className="relative mb-3">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
-                    <input
-                      type="text"
-                      placeholder="Cari NIM atau nama..."
-                      value={searchAdd}
-                      onChange={(e) => setSearchAdd(e.target.value)}
-                      className="input-field w-full pl-9 text-sm"
-                    />
+                  <div className="flex gap-2 mb-3">
+                    <div className="relative flex-1">
+                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
+                      <input
+                        type="text"
+                        placeholder="Cari NIM atau nama..."
+                        value={searchAdd}
+                        onChange={(e) => setSearchAdd(e.target.value)}
+                        className="input-field w-full pl-9 text-sm"
+                      />
+                    </div>
+                    <select
+                      value={selectedKelasFilter}
+                      onChange={(e) => setSelectedKelasFilter(e.target.value)}
+                      className="input-field text-sm min-w-[120px]"
+                    >
+                      <option value="">Semua Kelas</option>
+                      {uniqueAvailableClasses.map(k => (
+                        <option key={k} value={k}>Kelas {k}</option>
+                      ))}
+                    </select>
                   </div>
 
                   {filteredAvailable.length === 0 ? (
