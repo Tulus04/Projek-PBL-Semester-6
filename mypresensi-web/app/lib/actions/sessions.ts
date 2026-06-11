@@ -300,7 +300,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
       // 2. Ambil semua pendaftar di MK tersebut
       const { data: enrolled } = await supabase
         .from('enrollments')
-        .select('student_id, profiles!inner(kelas)')
+        .select('student_id, profiles!inner(semester, kelas)')
         .eq('course_id', sessionData.course_id)
 
       let targetStudents = enrolled || []
@@ -308,8 +308,8 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         targetStudents = targetStudents.filter((e: any) => {
           const p = e.profiles as { kelas?: string | null; semester?: number | string | null }
-          const combined = `${p.semester ?? ''}${p.kelas ?? ''}`
-          return combined === sessionData.target_kelas
+          const combined = `${p.semester ?? ''}${p.kelas ?? ''}`.toLowerCase()
+          return combined === sessionData.target_kelas?.toLowerCase()
         })
       }
 
