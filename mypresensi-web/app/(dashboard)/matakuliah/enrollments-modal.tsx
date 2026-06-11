@@ -167,7 +167,7 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
                         <tr key={e.id} className="border-b border-border last:border-0 hover:bg-gray-50">
                           <td className="px-4 py-2.5 font-mono text-primary font-semibold">{e.student?.nim_nip}</td>
                           <td className="px-4 py-2.5 text-text-primary">{e.student?.full_name}</td>
-                          <td className="px-4 py-2.5 text-text-secondary">{e.student?.kelas ?? '-'}</td>
+                          <td className="px-4 py-2.5 text-text-secondary">{e.student?.kelas ? `${e.student?.semester ?? ''}${e.student.kelas}` : '-'}</td>
                           <td className="px-2">
                             <button
                               onClick={() => handleRemove(e)}
@@ -225,7 +225,7 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
                             />
                             <span className="font-mono text-xs text-primary font-semibold">{s.nim_nip}</span>
                             <span className="text-sm text-text-primary flex-1">{s.full_name}</span>
-                            <span className="text-xs text-text-secondary">{s.kelas ?? ''}</span>
+                            <span className="text-xs text-text-secondary">{s.kelas ? `${s.semester ?? ''}${s.kelas}` : ''}</span>
                           </label>
                         ))}
                       </div>
