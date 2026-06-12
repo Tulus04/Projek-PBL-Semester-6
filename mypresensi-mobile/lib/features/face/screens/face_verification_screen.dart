@@ -158,7 +158,9 @@ class _FaceVerificationScreenState
     final detector = ref.read(faceDetectionServiceProvider);
 
     detector.processFrame(image, frontCamera).then((result) {
-      if (!mounted) return;
+      // result == null berarti frame di-skip (throttle / detector sibuk) —
+      // JANGAN diteruskan ke provider, bukan berarti wajah hilang.
+      if (!mounted || result == null) return;
 
       ref.read(faceVerificationProvider.notifier).onFrame(
             result: result,

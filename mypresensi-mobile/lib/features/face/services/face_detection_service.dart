@@ -59,6 +59,13 @@ class FaceDetectionService {
   FaceDetector? _faceDetector;
   bool _isProcessing = false;
 
+  /// Throttle: jeda minimal antar frame yang DIPROSES.
+  /// Kamera stream ±30fps — memproses semua frame hanya membuang CPU
+  /// (konversi planes per frame = alokasi besar → GC churn → jank).
+  /// 150ms ≈ 6-7 deteksi/detik, lebih dari cukup untuk liveness + UX.
+  static const Duration _minProcessInterval = Duration(milliseconds: 150);
+  DateTime _lastProcessStart = DateTime.fromMillisecondsSinceEpoch(0);
+
   /// Menyimpan arah toleh saat turnLeft (positif/negatif)
   /// Digunakan untuk memastikan turnRight berlawanan arah
   double? _turnLeftDirection;
@@ -71,8 +78,14 @@ class FaceDetectionService {
         enableLandmarks: false,       // Tidak perlu — embedding via TFLite
         enableContours: false,        // Tidak perlu
         enableTracking: true,         // Track face across frames
-        performanceMode: FaceDetectorMode.accurate,
-        minFaceSize: 0.3,             // Minimum 30% of frame
+        // `fast` adalah mode yang direkomendasikan Google untuk live camera
+        // stream. Mode `accurate` sebelumnya terlalu lambat per-frame →
+        // delay scan + mayoritas frame ter-skip.
+        performanceMode: FaceDetectorMode.fast,
+        // 0.15 = wajah minimal ~15% lebar frame. Nilai 0.3 sebelumnya
+        // membuat wajah yang sudah masuk frame (tapi agak jauh dari kamera)
+        // TIDAK terdeteksi sama sekali.
+        minFaceSize: 0.15,
       ),
     );
     debugPrint('[FACE DETECT] ML Kit FaceDetector initialized (detection-only)');
@@ -81,16 +94,28 @@ class FaceDetectionService {
   /// Process satu frame kamera — return FaceDetectionResult dengan
   /// info bounding box, eye/head angles, dll.
   ///
+  /// Return `null` jika frame DI-SKIP (detector sibuk / throttle interval
+  /// belum lewat). Caller WAJIB mengabaikan hasil null — null BUKAN berarti
+  /// "tidak ada wajah". Sebelumnya frame skip mengembalikan
+  /// FaceDetectionResult kosong (faceDetected=false) yang diteruskan ke
+  /// provider → terbaca sebagai "wajah hilang" → deteksi flicker.
+  ///
   /// JANGAN dipakai untuk extract embedding — pakai
   /// `FaceEmbeddingService.extractEmbedding(...)` setelah kita dapat
   /// `boundingBox` dari result ini.
-  Future<FaceDetectionResult> processFrame(
+  Future<FaceDetectionResult?> processFrame(
     CameraImage image,
     CameraDescription camera,
   ) async {
     if (_isProcessing || _faceDetector == null) {
-      return const FaceDetectionResult();
+      return null;
     }
+
+    final now = DateTime.now();
+    if (now.difference(_lastProcessStart) < _minProcessInterval) {
+      return null;
+    }
+    _lastProcessStart = now;
 
     _isProcessing = true;
 
