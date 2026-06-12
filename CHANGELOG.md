@@ -1,4 +1,4 @@
-# CHANGELOG â€” MyPresensi
+ï»¿# CHANGELOG â€” MyPresensi
 
 > Format: [Tanggal] | Sesi | Fase | Jenis | Deskripsi
 > Jenis: [ADD] = file/fitur baru | [MOD] = modifikasi | [FIX] = perbaikan bug | [DEL] = hapus | [CFG] = konfigurasi | [SEC] = security hardening | [DOC] = dokumentasi
@@ -6,37 +6,53 @@
 ---
 
 ---
+## [2026-06-12] - Sesi: Pembersihan Repositori Publik & Hardening .gitignore
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+### Target Sesi: Melakukan audit menyeluruh dan membersihkan berkas non-produksi (seperti materi presentasi, draf Scrum, mockup HTML, skrip PowerShell root, dan log internal AI) dari sistem pelacakan Git agar repositori GitHub publik bersih dan optimal sebelum dideploy ke Vercel.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| - | [MOD] | .gitignore | Menambahkan aturan pengabaian untuk \Refrensi/\, \docs/mockups/\, \*.pdf\, \PRESENTATION_SCRIPT.md\, \/*.ps1\ root, dan folder AI agent (\.kiro/\, \.windsurf/\, \.agents/\). |
+| - | [DEL] | (Git Cache) | Mencabut (untrack) berkas referensi jurnal, PDF simulasi Scrum, naskah presentasi, draf bab laporan Scrum, dan berkas mockup dari pelacakan Git. |
+
+### Verifikasi
+| Item | Hasil |
+|-------|--------|
+| Git status clean check | âœ… Berhasil |
+
+---
+
+
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-06-10] â€” Sesi: QR Gating & Strict 5s Lifetime
 
 ### Target Sesi: Meningkatkan keamanan presensi dengan arsitektur QR Gating (Pintu Masuk) 2 tahap. QR diubah menjadi "tiket masuk" yang divalidasi langsung (Strict 5 detik) untuk menerbitkan token izin 1 menit, sehingga memberi kelonggaran waktu bagi mahasiswa saat pemindaian wajah & lokasi, sekaligus memblokir total celah kecurangan "Titip Absen via WhatsApp".
@@ -63,36 +79,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-06-10] â€” Sesi: Remove Quick Actions
 
 ### Target Sesi: Menghapus bagian Aksi Cepat (Quick Actions) dari halaman beranda mobile sesuai permintaan.
@@ -127,36 +143,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |## [2026-06-10] â€” Sesi: Token Refresh Interceptor & Login Screen UI Revisions
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |## [2026-06-10] â€” Sesi: Token Refresh Interceptor & Login Screen UI Revisions
 
 ### Target Sesi: Mengatasi bug token expired auto-logout setelah 1 jam dengan membuat endpoint refresh token di backend Next.js, mengimplementasikan silent token refresh interceptor di mobile (Dio), merapikan logo login (full bleed), dan menambahkan fitur Lupa Password.
 
@@ -180,36 +196,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-06-10] â€” Sesi: Vercel Deployment & Login Screen Logo Revision
 
 ### Target Sesi: Mendeploy server web Next.js ke Vercel agar dapat diakses 24/7, memperbarui Base URL pada aplikasi mobile, serta mengganti icon logo halaman login mobile dengan Logo TRPL resmi.
@@ -234,36 +250,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-06-10] â€” Sesi: Home Calendar Redesign
 
 ### Target Sesi: Redesign Beranda mobile mahasiswa dengan format kalender riwayat (week strip + agenda per hari) dan donut chart statistik kehadiran, menggantikan linear Activity Feed dan Today Summary card.
@@ -291,36 +307,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-31] â€” Sesi: UI Consistency Review & Icon Fix Login Screen
 
 ### Target Sesi: Review menyeluruh design system dan konsistensi UI antar screen mobile (onboarding, login, home, history, profile). Fix inkonsistensi icon library di login screen.
@@ -354,36 +370,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-31] â€” Sesi: FCM Push Notification (spec fcm-push-notification, Task 1-5)
 
 ### Target Sesi: Implementasi push notification FCM end-to-end setelah setup ulang laptop + Firebase project `mypresensi-pbl` (Android-only, iOS out-of-scope per R18.2). 3 trigger: izin approve/reject + sesi dimulai. Polling lama tetap sebagai fallback (D12). Steering sebagai pedoman: Context7 doc-before-code, verifikasi runtime, security-first (anti-IDOR, audit, payload tanpa data sensitif), library lock.
@@ -410,36 +426,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-18] â€” Sesi: Onboarding Mobile (Phase B3) â€” Welcome Flow 3-Step
 
 ### Target Sesi: Onboarding 3-step (Welcome â†’ Cara Pakai â†’ Get Started) untuk first-time install. Mockup baru karena annotation mockup lama eksplisit bilang "tidak perlu onboarding". User decision: bikin mockup HTML dulu, baru implement Flutter (workflow mockup-driven konsisten). Decision visual: Iconsax Bold + #2D86FF gradient (sesuai design system mobile). Decision content: 3 step tanpa consent UU PDP formal (consent face tetap di Face Register existing).
@@ -480,36 +496,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-18] â€” Sesi: Live Monitor Dosen Web (Phase B2) â€” Showcase Real-time
 
 ### Target Sesi: Halaman live monitor sesi presensi untuk dosen di route `/sesi/[id]/live`. Geofence ring SVG stylized 380px (3 concentric circles) + KPI bar 4 cards animated counter + activity feed 20-event scrollable + student grid dengan filter chip 5 status (Semua/Hadir/Telat/Belum/Ditolak). Subscribe Supabase Realtime via hook `useRealtimeAttendances` (Phase C1). Reference: Stripe Atlas Live, Linear Insights, Supabase Realtime Dashboard. Spec: `.kiro/specs/live-monitor-dosen/`. Verifikasi: `npm run type-check` exit 0, `npm run lint` clean, `npm run build` success.
@@ -553,36 +569,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-18] â€” Sesi: Phase C1 â€” Supabase Realtime Attendances Channel
 
 ### Target Sesi: Setup Supabase Realtime channel untuk tabel `attendances` agar dashboard web bisa subscribe perubahan kehadiran tanpa polling. Prerequisite untuk Live Monitor (Phase B2) dan upgrade path untuk QR Display Fullscreen (Phase B1, sekarang masih polling 5s). Spec: `.kiro/specs/realtime-attendances-channel/`. Verifikasi: migration apply via MCP, advisor security 0 issue baru, `npm run type-check` exit 0, `npm run lint` clean, `npm run build` success.
@@ -624,36 +640,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-18] â€” Sesi: QR Display Fullscreen Web (Phase B1) â€” Projector Mode
 
 ### Target Sesi: Implementasi mode presentasi fullscreen QR sesi presensi untuk projector kelas. Route baru `/sesi/[id]/qr` terbuka di window terpisah, dark gradient background, QR 360px, OTP 88pt monospace dengan separator gold, countdown bar gold, stats hadir/total live polling 5 detik. Spec: `.kiro/specs/qr-display-fullscreen/`. Verifikasi: `npm run type-check` exit 0, `npm run lint` clean, `npm run build` success (40/40 static pages, route baru terdaftar).
@@ -699,36 +715,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-18] â€” Sesi: Phase 5 Mobile UI Rebuild â€” Endpoint `eligible-for-leave` + 3 Screen Refactor
 
 ### Target Sesi: Selesaikan rangkaian rebuild UI mahasiswa di mobile (Flutter) supaya match mockup Solar/Iconsax-style yang sudah final di `docs/ui-research/mockups/`. Spec: `.kiro/specs/phase-5-mobile-ui-rebuild/`. Scope: 3 screen mahasiswa terakhir (Home, History, Submit Leave Wizard) + 1 endpoint backend baru + 1 migration index. Verifikasi: `flutter analyze` 0 issues, `npm run type-check` exit 0, advisor security 0 baru.
@@ -787,36 +803,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-17] â€” Sesi: Security Architecture v7 â€” Phase 2 Face WAJIB Kedua Mode
 
 ### Target Sesi: Implementasi enforcement face verification di KEDUA mode (offline + online). Backend tambah Layer 6 gate di `submit/route.ts`. Mobile tambah pre-flight face check di `scan_qr_screen.dart` + dialog redirect face registration / mismatch. DB setting `face_verification_mode` di-set ke `required`.
@@ -867,36 +883,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-17] â€” Sesi: Security Architecture v7 â€” Phase 1 Document Honest Update
 
 ### Target Sesi: Rewrite plan v6 â†’ v7 sesuai keputusan audit security 17 Mei 2026 (Riki Ã— Kiro). Hapus klaim 6-layer security yang over-promise (WiFi SSID, teleportation, cell tower, freeRASP, AES-256, cert pinning, liveness active challenge). Reduce ke 3-layer realistic (QR rolling 5s + GPS Haversine/mock + Face match wajib di offline). Cross-check setiap klaim ke kode aktual. Tidak sentuh kode di Phase 1 â€” hanya dokumentasi. Pending decisions yang dikunci: **QR = A1 rolling dinamis 5s**, **Edge case kamera rusak = B1 Dosen Manual Override via web**. Source of truth: `docs/decisions/security-architecture-final.md`.
@@ -961,36 +977,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-16] â€” Sesi: Upload Avatar Mobile (P3-#3)
 
 ### Target Sesi: Mahasiswa bisa ganti foto profil sendiri dari mobile, sebelumnya hanya admin yang bisa via web. Reuse `image_picker` package + `storage-utils` helper yang sudah ada dari P3-#1. Tidak butuh migration baru â€” bucket `avatars` (public) sudah ada sejak awal proyek dengan RLS authenticated insert. Spec: `.kiro/specs/avatar-upload-mobile/spec.md`.
@@ -1044,36 +1060,36 @@
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-16] â€” Sesi: Upload Bukti Izin/Sakit (P3-#1)
 
 ### Target Sesi: Implementasi end-to-end fitur upload bukti pendukung untuk pengajuan izin/sakit. Mahasiswa pilih foto via image_picker, upload ke bucket private `leave-evidence`, dapat path â†’ kirim di body submit. Web admin/dosen klik "Lihat Bukti" â†’ server action generate signed URL TTL 5 menit. Spec: `.kiro/specs/leave-evidence-upload/spec.md`.
@@ -1148,36 +1164,36 @@ Endpoint baru `POST /api/mobile/leave-requests/upload-evidence` validasi mime + 
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-16] â€” Sesi: Revoke `get_at_risk_students` dari anon + authenticated (T0 Security Fix)
 
 ### Target Sesi: Tutup 2 Supabase advisor `*_security_definer_function_executable` untuk RPC `get_at_risk_students`. Function ini SECURITY DEFINER dengan akses lintas tabel sensitif (profiles, attendances Tier 2 PII), tapi grants `anon=EXECUTE` + `authenticated=EXECUTE` membuat siapapun bisa hit `/rest/v1/rpc/get_at_risk_students` dan dapat list mahasiswa berisiko. Spec: `.kiro/specs/at-risk-rpc-revoke-public/spec.md`.
@@ -1217,36 +1233,36 @@ Revoke `authenticated`+`anon` aman â€” tidak ada caller via cookie auth atau ano
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-16] â€” Sesi: Server-Side Face Verification (T0 Security Fix)
 
 ### Target Sesi: Pindahkan keputusan match/no-match face recognition dari client ke server. Sebelumnya mobile GET /api/mobile/face/embedding â†’ download stored embedding mentah â†’ hitung cosine similarity di mobile. Pendekatan ini melanggar rule 04-security-and-privacy Section B.2 (comparison harus server-side) dan rentan reverse-engineering APK (set threshold=0 â†’ semua match). Spec: `.kiro/specs/face-verification-server-side/spec.md`.
@@ -1291,36 +1307,36 @@ Endpoint baru `POST /api/mobile/face/verify` server-side comparison + hapus `GET
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-16] â€” Sesi: Login Page Polish + Animation System Expansion
 
 ### Target Sesi: Polish halaman login dengan animasi entrance + capslock detector + Variant A loading button (spinner + teks "Masuk" TETAP, tidak berubah jadi "Memproses..."). Trust badge "Data terenkripsi" dihapus karena terlalu teknis. Bahasa fitur tetap formal sesuai konteks akademik kampus.
@@ -1397,36 +1413,36 @@ User feedback awal: "bahasa kebanyakan masih terlalu teknis untuk website dan ap
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-15] â€” Sesi: AI Chatbot Integration + Chat UI Redesign
 
 ### Target Sesi: Integrasi Gemini 2.5 Flash sebagai Asisten AI web admin/dosen + mobile mahasiswa, lalu redesign UI chat agar sesuai design rules MyPresensi (corporate clean, palette Politani only).
@@ -1552,36 +1568,36 @@ User report: "wrapping warna biru masih ga sesuai dengan kotak chat". Root cause
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-15] â€” Sesi: Icon System Final Decision + GitHub Repo Setup
 
 ### ğŸ¯ Target Sesi: Lock library icon + warna semantic untuk mobile + setup repo private GitHub
@@ -1620,36 +1636,36 @@ User minta push ke GitHub private. Setelah audit deep (5 critical leak ditemukan
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-05-14] â€” Sesi: Audit Stack + Migrasi MobileFaceNet + Leave Requests Mobile + Rules Robustness Pass + UI Refresh Politani Web
 
 ### ğŸ¯ Target Sesi: Audit + Fix face recognition + Implement leave-requests mobile + Konsolidasi rules robust + Refresh palette dashboard
@@ -2185,36 +2201,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-04-07] â€” Sesi 4: Manajemen Dosen + Fix Reset Password
 
 ### ğŸ¯ Target Sesi: Fase 1 â€” CRUD Dosen, Bug Fix Reset Password Mahasiswa
@@ -2223,36 +2239,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### FIX RESET PASSWORD MAHASISWA
 
 | Waktu | Jenis | File/Komponen | Deskripsi |
@@ -2265,36 +2281,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### HALAMAN KELOLA DOSEN
 
 | Waktu | Jenis | File/Komponen | Deskripsi |
@@ -2315,36 +2331,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### STATUS AKHIR SESI 4
 
 | Item | Status |
@@ -2365,36 +2381,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### HALAMAN KELOLA MATA KULIAH
 
 | Waktu | Jenis | File/Komponen | Deskripsi |
@@ -2414,36 +2430,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-04-07] â€” Sesi 3: Halaman Manajemen Mahasiswa
 
 ### ğŸ¯ Target Sesi: Fase 1 â€” CRUD Mahasiswa, Import CSV
@@ -2452,36 +2468,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### HALAMAN KELOLA MAHASISWA
 
 | Waktu | Jenis | File | Keterangan |
@@ -2512,36 +2528,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### STATUS AKHIR SESI 3
 
 | Item | Status |
@@ -2560,36 +2576,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-04-06] â€” Sesi 2: Database, Koneksi Supabase & Dashboard Shell
 
 ### ğŸ¯ Target Sesi: Fase 1, Minggu 1-3 â€” Koneksi DB + Dashboard Layout
@@ -2598,36 +2614,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### DATABASE & SUPABASE
 
 | Waktu | Jenis | File / Komponen | Keterangan |
@@ -2640,36 +2656,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### DASHBOARD WEB â€” KOMPONEN LAYOUT
 
 | Waktu | Jenis | File | Keterangan |
@@ -2683,36 +2699,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### AKUN ADMIN & LOGIN TEST
 
 | Waktu | Jenis | Komponen | Keterangan |
@@ -2733,36 +2749,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### STATUS AKHIR SESI 2
 
 | Item | Status |
@@ -2778,36 +2794,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ## [2026-04-06] â€” Sesi 1: Planning & Foundation Web
 
 ### ğŸ¯ Target Sesi: Fase 1, Minggu 1 â€” Setup & Foundation Web
@@ -2816,36 +2832,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### PLANNING & DESAIN
 
 | Waktu | Jenis | File / Komponen | Keterangan |
@@ -2860,36 +2876,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### SETUP NEXT.JS WEB APP (`mypresensi-web/`)
 
 | Waktu | Jenis | File | Keterangan |
@@ -2906,36 +2922,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### DESIGN SYSTEM
 
 | Waktu | Jenis | File | Keterangan |
@@ -2946,36 +2962,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### FOLDER STRUKTUR
 
 | Waktu | Jenis | Path | Keterangan |
@@ -2998,36 +3014,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### FILE-FILE BARU
 
 | Waktu | Jenis | File | Keterangan |
@@ -3047,36 +3063,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### BUG YANG DITEMUKAN & DIPERBAIKI
 
 | # | Bug | Root Cause | Fix |
@@ -3091,36 +3107,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### STATUS AKHIR SESI
 
 | Item | Status |
@@ -3137,36 +3153,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 ### âš ï¸ ACTION ITEMS UNTUK RIKI
 
 1. **Install Flutter SDK** â†’ https://docs.flutter.dev/get-started/install/windows/mobile
@@ -3179,36 +3195,36 @@ Pattern lama: tiap screen punya `_buildEmpty`/`_buildError` lokal, duplikasi 4 t
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
 ---
 
 ---
 
-## [2026-06-11] — Sesi: Leave Request Detail Screen & UI Enhancements
+## [2026-06-11] ï¿½ Sesi: Leave Request Detail Screen & UI Enhancements
 
 ### Target Sesi: Mengembangkan halaman detail untuk pengajuan izin/sakit pada aplikasi mobile agar seluruh teks alasan, catatan dosen, serta gambar lampiran yang sebelumnya disembunyikan/terpotong di dalam kartu dapat dilihat secara utuh dan interaktif.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
-| — | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
-| — | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
-## [2026-06-11] — Sesi: Firebase Cloud Messaging (FCM) Production Fix
+| ï¿½ | [ADD] | mypresensi-mobile/lib/features/leave_requests/screens/leave_request_detail_screen.dart | Membuat layar \LeaveRequestDetailScreen\ baru yang menampilkan status pengajuan dengan ikon bundar di tengah, rincian sesi, paragraf utuh untuk alasan & catatan, penampil foto (InteractiveViewer) untuk lampiran, dan \Timeline\ berstempel waktu presisi. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/features/leave_requests/screens/my_leave_requests_screen.dart | Membungkus kartu pengajuan dengan widget \Material\ dan \InkWell\ sehingga seluruh \Container\ memiliki ripple effect dan mengarah ke layar detail. |
+| ï¿½ | [MOD] | mypresensi-mobile/lib/core/router/app_router.dart | Mendaftarkan route \/leave-request/detail\ dengan \_slideTransition\. |
+## [2026-06-11] ï¿½ Sesi: Firebase Cloud Messaging (FCM) Production Fix
 
 ### Target Sesi: Memperbaiki masalah kritis Push Notification yang gagal terkirim (silent fail) di lingkungan produksi (Vercel) akibat Environment Variable yang korup dan exception handling yang tidak tercatat.
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| — | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
-| — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/actions/sessions.ts | Menambahkan \logAudit({ action: 'fcm_push_fatal_error' })\ untuk menangkap exception FCM dan mencatatnya ke database agar tidak lagi silent-fail. |
+| ï¿½ | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Mengembangkan Robust PEM Formatter untuk membangun ulang \private_key\ Firebase secara native (strip whitespace, re-chunking ke 64 karakter) untuk menangkal korupsi newline akibat copas JSON ke Vercel Env Vars. |
 *Log ini diperbarui otomatis setiap ada perubahan signifikan oleh AI assistant.*
 
 
