@@ -3,7 +3,7 @@
 // Section untuk mengelola preset lokasi kampus di halaman Settings.
 // Admin bisa tambah, edit default, dan hapus lokasi.
 // Fitur "Gunakan Lokasi Saya" menggunakan navigator.geolocation (zero dependency).
-// Dosen menggunakan lokasi ini saat membuat sesi absensi mode offline.
+// Dosen menggunakan lokasi ini saat membuat sesi presensi mode offline.
 
 import { useState, useRef } from 'react'
 import { MapPin, Plus, Star, Trash2, X, Crosshair, ExternalLink, Loader2 } from 'lucide-react'

@@ -323,7 +323,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
           targetStudents.map((e: any) => ({
             userId: e.student_id,
             title: 'Sesi Presensi Dimulai',
-            message: `${courseName}: ${topic} — segera lakukan absensi.`,
+            message: `${courseName}: ${topic} — segera lakukan presensi.`,
             type: 'warning' as const,
             href: '/dashboard',
           }))
@@ -335,7 +335,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
             targetStudents.map((e: any) => e.student_id),
             {
               title: 'Sesi Presensi Dimulai',
-              body: `${courseName}: ${topic} — segera lakukan absensi.`,
+              body: `${courseName}: ${topic} — segera lakukan presensi.`,
               route: '/scan',
               type: 'session_start',
               relatedId: sessionId,

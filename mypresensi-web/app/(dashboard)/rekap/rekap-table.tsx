@@ -1,6 +1,6 @@
 'use client'
 // app/(dashboard)/rekap/rekap-table.tsx
-// Tabel rekap absensi per MK — expand untuk lihat sesi.
+// Tabel rekap presensi per MK — expand untuk lihat sesi.
 
 import { useState } from 'react'
 import { ChevronDown, ChevronRight, BarChart3, PlayCircle } from 'lucide-react'
@@ -98,11 +98,11 @@ export default function RekapTable({ data }: { data: RekapItem[] }) {
     return (
       <EmptyState
         icon={BarChart3}
-        title="Belum ada data rekap absensi"
+        title="Belum ada data rekap presensi"
         description="Rekap akan muncul setelah mahasiswa melakukan presensi pada sesi perkuliahan. Filter di atas bisa membantu mempersempit pencarian."
         action={
           <Link href="/sesi" className="btn-primary inline-flex">
-            <PlayCircle size={14} /> Kelola Sesi Absensi
+            <PlayCircle size={14} /> Kelola Sesi Presensi
           </Link>
         }
       />

@@ -5,7 +5,7 @@
 
 import { useState } from 'react'
 import { Download, Users, GraduationCap, BookOpen, ClipboardList, FileText } from 'lucide-react'
-import { exportDosenCSV, exportMahasiswaCSV, exportCoursesCSV, exportAbsensiCSV } from '@/lib/actions/export'
+import { exportDosenCSV, exportMahasiswaCSV, exportCoursesCSV, exportPresensiCSV } from '@/lib/actions/export'
 import type { RekapPDFCourse } from '@/lib/actions/export'
 import { swal, Swal } from '@/lib/swal'
 import ExportPDFModal from './export-pdf-modal'
@@ -43,13 +43,13 @@ const csvModules = [
     filename: 'data_matakuliah',
   },
   {
-    id: 'absensi',
-    label: 'Rekap Absensi (CSV)',
+    id: 'presensi',
+    label: 'Rekap Presensi (CSV)',
     description: 'Data kehadiran lengkap (maks 5000 baris)',
     icon: ClipboardList,
     color: '#636C76',
-    action: exportAbsensiCSV,
-    filename: 'rekap_absensi',
+    action: exportPresensiCSV,
+    filename: 'rekap_presensi',
   },
 ]
 
@@ -112,7 +112,7 @@ export default function ExportPanel({ courses }: ExportPanelProps) {
               <FileText size={22} className="text-danger" />
             </div>
             <div className="flex-1">
-              <h3 className="text-sm font-bold text-text-primary">Rekap Absensi (PDF)</h3>
+              <h3 className="text-sm font-bold text-text-primary">Rekap Presensi (PDF)</h3>
               <p className="text-xs text-text-secondary mt-0.5">
                 Laporan kehadiran lengkap per mata kuliah — format PDF siap cetak dengan kop resmi,
                 tabel detail per mahasiswa, dan ringkasan statistik.

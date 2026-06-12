@@ -155,7 +155,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
             <AnimatedNumber value={data.totalHadir} />
           </span>
           <div className="flex items-center justify-between gap-2 mt-1">
-            <span className="summary-card-sublabel">Absensi tercatat</span>
+            <span className="summary-card-sublabel">Presensi tercatat</span>
             <TrendPill trend={data.trends.totalHadir} hidePeriod />
           </div>
         </div>
@@ -360,7 +360,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
         </div>
       </div>
 
-      {/* 5. Tabel Absensi Terkini */}
+      {/* 5. Tabel Presensi Terkini */}
       <div className="card overflow-hidden">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between">
           <div>
@@ -368,7 +368,7 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
               Presensi Terkini
             </h3>
             <p className="text-xs text-text-secondary mt-0.5">
-              Riwayat absensi hari ini secara langsung
+              Riwayat presensi hari ini secara langsung
             </p>
           </div>
         </div>
@@ -377,8 +377,8 @@ export default function AdminDashboard({ data, atRiskSummary, recentActivities }
           {data.recentAttendances.length === 0 ? (
             <EmptyState
               icon={Clock}
-              title="Belum ada absensi hari ini"
-              description="Riwayat presensi terbaru akan muncul saat mahasiswa melakukan absensi pada sesi aktif."
+              title="Belum ada presensi hari ini"
+              description="Riwayat presensi terbaru akan muncul saat mahasiswa melakukan presensi pada sesi aktif."
             />
           ) : (
             <table className="data-table">

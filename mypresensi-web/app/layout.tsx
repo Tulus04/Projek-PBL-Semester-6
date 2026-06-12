@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s — MyPresensi",
   },
   description:
-    "Sistem absensi digital berbasis Face Recognition dan Geolokasi untuk Prodi TRPL, Politeknik Pertanian Negeri Samarinda.",
+    "Sistem presensi digital berbasis Face Recognition dan Geolokasi untuk Prodi TRPL, Politeknik Pertanian Negeri Samarinda.",
 };
 
 export default function RootLayout({

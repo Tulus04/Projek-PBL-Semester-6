@@ -1,6 +1,6 @@
 'use client'
 // app/(dashboard)/rekap/rekap-filters.tsx
-// Filter untuk rekap absensi — pilih MK / dosen.
+// Filter untuk rekap presensi — pilih MK / dosen.
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'

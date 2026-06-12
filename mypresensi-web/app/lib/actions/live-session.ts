@@ -27,7 +27,7 @@ export interface ActiveSessionInfo {
   sessionNumber: number
   mode: 'offline' | 'online'
   startedAt: string
-  // Mahasiswa enrolled + status absensi awal (saat fetch)
+  // Mahasiswa enrolled + status presensi awal (saat fetch)
   enrolledStudents: EnrolledStudent[]
   // Map student_id → status (hadir/terlambat/izin/sakit/alpa) untuk yang sudah submit
   initialAttendances: Record<string, string>

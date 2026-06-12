@@ -1,6 +1,6 @@
 'use client'
 // app/(dashboard)/sesi/session-filters.tsx
-// Filter bar untuk halaman Sesi Absensi.
+// Filter bar untuk halaman Sesi Presensi.
 // Auto-apply on change — tidak perlu klik tombol "Filter".
 
 import { useRouter } from 'next/navigation'

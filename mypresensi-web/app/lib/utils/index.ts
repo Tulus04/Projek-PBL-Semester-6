@@ -75,7 +75,7 @@ export function isAttendanceDanger(rate: number): boolean {
   return rate < 80
 }
 
-// Dapatkan label status absensi dalam bahasa Indonesia
+// Dapatkan label status presensi dalam bahasa Indonesia
 export function getStatusLabel(status: AttendanceStatus): string {
   const labels: Record<AttendanceStatus, string> = {
     hadir: 'Hadir',

@@ -92,13 +92,13 @@ const navGroups: NavGroup[] = [
     groupLabel: 'Operasional',
     items: [
       {
-        label: 'Sesi Absensi',
+        label: 'Sesi Presensi',
         href: '/sesi',
         icon: PlayCircle,
         roles: ['admin', 'dosen'],
       },
       {
-        label: 'Rekap Absensi',
+        label: 'Rekap Presensi',
         href: '/rekap',
         icon: ClipboardList,
         roles: ['admin', 'dosen'],

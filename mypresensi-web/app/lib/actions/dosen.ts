@@ -338,6 +338,111 @@ export async function resetDosenPasswordAction(dosenId: string, nimNip: string) 
 }
 
 // ============================================
+// ACTION: IMPORT CSV (Batch Add Dosen)
+// ============================================
+
+export async function importDosenCSVAction(
+  _prevState: DosenFormState,
+  formData: FormData
+): Promise<DosenFormState & { imported?: number; skipped?: number }> {
+  const csvText = formData.get('csv_data') as string
+
+  if (!csvText?.trim()) {
+    return { error: 'Data CSV kosong.', success: false }
+  }
+
+  const lines = csvText.trim().split('\n').filter(l => l.trim())
+  
+  // Skip header jika ada
+  const startIdx = lines[0].toLowerCase().includes('nama') ? 1 : 0
+  
+  const supabase = createAdminClient()
+  let imported = 0
+  let skipped = 0
+  const errors: string[] = []
+
+  for (let i = startIdx; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.trim())
+    
+    if (cols.length < 3) {
+      errors.push(`Baris ${i + 1}: format tidak valid (minimal: nama,nip,email)`)
+      skipped++
+      continue
+    }
+
+    const [full_name, nim_nip, email, phone] = cols
+
+    // Validasi basic
+    if (!full_name || !nim_nip || !email) {
+      errors.push(`Baris ${i + 1}: data tidak lengkap`)
+      skipped++
+      continue
+    }
+
+    // Cek NIP sudah ada
+    const { data: existing } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('nim_nip', nim_nip)
+      .single()
+
+    if (existing) {
+      skipped++
+      continue
+    }
+
+    // Buat user
+    const defaultPassword = `${nim_nip}@Politani`
+    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password: defaultPassword,
+      email_confirm: true,
+      user_metadata: { full_name, nim_nip, role: 'dosen' },
+    })
+
+    if (authError) {
+      skipped++
+      continue
+    }
+
+    // Update profile tambahan
+    if (authUser?.user) {
+      await supabase
+        .from('profiles')
+        .update({
+          phone: phone || null,
+          must_change_password: true,
+        })
+        .eq('id', authUser.user.id)
+    }
+
+    imported++
+  }
+
+  revalidatePath('/dosen')
+
+  if (imported === 0 && skipped > 0) {
+    return {
+      error: `Tidak ada data yang berhasil diimpor. ${errors[0] || 'Cek format CSV.'}`,
+      success: false,
+      imported: 0,
+      skipped,
+    }
+  }
+
+  if (imported > 0) {
+    await logAudit({ action: 'import_dosen_csv', details: { imported, skipped } })
+  }
+
+  return {
+    error: null,
+    success: true,
+    imported,
+    skipped,
+  }
+}
+
+// ============================================
 // ACTION: DELETE DOSEN
 // ============================================
 

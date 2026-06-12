@@ -1,5 +1,5 @@
 // app/(dashboard)/sesi/page.tsx
-// Halaman Sesi Absensi — Server Component.
+// Halaman Sesi Presensi — Server Component.
 // Menampilkan semua sesi perkuliahan dengan akses langsung dari sidebar.
 // SECURITY: Dosen hanya melihat sesi dari MK yang dia ampu (data isolation).
 
@@ -40,7 +40,7 @@ interface SessionWithCourse {
 }
 
 export const metadata: Metadata = {
-  title: 'Sesi Absensi',
+  title: 'Sesi Presensi',
 }
 
 export default async function SesiPage({
@@ -147,7 +147,7 @@ export default async function SesiPage({
           <PlayCircle size={20} className="text-primary" />
         </div>
         <div>
-          <h2 className="page-title">Sesi Absensi</h2>
+          <h2 className="page-title">Sesi Presensi</h2>
           <p className="page-subtitle">
             {totalSessions} sesi
             {activeSessions > 0 && (

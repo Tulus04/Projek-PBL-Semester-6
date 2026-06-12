@@ -99,7 +99,7 @@ export async function exportCoursesCSV(): Promise<string> {
   return Papa.unparse(rows)
 }
 
-export async function exportAbsensiCSV(): Promise<string> {
+export async function exportPresensiCSV(): Promise<string> {
   const supabase = createAdminClient()
   const { data } = await supabase
     .from('attendances')
@@ -118,7 +118,7 @@ export async function exportAbsensiCSV(): Promise<string> {
     topic: string | null
     course: CourseJoin | CourseJoin[] | null
   }
-  type AbsensiRow = {
+  type PresensiRow = {
     status: string
     scanned_at: string | null
     distance_meters: number | null
@@ -130,7 +130,7 @@ export async function exportAbsensiCSV(): Promise<string> {
     session: SessionJoin | SessionJoin[] | null
   }
 
-  const rows = (data ?? []).map((d: AbsensiRow) => {
+  const rows = (data ?? []).map((d: PresensiRow) => {
     const student = Array.isArray(d.student) ? d.student[0] : d.student
     const session = Array.isArray(d.session) ? d.session[0] : d.session
     const course = session ? (Array.isArray(session.course) ? session.course[0] : session.course) : null

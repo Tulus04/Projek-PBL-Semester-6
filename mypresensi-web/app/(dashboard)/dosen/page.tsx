@@ -8,6 +8,7 @@ import { Users } from 'lucide-react'
 import DosenTable from './dosen-table'
 import DosenFilters from './dosen-filters'
 import AddDosenModal from './add-dosen-modal'
+import ImportCSVModal from './import-csv-modal'
 import Pagination from '@/components/ui/pagination'
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ export default async function DosenPage({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <ImportCSVModal />
           <AddDosenModal />
         </div>
       </div>

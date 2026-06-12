@@ -1,5 +1,5 @@
 // app/(dashboard)/rekap/page.tsx
-// Halaman rekap absensi — statistik kehadiran per mata kuliah.
+// Halaman rekap presensi — statistik kehadiran per mata kuliah.
 // Server Component — data diambil di server.
 // SECURITY: Dosen hanya melihat rekap MK miliknya sendiri.
 
@@ -13,7 +13,7 @@ import AnimatedNumber from '@/components/dashboard/animated-number'
 import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
-  title: 'Rekap Absensi',
+  title: 'Rekap Presensi',
 }
 
 interface PageProps {
@@ -103,7 +103,7 @@ async function getRekapData(courseId?: string, dosenId?: string) {
   return { rekapData, dosenList: dosenList ?? [], courses: courses ?? [] }
 }
 
-export default async function RekapAbsensiPage({ searchParams }: PageProps) {
+export default async function RekapPresensiPage({ searchParams }: PageProps) {
   // Cek role user yang login
   const currentUser = await getCurrentUserProfile()
   if (!currentUser) redirect('/login')
@@ -131,7 +131,7 @@ export default async function RekapAbsensiPage({ searchParams }: PageProps) {
           <BarChart3 size={20} className="text-primary" />
         </div>
         <div>
-          <h2 className="page-title">Rekap Absensi</h2>
+          <h2 className="page-title">Rekap Presensi</h2>
           <p className="page-subtitle">Statistik kehadiran per mata kuliah</p>
         </div>
       </div>

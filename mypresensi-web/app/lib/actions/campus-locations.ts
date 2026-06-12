@@ -1,6 +1,6 @@
 'use server'
 // app/lib/actions/campus-locations.ts
-// Server actions untuk CRUD lokasi kampus (preset geofencing sesi absensi).
+// Server actions untuk CRUD lokasi kampus (preset geofencing sesi presensi).
 // Admin mengelola daftar lokasi, dosen memilih lokasi saat buat sesi.
 
 import { z } from 'zod'

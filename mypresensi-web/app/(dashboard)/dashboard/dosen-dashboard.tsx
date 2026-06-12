@@ -352,7 +352,7 @@ export default function DosenDashboard({
             Presensi Terkini di Kelas Anda
           </h3>
           <p className="text-xs text-text-secondary mt-0.5">
-            Riwayat absensi mahasiswa terbaru
+            Riwayat presensi mahasiswa terbaru
           </p>
         </div>
 
@@ -361,7 +361,7 @@ export default function DosenDashboard({
             <EmptyState
               icon={Clock}
               title="Belum ada presensi tercatat"
-              description="Riwayat presensi akan muncul setelah mahasiswa melakukan absensi pada sesi aktif Anda."
+              description="Riwayat presensi akan muncul setelah mahasiswa melakukan presensi pada sesi aktif Anda."
             />
           ) : (
             <table className="data-table">

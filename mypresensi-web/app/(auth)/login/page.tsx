@@ -11,7 +11,7 @@ import { Fingerprint, MapPin, ScanFace } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Masuk — MyPresensi TRPL',
-  description: 'Masuk ke sistem absensi MyPresensi Prodi TRPL Politani Samarinda',
+  description: 'Masuk ke sistem presensi MyPresensi Prodi TRPL Politani Samarinda',
 }
 
 export default function LoginPage() {
@@ -55,7 +55,7 @@ export default function LoginPage() {
             <span className="text-amber-300">akurat</span>.
           </h2>
           <p className="text-sm xl:text-base text-white/85 leading-relaxed mb-8 max-w-md">
-            Sistem absensi mahasiswa Prodi TRPL Politani Samarinda dengan tiga lapisan verifikasi: QR Dinamis, geofence GPS, dan pengenalan wajah.
+            Sistem presensi mahasiswa Prodi TRPL Politani Samarinda dengan tiga lapisan verifikasi: QR Dinamis, geofence GPS, dan pengenalan wajah.
           </p>
 
           {/* Feature highlights — stagger fade-up untuk premium feel */}
