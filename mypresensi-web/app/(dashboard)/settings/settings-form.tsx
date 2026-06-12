@@ -52,14 +52,7 @@ const settingMeta: Record<string, { icon: typeof Shield; label: string; unit: st
     min: 1,
     max: 20,
   },
-  session_code_expiry_minutes: {
-    icon: Clock,
-    label: 'Durasi Kode Sesi',
-    unit: 'menit',
-    type: 'number',
-    min: 1,
-    max: 30,
-  },
+
   late_threshold_minutes: {
     icon: Clock,
     label: 'Batas Keterlambatan',
