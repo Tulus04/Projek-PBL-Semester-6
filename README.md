@@ -20,10 +20,10 @@ MyPresensi menerapkan pendekatan *Defense in Depth* untuk menjamin keaslian data
 ```mermaid
 graph TD
     A[Scan QR Code Proyektor] -->|Layer 1: Rolling QR/TOTP| B(Validasi Seed & Window 5s)
-    B -->|Lolos| C[Verifikasi Lokasi Mahasiswa]
-    C -->|Layer 2: GPS Geofencing & Anti-Mock| D(Haversine Server-Side & isMockLocation)
-    D -->|Lolos| E[Verifikasi Wajah Biometrik]
-    E -->|Layer 3: Face Recognition & Liveness| F(Inference MobileFaceNet 192-d & Cosine Similarity)
+    B -->|Lolos| C[Verifikasi Wajah Biometrik]
+    C -->|Layer 2: Face Recognition & Liveness| D(Inference MobileFaceNet 192-d & Cosine Similarity)
+    D -->|Lolos| E[Verifikasi Lokasi Mahasiswa]
+    E -->|Layer 3: GPS Geofencing & Anti-Mock| F(Haversine Server-Side & isMockLocation)
     F -->|Lolos| G[Presensi Tercatat Sukses]
 ```
 
@@ -32,15 +32,15 @@ graph TD
 * **Security**: Dihasilkan menggunakan seed acak 32-byte kriptografis (`session_code_seed`) yang disimpan di server. Kode QR di-sync tanpa menulis ulang database secara berulang (read-only polling) untuk meminimalkan beban I/O.
 * **Anti-Share**: Mencegah kecurangan titip absen melalui tangkapan layar (screenshot) karena token kedaluwarsa dengan cepat sebelum sempat didistribusikan.
 
-### 2. Layer 2: GPS Geofencing & Anti-Mock
-* **Mekanisme**: Jarak koordinat mahasiswa terhadap pusat lokasi kelas dihitung secara akurat menggunakan rumus **Haversine** di sisi server (server-side calculation).
-* **Security**: Mendeteksi manipulasi lokasi (Fake GPS) secara aktif. Jika parameter `is_mock_location` bernilai `true` dari sensor internal perangkat mobile, request presensi langsung ditolak (403 Forbidden) dan dicatat dalam audit log.
-* **Geofence**: Batas radius default disetel 150 meter (dapat dikonfigurasi dinamis 50-500m dari preset lokasi kampus).
-
-### 3. Layer 3: Face Biometric & Liveness Check
+### 2. Layer 2: Face Biometric & Liveness Check
 * **Mekanisme**: Deteksi wajah menggunakan Google ML Kit, sedangkan ekstraksi embedding 192-dimensi diproses secara on-device menggunakan model **MobileFaceNet (TFLite)** yang berjalan secara asinkron pada background *Isolate* Flutter.
 * **Security**: Perbandingan biometrik dikerjakan secara *server-side* (`/api/mobile/face/verify`) untuk menjaga data embedding asli tidak bocor ke client. Pencocokan menggunakan rumus *Cosine Similarity* dengan threshold default `0.65`.
 * **Liveness**: Menghindari pemalsuan dengan foto/video melalui pengujian keaktifan multi-step: hadap lurus (look straight), kedip mata (blink), menoleh kiri (turn left), dan menoleh kanan (turn right).
+
+### 3. Layer 3: GPS Geofencing & Anti-Mock
+* **Mekanisme**: Jarak koordinat mahasiswa terhadap pusat lokasi kelas dihitung secara akurat menggunakan rumus **Haversine** di sisi server (server-side calculation) saat melakukan submit presensi.
+* **Security**: Mendeteksi manipulasi lokasi (Fake GPS) secara aktif. Jika parameter `is_mock_location` bernilai `true` dari sensor internal perangkat mobile, request presensi langsung ditolak (403 Forbidden) dan dicatat dalam audit log.
+* **Geofence**: Batas radius default disetel 150 meter (dapat dikonfigurasi dinamis 50-500m dari preset lokasi kampus).
 
 ---
 
