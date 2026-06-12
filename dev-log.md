@@ -6,6 +6,19 @@
 
 ---
 
+## [2026-06-13] â€” Sesi: Sinkronisasi Fitur & Performa dari GitLab
+
+### Target Sesi:
+Mengintegrasikan seluruh pembaruan fitur (import CSV dosen, FCM foreground listener, case-insensitive target kelas), optimalisasi performa (fast face detector, frame throttling, skeleton loaders), perbaikan bug, dan dokumentasi terlengkap dari repositori GitLab ke dalam repositori utama GitHub.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| â€” | [CFG] | git remote | Menambahkan remote GitLab dan menggabungkan branch `gitlab/main` ke dalam `main`. |
+| â€” | [MOD] | README.md | Menyelesaikan konflik penggabungan dengan melengkapi setup developer dari nol, troubleshooting, verifikasi 3-layer, tautan Vercel, dan profil kontributor yang akurat. |
+| â€” | [MOD] | mypresensi-web/.env.local.example | Menambahkan variabel `FIREBASE_SERVICE_ACCOUNT` & `GOOGLE_GENERATIVE_AI_API_KEY` pada file template environment variables. |
+
+---
+
 ## [2026-06-10] â€” Sesi: QR Gating & Strict 5s Lifetime
 
 ### Target Sesi: 
@@ -1466,7 +1479,7 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` â€” verifikasi otomati
 
 ---
 
-## 2026-06-11 — Sesi: Retro Bug FCM Push Notification (Vercel)
+## 2026-06-11 ï¿½ Sesi: Retro Bug FCM Push Notification (Vercel)
 
 **Konteks**: Notifikasi Firebase Cloud Messaging (FCM) tidak pernah masuk ke device ketika Sesi Presensi baru dimulai (klik "Mulai Sesi"), padahal tidak ada log error di console maupun di Next.js client, dan fungsi test berjalan lancar di lokal.
 
@@ -1488,13 +1501,13 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` â€” verifikasi otomati
 `
 
 ### Verifikasi
-- Vercel Deployment — ? Success
-- Push Notification — ? Masuk ke sistem operasi / HP User.
-- Git repository sync — ? Pushed to \main\ branch.
+- Vercel Deployment ï¿½ ? Success
+- Push Notification ï¿½ ? Masuk ke sistem operasi / HP User.
+- Git repository sync ï¿½ ? Pushed to \main\ branch.
 
 ---
 
-## 2026-06-11 — Sesi: Leave Request Detail Screen & UX Refinements
+## 2026-06-11 ï¿½ Sesi: Leave Request Detail Screen & UX Refinements
 
 **Konteks**: Modul pengajuan izin pada aplikasi mobile (Flutter) tidak memiliki layar khusus untuk menampilkan rincian dari riwayat yang diajukan. Semua data dikompres ke dalam satu UI *card* (kartu) kecil. Akibatnya, alasan yang panjang menjadi terpotong (truncated), dan lampiran (evidence image) tidak dapat ditinjau ulang oleh user.
 
@@ -1509,5 +1522,5 @@ Aggregasi hasil Task 4 spec `qr-scan-unify-camera-plugin` â€” verifikasi otomati
    - Mengimplementasikan InkWell dengan menyelimuti Row menggunakan Material(color: Colors.transparent) untuk mempertahankan arsitektur *custom shadow box decoration* namun tetap mendapat efek *Material Ripple* yang interaktif.
 
 ### Verifikasi
-- lutter analyze — ? 0 issues
-- UI & UX Test — ? Dikonfirmasi oleh User.
+- lutter analyze ï¿½ ? 0 issues
+- UI & UX Test ï¿½ ? Dikonfirmasi oleh User.

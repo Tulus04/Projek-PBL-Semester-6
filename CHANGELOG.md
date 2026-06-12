@@ -1,7 +1,25 @@
-﻿# CHANGELOG — MyPresensi
+# CHANGELOG — MyPresensi
 
 > Format: [Tanggal] | Sesi | Fase | Jenis | Deskripsi
 > Jenis: [ADD] = file/fitur baru | [MOD] = modifikasi | [FIX] = perbaikan bug | [DEL] = hapus | [CFG] = konfigurasi | [SEC] = security hardening | [DOC] = dokumentasi
+
+---
+
+## [2026-06-13] - Sesi: Sinkronisasi Fitur & Optimalisasi Performa dari GitLab
+### Target Sesi: Mengintegrasikan seluruh pembaruan fitur (import CSV dosen, FCM foreground listener, case-insensitive target kelas), optimalisasi performa (fast face detector, frame throttling, skeleton loaders), perbaikan bug, dan dokumentasi terlengkap dari repositori GitLab ke dalam repositori utama GitHub.
+
+| Waktu | Jenis | File | Deskripsi |
+|-------|-------|------|-----------|
+| - | [CFG] | git remote | Menambahkan remote GitLab dan menggabungkan branch `gitlab/main` ke dalam `main`. |
+| - | [MOD] | README.md | Menyelesaikan konflik penggabungan dengan melengkapi setup developer dari nol, troubleshooting, verifikasi 3-layer, tautan Vercel, dan profil kontributor yang akurat. |
+| - | [MOD] | mypresensi-web/.env.local.example | Menambahkan variabel `FIREBASE_SERVICE_ACCOUNT` dan `GOOGLE_GENERATIVE_AI_API_KEY` pada file template environment variables. |
+
+### Verifikasi
+| Check | Result |
+|-------|--------|
+| `npm run type-check` | ✅ Sukses (0 issues) |
+| `flutter analyze` | ✅ Sukses (No issues found) |
+| Git Sync | ✅ Pushed to `origin/main` (GitHub) |
 
 ---
 
