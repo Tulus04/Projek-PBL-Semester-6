@@ -84,13 +84,39 @@ masalah-*.jpeg
 **/.flutter-plugins-dependencies
 
 # =========================================================
-# REFERENCE PDF (besar, hanya lokal)
+# REFERENSI & MOCKUPS (JANGAN COMMIT)
 # =========================================================
-# Hapus baris ini kalau mau push jurnal referensi
-# Refrensi/
+Refrensi/
+docs/mockups/
+docs/ui-research/mockups/
+/*.pdf
+docs/*.html
+gambar/Prodi/colors*
+gambar/Prodi/get_colors.py
 
 # =========================================================
-# JANGAN COMMIT — info MCP/dev tooling
+# MATERI PRESENTASI & DRAF SCRUM (JANGAN COMMIT)
 # =========================================================
-.windsurf/runs/
-.windsurf/tmp/
+PRESENTATION_SCRIPT.md
+docs/Prompt_PPT_Scrum.md
+docs/Scrum_MyPresensi_*
+/workflow_mypresensi.md
+
+# =========================================================
+# SKRIP UTILITAS LOKAL (JANGAN COMMIT)
+# =========================================================
+/*.ps1
+/git_files.txt
+/implementation_plan-reset-password.md
+scripts/generate_mockup_pdf*.py
+mypresensi-web/check_fcm_logs.js
+mypresensi-web/fetch_logs.js
+mypresensi-web/test_db.js
+
+# =========================================================
+# JANGAN COMMIT — info MCP/dev tooling & AI Agent
+# =========================================================
+.windsurf/
+.kiro/
+.agents/
+supabase/.temp/
