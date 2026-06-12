@@ -1,259 +1,165 @@
-# MyPresensi — Sistem Absensi Mahasiswa 3-Layer Verifikasi
+# MyPresensi — Sistem Presensi Digital 3-Layer Verifikasi
+[![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-18.3-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://react.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.11-02569B?style=flat-square&logo=flutter&logoColor=white)](https://flutter.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+[![Firebase](https://img.shields.io/badge/Firebase-FCM-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)](https://projek-pbl-semester-6.vercel.app)
 
-Sistem absensi digital untuk **Prodi TRPL, Politeknik Pertanian Negeri Samarinda**. Proyek PBL Semester 6.
+Sistem presensi digital terintegrasi berbasis **Face Recognition**, **Geofencing (GPS)**, dan **Dynamic QR Code (TOTP)** yang dirancang khusus untuk **Program Studi TRPL, Politeknik Pertanian Negeri Samarinda**. Proyek ini merupakan hasil kolaborasi PBL (Project-Based Learning) Semester 6.
 
-3 layer verifikasi presensi:
-1. **OTP/QR** (sesi dosen → kode 6 digit, expired 3 menit)
-2. **GPS** (radius dari koordinat kelas, anti-mock GPS via `Position.isMocked`)
-3. **Face Recognition** (MobileFaceNet 192-d embedding, cosine similarity threshold 0.65)
+> 🌐 **Live Web Application (Vercel)**: [https://projek-pbl-semester-6.vercel.app](https://projek-pbl-semester-6.vercel.app)
+> 📱 **Mobile App Version**: v1.0.0 (Android)
 
 ---
 
-## Struktur Repository
+## 🔒 3-Layer Arsitektur Keamanan Verifikasi
 
+MyPresensi menerapkan pendekatan *Defense in Depth* untuk menjamin keaslian data kehadiran mahasiswa melalui 3 lapis verifikasi yang ketat:
+
+```mermaid
+graph TD
+    A[Scan QR Code Proyektor] -->|Layer 1: Rolling QR/TOTP| B(Validasi Seed & Window 5s)
+    B -->|Lolos| C[Verifikasi Lokasi Mahasiswa]
+    C -->|Layer 2: GPS Geofencing & Anti-Mock| D(Haversine Server-Side & isMockLocation)
+    D -->|Lolos| E[Verifikasi Wajah Biometrik]
+    E -->|Layer 3: Face Recognition & Liveness| F(Inference MobileFaceNet 192-d & Cosine Similarity)
+    F -->|Lolos| G[Presensi Tercatat Sukses]
 ```
+
+### 1. Layer 1: Dynamic Rolling QR (TOTP-like)
+* **Mekanisme**: QR Code yang ditampilkan oleh dosen di layar proyektor berubah otomatis secara real-time mengikuti interval window 5 detik (modifikasi RFC 6238 TOTP).
+* **Security**: Dihasilkan menggunakan seed acak 32-byte kriptografis (`session_code_seed`) yang disimpan di server. Kode QR di-sync tanpa menulis ulang database secara berulang (read-only polling) untuk meminimalkan beban I/O.
+* **Anti-Share**: Mencegah kecurangan titip absen melalui tangkapan layar (screenshot) karena token kedaluwarsa dengan cepat sebelum sempat didistribusikan.
+
+### 2. Layer 2: GPS Geofencing & Anti-Mock
+* **Mekanisme**: Jarak koordinat mahasiswa terhadap pusat lokasi kelas dihitung secara akurat menggunakan rumus **Haversine** di sisi server (server-side calculation).
+* **Security**: Mendeteksi manipulasi lokasi (Fake GPS) secara aktif. Jika parameter `is_mock_location` bernilai `true` dari sensor internal perangkat mobile, request presensi langsung ditolak (403 Forbidden) dan dicatat dalam audit log.
+* **Geofence**: Batas radius default disetel 150 meter (dapat dikonfigurasi dinamis 50-500m dari preset lokasi kampus).
+
+### 3. Layer 3: Face Biometric & Liveness Check
+* **Mekanisme**: Deteksi wajah menggunakan Google ML Kit, sedangkan ekstraksi embedding 192-dimensi diproses secara on-device menggunakan model **MobileFaceNet (TFLite)** yang berjalan secara asinkron pada background *Isolate* Flutter.
+* **Security**: Perbandingan biometrik dikerjakan secara *server-side* (`/api/mobile/face/verify`) untuk menjaga data embedding asli tidak bocor ke client. Pencocokan menggunakan rumus *Cosine Similarity* dengan threshold default `0.65`.
+* **Liveness**: Menghindari pemalsuan dengan foto/video melalui pengujian keaktifan multi-step: hadap lurus (look straight), kedip mata (blink), menoleh kiri (turn left), dan menoleh kanan (turn right).
+
+---
+
+## 📂 Struktur Repositori
+
+```bash
 Projek-PBL-Semester-6/
-├── mypresensi-web/          ← Next.js 14 — Admin & Dosen dashboard + API mobile
-├── mypresensi-mobile/       ← Flutter 3.11 — App mahasiswa
-├── docs/plans/              ← Plan teknis & threat analysis
-├── .windsurf/               ← Workflow & rules Cascade AI
-├── workflow_mypresensi.md   ← Diagram alur Mermaid
-├── dev-log.md               ← Log teknis tiap sesi
-├── CHANGELOG.md             ← Riwayat perubahan
-└── credentials-MUSTREAD.txt ← Akun admin (TIDAK di-commit)
+├── mypresensi-web/        # Next.js 14 — Dashboard Admin/Dosen & Web APIs
+│   ├── app/               # Next.js App Router (Dashboard, Sesi, API handler)
+│   ├── components/        # Reusable UI components & Recharts widgets
+│   ├── lib/               # Server actions, Supabase Client & OTP utilities
+│   └── public/            # Static assets
+│
+├── mypresensi-mobile/     # Flutter 3.11 — Aplikasi Mahasiswa
+│   ├── lib/
+│   │   ├── core/          # App config, routing, & theme tokens
+│   │   ├── features/      # Fitur (Auth, Attendance, Face, History, Profile)
+│   │   └── shared/        # Shared widgets, utilities & HTTP client singleton
+│   └── assets/            # Model MobileFaceNet (.tflite) & local images
+│
+├── docs/                  # Panduan desain UI/UX & spesifikasi teknis
+├── dev-log.md             # Log perubahan teknis berurutan
+└── CHANGELOG.md           # Riwayat rilis fitur & bug-fix
 ```
 
 ---
 
-## Tech Stack Singkat
+## 🛠️ Tech Stack & Library Lock
 
-| Layer | Tech |
-|-------|------|
-| **Web** | Next.js 14.2 · React 18.3 · TypeScript · Tailwind CSS 3.4 · Supabase SSR |
-| **Mobile** | Flutter 3.11 · Riverpod 3 · GoRouter · Dio · TFLite (MobileFaceNet) |
-| **Backend** | Supabase (Postgres + Auth + Storage) · Row-Level Security · Edge cases via Next.js Route Handler |
-| **Tools** | Supabase MCP · Android Emulator (Pixel_9a) · Windsurf AI workflows |
+### Web Application (`mypresensi-web`)
+* **Framework**: Next.js 14.2 (App Router) & React 18.3
+* **Language**: TypeScript (Strict Type Check)
+* **Styling**: Tailwind CSS & Vanilla CSS Variables
+* **Database & Auth**: Supabase (Postgres RLS, Storage Bucket, Realtime Sync)
+* **Locked Libraries**:
+  * Toast/Dialog: **SweetAlert2** via `@/lib/swal` (Tidak menggunakan native dialog)
+  * Validation: **Zod** (Skema validasi sisi API & Form)
+  * Icons: **Lucide React**
+  * Charts: **Recharts** (Grafik tren kehadiran & rasio)
+  * Form: **`useFormState` + `useFormStatus`** React 18 hooks
 
-Detail lengkap di `.windsurf/rules/00-mypresensi-overview.md`.
-
----
-
-## Prerequisites
-
-| Tool | Versi Minimal | Catatan |
-|------|---------------|---------|
-| **Node.js** | 18.x | LTS recommended (20.x) |
-| **npm** | 9+ | Bundled dengan Node |
-| **Flutter SDK** | 3.11.4 | `flutter doctor` harus pass semua |
-| **Android Studio** | Hedgehog+ | Untuk emulator + SDK |
-| **PostgreSQL client** | Optional | Untuk akses Supabase manual (psql) |
-| **Git** | 2.30+ | |
-
-Supabase project sudah di-provision di organisasi maintainer. Project ref tersimpan di `mypresensi-web/.env.local` (gitignored). Token Personal Access untuk MCP di-set di `~/.codeium/windsurf/mcp_config.json` lokal masing-masing dev.
+### Mobile Application (`mypresensi-mobile`)
+* **SDK**: Flutter 3.11.4 & Dart 3.1
+* **Locked Libraries**:
+  * State Management: **flutter_riverpod** (Riverpod v3)
+  * HTTP Client: **Dio** (Singleton dengan interceptor JWT & logging)
+  * Navigation: **go_router** dengan refreshListenable
+  * Secure Storage: **flutter_secure_storage** (Enkripsi token & credentials)
+  * Biometric & Face: **google_mlkit_face_detection** + **tflite_flutter** (MobileFaceNet)
 
 ---
 
-## Setup dari Nol (Developer Baru)
+## 🚀 Setup & Instalasi Lokal
 
-### 1. Clone Repository
+### 1. Persiapan Awal
+Pastikan Anda memiliki kakas berikut dengan versi minimum:
+* **Node.js**: v18.x atau v20.x (LTS)
+* **Flutter SDK**: v3.11.x
+* **Android Studio**: Android SDK & Emulator terkonfigurasi
 
-```powershell
-git clone <repo-url> Projek-PBL-Semester-6
-cd Projek-PBL-Semester-6
-```
+---
 
 ### 2. Setup Web App (`mypresensi-web/`)
+1. Masuk ke direktori web:
+   ```bash
+   cd mypresensi-web
+   ```
+2. Pasang semua dependensi:
+   ```bash
+   npm install
+   ```
+3. Salin berkas environment variables:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+4. Buka `.env.local` dan isi kredensial Supabase Anda:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   FIREBASE_SERVICE_ACCOUNT=your_firebase_service_account_json_base64
+   ```
+5. Verifikasi tipe data dan jalankan dev server:
+   ```bash
+   npm run type-check
+   npm run dev
+   ```
+   *Web dashboard akan berjalan pada [http://localhost:3000](http://localhost:3000).*
 
-```powershell
-cd mypresensi-web
-npm install
-```
-
-**Buat `.env.local`** dari template:
-```powershell
-Copy-Item .env.local.example .env.local
-```
-
-Isi dengan kredensial Supabase (minta ke maintainer atau ambil dari Supabase Dashboard → Settings → API):
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<ambil dari dashboard>
-SUPABASE_SERVICE_ROLE_KEY=<ambil dari dashboard — RAHASIA>
-```
-
-> ⚠️ **`SUPABASE_SERVICE_ROLE_KEY` TIDAK PERNAH commit ke git** — sudah ada di `.gitignore`.
-
-**Verify**:
-```powershell
-npm run type-check    # Harus exit 0
-npm run lint          # Harus "No ESLint warnings or errors"
-```
-
-**Jalankan dev server**:
-```powershell
-npm run dev           # http://localhost:3000
-```
+---
 
 ### 3. Setup Mobile App (`mypresensi-mobile/`)
+1. Masuk ke direktori mobile:
+   ```bash
+   cd ../mypresensi-mobile
+   ```
+2. Unduh semua paket dependensi:
+   ```bash
+   flutter pub get
+   ```
+3. **Unduh Model MobileFaceNet**:
+   * Unduh berkas `mobilefacenet.tflite` (sekitar 5 MB).
+   * Tempatkan berkas tersebut pada folder `assets/models/mobilefacenet.tflite`.
+4. Jalankan analisis kode statis untuk memastikan tidak ada error:
+   ```bash
+   flutter analyze
+   ```
+5. Jalankan aplikasi pada Emulator Android:
+   ```bash
+   flutter run
+   ```
 
-```powershell
-cd ../mypresensi-mobile
-flutter pub get
-```
 
-**Download model MobileFaceNet** (5 MB, gitignored):
-- Lihat instruksi di `assets/models/README.md`
-- Letakkan file `mobilefacenet.tflite` di `assets/models/`
 
-**Verify**:
-```powershell
-flutter analyze       # Harus "No issues found"
-```
+## 🤝 Kontribusi & Lisensi
+Proyek PBL Semester 6 ini dikembangkan oleh:
+* **Pengembang**: Tulus Arya Danendra
+* **NIM**: H233600430
+* **Semester / Kelas**: 6 / B
+* **Program Studi**: Teknologi Rekayasa Perangkat Lunak (TRPL), Politeknik Pertanian Negeri Samarinda.
 
-**Jalankan**:
-
-Pakai workflow shortcut `/run-emulator` (atau manual):
-```powershell
-# Cek perangkat tersedia
-flutter devices
-
-# Run di emulator (auto-detect baseUrl http://10.0.2.2:3000 untuk web local)
-flutter run -d emulator-5554
-```
-
-### 4. Setup Database (Supabase Migrations)
-
-⚠️ **PENTING**: Migration history di Supabase MCP terpisah jadi 2 fase:
-
-#### Fase A — Manual (pre-MCP, untuk fresh project)
-
-Migration 001-005 di-apply manual sebelum MCP token tersedia. Untuk **fresh setup** dari nol:
-
-1. Buka Supabase Dashboard → SQL Editor
-2. Jalankan secara berurutan file SQL di `mypresensi-web/supabase/migrations/`:
-   - `001_initial_schema.sql` — tabel inti + RLS
-   - `002_notifications.sql` — notifikasi in-app
-   - `003_face_verification_mode.sql` — setting optional/required
-   - `004_campus_locations.sql` — preset GPS Politani
-   - `005_mobilefacenet_threshold.sql` — threshold 0.65
-
-Atau pakai script helper:
-```powershell
-cd mypresensi-web
-node scripts/apply-migration-005.mjs    # contoh, untuk 005 saja
-```
-
-#### Fase B — Via MCP (006+)
-
-Migration 006 ke atas sudah ter-track di Supabase MCP history. Untuk apply manual via dashboard SQL Editor, atau via Cascade AI dengan workflow `/add-supabase-migration`.
-
-Migration yang sudah applied via MCP (tertrack di `supabase_migrations.schema_migrations`):
-
-| Version | Nama | Tujuan |
-|---------|------|--------|
-| `20260407103749` | create_avatars_bucket | Storage bucket untuk avatar |
-| `20260411041042` | campus_locations | Preset GPS Politani |
-| `20260514050201` | security_hardening | Function search_path + drop permissive RLS |
-| `20260514055243` | 007_disable_graphql | Drop pg_graphql extension |
-| `20260514055416` | 008_avatar_listing_hardening | Drop broad SELECT policy avatar |
-| `20260514055450` | 009_rate_limit_log_explicit_policy | Explicit deny untuk rate_limit_log |
-| `20260514...` | 010_fk_indexes | 6 FK index untuk perf |
-| `20260514...` | 011_rls_auth_initplan | RLS auth.uid() → (SELECT auth.uid()) |
-| `20260514...` | 012_consolidate_permissive_policies | Konsolidasi 2+ policy per role/cmd |
-
----
-
-## Common Commands
-
-### Web
-```powershell
-cd mypresensi-web
-npm run dev          # Dev server (port 3000)
-npm run build        # Production build
-npm run type-check   # TypeScript strict check
-npm run lint         # ESLint
-```
-
-### Mobile
-```powershell
-cd mypresensi-mobile
-flutter pub get                                         # Install deps
-flutter analyze                                         # Static analysis
-flutter run -d emulator-5554                            # Run di emulator
-flutter build apk --release --obfuscate `
-  --split-debug-info=build/symbols                      # Build APK release (workflow /release-build)
-```
-
-### Database (via Supabase MCP — Cascade AI)
-```
-mcp0_list_migrations        # List migration history
-mcp0_get_advisors            # Cek security/performance advisor
-mcp0_apply_migration         # Apply DDL baru
-```
-
----
-
-## Troubleshooting
-
-### Web: "Module not found: @/lib/..."
-Pastikan menggunakan path alias `@/` dari `tsconfig.json` (root: `app/`). Bukan `@/src/`.
-
-### Mobile: Build gagal "tflite_flutter not found"
-```powershell
-flutter clean
-flutter pub get
-```
-Pastikan model `assets/models/mobilefacenet.tflite` ada (5 MB).
-
-### Mobile: GPS "Mock location detected"
-Di debug build, mock location otomatis di-bypass (lihat `location_service.dart`). Di **release build**, mock location akan reject submit presensi. Untuk test rejection, butuh HP fisik + aplikasi Fake GPS.
-
-### Emulator tidak detect web dev server
-Web dev server di `localhost:3000` di host laptop. Dari emulator Android, akses pakai `http://10.0.2.2:3000` (sudah auto-detect di mobile config).
-
-### Type-check error "Cannot find module '@supabase/ssr'"
-Pastikan `npm install` sudah jalan setelah pull. Lock file ada di `package-lock.json`.
-
----
-
-## File Sensitif (TIDAK Pernah Commit)
-
-Sudah di-cover oleh `.gitignore` di 3 level (root + web + mobile), tapi double-check sebelum push:
-
-| File | Lokasi | Isi |
-|------|--------|-----|
-| `.env.local` | `mypresensi-web/` | Supabase URL + anon + service_role key |
-| `.dev-accounts.md` | `mypresensi-web/` | Credential dev test |
-| `credentials-MUSTREAD.txt` | root | Akun admin |
-| `update-mcp-token.ps1` | root | Script update token MCP |
-| `key.properties` | `mypresensi-mobile/android/` | Keystore password |
-| `*.jks`, `*.keystore` | `mypresensi-mobile/android/app/` | Upload/release keystore |
-| `assets/models/*.tflite` | `mypresensi-mobile/` | Model 5MB, download manual |
-| `google-services.json` | `mypresensi-mobile/android/app/` | Firebase config (jika ada) |
-
-**Audit cepat sebelum commit**:
-```powershell
-git diff --cached | Select-String -Pattern "(SUPABASE_SERVICE_ROLE_KEY|sbp_|sk_|secret_key)" -CaseSensitive:$false
-```
-Output harus kosong.
-
----
-
-## Dokumentasi Lain
-
-| File | Fungsi |
-|------|--------|
-| `dev-log.md` | Log teknis tiap sesi developer (rekap kronologis) |
-| `CHANGELOG.md` | Riwayat perubahan per tanggal & file |
-| `workflow_mypresensi.md` | Diagram Mermaid alur sistem |
-| `docs/plans/implementation_plan.md` | Plan teknis lengkap + threat analysis |
-| `.windsurf/rules/00-mypresensi-overview.md` | Overview untuk Cascade AI |
-| `.windsurf/workflows/*.md` | Slash commands (`/start-dev`, `/run-emulator`, dll) |
-
----
-
-## Lisensi & Credits
-
-Proyek PBL Semester 6 — **Prodi TRPL, Politeknik Pertanian Negeri Samarinda**.
-
-Tidak untuk distribusi komersial. Data biometrik (face embeddings) & GPS dianggap **data spesifik** menurut UU PDP Indonesia (UU 27/2022) — treat dengan proteksi ekstra. Lihat `.windsurf/rules/04-security-and-privacy.md` untuk panduan lengkap.
+*Tidak diperkenankan untuk penggunaan komersial tanpa izin tertulis dari pihak kampus.*
