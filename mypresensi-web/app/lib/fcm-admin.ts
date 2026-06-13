@@ -113,17 +113,6 @@ export async function sendPushNotification(opts: SendPushOptions): Promise<SendP
   const data: Record<string, string> = { route, type }
   if (relatedId) data.related_id = relatedId
 
-  // Tentukan TTL (time-to-live) agar notif kedaluwarsa jika hp offline
-  let ttlMs = 24 * 60 * 60 * 1000 // default 24 jam
-  if (type === 'session_start') {
-    ttlMs = 10 * 60 * 1000 // 10 menit
-  } else if (type === 'session_end') {
-    ttlMs = 15 * 60 * 1000 // 15 menit
-  } else if (type === 'face_reminder') {
-    ttlMs = 30 * 60 * 1000 // 30 menit
-  }
-  const apnsExpiration = String(Math.floor(Date.now() / 1000) + Math.floor(ttlMs / 1000))
-
   // 3. Kirim
   try {
     const messaging = getMessaging()
@@ -133,7 +122,6 @@ export async function sendPushNotification(opts: SendPushOptions): Promise<SendP
       data,
       android: {
         priority: 'high',
-        ttl: ttlMs,
         notification: {
           sound: 'default',
           channelId: 'mypresensi_default',
@@ -144,7 +132,6 @@ export async function sendPushNotification(opts: SendPushOptions): Promise<SendP
       apns: {
         headers: {
           'apns-priority': '10',
-          'apns-expiration': apnsExpiration,
         },
         payload: {
           aps: {
@@ -223,17 +210,6 @@ export async function sendPushToMany(
   const data: Record<string, string> = { route: payload.route, type: payload.type }
   if (payload.relatedId) data.related_id = payload.relatedId
 
-  // Tentukan TTL (time-to-live) agar notif kedaluwarsa jika hp offline
-  let ttlMs = 24 * 60 * 60 * 1000 // default 24 jam
-  if (payload.type === 'session_start') {
-    ttlMs = 10 * 60 * 1000 // 10 menit
-  } else if (payload.type === 'session_end') {
-    ttlMs = 15 * 60 * 1000 // 15 menit
-  } else if (payload.type === 'face_reminder') {
-    ttlMs = 30 * 60 * 1000 // 30 menit
-  }
-  const apnsExpiration = String(Math.floor(Date.now() / 1000) + Math.floor(ttlMs / 1000))
-
   let successCount = 0
   let failureCount = 0
   const invalidTokenStudentIds: string[] = []
@@ -249,7 +225,6 @@ export async function sendPushToMany(
         data,
         android: {
           priority: 'high',
-          ttl: ttlMs,
           notification: {
             sound: 'default',
             channelId: 'mypresensi_default',
@@ -260,7 +235,6 @@ export async function sendPushToMany(
         apns: {
           headers: {
             'apns-priority': '10',
-            'apns-expiration': apnsExpiration,
           },
           payload: {
             aps: {
