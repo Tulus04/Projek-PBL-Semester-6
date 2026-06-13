@@ -3,17 +3,18 @@
 // Modal untuk menambah dosen baru dengan upload foto profil.
 
 import { useState, useRef } from 'react'
-import { useFormState } from 'react-dom'
 import { Plus, X, UserPlus } from 'lucide-react'
 import { addDosenAction, DosenFormState } from '@/lib/actions/dosen'
 import AvatarUpload from '@/components/ui/avatar-upload'
 import { toast } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 const initialState: DosenFormState = { error: null, success: false }
 
 export default function AddDosenModal() {
   const [open, setOpen] = useState(false)
-  const [state, formAction] = useFormState(addDosenAction, initialState)
+  const [state, setState] = useState<DosenFormState>(initialState)
+  const [pending, setPending] = useState(false)
   const [avatarBlob, setAvatarBlob] = useState<Blob | null>(null)
   const [nameValue, setNameValue] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
@@ -23,18 +24,31 @@ export default function AddDosenModal() {
     toast.fire({ icon: 'success', title: 'Dosen berhasil ditambahkan' })
     setTimeout(() => {
       setOpen(false)
-      state.success = false
+      setState(initialState)
       setAvatarBlob(null)
       setNameValue('')
     }, 300)
   }
 
-  // Custom submit handler to append avatar blob
-  const handleSubmit = (formData: FormData) => {
+  // Custom submit handler to append avatar blob and handle network errors
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setPending(true)
+    const formData = new FormData(e.currentTarget)
     if (avatarBlob) {
       formData.append('avatar', avatarBlob, 'avatar.jpg')
     }
-    formAction(formData)
+    try {
+      const res = await addDosenAction(state, formData)
+      setState(res)
+    } catch (err) {
+      setState({
+        error: getFriendlyErrorMessage(err, 'Gagal menghubungkan ke server.'),
+        success: false,
+      })
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
@@ -65,7 +79,7 @@ export default function AddDosenModal() {
               </div>
             )}
 
-            <form ref={formRef} action={handleSubmit} className="space-y-4">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
               {/* Avatar Upload */}
               <div className="flex justify-center pb-2">
                 <AvatarUpload
@@ -113,11 +127,11 @@ export default function AddDosenModal() {
               </div>
 
               <div className="flex gap-3 justify-end pt-2">
-                <button type="button" onClick={() => setOpen(false)} className="btn-secondary text-sm py-2.5 px-4">
+                <button type="button" onClick={() => setOpen(false)} className="btn-secondary text-sm py-2.5 px-4" disabled={pending}>
                   Batal
                 </button>
-                <button type="submit" className="btn-primary">
-                  Simpan
+                <button type="submit" className="btn-primary" disabled={pending}>
+                  {pending ? 'Menyimpan...' : 'Simpan'}
                 </button>
               </div>
             </form>

@@ -13,6 +13,7 @@ import {
   setDefaultLocationAction,
 } from '@/lib/actions/campus-locations'
 import { swal, toast } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 interface CampusLocation {
   id: string
@@ -87,16 +88,25 @@ export default function CampusLocationsSection({
     e.preventDefault()
     setAdding(true)
     const formData = new FormData(e.currentTarget)
-    const result = await addCampusLocationAction(formData)
-    if (result.success) {
-      toast.fire({ icon: 'success', title: 'Lokasi berhasil ditambahkan' })
-      setShowAddForm(false)
-      setGeoStatus('idle')
-      setGeoCoords(null)
-    } else {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error ?? '' })
+    try {
+      const result = await addCampusLocationAction(formData)
+      if (result.success) {
+        toast.fire({ icon: 'success', title: 'Lokasi berhasil ditambahkan' })
+        setShowAddForm(false)
+        setGeoStatus('idle')
+        setGeoCoords(null)
+      } else {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error ?? '' })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal menambahkan lokasi.'),
+      })
+    } finally {
+      setAdding(false)
     }
-    setAdding(false)
   }
 
   const handleSetDefault = async (locationId: string, locationName: string) => {
@@ -111,13 +121,22 @@ export default function CampusLocationsSection({
     if (!confirm.isConfirmed) return
 
     setActionLoading(locationId)
-    const result = await setDefaultLocationAction(locationId)
-    if (result.error) {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
-    } else {
-      toast.fire({ icon: 'success', title: `${locationName} dijadikan default` })
+    try {
+      const result = await setDefaultLocationAction(locationId)
+      if (result.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
+      } else {
+        toast.fire({ icon: 'success', title: `${locationName} dijadikan default` })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal mengubah lokasi default.'),
+      })
+    } finally {
+      setActionLoading(null)
     }
-    setActionLoading(null)
   }
 
   const handleDelete = async (locationId: string, locationName: string) => {
@@ -132,13 +151,22 @@ export default function CampusLocationsSection({
     if (!confirm.isConfirmed) return
 
     setActionLoading(locationId)
-    const result = await deleteCampusLocationAction(locationId)
-    if (result.error) {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
-    } else {
-      toast.fire({ icon: 'success', title: 'Lokasi dihapus' })
+    try {
+      const result = await deleteCampusLocationAction(locationId)
+      if (result.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
+      } else {
+        toast.fire({ icon: 'success', title: 'Lokasi dihapus' })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal menghapus lokasi.'),
+      })
+    } finally {
+      setActionLoading(null)
     }
-    setActionLoading(null)
   }
 
   // Google Maps verification link

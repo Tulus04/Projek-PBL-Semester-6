@@ -6,7 +6,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { MoreHorizontal, Edit, Eye, EyeOff, Users, Calendar, BookOpen } from 'lucide-react'
 import { toggleCourseStatusAction } from '@/lib/actions/courses'
-import { toast } from '@/lib/swal'
+import { toast, swal } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 import EditCourseModal from './edit-course-modal'
 import EnrollmentsModal from './enrollments-modal'
 import EmptyState from '@/components/ui/empty-state'
@@ -52,12 +53,25 @@ export default function CourseTable({
   const handleToggleStatus = async (id: string, isActive: boolean, name: string) => {
     setLoading(id)
     setOpenMenuId(null)
-    await toggleCourseStatusAction(id, isActive)
-    setLoading(null)
-    toast.fire({
-      icon: 'success',
-      title: isActive ? `${name} diaktifkan` : `${name} dinonaktifkan`,
-    })
+    try {
+      const res = await toggleCourseStatusAction(id, isActive)
+      if (res?.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
+      } else {
+        toast.fire({
+          icon: 'success',
+          title: isActive ? `${name} diaktifkan` : `${name} dinonaktifkan`,
+        })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal mengubah status mata kuliah.'),
+      })
+    } finally {
+      setLoading(null)
+    }
   }
 
   const activeCourse = courses.find((c) => c.id === openMenuId)

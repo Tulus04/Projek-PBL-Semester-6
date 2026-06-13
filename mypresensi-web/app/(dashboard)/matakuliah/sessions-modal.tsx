@@ -18,6 +18,7 @@ import {
 } from '@/lib/actions/sessions'
 import { swal, toast } from '@/lib/swal'
 import SessionDetailModal from './session-detail-modal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 interface Props {
   courseId: string
@@ -53,9 +54,18 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
 
   const loadData = useCallback(async () => {
     setLoading(true)
-    const { sessions: data } = await getSessionsByCourse(courseId)
-    setSessions(data as Session[])
-    setLoading(false)
+    try {
+      const { sessions: data } = await getSessionsByCourse(courseId)
+      setSessions(data as Session[])
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal Memuat',
+        text: getFriendlyErrorMessage(err, 'Gagal memuat data sesi perkuliahan.'),
+      })
+    } finally {
+      setLoading(false)
+    }
   }, [courseId])
 
   useEffect(() => { loadData() }, [loadData])
@@ -95,15 +105,24 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
     e.preventDefault()
     setAdding(true)
     const formData = new FormData(e.currentTarget)
-    const result = await addSessionAction(courseId, dosenId, formData)
-    if (result.success) {
-      toast.fire({ icon: 'success', title: 'Sesi berhasil ditambahkan' })
-      setShowAddForm(false)
-      loadData()
-    } else {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error ?? '' })
+    try {
+      const result = await addSessionAction(courseId, dosenId, formData)
+      if (result.success) {
+        toast.fire({ icon: 'success', title: 'Sesi berhasil ditambahkan' })
+        setShowAddForm(false)
+        loadData()
+      } else {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error ?? '' })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal menambahkan sesi.'),
+      })
+    } finally {
+      setAdding(false)
     }
-    setAdding(false)
   }
 
   const handleToggle = async (session: Session) => {
@@ -121,25 +140,41 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
     }
 
     setActionLoading(session.id)
-    const result = await toggleSessionAction(session.id, !session.is_active)
-    if (result.error) {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
-    } else {
-      toast.fire({
-        icon: 'success',
-        title: session.is_active ? 'Sesi diakhiri' : 'Sesi dimulai — kode presensi aktif',
+    try {
+      const result = await toggleSessionAction(session.id, !session.is_active)
+      if (result.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
+      } else {
+        toast.fire({
+          icon: 'success',
+          title: session.is_active ? 'Sesi diakhiri' : 'Sesi dimulai — kode presensi aktif',
+        })
+        loadData()
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal mengubah status sesi.'),
       })
-      loadData()
+    } finally {
+      setActionLoading(null)
     }
-    setActionLoading(null)
   }
 
   const handleRefreshCode = async (sessionId: string) => {
-    const result = await refreshSessionCode(sessionId)
-    if (result.error) {
-      toast.fire({ icon: 'error', title: result.error })
-    } else {
-      loadData()
+    try {
+      const result = await refreshSessionCode(sessionId)
+      if (result.error) {
+        toast.fire({ icon: 'error', title: result.error })
+      } else {
+        loadData()
+      }
+    } catch (err) {
+      toast.fire({
+        icon: 'error',
+        title: getFriendlyErrorMessage(err, 'Koneksi terputus'),
+      })
     }
   }
 
@@ -155,14 +190,23 @@ export default function SessionsModal({ courseId, courseName, dosenId, onClose }
     if (!result.isConfirmed) return
 
     setActionLoading(session.id)
-    const res = await deleteSessionAction(session.id)
-    if (res.error) {
-      swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
-    } else {
-      toast.fire({ icon: 'success', title: 'Sesi dihapus' })
-      loadData()
+    try {
+      const res = await deleteSessionAction(session.id)
+      if (res.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
+      } else {
+        toast.fire({ icon: 'success', title: 'Sesi dihapus' })
+        loadData()
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal menghapus sesi.'),
+      })
+    } finally {
+      setActionLoading(null)
     }
-    setActionLoading(null)
   }
 
   // Format countdown mm:ss

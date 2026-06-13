@@ -10,6 +10,7 @@ import { toggleStudentStatusAction, resetStudentPasswordAction, deleteStudentAct
 import EditStudentModal from './edit-student-modal'
 import { swal, toast, Swal } from '@/lib/swal'
 import EmptyState from '@/components/ui/empty-state'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 interface Student {
   id: string
@@ -34,12 +35,25 @@ export default function StudentTable({ students }: { students: Student[] }) {
   const handleToggleStatus = async (id: string, isActive: boolean, name: string) => {
     setOpenMenuId(null)
     setLoading(id)
-    await toggleStudentStatusAction(id, isActive)
-    setLoading(null)
-    toast.fire({
-      icon: 'success',
-      title: isActive ? `${name} diaktifkan` : `${name} dinonaktifkan`,
-    })
+    try {
+      const res = await toggleStudentStatusAction(id, isActive)
+      if (res?.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
+      } else {
+        toast.fire({
+          icon: 'success',
+          title: isActive ? `${name} diaktifkan` : `${name} dinonaktifkan`,
+        })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal mengubah status mahasiswa.'),
+      })
+    } finally {
+      setLoading(null)
+    }
   }
 
   const handleResetPassword = async (s: Student) => {
@@ -60,15 +74,23 @@ export default function StudentTable({ students }: { students: Student[] }) {
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       })
-      const res = await resetStudentPasswordAction(s.id, s.nim_nip)
-      if (res.error) {
-        swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
-      } else {
+      try {
+        const res = await resetStudentPasswordAction(s.id, s.nim_nip)
+        if (res.error) {
+          swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
+        } else {
+          swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            html: `Password <b>${s.full_name}</b> berhasil direset menjadi:<br/><br/>
+                   <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${s.nim_nip}@Politani</code>`,
+          })
+        }
+      } catch (err) {
         swal.fire({
-          icon: 'success',
-          title: 'Berhasil!',
-          html: `Password <b>${s.full_name}</b> berhasil direset menjadi:<br/><br/>
-                 <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${s.nim_nip}@Politani</code>`,
+          icon: 'error',
+          title: 'Gagal',
+          text: getFriendlyErrorMessage(err, 'Gagal mereset password.'),
         })
       }
     }
@@ -98,11 +120,19 @@ export default function StudentTable({ students }: { students: Student[] }) {
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       })
-      const res = await deleteStudentAction(s.id)
-      if (res.error) {
-        swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
-      } else {
-        swal.fire({ icon: 'success', title: 'Terhapus!', text: 'Mahasiswa berhasil dihapus dari sistem.' })
+      try {
+        const res = await deleteStudentAction(s.id)
+        if (res.error) {
+          swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
+        } else {
+          swal.fire({ icon: 'success', title: 'Terhapus!', text: 'Mahasiswa berhasil dihapus dari sistem.' })
+        }
+      } catch (err) {
+        swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: getFriendlyErrorMessage(err, 'Gagal menghapus mahasiswa.'),
+        })
       }
     }
   }

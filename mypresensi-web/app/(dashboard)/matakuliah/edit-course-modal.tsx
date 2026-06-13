@@ -2,10 +2,11 @@
 // app/(dashboard)/matakuliah/edit-course-modal.tsx
 // Modal untuk mengedit data mata kuliah.
 
-import { useFormState } from 'react-dom'
+import { useState } from 'react'
 import { X, Edit } from 'lucide-react'
 import { updateCourseAction, CourseFormState } from '@/lib/actions/courses'
 import { toast } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 const initialState: CourseFormState = { error: null, success: false }
 
@@ -37,14 +38,32 @@ export default function EditCourseModal({
   onClose: () => void
 }) {
   const isAdmin = userRole === 'admin'
-  const [state, formAction] = useFormState(updateCourseAction, initialState)
+  const [state, setState] = useState<CourseFormState>(initialState)
+  const [pending, setPending] = useState(false)
 
   if (state.success) {
     toast.fire({ icon: 'success', title: 'Mata kuliah berhasil diperbarui' })
     setTimeout(() => {
       onClose()
-      state.success = false
+      setState(initialState)
     }, 300)
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setPending(true)
+    const formData = new FormData(e.currentTarget)
+    try {
+      const res = await updateCourseAction(state, formData)
+      setState(res)
+    } catch (err) {
+      setState({
+        error: getFriendlyErrorMessage(err, 'Gagal menghubungkan ke server.'),
+        success: false,
+      })
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
@@ -69,13 +88,13 @@ export default function EditCourseModal({
           </div>
         )}
 
-        <form action={formAction} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input type="hidden" name="course_id" value={course.id} />
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="form-label">Kode MK *</label>
-              <input name="code" className="input-field w-full" required defaultValue={course.code} />
+              <input name="code" className="input-field w-full" required placeholder="MK001" defaultValue={course.code} />
             </div>
             <div>
               <label className="form-label">SKS *</label>
@@ -119,11 +138,11 @@ export default function EditCourseModal({
           )}
 
           <div className="flex gap-3 justify-end pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary text-sm py-2.5 px-4">
+            <button type="button" onClick={onClose} className="btn-secondary text-sm py-2.5 px-4" disabled={pending}>
               Batal
             </button>
-            <button type="submit" className="btn-primary">
-              Simpan Perubahan
+            <button type="submit" className="btn-primary" disabled={pending}>
+              {pending ? 'Menyimpan...' : 'Simpan Perubahan'}
             </button>
           </div>
         </form>

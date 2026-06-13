@@ -3,11 +3,11 @@
 // Modal untuk mengedit data dosen dengan upload foto profil.
 
 import { useState } from 'react'
-import { useFormState } from 'react-dom'
 import { X, Edit } from 'lucide-react'
 import { updateDosenAction, DosenFormState } from '@/lib/actions/dosen'
 import AvatarUpload from '@/components/ui/avatar-upload'
 import { toast } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 const initialState: DosenFormState = { error: null, success: false }
 
@@ -27,7 +27,8 @@ export default function EditDosenModal({
   dosen: Dosen
   onClose: () => void
 }) {
-  const [state, formAction] = useFormState(updateDosenAction, initialState)
+  const [state, setState] = useState<DosenFormState>(initialState)
+  const [pending, setPending] = useState(false)
   const [avatarBlob, setAvatarBlob] = useState<Blob | null>(null)
   const [nameValue, setNameValue] = useState(dosen.full_name)
 
@@ -36,16 +37,29 @@ export default function EditDosenModal({
     toast.fire({ icon: 'success', title: 'Data dosen berhasil diperbarui' })
     setTimeout(() => {
       onClose()
-      state.success = false
+      setState(initialState)
     }, 300)
   }
 
-  // Custom submit handler to append avatar blob
-  const handleSubmit = (formData: FormData) => {
+  // Custom submit handler to append avatar blob and handle network errors
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setPending(true)
+    const formData = new FormData(e.currentTarget)
     if (avatarBlob) {
       formData.append('avatar', avatarBlob, 'avatar.jpg')
     }
-    formAction(formData)
+    try {
+      const res = await updateDosenAction(state, formData)
+      setState(res)
+    } catch (err) {
+      setState({
+        error: getFriendlyErrorMessage(err, 'Gagal menghubungkan ke server.'),
+        success: false,
+      })
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
@@ -70,7 +84,7 @@ export default function EditDosenModal({
           </div>
         )}
 
-        <form action={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input type="hidden" name="dosen_id" value={dosen.id} />
 
           {/* Avatar Upload */}
@@ -111,11 +125,11 @@ export default function EditDosenModal({
           </div>
 
           <div className="flex gap-3 justify-end pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary text-sm py-2.5 px-4">
+            <button type="button" onClick={onClose} className="btn-secondary text-sm py-2.5 px-4" disabled={pending}>
               Batal
             </button>
-            <button type="submit" className="btn-primary">
-              Simpan Perubahan
+            <button type="submit" className="btn-primary" disabled={pending}>
+              {pending ? 'Menyimpan...' : 'Simpan Perubahan'}
             </button>
           </div>
         </form>

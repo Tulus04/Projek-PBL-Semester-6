@@ -11,6 +11,7 @@ import {
 } from '@/lib/actions/leave-requests'
 import { swal, toast } from '@/lib/swal'
 import EmptyState from '@/components/ui/empty-state'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 interface LeaveRequest {
   id: string
@@ -57,8 +58,11 @@ export default function LeaveTable({ requests, isReadOnly = false }: { requests:
       }
       // Buka di tab baru — link ini valid selama 5 menit lalu expired.
       window.open(result.url, '_blank', 'noopener,noreferrer')
-    } catch {
-      toast.fire({ icon: 'error', title: 'Terjadi kesalahan saat membuka bukti.' })
+    } catch (err) {
+      toast.fire({
+        icon: 'error',
+        title: getFriendlyErrorMessage(err, 'Terjadi kesalahan saat membuka bukti.'),
+      })
     } finally {
       setEvidenceLoading(null)
     }
@@ -85,13 +89,22 @@ export default function LeaveTable({ requests, isReadOnly = false }: { requests:
     if (note === undefined) return // cancelled
 
     setActionLoading(req.id)
-    const result = await approveLeaveRequest(req.id, note || undefined)
-    if (result.error) {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
-    } else {
-      toast.fire({ icon: 'success', title: 'Pengajuan disetujui' })
+    try {
+      const result = await approveLeaveRequest(req.id, note || undefined)
+      if (result.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
+      } else {
+        toast.fire({ icon: 'success', title: 'Pengajuan disetujui' })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal menyetujui pengajuan izin.'),
+      })
+    } finally {
+      setActionLoading(null)
     }
-    setActionLoading(null)
   }
 
   const handleReject = async (req: LeaveRequest) => {
@@ -115,13 +128,22 @@ export default function LeaveTable({ requests, isReadOnly = false }: { requests:
     if (note === undefined) return
 
     setActionLoading(req.id)
-    const result = await rejectLeaveRequest(req.id, note || undefined)
-    if (result.error) {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
-    } else {
-      toast.fire({ icon: 'success', title: 'Pengajuan ditolak' })
+    try {
+      const result = await rejectLeaveRequest(req.id, note || undefined)
+      if (result.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error })
+      } else {
+        toast.fire({ icon: 'success', title: 'Pengajuan ditolak' })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal menolak pengajuan izin.'),
+      })
+    } finally {
+      setActionLoading(null)
     }
-    setActionLoading(null)
   }
 
   if (requests.length === 0) {

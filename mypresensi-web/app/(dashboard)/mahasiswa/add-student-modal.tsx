@@ -3,26 +3,18 @@
 // Modal form untuk menambah mahasiswa baru dengan upload foto profil.
 
 import { useRef, useState } from 'react'
-import { useFormState, useFormStatus } from 'react-dom'
 import { Plus, X } from 'lucide-react'
 import { addStudentAction, StudentFormState } from '@/lib/actions/students'
 import AvatarUpload from '@/components/ui/avatar-upload'
 import { toast } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 const initialState: StudentFormState = { error: null, success: false }
 
-function SubmitButton() {
-  const { pending } = useFormStatus()
-  return (
-    <button type="submit" className="btn-primary text-sm py-2.5 px-6" disabled={pending}>
-      {pending ? 'Menyimpan...' : 'Simpan'}
-    </button>
-  )
-}
-
 export default function AddStudentModal() {
   const [isOpen, setIsOpen] = useState(false)
-  const [state, formAction] = useFormState(addStudentAction, initialState)
+  const [state, setState] = useState<StudentFormState>(initialState)
+  const [pending, setPending] = useState(false)
   const [avatarBlob, setAvatarBlob] = useState<Blob | null>(null)
   const [nameValue, setNameValue] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
@@ -34,12 +26,25 @@ export default function AddStudentModal() {
     state.success = false
   }
 
-  // Custom submit handler to append avatar blob
-  const handleSubmit = (formData: FormData) => {
+  // Custom submit handler to append avatar blob and handle network errors
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setPending(true)
+    const formData = new FormData(e.currentTarget)
     if (avatarBlob) {
       formData.append('avatar', avatarBlob, 'avatar.jpg')
     }
-    formAction(formData)
+    try {
+      const res = await addStudentAction(state, formData)
+      setState(res)
+    } catch (err) {
+      setState({
+        error: getFriendlyErrorMessage(err, 'Gagal menghubungkan ke server.'),
+        success: false,
+      })
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
@@ -69,7 +74,7 @@ export default function AddStudentModal() {
             </div>
 
             {/* Form */}
-            <form ref={formRef} action={handleSubmit} className="p-6 flex flex-col gap-4">
+            <form ref={formRef} onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
               {state.error && (
                 <div className="p-3 rounded-lg bg-danger/5 border border-danger/20 text-sm text-danger">
                   {state.error}
@@ -148,7 +153,9 @@ export default function AddStudentModal() {
                 <button type="button" onClick={() => setIsOpen(false)} className="btn-secondary text-sm py-2.5 px-4">
                   Batal
                 </button>
-                <SubmitButton />
+                <button type="submit" className="btn-primary text-sm py-2.5 px-6" disabled={pending}>
+                  {pending ? 'Menyimpan...' : 'Simpan'}
+                </button>
               </div>
             </form>
           </div>

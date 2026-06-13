@@ -3,10 +3,10 @@
 // Modal untuk menambahkan mata kuliah baru dengan dropdown dosen.
 
 import { useState } from 'react'
-import { useFormState } from 'react-dom'
 import { Plus, X, BookOpen } from 'lucide-react'
 import { addCourseAction, CourseFormState } from '@/lib/actions/courses'
 import { toast } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 const initialState: CourseFormState = { error: null, success: false }
 
@@ -19,14 +19,32 @@ interface DosenInfo {
 export default function AddCourseModal({ dosenList, userRole = 'admin' }: { dosenList: DosenInfo[]; userRole?: string }) {
   const isAdmin = userRole === 'admin'
   const [open, setOpen] = useState(false)
-  const [state, formAction] = useFormState(addCourseAction, initialState)
+  const [state, setState] = useState<CourseFormState>(initialState)
+  const [pending, setPending] = useState(false)
 
   if (state.success && open) {
     toast.fire({ icon: 'success', title: 'Mata kuliah berhasil ditambahkan' })
     setTimeout(() => {
       setOpen(false)
-      state.success = false
+      setState(initialState)
     }, 300)
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setPending(true)
+    const formData = new FormData(e.currentTarget)
+    try {
+      const res = await addCourseAction(state, formData)
+      setState(res)
+    } catch (err) {
+      setState({
+        error: getFriendlyErrorMessage(err, 'Gagal menghubungkan ke server.'),
+        success: false,
+      })
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
@@ -57,7 +75,7 @@ export default function AddCourseModal({ dosenList, userRole = 'admin' }: { dose
               </div>
             )}
 
-            <form action={formAction} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="form-label">Kode MK *</label>
@@ -114,11 +132,11 @@ export default function AddCourseModal({ dosenList, userRole = 'admin' }: { dose
               )}
 
               <div className="flex gap-3 justify-end pt-2">
-                <button type="button" onClick={() => setOpen(false)} className="btn-secondary text-sm py-2.5 px-4">
+                <button type="button" onClick={() => setOpen(false)} className="btn-secondary text-sm py-2.5 px-4" disabled={pending}>
                   Batal
                 </button>
-                <button type="submit" className="btn-primary">
-                  Simpan
+                <button type="submit" className="btn-primary" disabled={pending}>
+                  {pending ? 'Menyimpan...' : 'Simpan'}
                 </button>
               </div>
             </form>

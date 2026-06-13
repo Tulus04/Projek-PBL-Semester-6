@@ -2,11 +2,11 @@
 // app/(dashboard)/settings/settings-form.tsx
 // Form untuk mengedit pengaturan sistem.
 
-import { useFormState } from 'react-dom'
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Save, Shield, MapPin, Clock, KeyRound, Scan } from 'lucide-react'
 import { updateSettingsAction, SettingsFormState } from '@/lib/actions/settings'
 import { toast } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 const initialState: SettingsFormState = { error: null, success: false }
 
@@ -64,18 +64,36 @@ const settingMeta: Record<string, { icon: typeof Shield; label: string; unit: st
 }
 
 export default function SettingsForm({ settings }: { settings: Setting[] }) {
-  const [state, formAction] = useFormState(updateSettingsAction, initialState)
+  const [state, setState] = useState<SettingsFormState>(initialState)
+  const [pending, setPending] = useState(false)
 
-  // Toast saat success — `state` immutable dari useFormState, tidak perlu reset.
-  // Toast hanya muncul saat state.success transition ke true (efek di-trigger sekali).
+  // Toast saat success
   useEffect(() => {
     if (state.success) {
       toast.fire({ icon: 'success', title: 'Pengaturan berhasil disimpan' })
+      setState(initialState)
     }
   }, [state.success])
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setPending(true)
+    const formData = new FormData(e.currentTarget)
+    try {
+      const res = await updateSettingsAction(state, formData)
+      setState(res)
+    } catch (err) {
+      setState({
+        error: getFriendlyErrorMessage(err, 'Gagal menyimpan pengaturan.'),
+        success: false,
+      })
+    } finally {
+      setPending(false)
+    }
+  }
+
   return (
-    <form action={formAction} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {state.error && (
         <div className="p-3 bg-danger/10 border border-danger/20 rounded-lg text-sm text-danger">
           {state.error}
@@ -124,8 +142,8 @@ export default function SettingsForm({ settings }: { settings: Setting[] }) {
       </div>
 
       <div className="flex justify-end pt-2">
-        <button type="submit" className="btn-primary flex items-center gap-2">
-          <Save size={16} /> Simpan Pengaturan
+        <button type="submit" className="btn-primary flex items-center gap-2" disabled={pending}>
+          <Save size={16} /> {pending ? 'Menyimpan...' : 'Simpan Pengaturan'}
         </button>
       </div>
     </form>

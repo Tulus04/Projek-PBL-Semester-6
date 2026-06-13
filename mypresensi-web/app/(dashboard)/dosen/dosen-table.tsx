@@ -10,6 +10,7 @@ import { toggleDosenStatusAction, resetDosenPasswordAction, deleteDosenAction } 
 import EditDosenModal from './edit-dosen-modal'
 import { swal, toast, Swal } from '@/lib/swal'
 import EmptyState from '@/components/ui/empty-state'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 interface Dosen {
   id: string
@@ -31,12 +32,25 @@ export default function DosenTable({ dosen }: { dosen: Dosen[] }) {
   const handleToggleStatus = async (id: string, isActive: boolean, name: string) => {
     setOpenMenuId(null)
     setLoading(id)
-    await toggleDosenStatusAction(id, isActive)
-    setLoading(null)
-    toast.fire({
-      icon: 'success',
-      title: isActive ? `${name} diaktifkan` : `${name} dinonaktifkan`,
-    })
+    try {
+      const res = await toggleDosenStatusAction(id, isActive)
+      if (res?.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
+      } else {
+        toast.fire({
+          icon: 'success',
+          title: isActive ? `${name} diaktifkan` : `${name} dinonaktifkan`,
+        })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal mengubah status dosen.'),
+      })
+    } finally {
+      setLoading(null)
+    }
   }
 
   const handleResetPassword = async (d: Dosen) => {
@@ -57,15 +71,23 @@ export default function DosenTable({ dosen }: { dosen: Dosen[] }) {
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       })
-      const res = await resetDosenPasswordAction(d.id, d.nim_nip)
-      if (res.error) {
-        swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
-      } else {
+      try {
+        const res = await resetDosenPasswordAction(d.id, d.nim_nip)
+        if (res.error) {
+          swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
+        } else {
+          swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            html: `Password <b>${d.full_name}</b> berhasil direset menjadi:<br/><br/>
+                   <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${d.nim_nip}@Politani</code>`,
+          })
+        }
+      } catch (err) {
         swal.fire({
-          icon: 'success',
-          title: 'Berhasil!',
-          html: `Password <b>${d.full_name}</b> berhasil direset menjadi:<br/><br/>
-                 <code style="background:#f3f4f6;padding:4px 12px;border-radius:6px;font-size:13px;">${d.nim_nip}@Politani</code>`,
+          icon: 'error',
+          title: 'Gagal',
+          text: getFriendlyErrorMessage(err, 'Gagal mereset password.'),
         })
       }
     }
@@ -100,11 +122,19 @@ export default function DosenTable({ dosen }: { dosen: Dosen[] }) {
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       })
-      const res = await deleteDosenAction(d.id)
-      if (res.error) {
-        swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
-      } else {
-        swal.fire({ icon: 'success', title: 'Terhapus!', text: 'Dosen berhasil dihapus dari sistem.' })
+      try {
+        const res = await deleteDosenAction(d.id)
+        if (res.error) {
+          swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
+        } else {
+          swal.fire({ icon: 'success', title: 'Terhapus!', text: 'Dosen berhasil dihapus dari sistem.' })
+        }
+      } catch (err) {
+        swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: getFriendlyErrorMessage(err, 'Gagal menghapus dosen.'),
+        })
       }
     }
   }

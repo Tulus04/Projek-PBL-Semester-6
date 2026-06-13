@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { X, UserPlus, Trash2, Search, Users } from 'lucide-react'
 import { getEnrollmentsByCourse, getAvailableStudents, addEnrollmentAction, removeEnrollmentAction } from '@/lib/actions/enrollments'
 import { swal, toast } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 interface Props {
   courseId: string
@@ -39,17 +40,26 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
 
   const loadData = useCallback(async () => {
     setLoading(true)
-    const [enrollData, availData] = await Promise.all([
-      getEnrollmentsByCourse(courseId),
-      getAvailableStudents(courseId),
-    ])
-    const mapped = (enrollData.enrollments ?? []).map((e: { id: string; academic_year: string; student: unknown }) => ({
-      ...e,
-      student: Array.isArray(e.student) ? e.student[0] ?? null : e.student,
-    }))
-    setEnrollments(mapped as Enrollment[])
-    setAvailable(availData.students as Student[])
-    setLoading(false)
+    try {
+      const [enrollData, availData] = await Promise.all([
+        getEnrollmentsByCourse(courseId),
+        getAvailableStudents(courseId),
+      ])
+      const mapped = (enrollData.enrollments ?? []).map((e: { id: string; academic_year: string; student: unknown }) => ({
+        ...e,
+        student: Array.isArray(e.student) ? e.student[0] ?? null : e.student,
+      }))
+      setEnrollments(mapped as Enrollment[])
+      setAvailable(availData.students as Student[])
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal Memuat',
+        text: getFriendlyErrorMessage(err, 'Gagal memuat data peserta.'),
+      })
+    } finally {
+      setLoading(false)
+    }
   }, [courseId])
 
   useEffect(() => { loadData() }, [loadData])
@@ -57,16 +67,25 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
   const handleAdd = async () => {
     if (selectedIds.length === 0) return
     setAdding(true)
-    const result = await addEnrollmentAction(courseId, selectedIds)
-    if (result.success) {
-      toast.fire({ icon: 'success', title: `${selectedIds.length} mahasiswa ditambahkan` })
-      setSelectedIds([])
-      setShowAddPanel(false)
-      loadData()
-    } else {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error ?? '' })
+    try {
+      const result = await addEnrollmentAction(courseId, selectedIds)
+      if (result.success) {
+        toast.fire({ icon: 'success', title: `${selectedIds.length} mahasiswa ditambahkan` })
+        setSelectedIds([])
+        setShowAddPanel(false)
+        loadData()
+      } else {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error ?? '' })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal menambahkan peserta.'),
+      })
+    } finally {
+      setAdding(false)
     }
-    setAdding(false)
   }
 
   const handleRemove = async (enrollment: Enrollment) => {
@@ -80,12 +99,20 @@ export default function EnrollmentsModal({ courseId, courseName, onClose }: Prop
     })
     if (!result.isConfirmed) return
 
-    const res = await removeEnrollmentAction(enrollment.id, courseId)
-    if (res.success) {
-      toast.fire({ icon: 'success', title: 'Peserta dihapus' })
-      loadData()
-    } else {
-      swal.fire({ icon: 'error', title: 'Gagal', text: res.error ?? '' })
+    try {
+      const res = await removeEnrollmentAction(enrollment.id, courseId)
+      if (res.success) {
+        toast.fire({ icon: 'success', title: 'Peserta dihapus' })
+        loadData()
+      } else {
+        swal.fire({ icon: 'error', title: 'Gagal', text: res.error ?? '' })
+      }
+    } catch (err) {
+      swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: getFriendlyErrorMessage(err, 'Gagal menghapus peserta.'),
+      })
     }
   }
 
