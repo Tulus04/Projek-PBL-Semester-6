@@ -33,8 +33,8 @@ export async function GET(req: NextRequest) {
   // 2. Ambil semua sesi aktif untuk course yang di-enroll
   const courseIds = (enrollments ?? [])
     .map((e) => {
-      const courseArr = e.course as unknown as Array<{ id: string }> | null
-      return courseArr?.[0]?.id
+      const courseObj = e.course as unknown as { id: string } | null
+      return courseObj?.id
     })
     .filter(Boolean) as string[]
 
@@ -60,13 +60,12 @@ export async function GET(req: NextRequest) {
 
   // 3. Map ke response format
   const courses = (enrollments ?? []).map((e) => {
-    const courseArr = e.course as unknown as Array<{
+    const course = e.course as unknown as {
       id: string; code: string; name: string; sks: number;
       semester: number; academic_year: string; is_active: boolean;
       dosen: { full_name: string } | Array<{ full_name: string }> | null
-    }> | null
+    } | null
 
-    const course = courseArr?.[0]
     if (!course) return null
 
     const dosenData = course.dosen

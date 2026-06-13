@@ -120,6 +120,23 @@ export async function sendPushNotification(opts: SendPushOptions): Promise<SendP
       token: fcmToken,
       notification: { title, body },
       data,
+      android: {
+        priority: 'high',
+        notification: {
+          sound: 'default',
+          channelId: 'mypresensi_default',
+        },
+      },
+      apns: {
+        headers: {
+          'apns-priority': '10',
+        },
+        payload: {
+          aps: {
+            sound: 'default',
+          },
+        },
+      },
     })
 
     await logAudit({
@@ -204,6 +221,23 @@ export async function sendPushToMany(
         tokens: chunk.map((r) => r.fcm_token),
         notification: { title: payload.title, body: payload.body },
         data,
+        android: {
+          priority: 'high',
+          notification: {
+            sound: 'default',
+            channelId: 'mypresensi_default',
+          },
+        },
+        apns: {
+          headers: {
+            'apns-priority': '10',
+          },
+          payload: {
+            aps: {
+              sound: 'default',
+            },
+          },
+        },
       })
       successCount += res.successCount
       failureCount += res.failureCount

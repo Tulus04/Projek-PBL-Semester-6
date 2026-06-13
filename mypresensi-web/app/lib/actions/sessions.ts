@@ -314,8 +314,8 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
       }
 
       if (targetStudents.length > 0) {
-        const courseArr = sessionData.course as unknown as Array<{ name?: string }> | null
-        const courseName = courseArr?.[0]?.name ?? 'Mata Kuliah'
+        const courseObj = sessionData.course as unknown as { name?: string } | null
+        const courseName = courseObj?.name ?? 'Mata Kuliah'
         const topic = sessionData.topic ?? `Pertemuan ${sessionData.session_number}`
 
         await createBulkNotifications(
