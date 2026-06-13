@@ -19,6 +19,7 @@ Mengintegrasikan seluruh pembaruan fitur (import CSV dosen, FCM foreground liste
 | — | [FIX] | mypresensi-web/app/lib/actions/sessions.ts | Memperbaiki casting hubungan `course` dari Array ke Object pada model `sessions` agar nama mata kuliah dapat diambil dengan benar alih-alih menampilkan fallback "Mata Kuliah". |
 | — | [FIX] | mypresensi-web/app/api/mobile/courses/route.ts | Memperbaiki bug casting serupa pada endpoint daftar mata kuliah mahasiswa agar daftar mata kuliah yang diikuti mahasiswa tidak kosong. |
 | — | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Menambahkan konfigurasi prioritas tinggi (`priority: high`), suara notifikasi bawaan, dan mengarahkan ke `channelId` `'mypresensi_default'` pada payload push notification FCM. |
+| — | [CFG] | mypresensi-web/app/lib/fcm-admin.ts | Mengembalikan (revert) parameter TTL ke default untuk memulihkan alur pengiriman pesan antrean FCM saat HP tidur (Doze Mode). |
 
 ---
 
