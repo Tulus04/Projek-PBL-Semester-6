@@ -31,7 +31,7 @@
 > - **v7 final = 3 phase teknis** (Phase 2 face wajib + Phase 3 QR rolling 5s).
 >
 > **Identitas visual & desain (carry-over dari v6, masih berlaku):**
-> - **Logo:** Prodi TRPL (`gambar/Prodi/TRPL.jpg`)
+> - **Logo:** Prodi TRPL (`docs/assets/images/Prodi/TRPL.jpg`)
 > - **Warna:** Biru Baja TRPL (`#5483AD`)
 > - **Panduan Desain:** Mekari Talenta (Card-based, Ultra-Minimalist)
 > - **Navigasi Mobile:** Standard Bottom Navigation Bar (bukan floating)
@@ -45,7 +45,7 @@
 | **Nama Aplikasi** | MyPresensi |
 | **Institusi** | Politeknik Pertanian Negeri Samarinda |
 | **Prodi** | Teknik Rekayasa Perangkat Lunak (TRPL) |
-| **Logo** | `gambar/Prodi/TRPL.jpg` |
+| **Logo** | `docs/assets/images/Prodi/TRPL.jpg` |
 | **Target Pengguna** | Mahasiswa, Dosen, Admin Prodi |
 | **Platform** | Mobile (Android/iOS) + Web Admin |
 
@@ -279,7 +279,7 @@ Dosen buka → lihat detail + preview bukti → [Setujui] / [Tolak]
 - Tidak ada dekorasi berlebihan (shadow ekstrem, animasi berputar, dll.)
 - Gaya: Post-Flat, Card-based seperti Mekari Talenta
 - Ikon: **Lucide** (web), **Phosphor** (mobile)
-- Logo yang digunakan: **Logo Prodi TRPL** (`gambar/Prodi/TRPL.jpg`)
+- Logo yang digunakan: **Logo Prodi TRPL** (`docs/assets/images/Prodi/TRPL.jpg`)
 
 ### 7.3 Color Tokens (Biru TRPL)
 
@@ -590,9 +590,11 @@ CREATE INDEX idx_enrollments_student ON enrollments(student_id);
 
 ```
 Projek-PBL-Semester-6/
-├── gambar/
-│   ├── Logo-Kampus/Politani.png
-│   └── Prodi/TRPL.jpg             ← Logo yang digunakan di aplikasi
+├── docs/
+│   └── assets/
+│       └── images/
+│           ├── Logo-Kampus/Politani.png
+│           └── Prodi/TRPL.jpg             ← Logo yang digunakan di aplikasi
 │
 ├── mypresensi-mobile/             ← Flutter
 │   ├── lib/
@@ -815,7 +817,7 @@ dev_dependencies:
 | **QR Architecture** | A1 — Rolling 5s + tolerance ±2 (TOTP-like, Phase 3) |
 | **Edge Case Kamera Rusak HP** | Prosedur informal: pinjam HP teman sebelum sesi mulai + ganti password setelahnya. **Tidak ada fitur dedicated** (Phase 4 di-skip). |
 | Akun Mahasiswa | Standalone CSV → SIA API ready |
-| Logo | Prodi TRPL (`gambar/Prodi/TRPL.jpg`) |
+| Logo | Prodi TRPL (`docs/assets/images/Prodi/TRPL.jpg`) |
 | Warna Utama | Biru TRPL `#5483AD` |
 | Panduan Desain | Mekari Talenta (Card-based, Ultra-Minimalist) |
 | Navigasi Mobile | Standard Bottom Nav Bar (**5 item**: Beranda, Riwayat, Asisten AI, Notifikasi, Profil) |

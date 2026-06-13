@@ -1,0 +1,8 @@
+Color 1: RGB(242, 242, 242) | HEX: #f2f2f2 | Count: 1184
+Color 2: RGB(243, 242, 242) | HEX: #f3f2f2 | Count: 26
+Color 3: RGB(241, 244, 245) | HEX: #f1f4f5 | Count: 21
+Color 4: RGB(243, 242, 241) | HEX: #f3f2f1 | Count: 20
+Color 5: RGB(241, 243, 240) | HEX: #f1f3f0 | Count: 19
+Color 6: RGB(246, 247, 246) | HEX: #f6f7f6 | Count: 17
+Color 7: RGB( 98, 143, 179) | HEX: #628fb3 | Count: 14
+Color 8: RGB( 84, 131, 173) | HEX: #5483ad | Count: 11

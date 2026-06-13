@@ -1543,7 +1543,7 @@ User minta tab title bar pakai logo TRPL, bukan favicon Next.js default. Saya ge
 
 | Waktu | Jenis | File | Deskripsi |
 |-------|-------|------|-----------|
-| 11:00 | [ADD] | `mypresensi-web/app/icon.png` | 256x256 PNG dari `gambar/Prodi/TRPL.jpg` — Next.js auto-emit `<link rel="icon">` untuk modern browsers. |
+| 11:00 | [ADD] | `mypresensi-web/app/icon.png` | 256x256 PNG dari `docs/assets/images/Prodi/TRPL.jpg` — Next.js auto-emit `<link rel="icon">` untuk modern browsers. |
 | 11:00 | [ADD] | `mypresensi-web/app/apple-icon.png` | 180x180 PNG untuk iOS Safari + Add to Home Screen. |
 | 11:00 | [MOD] | `mypresensi-web/app/favicon.ico` | Replace default Next.js (triangle 25.9 KB) dengan TRPL 48x48 PNG-in-ICO container (3.6 KB). Modern browsers accept PNG bytes via `.ico` ext. |
 
