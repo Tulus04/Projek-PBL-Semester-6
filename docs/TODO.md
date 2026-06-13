@@ -79,6 +79,7 @@ Semua file di `docs/ui-research/mockups/`. Detail: lihat bagian C (Audit Gap).
 | 1 | ~~Upload bukti izin/sakit~~ | ~~2-3 jam~~ | ✅ **Selesai 2026-05-16** — bucket private + signed URL + image_picker. Spec: `.kiro/specs/leave-evidence-upload/spec.md`. Smoke test pending user. |
 | 2 | ~~**Supabase Realtime** untuk live dashboard dosen~~ | ~~4-6 jam~~ | ✅ **Selesai 2026-05-18** — migration 021 enable publication + REPLICA IDENTITY FULL, type definitions, hook `useRealtimeAttendances`. Spec: `.kiro/specs/realtime-attendances-channel/`. Build success. Smoke test 2-window pending user (atau menunggu Phase B2 Live Monitor). |
 | 3 | ~~Image picker avatar mobile~~ | ~~1-2 jam~~ | ✅ **Selesai 2026-05-16** — endpoint POST /profile/avatar, ProfileRepository, profile screen tappable avatar dengan camera badge. Spec: `.kiro/specs/avatar-upload-mobile/spec.md`. Smoke test pending user. |
+| 4 | **Multi-select Target Kelas (Kelas Gabungan)** | 2-3 jam | Mengubah input target kelas di form pembuatan sesi dari single select menjadi checklist/checkbox group untuk mendukung kelas gabungan (misal kelas A & B). Menyimpan data sebagai array string `text[]` di database dan menyesuaikan API mobile. ADR: [003-target-kelas-gabungan.md](file:///d:/file_perkuliahan/Semester-6/Projek-PBL-Semester-6/docs/decisions/003-target-kelas-gabungan.md) |
 
 ### Prioritas 4 — Production Readiness (Sebelum Demo)
 
