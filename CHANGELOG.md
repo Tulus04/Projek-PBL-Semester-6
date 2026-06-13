@@ -17,6 +17,11 @@
 | - | [FIX] | mypresensi-web/app/api/mobile/courses/route.ts | Memperbaiki bug casting serupa pada endpoint daftar mata kuliah mahasiswa agar daftar mata kuliah yang diikuti mahasiswa tidak kosong. |
 | - | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Menambahkan konfigurasi prioritas tinggi (`priority: high`), suara notifikasi bawaan, dan mengarahkan ke `channelId` `'mypresensi_default'` pada payload push notification FCM. |
 | - | [CFG] | mypresensi-web/app/lib/fcm-admin.ts | Mengembalikan (revert) parameter TTL ke default untuk memulihkan alur pengiriman pesan antrean FCM saat HP tidur (Doze Mode). |
+| - | [ADD] | mypresensi-web/app/components/ui/phantom-loader.tsx | Membuat wrapper component PhantomLoader untuk memuat library phantom-ui secara dinamis (untuk mencegah SSR error). |
+| - | [ADD] | mypresensi-web/phantom-ui.d.ts | Menambahkan deklarasi JSX Types untuk custom element <phantom-ui> agar lulus pengecekan TypeScript. |
+| - | [ADD] | mypresensi-web/app/(dashboard)/settings/phantom-demo/page.tsx | Membuat halaman sandbox interaktif untuk mendemonstrasikan skeleton loader otomatis berbasis getBoundingClientRect. |
+| - | [MOD] | mypresensi-web/app/layout.tsx | Mengimpor style ssr.css milik phantom-ui agar text loader langsung disembunyikan saat initial load HTML. |
+| - | [MOD] | mypresensi-web/app/(dashboard)/settings/page.tsx | Menambahkan tautan navigasi ke halaman demo sandbox Phantom UI. |
 
 ### Verifikasi
 | Check | Result |

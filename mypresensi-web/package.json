@@ -11,6 +11,7 @@
     "test:smoke": "node scripts/smoke-test-mobile-api.mjs"
   },
   "dependencies": {
+    "@aejkatappaja/phantom-ui": "^1.2.0",
     "@ai-sdk/google": "^3.0.73",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",

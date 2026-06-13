@@ -2,6 +2,7 @@
 // Root layout — font loading + metadata global
 
 import type { Metadata } from "next";
+import "@aejkatappaja/phantom-ui/ssr.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

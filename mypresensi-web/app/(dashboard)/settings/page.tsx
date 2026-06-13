@@ -3,8 +3,9 @@
 // Server Component — data settings dan lokasi kampus diambil di server.
 
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/server'
-import { Settings } from 'lucide-react'
+import { Settings, Sparkles } from 'lucide-react'
 import SettingsForm from './settings-form'
 import CampusLocationsSection from './campus-locations-section'
 import { getCampusLocations } from '@/lib/actions/campus-locations'
@@ -25,14 +26,23 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Settings size={20} className="text-primary" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Settings size={20} className="text-primary" />
+          </div>
+          <div>
+            <h2 className="page-title">Pengaturan Sistem</h2>
+            <p className="page-subtitle">Konfigurasi parameter sistem presensi</p>
+          </div>
         </div>
-        <div>
-          <h2 className="page-title">Pengaturan Sistem</h2>
-          <p className="page-subtitle">Konfigurasi parameter sistem presensi</p>
-        </div>
+        <Link
+          href="/settings/phantom-demo"
+          className="btn-primary text-xs py-2 px-3.5 flex items-center gap-1.5 bg-gradient-to-r from-primary to-primary/80 hover:scale-[1.01] active:scale-[0.99] transition-all shadow-sm"
+        >
+          <Sparkles size={14} className="text-amber-300 animate-pulse" />
+          Demo Phantom UI
+        </Link>
       </div>
 
       <SettingsForm settings={settings ?? []} />
