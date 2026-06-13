@@ -21,6 +21,7 @@ import {
 } from '@/lib/actions/sessions'
 import { swal, toast } from '@/lib/swal'
 import SessionDetailModal from '../matakuliah/session-detail-modal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 
 interface CourseGroup {
   course: {
@@ -290,15 +291,20 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
     e.preventDefault()
     setAdding(true)
     const formData = new FormData(e.currentTarget)
-    const result = await addSessionAction(courseId, dosenId, formData)
-    if (result.success) {
-      toast.fire({ icon: 'success', title: 'Sesi berhasil ditambahkan' })
-      setShowAddForm(null)
-      router.refresh()
-    } else {
-      swal.fire({ icon: 'error', title: 'Gagal', text: result.error ?? '' })
+    try {
+      const result = await addSessionAction(courseId, dosenId, formData)
+      if (result.success) {
+        toast.fire({ icon: 'success', title: 'Sesi berhasil ditambahkan' })
+        setShowAddForm(null)
+        router.refresh()
+      } else {
+        swal.fire({ icon: 'error', title: 'Gagal', text: result.error ?? '' })
+      }
+    } catch (err) {
+      swal.fire({ icon: 'error', title: 'Gagal', text: getFriendlyErrorMessage(err, 'Gagal menghubungkan ke server.') })
+    } finally {
+      setAdding(false)
     }
-    setAdding(false)
   }
 
   const handleToggle = async (session: Session) => {
@@ -327,7 +333,7 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
         router.refresh()
       }
     } catch (err) {
-      swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', text: (err as Error).message || 'Gagal menghubungi server.' })
+      swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', text: getFriendlyErrorMessage(err, 'Gagal menghubungi server.') })
     } finally {
       setActionLoading(null)
     }
@@ -345,14 +351,19 @@ export default function SessionList({ groupedSessions, userRole, userId, campusL
     if (!result.isConfirmed) return
 
     setActionLoading(session.id)
-    const res = await deleteSessionAction(session.id)
-    if (res.error) {
-      swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
-    } else {
-      toast.fire({ icon: 'success', title: 'Sesi dihapus' })
-      router.refresh()
+    try {
+      const res = await deleteSessionAction(session.id)
+      if (res.error) {
+        swal.fire({ icon: 'error', title: 'Gagal', text: res.error })
+      } else {
+        toast.fire({ icon: 'success', title: 'Sesi dihapus' })
+        router.refresh()
+      }
+    } catch (err) {
+      swal.fire({ icon: 'error', title: 'Gagal', text: getFriendlyErrorMessage(err, 'Gagal menghubungi server.') })
+    } finally {
+      setActionLoading(null)
     }
-    setActionLoading(session.id)
   }
 
   // Collect pending sessions across all courses for "Quick Start" section

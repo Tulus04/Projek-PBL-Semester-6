@@ -115,3 +115,21 @@ export function isValidNim(nim: string): boolean {
 export function generateDefaultPassword(nim: string): string {
   return `${nim}@Politani`
 }
+
+// Konversi error (terutama network/fetch) ke format Bahasa Indonesia yang ramah & ringkas
+export function getFriendlyErrorMessage(err: unknown, fallback = 'Terjadi kesalahan.'): string {
+  if (err instanceof Error) {
+    const msg = err.message || ''
+    if (msg.toLowerCase().includes('fetch') || msg.toLowerCase().includes('network')) {
+      return 'Koneksi terputus'
+    }
+    return msg
+  }
+  if (typeof err === 'string') {
+    if (err.toLowerCase().includes('fetch') || err.toLowerCase().includes('network')) {
+      return 'Koneksi terputus'
+    }
+    return err
+  }
+  return fallback
+}

@@ -8,6 +8,7 @@ import { Download, Users, GraduationCap, BookOpen, ClipboardList, FileText } fro
 import { exportDosenCSV, exportMahasiswaCSV, exportCoursesCSV, exportPresensiCSV } from '@/lib/actions/export'
 import type { RekapPDFCourse } from '@/lib/actions/export'
 import { swal, Swal } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 import ExportPDFModal from './export-pdf-modal'
 
 interface ExportPanelProps {
@@ -91,11 +92,10 @@ export default function ExportPanel({ courses }: ExportPanelProps) {
         text: `File ${mod.filename}_${timestamp}.csv telah diunduh.`,
       })
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Terjadi kesalahan saat mengekspor data.'
       swal.fire({
         icon: 'error',
         title: 'Gagal Export',
-        text: message,
+        text: getFriendlyErrorMessage(err, 'Terjadi kesalahan saat mengekspor data.'),
       })
     } finally {
       setLoadingId(null)

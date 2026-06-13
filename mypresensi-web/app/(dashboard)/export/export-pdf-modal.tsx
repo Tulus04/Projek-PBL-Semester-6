@@ -8,6 +8,7 @@ import { X, FileText, Download, BookOpen } from 'lucide-react'
 import { getRekapPDFData } from '@/lib/actions/export'
 import type { RekapPDFCourse, RekapPDFData } from '@/lib/actions/export'
 import { swal, Swal } from '@/lib/swal'
+import { getFriendlyErrorMessage } from '@/lib/utils'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -321,8 +322,7 @@ export default function ExportPDFModal({ isOpen, onClose, courses }: ExportPDFMo
 
       onClose()
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Terjadi kesalahan.'
-      swal.fire({ icon: 'error', title: 'Gagal', text: message })
+      swal.fire({ icon: 'error', title: 'Gagal', text: getFriendlyErrorMessage(err, 'Terjadi kesalahan.') })
     } finally {
       setIsLoading(false)
     }
