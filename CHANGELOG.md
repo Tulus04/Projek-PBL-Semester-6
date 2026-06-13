@@ -13,6 +13,9 @@
 | - | [CFG] | git remote | Menambahkan remote GitLab dan menggabungkan branch `gitlab/main` ke dalam `main`. |
 | - | [MOD] | README.md | Menyelesaikan konflik penggabungan dengan melengkapi setup developer dari nol, troubleshooting, verifikasi 3-layer, tautan Vercel, dan profil kontributor yang akurat. |
 | - | [MOD] | mypresensi-web/.env.local.example | Menambahkan variabel `FIREBASE_SERVICE_ACCOUNT` dan `GOOGLE_GENERATIVE_AI_API_KEY` pada file template environment variables. |
+| - | [FIX] | mypresensi-web/app/lib/actions/sessions.ts | Memperbaiki casting hubungan `course` dari Array ke Object pada model `sessions` agar nama mata kuliah dapat diambil dengan benar alih-alih menampilkan fallback "Mata Kuliah". |
+| - | [FIX] | mypresensi-web/app/api/mobile/courses/route.ts | Memperbaiki bug casting serupa pada endpoint daftar mata kuliah mahasiswa agar daftar mata kuliah yang diikuti mahasiswa tidak kosong. |
+| - | [MOD] | mypresensi-web/app/lib/fcm-admin.ts | Menambahkan konfigurasi prioritas tinggi (`priority: high`), suara notifikasi bawaan, dan mengarahkan ke `channelId` `'mypresensi_default'` pada payload push notification FCM. |
 
 ### Verifikasi
 | Check | Result |
