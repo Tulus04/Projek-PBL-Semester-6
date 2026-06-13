@@ -37,7 +37,9 @@ class FcmService {
     'mypresensi_default',
     'Notifikasi MyPresensi',
     description: 'Notifikasi presensi, izin, dan sesi kuliah',
-    importance: Importance.high,
+    importance: Importance.max,
+    playSound: true,
+    enableVibration: true,
   );
 
   static const String _fallbackRoute = '/notifications';
@@ -122,9 +124,11 @@ class FcmService {
             _channel.id,
             _channel.name,
             channelDescription: _channel.description,
-            importance: Importance.high,
-            priority: Priority.high,
+            importance: Importance.max,
+            priority: Priority.max,
             icon: '@mipmap/ic_launcher',
+            playSound: true,
+            enableVibration: true,
           ),
         ),
         payload: route,

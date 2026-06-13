@@ -125,6 +125,8 @@ export async function sendPushNotification(opts: SendPushOptions): Promise<SendP
         notification: {
           sound: 'default',
           channelId: 'mypresensi_default',
+          priority: 'max',
+          visibility: 'public',
         },
       },
       apns: {
@@ -226,6 +228,8 @@ export async function sendPushToMany(
           notification: {
             sound: 'default',
             channelId: 'mypresensi_default',
+            priority: 'max',
+            visibility: 'public',
           },
         },
         apns: {
