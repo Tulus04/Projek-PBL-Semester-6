@@ -348,7 +348,17 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
       qrToken = await ref.read(attendanceRepositoryProvider).verifyQr(qrData);
     } catch (e) {
       // Jika QR expired / tidak valid, proses berhenti di sini, tidak lanjut face verify
-      _showError(e.toString());
+      final errorMsg = e.toString();
+      _showError(errorMsg);
+      
+      // Jika error karena sesi berakhir, refresh provider agar kartu hilang dari beranda
+      if (errorMsg.toLowerCase().contains('berakhir') || 
+          errorMsg.toLowerCase().contains('tidak ditemukan') ||
+          errorMsg.toLowerCase().contains('selesai') ||
+          errorMsg.toLowerCase().contains('tutup')) {
+        ref.invalidate(activeSessionsProvider);
+      }
+
       if (mounted) {
         ref.read(attendanceSubmitProvider.notifier).setStatus(SubmitStatus.idle);
         setState(() => _isProcessing = false);
@@ -469,6 +479,12 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen>
       await _showFaceMismatchDialog(errMsg);
     } else {
       _showError(errMsg);
+      if (errMsg.toLowerCase().contains('berakhir') || 
+          errMsg.toLowerCase().contains('tidak ditemukan') ||
+          errMsg.toLowerCase().contains('selesai') ||
+          errMsg.toLowerCase().contains('tutup')) {
+        ref.invalidate(activeSessionsProvider);
+      }
     }
 
     if (mounted) {

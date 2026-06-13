@@ -135,7 +135,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   static bool _hasShownWelcome = false;
 
   /// Reset flag — panggil saat logout agar toast muncul lagi setelah login ulang.
@@ -155,6 +155,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _controllers = List.generate(
       _sectionCount,
       (_) => AnimationController(duration: _animDuration, vsync: this),
@@ -213,8 +214,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     // Dengarkan pesan FCM yang masuk saat aplikasi di foreground
     // untuk melakukan auto-refresh pada activeSessionsProvider
     _fcmSubscription = FcmService.onMessageStream.stream.listen((message) {
-      if (message.data['type'] == 'session_start') {
-        debugPrint('[HomeScreen] Auto-refresh active sessions karena FCM masuk');
+      final type = message.data['type'];
+      if (type == 'session_start' || type == 'session_end') {
+        debugPrint('[HomeScreen] Auto-refresh active sessions karena FCM masuk: $type');
         if (mounted) {
           ref.invalidate(activeSessionsProvider);
         }
@@ -223,7 +225,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      debugPrint('[HomeScreen] App resumed — refreshing active sessions');
+      ref.invalidate(activeSessionsProvider);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _fcmSubscription?.cancel();
     for (final c in _controllers) {
       c.dispose();

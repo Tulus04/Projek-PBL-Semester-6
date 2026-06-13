@@ -13,7 +13,7 @@ import { logAudit } from '@/lib/audit-logger'
 /**
  * Tipe push notification — dipakai mobile untuk routing + kategori.
  */
-export type PushType = 'leave_status' | 'session_start' | 'face_reminder' | 'announcement'
+export type PushType = 'leave_status' | 'session_start' | 'session_end' | 'face_reminder' | 'announcement'
 
 export interface SendPushOptions {
   studentId: string

@@ -384,7 +384,7 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
     if (courseIdTarget) {
       const { data: enrollments } = await supabase
         .from('enrollments')
-        .select('student_id, profiles!inner(kelas)')
+        .select('student_id, profiles!inner(kelas, semester)')
         .eq('course_id', courseIdTarget)
 
       // Filter pendaftar berdasarkan target_kelas sesi
@@ -426,6 +426,40 @@ export async function toggleSessionAction(sessionId: string, isActive: boolean) 
           action: 'auto_generate_alpa',
           details: { session_id: sessionIdTarget, count: alpaIds.length },
         })
+      }
+
+      // Kirim push notification bahwa sesi telah berakhir
+      const { data: sessionInfo } = await supabase
+        .from('sessions')
+        .select('topic, session_number, course:courses!course_id(name)')
+        .eq('id', sessionIdTarget)
+        .single()
+
+      if (sessionInfo && targetStudents.length > 0) {
+        const courseObj = sessionInfo.course as unknown as { name?: string } | null
+        const courseName = courseObj?.name ?? 'Mata Kuliah'
+        const topic = sessionInfo.topic ?? `Pertemuan ${sessionInfo.session_number}`
+
+        try {
+          await sendPushToMany(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            targetStudents.map((e: any) => e.student_id),
+            {
+              title: 'Sesi Presensi Berakhir',
+              body: `${courseName}: ${topic} — sesi presensi telah ditutup.`,
+              route: '/dashboard',
+              type: 'session_end',
+              relatedId: sessionIdTarget,
+            },
+          )
+        } catch (e) {
+          const errMsg = (e as Error).message
+          console.error('[FCM] Failed to send push on session end:', errMsg)
+          await logAudit({
+            action: 'fcm_push_fatal_error',
+            details: { error: errMsg }
+          })
+        }
       }
     }
 
